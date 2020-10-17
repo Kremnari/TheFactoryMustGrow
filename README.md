@@ -1,67 +1,15 @@
-# `the-factory-must-grow`
+# **The Factory Must Grow**
+## A mobile game focused on production and automation, without dealing with layouts
 
-This project is bootstrapped by [aurelia-cli](https://github.com/aurelia/cli).
+---
 
-For more information, go to https://aurelia.io/docs/cli/webpack
+* **THIS VERSION CURRENTLY USES A DATA FILE EXTRACTED FROM FACTORIO ** *
+**As copyrighted material, it will be removed/replaced before any scale beta is announced**
+**All such sourced material is included in the file @static/data_source.json**
 
-## Run dev app
+---
 
-Run `npm start`, then open `http://localhost:8080`
-
-You can change the standard webpack configurations from CLI easily with something like this: `npm start -- --open --port 8888`. However, it is better to change the respective npm scripts or `webpack.config.js` with these options, as per your need.
-
-To enable Webpack Bundle Analyzer, do `npm run analyze` (production build).
-
-To enable hot module reload, do `npm start -- --hmr`.
-
-To change dev server port, do `npm start -- --port 8888`.
-
-To change dev server host, do `npm start -- --host 127.0.0.1`
-
-**PS:** You could mix all the flags as well, `npm start -- --host 127.0.0.1 --port 7070 --open --hmr`
-
-For long time aurelia-cli user, you can still use `au run` with those arguments like `au run --env prod --open --hmr`. But `au run` now simply executes `npm start` command.
-
-## Build for production
-
-Run `npm run build`, or the old way `au build --env prod`.
-
-## Unit tests
-
-Run `au test` (or `au karma`).
-
-To run in watch mode, `au test --watch` or `au karma --watch`.
-
-## Integration (e2e) tests
-
-You need the app running for integration test.
-
-First, run `au run` and keep it running.
-
-Then run `au protractor`.
-
-To perform a test-run in interactive mode, do `au protractor`.
-
-To ask the `protractor` to start the application first and then start testing: `au protractor --headless --start`
-
-The two following flags are useful when using `--start` flag:
- * To change dev server port, do `au protractor --start --port 8888`.
- * To change dev server host, do `au protractor --start --host 127.0.0.1`
-
-
-**PS:** It is also possible to mix the flags `au protractor --headless --start --port 7070 --host 127.0.0.1`
-
-
-## Build for Docker
-
-This is as simple as running a command:
-
-`yarn docker:build` or `npm run docker:build`
-
-if you want to bring up an instance on your machine run:
-
-`yarn docker:start` or `npm run docker:build`
-
-to stop the previously started instance:
-
-`yarn docker:stop` or `npm run docker:stop`
+##Initial roadmap
+I am still working on getting a decent alpha version set up.
+After this is done, and I am recieving feedback from IRL-known testers,
+I will begin developing additional GUI technologies and replace the data_source file
