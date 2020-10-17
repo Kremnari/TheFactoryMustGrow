@@ -1,0 +1,19 @@
+<template>
+  <require from="../value-converters/lib/ObjectFilters"></require>
+  <require from="./icon-base"></require>
+  <div show.bind="display">
+    <div if.bind="display.type=='recipe'">
+      <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"></icon-base>
+      =>
+      <icon-base repeat.for="result of display.results | objectValues" item.bind="result.name" count.bind="result.amount"></icon-base>
+    </div>
+    <div if.bind="display.type=='technology'">
+      <h5>${display.name}</h5>
+      <icon-base repeat.for="unit of display.cost.ingredients" item.bind="unit[0]"></icon-base>
+      x${display.cost.count - display.completeUnits}
+      <p>
+        <icon-base repeat.for="unlock of display.unlocks" item.bind="unlock" show-name.bind="true"></icon-base>
+      </p>
+    </div> 
+  </div>
+</template>

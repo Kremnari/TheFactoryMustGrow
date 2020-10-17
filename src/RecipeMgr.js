@@ -1,0 +1,145 @@
+//import {computedFrom} from 'aurelia-framework'
+
+
+export default class RecipeMgr {
+  recipeList = {}
+  recipes_by_cats = { " ": [] }
+  showing_item = null
+  import(recList, IM) {
+    this.itemMgr = IM
+    Object.entries(recList).forEach( ([name, recBase]) => {
+      let recipe = new Recipe(recBase, IM, this)
+      if (!recipe) return
+      recipe.ingCheck = (inv) => {
+        //if(recipe.ingredients.every( (obj) => this.itemMgr.itemList[obj.name].count >= obj.amount, this)) {
+        if(recipe.ingredients.every( (obj) => inv.total(obj.name) >= obj.amount, this)) {
+          recipe.classes[CLASSES.enabled] = 'recipeEnabled'
+        } else { recipe.classes[CLASSES.enabled] = 'recipeDisabled' }
+      }
+      recipe.classes[CLASSES.enabled] = 'recipeDisabled'
+      this.recipeList[name] = recipe
+      if (recipe.category) {
+        if (!this.recipes_by_cats[recipe.category]) {
+          this.recipes_by_cats[recipe.category] = []
+          this.crafting[recipe.category] = null
+        }
+        this.recipes_by_cats[recipe.category].push(recipe)
+      } else
+        this.recipes_by_cats[" "].push(recipe)
+    })
+  }
+  canProduceOLD(recipe) {
+    let checkIngs = (obj) => {
+      return this.itemMgr.itemList[obj.name]?.count >= obj.amount || false
+    }
+    return recipe.ingredients.every(checkIngs)
+  }
+  canProduce(recipe, inv) {
+    let checkIngs = (obj) => {
+      return inv.total(obj.name) >= obj.amount || false
+    }
+    return recipe.ingredients.every(checkIngs)
+  }
+  canProduceMaxOLD(recipe) {
+    let checkIngs = (obj) => {
+      if (!this.itemMgr.itemList[obj.name]) return false
+      return Math.floor(this.itemMgr.itemList[obj.name].count/obj.amount)
+    }
+    return recipe.ingredients.reduce((acc, obj) => {return Math.min(acc, checkIngs(obj) )}, Infinity)
+  }
+  canProduceMax(recipe, inv) {
+    let checkIngs = (obj) => {
+      return Math.floor(inv.total(obj.name)/obj.amount)
+    }
+    return recipe.ingredients.reduce((acc, obj) => {return Math.min(acc, checkIngs(obj) )}, Infinity)
+  }
+  consumeIngsOLD(recipe, multi = 1, refund = false) {
+    recipe.ingredients.forEach( (obj) => {
+      this.itemMgr.itemList[obj.name].count -= (refund ? -obj.amount : obj.amount) * multi
+    })
+  }
+  consumeIngs(recipe, inv, multi = 1, refund = false) {
+    recipe.ingredients.forEach( (obj) => {
+      !refund ? 
+        inv.consume(obj.name, obj.amount * multi) :
+        inv.add(obj.name, obj.amount * multi)
+    })
+  }
+  crafting = {}
+  startCraft(recipe, inv, recCategory) {
+    let catTO = this.crafting[recCategory]
+    if (catTO!=null) {
+      window.clearTimeout(catTO.timer)
+      catTO.recipe.style = ""
+      catTO.recipe.classes[CLASSES.crafting] = ""
+      this.consumeIngs(catTO.recipe, inv, true)
+      if (recipe.name == catTO.recipe.name) {
+        //same recipe, we need to finish clearing and exit
+        this.crafting[recCategory] = null
+        return false
+      }
+    }
+    if(this.canProduce(recipe, inv)) {
+      catTO = {}
+      this.consumeIngs(recipe, inv)
+      let craftingTime = recipe.crafting_speed || recipe.crafting_time
+      catTO.timer = window.setTimeout(() => {
+        this.crafting[recCategory] = null
+        recipe.style = ""
+        recipe.classes[CLASSES.crafting] = ""
+        this.craft(recipe, inv)
+      }, craftingTime* 1000)
+      catTO.recipe = recipe
+      this.crafting[recCategory] = catTO
+      recipe.style = "animation: testXform "+craftingTime+"s"
+      recipe.classes[CLASSES.crafting] = "crafting"
+    }
+  }
+  craftOLD(recipe) {
+    recipe.results.forEach((obj) => {
+        this.itemMgr.itemList[obj.name].count += (obj.amount || 1 )
+    })
+  }
+  craft(recipe, inv) {
+    recipe.results.forEach((obj) => {
+        inv.add(obj.name, obj.amount || 1 )
+    })
+  }
+  recipesByTags(property, tagList) {
+    if (tagList == null) return []
+    if (!Array.isArray(tagList)) tagList = [tagList]
+    let list = Object.values(this.recipeList).filter( (elm) => {
+      return (elm.enabled == undefined || elm.enabled) && tagList.includes(elm[property])
+    })
+    //console.log(list)
+    return list
+  }
+}
+
+class Recipe {
+  style = ""
+  constructor(recipe, ItemMgr, RecMgr) {
+    Object.assign(this, recipe)
+    this.recMgr = RecMgr
+    this.enabled = recipe.enabled == undefined ? true : recipe.enabled
+    Object.defineProperty(this, 'classesStr', {
+      get: () => {
+        return this.classes.join(" ") 
+      }
+    })
+    if (this.icon == "") this.icon = ItemMgr.itemList[this.results[0].name]?.icon
+    if (this.icon == "") return false
+    if (!this.category) this.category = "crafting"
+  }
+  classes = []
+  //@computedFrom('classes')
+  getClasses() {
+    console.log('computed')
+    return this.classes.join(" ")
+  }
+}
+
+const CLASSES =  {
+  enabled: 0,
+  crafting: 1
+}

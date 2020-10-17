@@ -1,0 +1,15 @@
+<template bindable="entity, parcel">
+  <div>
+      <h5>Upgrades</h5>
+      <p if.bind="entity.buffers.in">
+        Input Buffers
+        <button click.delegate="EM.upgrade({type:'buffers', dir:'in', who: entity})">Expand</button>
+        <button if.bind="!parcel.isPlayer" click.delegate="EM.upgrade({type:'autoload', dir:'in', who: entity})">AutoLoad</button>
+      </p>
+      <p if.bind="entity.buffers.out">
+        Expand Output Buffers
+        <button click.delegate="EM.upgrade({type:'buffers', dir:'out', who: entity})">Expand</button>
+        <button if.bind="!parcel.isPlayer" click.delegate="EM.upgrade({type:'autoload', dir:'out', who: entity})">AutoUnload</button>
+      </p>
+    </div>
+</template>

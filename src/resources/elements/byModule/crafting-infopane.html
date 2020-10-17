@@ -1,0 +1,20 @@
+<template bindable="crafter, recMgr, itemMgr, rounder">
+  <require from="../../value-converters/lib/ObjectFilters"></require>
+  <require from="./upgrades-infopane"></require>
+  <div class="showRecipe" if.bind="crafter.recipe"> 
+      Recipe:
+      <p show.bind="crafter.canConsumeIngs" click.delegate="crafter.consumeIngs(rounder)">Load</p>
+      <icon-base repeat.for="ing of crafter.recipe.ingredients | objectValues" item.bind="itemMgr.itemList[ing.name]" count.bind="ing.amount"></icon-base>
+      <div class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${crafter.crafting_timer/16*100}%, red ${crafter.crafting_timer/16*100}%)">${crafter.buffers.in.qty}/${crafter.buffers.in.max}
+          =>${crafter.buffers.out.qty}/${crafter.buffers.out.max}</div>
+      <icon-base repeat.for="res of crafter.recipe.results | objectValues" item.bind="itemMgr.itemList[res.name]" count.bind="res.amount" click.delegate="crafter.collectBuffer()"></icon-base>
+    </p>
+    <p click.delegate="crafter.clear_recipe()">Clear recipe</p>
+  </div>
+  <div if.bind="!crafter.recipe">
+    <p>Select recipe to craft</p>
+    <icon-base repeat.for="rec of recMgr.recipesByTags('category', crafter.crafting_categories)" item.bind="rec" click.delegate="crafter.set_recipe(rec)"
+    class="${rec==crafter.recipe ? 'selected': ''}" mouseenter.bind="(tooltip = rec) & debounce:2000" mouseleave.bind="(tooltip = null) & debounce:2000"></icon-base>
+  </div>
+  <upgrades-infopane entity.bind="crafter" parcel.bind="crafter.parent"></upgrades-infopane>
+</template>
