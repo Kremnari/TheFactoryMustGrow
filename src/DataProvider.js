@@ -18,7 +18,12 @@ export default class DataProvider {
       res: RM,
       tech: TM,
       rec: RcM,
-      entity: EM
+      entity: EM,
+      idb: {
+        set: dbSet,
+        get: dbGet,
+        del: dbDel
+      }
     }
     this.mgrs.Ticker = new Ticker()
   }

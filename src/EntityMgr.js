@@ -60,11 +60,11 @@ export class EntityMgr {
     return false //Entity not added
   }
   RestoreEntity(save, parcel, tagArray, mgrs) {
-    let obj = this.entities_base[save.type]
+    let obj = this.entities_base[save.name]
     let ret = null
     if(save.type=="mining") {
       ret = new MiningEntity(obj, parcel, tagArray)
-      if(save.mining!="") ret.set_mining(save.mining, save.mining_timer)
+      if(save.mining!="") ret.set_mining(mgrs.res.resList[save.mining], save.mining_timer)
     } else if(save.type=="crafting") {
       ret = new CraftingEntity(obj, parcel, tagArray)
       if(save.recipe!="") ret.set_recipe(mgrs.rec.recipeList[save.recipe], save.crafting_timer)
@@ -133,6 +133,7 @@ class MiningEntity extends Entity{
   }
   serialize() {
     let ret = {}
+    ret.name = this.name
     ret.type = "mining"
     ret.mining = this.mining?.name || ""
     ret.buffers = this.buffers
@@ -208,6 +209,7 @@ class CraftingEntity extends Entity {
   }
   serialize() {
     let ret = {}
+    ret.name = this.name
     ret.type = "crafting"
     ret.buffers = this.buffers
     ret.crafting_timer = this.crafting_timer
@@ -274,6 +276,7 @@ class LabEntity extends Entity {
   }
   serialize() {
     let ret = {}
+    ret.name = this.name
     ret.type = "lab"
     ret.buffers = this.buffers
     ret.research_timer = this.research_timer

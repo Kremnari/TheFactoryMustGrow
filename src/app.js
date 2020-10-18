@@ -39,8 +39,9 @@ export class App {
         } else {
           console.log("idb save data out of date")
         }
+      } else {
+        this.jumpStart()
       }
-      this.jumpStart()
       this.mgrs.entity.set_player(this.player)
       this.selectParcel(this.player)
       this.viewPane.entities = (x) => {
@@ -86,7 +87,7 @@ export class App {
     }
     save() {
       let save = { player: {}}
-      console.log('saving...eventually')
+      console.log('saving...')
       save.version = IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
@@ -95,6 +96,7 @@ export class App {
         save.parcels.push(each.serialize())
       }
       this.saveGame(save)
+      console.log("...done")
     }
     jumpStart() {
       this.player.inv.add("burner-mining-drill", 2)
