@@ -21,7 +21,7 @@ export class App {
       //fetch("data_source.json").then( (data) => data.json().then( (what) => this.init(what) ) )
       window.tfmg = this
       this.signaler = signaler
-      DataProv.onLoadComplete((db) => { this.init(db) })
+      DataProv.onLoadComplete((db) => { this.init(db) }) //webpack live reload hack
       DataProv.beginLoad()
       this.saveGame = DataProv.saveGame
     }
@@ -38,6 +38,8 @@ export class App {
           }
         } else {
           console.log("idb save data out of date")
+          this.jumpStart()
+          this.save()
         }
       } else {
         this.jumpStart()
@@ -85,7 +87,7 @@ export class App {
       this.showItem = null
       this.viewPane.parcel = which
     }
-    save() {
+    async save() {
       let save = { player: {}}
       console.log('saving...')
       save.version = IDB_SAVE_VERSION
