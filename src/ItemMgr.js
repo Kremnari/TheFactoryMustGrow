@@ -68,7 +68,7 @@ export class ItemStack {
   }
   static convert(fromRec) {
     if(fromRec.count) return fromRec
-    return new ItemStack(fromRec.name, fromRec.amount)
+    return new ItemStack(fromRec.name || fromRec.item, fromRec.amount)
   }
 }
 
@@ -103,7 +103,7 @@ export class Inventory {
       retCount = this.consume(each.item || each.name, (each.count || each.amount)*multi )
       if(retCount==0) consumed.push(each)
       else if(revertOnFailFast) {
-        this.addAll(consumed, false, multi)
+        consumed.length>=1 ? this.addAll(consumed, false, multi) : void
         this.add(each.item, each.count-retCount)
         consumed = null
         return itemStacks
