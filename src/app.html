@@ -18,12 +18,12 @@
       <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
     </div>
     <div id="playerControls">
-      <h4 click.delegate="viewPane.main = 'recipes'">Recipes</h4>
-      <h4 click.delegate="viewPane.main = 'parcels'">Parcels</h4>
+      <h4 click.delegate="viewPane.main = 'recipes'">Home</h4>
+      <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
+      <h4 click.delegate="viewPane.main = 'parcels'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
     <div id="parcelControls" show.bind="viewPane.parcel">
-      <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
       <div show.bind="viewPane.main == 'entities'">
         <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
         <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
@@ -42,7 +42,12 @@
           show.bind="rec.enabled" class.bind="rec.classesStr" anim_class.bind="rec.style" mouseenter.trigger="tooltip = rec" mouseleave.trigger="tooltip = null"></icon-base>
         </div>
       </section>
-      <section id="technologies"  show.bind="viewPane.main == 'research'">
+      <section id="resources" show.bind="viewPane.main == 'recipes'">
+        <h3>Mineables</h3>
+        <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
+                  class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+      </section>
+          <section id="technologies"  show.bind="viewPane.main == 'research'">
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
@@ -77,7 +82,7 @@
         <div show.bind="viewPane.entityPane == 'mining'">
           <h4>Mining</h4>
           <require from="./resources/elements/byModule/mining-infopane.html"></require>
-          <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
+          <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
           <div class="entityList">
             <icon-base repeat.for="miner of viewPane.entities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
                       click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
@@ -109,23 +114,21 @@
       </section>
     </article>
   </div>
-  <section id="resources" showx.bind="viewPane.main == 'resources'">
-    <h3>Mineables</h3>
-    <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
-              class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+  <section id="inventoryList">
+    <h3>Inventory</h3>
+    <icon-base repeat.for="item of player.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="player.inv.click({where:viewPane.parcel, which:item, who:player, what:'use'})">
+    </icon-base>
   </section>
   <section id="numSelectors">
+    <input type="checkbox" id="numSelToggle" style="display:none">
+    <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${rounder.huns}${rounder.tens}${rounder.ones}</span>
+    </label>
     <input id="huns" type="range" min="0" max="9" step="1" value.bind="rounder.huns">
     <input id="tens" type="range" min="0" max="9" step="1" value.bind="rounder.tens">
     <input id="ones" type="range" min="0" max="9" step="1" value.bind="rounder.ones">
     <span>${rounder.huns}${rounder.tens}${rounder.ones}</span>
     <label class="switch"><input type="checkbox" value.bind="rounder.abs"><span class="slider text_abs_mod"></span></label>
     <label class="switch"><input type="checkbox" value.bind="rounder.fail"><span class="slider text_full_part"></span></label>
-  </section>
-  <section id="inventoryList">
-    <h3>Inventory</h3>
-    <icon-base repeat.for="item of player.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="player.inv.click({where:viewPane.parcel, which:item, who:player, what:'use'})">
-    </icon-base>
   </section>
 
 </template>

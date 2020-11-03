@@ -52,13 +52,14 @@ header#selector #parcelControls > div {
   display: inline;
 }
 .leftside {
-  width:50%;
+  width:100%;
   box-sizing: border-box;
   margin:0px;
   left:0;
   position: relative;
 }
 .rightside {
+  display: none;
   width:50%;
   box-sizing: border-box;
   margin:0px;
@@ -87,11 +88,6 @@ lab-infopane {
 }
 .labInput {
   display:inline;
-}
-
-#numSelectors input[type="range"] {
-  -webkit-appearance: slider-vertical;
-  width: 16px;
 }
 
 .switch {
@@ -161,13 +157,47 @@ input:checked + .slider.text_full_part:after {
   width: 70px;
   display: inline-block;
   bottom: 0px;
-  left: 0px;
+  left: -10vw;
+}
+#numSelectors > * {
+  position: relative;
+  left: -10vw;
+  transition: 0.5s ease-in-out;
+}
+#numSelectors > #numSelToggle:checked ~ * {
+  left: 10vw;
+  transition: 0.5s ease-in-out;
+}
+#numSelectors > label[for="numSelToggle"] {
+  left: -3vw;
+  top: 20vh;
+  position: relative;
+  padding: 2px 25%;
+  transform: rotate(90deg);
+  background-color: rgba(127, 127, 127, 0.5);
+  text-align: center
+}
+#numSelectors > #numSelToggle:checked + label {
+  left: 10vw;
+  padding: 2px 75%;
+  top: 20vh;
+}
+#numSelectors > #numSelToggle:checked ~ * > .tabOnly {
+  display: none;
+}
+#numSelectors > #numSelToggle ~ * > .tabOnly {
+  display: inline;
 }
 #numSelectors > span {
   width: 100%;
   text-align: center;
   display: inline-block;
 }
+#numSelectors input[type="range"] {
+  -webkit-appearance: slider-vertical;
+  width: 16px;
+}
+
 .entityList {
   border: 2px dashed black;
   border-radius: 8px;
