@@ -87,7 +87,7 @@ export class EntityMgr {
           console.log('not enough...awesome')
         }
       } else if(obj.type=="autoload") {
-        if(this.player.inv.consumeAll([new ItemStack("inserter", 1)], true).length==0) {
+        if(this.player.inv.consumeAll([new ItemStack("burner-inserter", 1)], true).length==0) {
           obj.who.buffers[obj.dir].xfer.count++
         } else {
           console.log('not enough...awesome')
@@ -144,7 +144,7 @@ class MiningEntity extends Entity{
     let xfer = this.buffers.out.xfer
     if(xfer.count>0) {
       if(++xfer.timer==xfer.ticks) {
-        this.collectBuffer(xfer.count)
+        this.collectBuffer(this, xfer.count)
         xfer.timer = 0
       }
     }
@@ -169,9 +169,9 @@ class MiningEntity extends Entity{
       this.tags.delete("ticking")
     }
   }
-  collectBuffer(count=this.buffers.out.qty) {
+  collectBuffer(actor = this, count=this.buffers.out.qty) {
     if (this.buffers.out.qty == 0 ) return
-    this.buffers.out.qty -= count - this.inv.add(this.mining.mining_results, count)
+    this.buffers.out.qty -= count - actor.inv.add(this.mining.mining_results, count)
   }
 }
 class CraftingEntity extends Entity {
@@ -190,7 +190,7 @@ class CraftingEntity extends Entity {
     xfer = this.buffers.out.xfer
     if(xfer.count>0) {
       if(++xfer.timer==xfer.ticks) {
-        this.collectBuffer(xfer.count)
+        this.collectBuffer(this, xfer.count)
         xfer.timer = 0
       }
     }
@@ -256,8 +256,8 @@ class CraftingEntity extends Entity {
     //this.recipe.recMgr.consumeIngs(this.recipe, toAdd)
     this.buffers.in.qty += toAddMulti
   }
-  collectBuffer(count = this.buffers.out.qty) {
-    let partial = this.inv.addAll(this.recipe.results, true, count)
+  collectBuffer(actor=this, count = this.buffers.out.qty) {
+    let partial = actor.inv.addAll(this.recipe.results, true, count)
     this.buffers.out.qty = 0
   }
 }

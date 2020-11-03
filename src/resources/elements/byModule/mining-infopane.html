@@ -1,9 +1,9 @@
-<template bindable="miner, resMgr">
+<template bindable="miner, resMgr, actor">
   <require from="./upgrades-infopane"></require>
   <div>
     <p>Select Resource to Mine</p>
     <icon-base repeat.for="res of resMgr.resListByTag('category', miner.resource_categories)" item.bind="res" click.delegate="miner.set_mining(res)" class="${res==miner.mining? 'selected': ''}"></icon-base>
-    <p click.delegate="miner.collectBuffer()" if.bind="miner.mining" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${miner.mining_timer/16*100}%, red ${miner.mining_timer/16*100}%)"
+    <p click.delegate="miner.collectBuffer(actor)" if.bind="miner.mining" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${miner.mining_timer/16*100}%, red ${miner.mining_timer/16*100}%)"
       title="Click to collect">Buffer: ${miner.buffers.out.qty}/${miner.buffers.out.max} of
       <icon-base item.bind="miner.mining.mining_results"></icon-base>
     </p>

@@ -81,7 +81,7 @@ export class App {
       }
     }
     addParcel() {
-      this.parcels.push(new Parcel(10, this.mgrs, false))
+      this.parcels.push(new Parcel(0, this.mgrs, false))
     }
     selectParcel(which) {
       this.showItem = null
