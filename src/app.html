@@ -69,7 +69,7 @@
         </div>
       </section>
       <section id="parcels" show.bind="viewPane.main == 'parcels'">
-        <h3>Parcels</h3>
+        <h3>Factory Blocks</h3>
         <div click.delegate="selectParcel(player)" class='${viewPane.parcel==player ? "selected":""}'>player</div>
         <div repeat.for="parcel of parcels" click.delegate="selectParcel(parcel)" class='${viewPane.parcel==parcel ? "selected":""}'>
           ${$index}

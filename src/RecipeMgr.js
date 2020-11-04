@@ -133,7 +133,7 @@ class Recipe {
   }
   classes = []
   //@computedFrom('classes')
-  getClasses() {
+  getClassesX() {
     console.log('computed')
     return this.classes.join(" ")
   }
