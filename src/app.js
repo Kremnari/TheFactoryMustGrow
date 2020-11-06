@@ -7,7 +7,7 @@ const IDB_SAVE_VERSION = "0.01"
 
 @inject(BindingSignaler, DataProvider)
 export class App {
-    viewPane = {main: "resources", showingItem: null }
+    viewPane = {main: "home", showingItem: null }
     dataBase = {}
     rounder = { ones: 1, tens: 0, huns: 0, abs: false, fail: false,
                 get val() { return this.huns*100+this.tens*10+this.ones},
@@ -44,7 +44,9 @@ export class App {
       } else {
         this.jumpStart()
       }
-      this.mgrs.entity.set_player(this.player)
+      this.mgrs.entity.set_player(this.player)  //SMELL
+      this.mgrs.rec.set_player(this.player) //SMELL
+      this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.selectParcel(this.player)
       this.viewPane.entities = (x) => {
         return Array.from(this.viewPane.parcel.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
