@@ -28,6 +28,17 @@ export default class RecipeMgr {
         this.recipes_by_cats[" "].push(recipe)
     })
   }
+  set_player(player) {
+    this.player = player
+  }
+  sub_ticker(ticker) {
+    this.TickSub = ticker.subscribe( tickData => { this.tick(tickData) })
+  }
+  tick() {
+    for (let each of Object.values(this.recipeList)) {
+      each.ingCheck(this.player.inv)
+    }
+  }
   canProduceOLD(recipe) {
     let checkIngs = (obj) => {
       return this.itemMgr.itemList[obj.name]?.count >= obj.amount || false
@@ -124,15 +135,14 @@ class Recipe {
     this.enabled = recipe.enabled == undefined ? true : recipe.enabled
     Object.defineProperty(this, 'classesStr', {
       get: () => {
-        return this.classes.join(" ") 
+        return this.classes.join(" ")
       }
     })
+    if (!this.category) this.category = "crafting"
     if (this.icon == "") this.icon = ItemMgr.itemList[this.results[0].name]?.icon
     if (this.icon == "") return false
-    if (!this.category) this.category = "crafting"
   }
   classes = []
-  //@computedFrom('classes')
   getClassesX() {
     console.log('computed')
     return this.classes.join(" ")

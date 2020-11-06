@@ -18,7 +18,7 @@
       <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
     </div>
     <div id="playerControls">
-      <h4 click.delegate="viewPane.main = 'recipes'">Home</h4>
+      <h4 click.delegate="viewPane.main = 'home'">Home</h4>
       <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
       <h4 click.delegate="viewPane.main = 'parcels'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
@@ -34,7 +34,7 @@
   </header>
   <div id="mainView">
     <article class="leftside">
-      <section id="recipes" show.bind="viewPane.main == 'recipes'">
+      <section id="recipes" show.bind="viewPane.main == 'home'">
         <h3>Crafting categories</h3>
         <div>
           <h4>Hand Craft</h4>
@@ -42,12 +42,12 @@
           show.bind="rec.enabled" class.bind="rec.classesStr" anim_class.bind="rec.style" mouseenter.trigger="tooltip = rec" mouseleave.trigger="tooltip = null"></icon-base>
         </div>
       </section>
-      <section id="resources" show.bind="viewPane.main == 'recipes'">
+      <section id="resources" show.bind="viewPane.main == 'home'">
         <h3>Mineables</h3>
         <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
                   class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
       </section>
-          <section id="technologies"  show.bind="viewPane.main == 'research'">
+      <section id="technologies"  show.bind="viewPane.main == 'research'">
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
@@ -75,7 +75,7 @@
           ${$index}
         </div>
         <div>
-          <button click.delegate="addParcel()">Add Parcel</button>
+          <button click.delegate="addParcel()">Add Factory Block</button>
         </div>
       </section>
       <section id="machines" if.bind="viewPane.main == 'entities'">
