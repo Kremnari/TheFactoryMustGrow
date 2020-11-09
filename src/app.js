@@ -28,20 +28,23 @@ export class App {
     init(database) {
       this.mgrs = database.mgrs
       this.mgrs.signaler = this.signaler
-      this.parcels = database.parcels || []
-      this.player = database.player || new Parcel(10, this.mgrs, true)
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
           this.player = Parcel.deserialize(this.mgrs, database.save.player)
+          this.parcels = []
           for (let each of database.save.parcels) {
             this.parcels.push(Parcel.deserialize(this.mgrs, each))
           }
         } else {
           console.log("idb save data out of date")
+          this.parcels = []
+          this.player =  new Parcel(10, this.mgrs, true)
           this.jumpStart()
           this.save()
         }
       } else {
+        this.parcels = []
+        this.player =  new Parcel(10, this.mgrs, true)
         this.jumpStart()
       }
       this.mgrs.entity.set_player(this.player)  //SMELL

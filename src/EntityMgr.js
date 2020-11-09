@@ -257,8 +257,9 @@ class CraftingEntity extends Entity {
     this.buffers.in.qty += toAddMulti
   }
   collectBuffer(actor=this, count = this.buffers.out.qty) {
+    //BUG Ahhh...
     let partial = actor.inv.addAll(this.recipe.results, true, count)
-    this.buffers.out.qty = 0
+    this.buffers.out.qty = 0 //This is a hold over because of potential multiple outputs in recipes
   }
 }
 class LabEntity extends Entity {
@@ -329,15 +330,18 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(em, parcel, Ticker) {
+  constructor(em, facBlock, Ticker) {
     this.mgr = em
-    this.parent = parcel
+    this.parent = facBlock
     Ticker.subscribe( (obj) => { this.tick(obj) } )
   }
   deserialize(saveEntities, mgrs) {
+    let next = null
     for (let each of saveEntities) {
-      this.entities.push(this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags, mgrs))
-    }
+      next = this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags, mgrs)
+      next.parent = this.parent
+      this.entities.push(next)
+    }    
   }
   serialize() {
     let ret = []

@@ -86,16 +86,16 @@ export class Inventory {
     this.items = save
   }
   [Symbol.iterator]() { return this.items }
-  addAll(itemStacks, returnPartial = false, multi = 1.0) {
+  addAll(itemStacks, returnPartial = true, multi = 1.0) {
     let part = []
     let retCount = 0
     for (let each of itemStacks) {
       retCount = this.add((each.item || each.name), (each.amount || each.count) * multi) //HACK
-      if(retCount > 0) part.push(new ItemStack(each.item, retCount))
+      if(retCount > 0) part.push(new ItemStack(each.name || each.item, retCount))
     }
     if (returnPartial) return part
   }
-  consumeAll(itemStacks, revertOnFailFast = false, multi = 1.0) {
+  consumeAll(itemStacks, revertOnFailFast = true, multi = 1.0) {
     let consumed = []
     let retCount = 0
     for (let IS of itemStacks) {
@@ -114,7 +114,7 @@ export class Inventory {
   total(item) {
     return this.items.reduce( (acc, curr) => { return curr && curr.name == item ? acc+curr.count : acc }, 0)
   }
-  add(item, count) { //returns unadded portion
+  add(item, count) { //will ALWAY returns unadded portion
     if(count==0) return
     let maxStack = this.itemMgr.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
@@ -124,7 +124,7 @@ export class Inventory {
     if(count-toAdd>0) return this.add(item, count-toAdd)
     else return 0
   }
-  consume(item, count) { //returns unconsumed portion
+  consume(item, count) { //will ALWAYS return unconsumed portion
     let targIdx = this._GetSubStack(item, true) //By_Idx
     let targ = this.items[targIdx]
     if(!targ) return count
@@ -151,12 +151,12 @@ export class Inventory {
         break
       }
     }
-    if(!this.items[targ] || this.items[targ].name != item) this.items.splice(targ, 1, {name: item, count: 0} )
+    if(targ>-1 && (!this.items[targ] || this.items[targ].name != item)) this.items.splice(targ, 1, {name: item, count: 0} )
     return this.items[targ]
   }
-  _GetSubStack(item, byIdx = true) {
+  _GetSubStack(item, returnIdx = true) {
     let idx = this.items.length-1 - this.items.slice().reverse().findIndex( (elm) => { return elm && elm.name == item })
-    return byIdx ? idx : this.items[idx]
+    return returnIdx ? idx : this.items[idx]
   }
   click(data) {
     switch(data.what) {
