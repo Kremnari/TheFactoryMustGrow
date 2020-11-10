@@ -33,7 +33,7 @@ export default class DataProvider {
   async beginLoad() {
     let ds = await dbGet('dataSet')
     if(!ds) {
-      let resp = await fetch("./tfmg/data_source.json")
+      let resp = await fetch("./data_source.json")
       ds = await resp.json()
       console.log('loaded from file')
       await dbSet('dataSet', ds)
