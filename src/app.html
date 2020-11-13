@@ -20,10 +20,10 @@
     <div id="playerControls">
       <h4 click.delegate="viewPane.main = 'home'">Home</h4>
       <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
-      <h4 click.delegate="viewPane.main = 'parcels'">Blocks</h4>
+      <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
-    <div id="parcelControls" show.bind="viewPane.parcel">
+    <div id="facBlockControls" show.bind="viewPane.facBlock">
       <div show.bind="viewPane.main == 'entities'">
         <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
         <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
@@ -68,14 +68,14 @@
           </p>
         </div>
       </section>
-      <section id="parcels" show.bind="viewPane.main == 'parcels'">
+      <section id="facBlocks" show.bind="viewPane.main == 'facBlocks'">
         <h3>Factory Blocks</h3>
-        <div click.delegate="selectParcel(player)" class='${viewPane.parcel==player ? "selected":""}'>player</div>
-        <div repeat.for="parcel of parcels" click.delegate="selectParcel(parcel)" class='${viewPane.parcel==parcel ? "selected":""}'>
+        <div click.delegate="select_FacBlock(player)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
+        <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
           ${$index}
         </div>
         <div>
-          <button click.delegate="addParcel()">Add Factory Block</button>
+          <button click.delegate="add_FacBlock()">Add Factory Block</button>
         </div>
       </section>
       <section id="machines" if.bind="viewPane.main == 'entities'">
@@ -91,7 +91,7 @@
         <div show.bind="viewPane.entityPane == 'manuf'">
           <h4>Manufacturing</h4>
           <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-          <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" inventory.bind="viewPane.parcel.inv" rounder.bind="rounder"></crafting-infopane>
+          <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
           <div class="entityList">
             <icon-base repeat.for="crafter of viewPane.entities('crafting') & signal:'addedEntity'" item.bind="crafter" alt-image.bind="crafter.recipe.icon" click.delegate="showing(crafter, 'crafter')" class.bind="crafter.selectedClass"></icon-base>
           </div>
@@ -107,16 +107,16 @@
       </section>
     </article>
     <article class="rightside">
-      <section id="inventoryList" if.bind="!viewPane.parcel.isPlayer">
+      <section id="inventoryList" if.bind="!viewPane.facBlock.isPlayer">
         <h3>Inventory</h3>
-        <icon-base repeat.for="item of viewPane.parcel.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="viewPane.parcel.inv.click({where:viewPane.parcel, which:item, who:player, what:'move', rounder})">
+        <icon-base repeat.for="item of viewPane.facBlock.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="viewPane.facBlock.inv.click({where:viewPane.facBlock, which:item, who:player, what:'move', rounder})">
         </icon-base>
       </section>
     </article>
   </div>
   <section id="inventoryList">
     <h3>Inventory</h3>
-    <icon-base repeat.for="item of player.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="player.inv.click({where:viewPane.parcel, which:item, who:player, what:'use'})">
+    <icon-base repeat.for="item of player.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="player.inv.click({where:viewPane.facBlock, which:item, who:player, what:'use'})">
     </icon-base>
   </section>
   <section id="numSelectors">

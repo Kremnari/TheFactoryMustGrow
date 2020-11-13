@@ -48,7 +48,7 @@ header#selector {
 header#selector tool-tip {
   height: 80px;
 }
-header#selector #parcelControls > div {
+header#selector #facBlockControls > div {
   display: inline;
 }
 .leftside {

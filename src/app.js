@@ -1,7 +1,7 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject} from 'aurelia-framework'
-import Parcel from './resources/StateDef/parcel'
-import DataProvider from 'DataProvider'
+import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
+import {DataProvider} from 'DataProvider'
 
 const IDB_SAVE_VERSION = "0.01"
 
@@ -30,29 +30,29 @@ export class App {
       this.mgrs.signaler = this.signaler
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
-          this.player = Parcel.deserialize(this.mgrs, database.save.player)
-          this.parcels = []
-          for (let each of database.save.parcels) {
-            this.parcels.push(Parcel.deserialize(this.mgrs, each))
+          this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
+          this.facBlocks = []
+          for (let each of database.save.facBlocks) {
+            this.facBlocks.push(FactoryBlock.deserialize(this.mgrs, each))
           }
         } else {
           console.log("idb save data out of date")
-          this.parcels = []
-          this.player =  new Parcel(10, this.mgrs, true)
+          this.facBlocks = []
+          this.player =  new PlayerBlock(10, this.mgrs, true)
           this.jumpStart()
           this.save()
         }
       } else {
-        this.parcels = []
-        this.player =  new Parcel(10, this.mgrs, true)
+        this.facBlocks = []
+        this.player =  new PlayerBlock(10, this.mgrs, true)
         this.jumpStart()
       }
       this.mgrs.entity.set_player(this.player)  //SMELL
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
-      this.selectParcel(this.player)
+      this.select_FacBlock(this.player)
       this.viewPane.entities = (x) => {
-        return Array.from(this.viewPane.parcel.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
+        return Array.from(this.viewPane.facBlock.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
       }
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
@@ -85,12 +85,12 @@ export class App {
         }, 0)
       }
     }
-    addParcel() {
-      this.parcels.push(new Parcel(0, this.mgrs, false))
+    add_FacBlock() {
+      this.facBlocks.push(new FactoryBlock(0, this.mgrs, false))
     }
-    selectParcel(which) {
+    select_FacBlock(which) {
       this.showItem = null
-      this.viewPane.parcel = which
+      this.viewPane.facBlock = which
     }
     async save() {
       let save = { player: {}}
@@ -98,9 +98,9 @@ export class App {
       save.version = IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
-      save.parcels = []
-      for (let each of this.parcels) {
-        save.parcels.push(each.serialize())
+      save.facBlocks = []
+      for (let each of this.facBlocks) {
+        save.facBlocks.push(each.serialize())
       }
       this.saveGame(save)
       console.log("...done")

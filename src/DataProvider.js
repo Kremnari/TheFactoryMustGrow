@@ -1,4 +1,5 @@
 //import './data_source.json';
+/*
 import {inject} from 'aurelia-framework'
 import IconMgr from 'IconMgr';
 import ItemMgr from 'ItemMgr'
@@ -10,52 +11,40 @@ import {EntityMgr} from 'EntityMgr'
 import {set as dbSet, get as dbGet, del as dbDel} from 'idb-keyval'
 
 @inject(IconMgr, ItemMgr, ResMgr, TechMgr, RecipeMgr, EntityMgr)
-export default class DataProvider {
-  constructor(IM, Im, RM, TM, RcM, EM) {
-    this.mgrs = {
-      icon: IM,
-      item: Im,
-      res: RM,
-      tech: TM,
-      rec: RcM,
-      entity: EM,
-      idb: {
-        set: dbSet,
-        get: dbGet,
-        del: dbDel
-      }
-    }
-    this.mgrs.Ticker = new Ticker()
-  }
+*/
+
+import {mgrs as MGRS} from 'managers'
+let mgrs = MGRS
+export let DataProvider = {
   onLoadComplete(cb) {
-    this.loadCb = cb
-  }
+    DataProvider.loadCb = cb
+  },
   async beginLoad() {
-    let ds = await dbGet('dataSet')
+    let ds = await mgrs.idb.get('dataSet')
     if(!ds) {
       let resp = await fetch("./tfmg/data_source.json")
       ds = await resp.json()
       console.log('loaded from file')
-      await dbSet('dataSet', ds)
+      await mgrs.idb.set('dataSet', ds)
     } else console.log('loaded from db')
-    let save = await dbGet("SaveGame") || {}
+    let save = await mgrs.idb.get("SaveGame") || {}
 
-    this.init(ds, save)
-  }
+    DataProvider.init(ds, save)
+  },
   async init(data, save) {
-    this.mgrs.icon.import(data.icons)
-    this.mgrs.item.import(this.mgrs.icon.restoreIcons(data.item))
-    this.mgrs.res.import(this.mgrs.icon.restoreIcons(data.resource))
-    this.mgrs.rec.import(this.mgrs.icon.restoreIcons(data.recipe), this.mgrs.item)
-    this.mgrs.tech.import(this.mgrs.icon.restoreIcons(data.technology), this.mgrs, save?.techs)
-    this.mgrs.entity.import(this.mgrs.icon.restoreIcons(data.entity), this.mgrs)
-    this.loadCb({mgrs: this.mgrs, save: save})
-  }
+    mgrs.icon.import(data.icons)
+    mgrs.item.import(mgrs.icon.restoreIcons(data.item))
+    mgrs.res.import(mgrs.icon.restoreIcons(data.resource))
+    mgrs.rec.import(mgrs.icon.restoreIcons(data.recipe), mgrs.item)
+    mgrs.tech.import(mgrs.icon.restoreIcons(data.technology), mgrs, save?.techs)
+    mgrs.entity.import(mgrs.icon.restoreIcons(data.entity), mgrs)
+    DataProvider.loadCb({mgrs: mgrs, save: save})
+  },
   saveGame(data) {
     if(data) {
-      dbSet("SaveGame", data)
+      mgrs.idb.set("SaveGame", data)
     } else {
-      dbDel("SaveGame")
+      mgrs.idb.del("SaveGame")
       window.location.reload()
     }
   }

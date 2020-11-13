@@ -1,7 +1,7 @@
 <template title.bind="altTip">
   <require from="./icon-base.css"> </require>
   <div>
-    <img src.bind="item.icon || iconMgr.getSrc('item', item.name)" height="32px"/>
+    <img src.bind="item.icon || mgrs.icon.getSrc('item', item.name)" height="32px"/>
     <span if.bind="showName">${item.name}</span>
   </div>
   <div class="modifiers"> 
