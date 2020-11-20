@@ -11,11 +11,14 @@
   <body aurelia-app="main">
   </body>
  <script>
-  /*if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
-      .then(function(registration) { return registration.update(); })
+      .then(function(registration) {
+        console.log('registration complete')
+        return registration.update();
+       })
       .catch(error => console.log(error));
-  }*/
+  }
   Map.prototype.ensure = function(key, value) {
   		if(!this.has(key)) this.set(key, value)
   		return this.get(key)
