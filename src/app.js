@@ -16,7 +16,7 @@ export class App {
               } // absolute vs modulus, fail... on partial
     viewRecCat = false
     tooltip = null
-    constructor(signaler, DataProv) {
+    constructor(signaler, DataProv) { 
       //import("./data_source.json").then( (mod) => this.init(mod.default))
       //fetch("data_source.json").then( (data) => data.json().then( (what) => this.init(what) ) )
       window.tfmg = this
@@ -25,7 +25,7 @@ export class App {
       DataProv.beginLoad()
       this.saveGame = DataProv.saveGame
     }
-    init(database) {
+    async init(database) {
       this.mgrs = database.mgrs
       this.mgrs.signaler = this.signaler
       if(database.save) {
@@ -47,13 +47,15 @@ export class App {
         this.player =  new PlayerBlock(10, this.mgrs, true)
         this.jumpStart()
       }
+      this.showDev = await this.mgrs.idb.get("dev")
       this.mgrs.entity.set_player(this.player)  //SMELL
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
-      this.select_FacBlock(this.player)
+      this.select_FacBlock(this.player, true)
       this.viewPane.entities = (x) => {
         return Array.from(this.viewPane.facBlock.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
       }
+      this.mgrs.Ticker.toggle()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -86,11 +88,12 @@ export class App {
       }
     }
     add_FacBlock() {
-      this.facBlocks.push(new FactoryBlock(0, this.mgrs, false))
+      this.facBlocks.push(FactoryBlock.createBlock('factory'))
     }
-    select_FacBlock(which) {
+    select_FacBlock(which, isPlayer = false) {
       this.showItem = null
       this.viewPane.facBlock = which
+      this.viewPlayer = isPlayer
     }
     async save() {
       let save = { player: {}}

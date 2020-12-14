@@ -28,35 +28,6 @@ class Item {
   set_count_callbacks = ["ItemNotifys"]
   constructor(itemBase, evtAgg) {
     Object.assign(this, itemBase)
-    /*Object.defineProperty(this, 'count', {
-      get() {
-        return this.__count
-      },
-      set(val) {
-        this.__count = val
-        this.set_count_callbacks.forEach( (func) => { this[func]?.() })
-        return true
-      }
-    })
-    this.count = 0
-    */
-  }
-  /*set_hasEntity() {
-    console.error("SET HAS ENTITY WAS CALLED")
-    let idx = this.set_count_callbacks.push("EntityUpdates") -1 //damn 0 idx
-    this.hasEntity = true
-
-    this.EntityUpdates = () => {
-      //HACK
-      tfmg.entityMgr.EntityAvailable(this.name)
-      delete this.set_count_callbacks[idx]
-      delete this.EntityUpdates
-    }
-  }*/
-  ItemNotifysX() {
-    this.notifys.forEach( (recipe) => {
-      recipe.ingCheck(this.name, this.__count)
-    })
   }
 }
 
@@ -164,8 +135,8 @@ export class Inventory {
         let item = data.which.item || this.itemMgr.get(data.which.name)
         if(data.which.count>0) {
           if(item.hasEntity) {
+            data.where.useItem(data.which.name)
             data.which.count--
-            data.where.entityStore.AddEntity(data.which.name, this)
             this.signaler.signal('addedEntity')
             return
           }

@@ -12,7 +12,7 @@
   <require from="resources/value-converters/valueconverters"></require>
 
   <header id="selector">
-    <div id="devControls">
+    <div id="devControls" if.bind="showDev">
       <button click.delegate="save()">Save</button>
       <button click.delegate="resetSave()">Start Anew</button>
       <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
@@ -23,7 +23,7 @@
       <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
-    <div id="facBlockControls" show.bind="viewPane.facBlock">
+    <div id="facBlockControls" if.bind="!viewPane.facBlock.isPlayer" show.bind="viewPane.facBlock">
       <div show.bind="viewPane.main == 'entities'">
         <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
         <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
@@ -70,7 +70,7 @@
       </section>
       <section id="facBlocks" show.bind="viewPane.main == 'facBlocks'">
         <h3>Factory Blocks</h3>
-        <div click.delegate="select_FacBlock(player)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
+        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
         <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
           ${$index}
         </div>
@@ -78,7 +78,7 @@
           <button click.delegate="add_FacBlock()">Add Factory Block</button>
         </div>
       </section>
-      <section id="machines" if.bind="viewPane.main == 'entities'">
+      <section id="machines" if.bind="viewPane.main == 'entities' && viewPlayer">
         <div show.bind="viewPane.entityPane == 'mining'">
           <h4>Mining</h4>
           <require from="./resources/elements/byModule/mining-infopane.html"></require>
@@ -103,6 +103,14 @@
           <div class="entityList">
             <icon-base repeat.for="labee of viewPane.entities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
           </div>
+        </div>
+      </section>
+      <section if.bind="viewPane.main == 'entities' && !viewPlayer">
+        <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
+        <require from="resources/elements/factoryBlocks/entityLine.html" as="entity-line"></require>
+        <div repeat.for="line of viewPane.facBlock.lines">
+          <transport-line if.bind="line.constructor.name=='TransportLine'" line.bind="line" type.bind="($first && 'input') || ($last && 'output') || 'internal'"></transport-line>
+          <entity-line if.bind="line.constructor.name=='EntityStorage'" line.bind="line"></entity-line>
         </div>
       </section>
     </article>

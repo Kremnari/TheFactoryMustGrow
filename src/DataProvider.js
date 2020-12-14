@@ -1,18 +1,3 @@
-//import './data_source.json';
-/*
-import {inject} from 'aurelia-framework'
-import IconMgr from 'IconMgr';
-import ItemMgr from 'ItemMgr'
-import ResMgr from  'ResMgr'
-import RecipeMgr from 'RecipeMgr'
-import TechMgr from 'TechMgr'
-import Ticker from "ticker"
-import {EntityMgr} from 'EntityMgr'
-import {set as dbSet, get as dbGet, del as dbDel} from 'idb-keyval'
-
-@inject(IconMgr, ItemMgr, ResMgr, TechMgr, RecipeMgr, EntityMgr)
-*/
-
 import {mgrs as MGRS} from 'managers'
 let mgrs = MGRS
 export let DataProvider = {
