@@ -1,0 +1,15 @@
+<template>
+  <ux-dialog>
+    <ux-dialog-header>Select Bus</ux-dialog-header>
+    <ux-dialog-body>
+      <div repeat.for="block of options" click.trigger="selected = (block == selected && undefined ) || block">
+        <span class.bind="block==selected && 'button'">
+        ${block.name}
+        </span>
+      </div>
+    </ux-dialog-body>
+    <ux-dialog-footer>
+      <button click.trigger="complete()">Close</button>
+    </ux-dialog-footer>
+  </ux-dialog>
+</template>

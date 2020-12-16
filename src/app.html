@@ -72,10 +72,12 @@
         <h3>Factory Blocks</h3>
         <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
         <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
-          ${$index}
+          ${facBlock.name}:${facBlock.type}
         </div>
         <div>
-          <button click.delegate="add_FacBlock()">Add Factory Block</button>
+          <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
+          <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
+          <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
         </div>
       </section>
       <section id="machines" if.bind="viewPane.main == 'entities' && viewPlayer">

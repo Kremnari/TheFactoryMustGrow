@@ -2,10 +2,11 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
+import {DialogService} from 'aurelia-dialog'
 
 const IDB_SAVE_VERSION = "0.01"
 
-@inject(BindingSignaler, DataProvider)
+@inject(BindingSignaler, DataProvider, DialogService)
 export class App {
     viewPane = {main: "home", showingItem: null }
     dataBase = {}
@@ -16,17 +17,19 @@ export class App {
               } // absolute vs modulus, fail... on partial
     viewRecCat = false
     tooltip = null
-    constructor(signaler, DataProv) { 
+    constructor(signaler, DataProv, DS) { 
       //import("./data_source.json").then( (mod) => this.init(mod.default))
       //fetch("data_source.json").then( (data) => data.json().then( (what) => this.init(what) ) )
       window.tfmg = this
       this.signaler = signaler
-      DataProv.onLoadComplete((db) => { this.init(db) }) //webpack live reload hack
+      DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.saveGame = DataProv.saveGame
     }
-    async init(database) {
+    async init(database, DS) {
       this.mgrs = database.mgrs
+      this.mgrs.DS = DS
+      this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
@@ -87,8 +90,8 @@ export class App {
         }, 0)
       }
     }
-    add_FacBlock() {
-      this.facBlocks.push(FactoryBlock.createBlock('factory'))
+    add_FacBlock(type) {
+      this.facBlocks.push(new FactoryBlock(type, prompt("Enter Block Name")))
     }
     select_FacBlock(which, isPlayer = false) {
       this.showItem = null

@@ -14,6 +14,7 @@ export const mgrs =  {
   tech: new TechMgr(),
   rec: new RecipeMgr(),
   entity: new EntityMgr(),
+  DS: null,
   idb: {
     set: dbSet,
     get: dbGet,

@@ -1,11 +1,12 @@
 import {EntityStorage} from 'EntityMgr'
 import {Inventory} from 'ItemMgr'
 import {TransportLine, EntityLine} from './FactoryLines'
+import {DialogService} from 'aurelia-dialog'
 import {mgrs as MGRS} from 'managers'
 let mgrs = MGRS
 
 export class FactoryBlock {
-  static createBlock(whichType) {
+  constructor(whichType, name) {
     let includes
     switch(whichType) {
       case "resource":
@@ -21,16 +22,16 @@ export class FactoryBlock {
       default:
         includes = {input: true, output: true, line:true}
     }
-    return new FactoryBlock(includes)
-  }
-  constructor(includes) {
+
     this.lines = []
-    if(includes.input) this.lines.push(new TransportLine())
-    if(includes.line) this.lines.push(new EntityStorage(this))
-    if(includes.output) this.lines.push(new TransportLine())
+    this.name = name
+    this.type = whichType
+    if(includes.input) this.lines.push(new TransportLine(this, mgrs))
+    if(includes.line) this.lines.push(new EntityStorage(this, mgrs))
+    if(includes.output) this.lines.push(new TransportLine(this, mgrs))
   }
   static deserialize(DEPRECIATED, saveData) {
-    let ret = new FactoryBlock(mgrs)
+    let ret = new FactoryBlock()
     return ret
   }
   serialize() {

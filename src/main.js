@@ -9,6 +9,7 @@ export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .plugin(PLATFORM.moduleName('aurelia-animator-css'))
+    .plugin(PLATFORM.moduleName('aurelia-dialog'))
     .feature(PLATFORM.moduleName('resources/index'));
 
   aurelia.use.developmentLogging(environment.debug ? 'debug' : 'warn');
