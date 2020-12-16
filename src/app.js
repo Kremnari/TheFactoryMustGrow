@@ -117,4 +117,24 @@ export class App {
       this.player.inv.add("lab", 2)
       this.player.inv.add("automation-science-pack", 200)
     }
+    async iconEditor() {
+      this.viewPane = "iconEditor"
+      this.IE = {
+          ds: {
+          old: {}
+          ,new: {}
+        }
+        ,select: {}
+      }
+      this.IE.ds.old = (await this.mgrs.idb.get("dataSet")).icons
+      this.IE.ds.new = (await this.mgrs.idb.get('newIcons'))
+      this.signaler.signal("update")
+    }
+    IEshow() {
+      this.IE.showOld = this.IE.ds.old[this.IE.select.Cat][this.IE.select.Icon]
+      this.signaler.signal("update")
+    }
+    async saveIconEditor() {
+      await this.mgrs.idb.set("newIcons", this.IE.ds.new)
+    }
 }

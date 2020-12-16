@@ -16,6 +16,7 @@
       <button click.delegate="save()">Save</button>
       <button click.delegate="resetSave()">Start Anew</button>
       <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
+      <button click.delegate="iconEditor()">Edit Icons</button>
     </div>
     <div id="playerControls">
       <h4 click.delegate="viewPane.main = 'home'">Home</h4>
@@ -32,7 +33,7 @@
     </div>
     <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
   </header>
-  <div id="mainView">
+  <div id="mainView" if.bind="viewPane!='iconEditor'">
     <article class="leftside">
       <section id="recipes" show.bind="viewPane.main == 'home'">
         <h3>Crafting categories</h3>
@@ -123,6 +124,18 @@
         </icon-base>
       </section>
     </article>
+  </div>
+  <div id="iconEditor" if.bind="viewPane=='iconEditor'">
+    <select value.bind="IE.select.Cat">
+      <option repeat.for="cat of IE.ds.old | objectKeys & signal:'update'" model.bind="cat">${cat}</option>
+    </select>
+    <select value.bind="IE.select.Icon">
+      <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
+    </select>
+    <button click.delegate="IEshow()">Show</button><br>
+    <img src="${this.IE.showOld & signal:'update'}" height="64px" width="64px" />
+    <button>Store</button>
+    <button click.delegate="saveIconEditor">Save</button>
   </div>
   <section id="inventoryList">
     <h3>Inventory</h3>

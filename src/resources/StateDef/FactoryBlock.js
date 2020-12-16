@@ -55,7 +55,7 @@ export class FactoryBlock {
     this.selected = which
   }
   add_EntityLine() {
-    this.lines.splice(-1, 0, new TransportLine(), new EntityStorage(this))
+    this.lines.splice(-1, 0, new TransportLine(), new EntityStorage(this, mgrs))
   }
 }
 export class BusLineBlock {
@@ -67,7 +67,7 @@ export class BusLineBlock {
 export class PlayerBlock {
   constructor(invSeed) {
     this.inv = new Inventory(mgrs, invSeed)
-    this.entityStore = new EntityStorage(this)
+    this.entityStore = new EntityStorage(this, mgrs)
   }
   static deserialize(DEPRECIATED, saveData) {
     let ret = new PlayerBlock(saveData.inv, mgrs, saveData.isPlayer)

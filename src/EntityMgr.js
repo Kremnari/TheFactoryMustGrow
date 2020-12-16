@@ -2,6 +2,7 @@ import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack} from "./ItemMgr"
 import {mgrs as MGRS} from 'managers'
+let mgrs = MGRS
 
 export class EntityMgr {
   entities_base = {}
@@ -331,8 +332,8 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(facBlock) {
-    this.mgr = MGRS.em
+  constructor(facBlock, mgrs) {
+    this.mgr = mgrs.entity
     this.parent = facBlock
     MGRS.Ticker.subscribe( (obj) => { this.tick(obj) } )
   }
