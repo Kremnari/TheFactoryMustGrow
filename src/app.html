@@ -133,7 +133,7 @@
       <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
     </select>
     <button click.delegate="IEshow()">Show</button><br>
-    <img src="${this.IE.showOld & signal:'update'}" height="64px" width="64px" />
+    <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px" view-spy/>
     <button>Store</button>
     <button click.delegate="saveIconEditor">Save</button>
   </div>
