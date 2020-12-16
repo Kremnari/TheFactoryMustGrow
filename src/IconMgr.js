@@ -1,8 +1,6 @@
 export default class IconMgr {
   iconList = {}
-  constructor() {
-
-  }
+  constructor() {}
   import(iconList) {
     this.iconList = iconList
     for (const [name, obj] of Object.entries(this.iconList.tool)) {
@@ -16,6 +14,7 @@ export default class IconMgr {
     }
     if (!this.iconList[type]?.[name]) {
       //console.log('cannot find icon for: '+name+"@"+type)
+      return null
     }
     return this.iconList[type][name]
   }

@@ -1,11 +1,12 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject} from 'aurelia-framework'
-import Parcel from './resources/StateDef/parcel'
-import DataProvider from 'DataProvider'
+import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
+import {DataProvider} from 'DataProvider'
+import {DialogService} from 'aurelia-dialog'
 
 const IDB_SAVE_VERSION = "0.01"
 
-@inject(BindingSignaler, DataProvider)
+@inject(BindingSignaler, DataProvider, DialogService)
 export class App {
     viewPane = {main: "home", showingItem: null }
     dataBase = {}
@@ -16,44 +17,48 @@ export class App {
               } // absolute vs modulus, fail... on partial
     viewRecCat = false
     tooltip = null
-    constructor(signaler, DataProv) {
+    constructor(signaler, DataProv, DS) { 
       //import("./data_source.json").then( (mod) => this.init(mod.default))
       //fetch("data_source.json").then( (data) => data.json().then( (what) => this.init(what) ) )
       window.tfmg = this
       this.signaler = signaler
-      DataProv.onLoadComplete((db) => { this.init(db) }) //webpack live reload hack
+      DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.saveGame = DataProv.saveGame
     }
-    init(database) {
+    async init(database, DS) {
       this.mgrs = database.mgrs
+      this.mgrs.DS = DS
+      this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
-          this.player = Parcel.deserialize(this.mgrs, database.save.player)
-          this.parcels = []
-          for (let each of database.save.parcels) {
-            this.parcels.push(Parcel.deserialize(this.mgrs, each))
+          this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
+          this.facBlocks = []
+          for (let each of database.save.facBlocks) {
+            this.facBlocks.push(FactoryBlock.deserialize(this.mgrs, each))
           }
         } else {
           console.log("idb save data out of date")
-          this.parcels = []
-          this.player =  new Parcel(10, this.mgrs, true)
+          this.facBlocks = []
+          this.player =  new PlayerBlock(10, this.mgrs, true)
           this.jumpStart()
           this.save()
         }
       } else {
-        this.parcels = []
-        this.player =  new Parcel(10, this.mgrs, true)
+        this.facBlocks = []
+        this.player =  new PlayerBlock(10, this.mgrs, true)
         this.jumpStart()
       }
+      this.showDev = await this.mgrs.idb.get("dev")
       this.mgrs.entity.set_player(this.player)  //SMELL
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
-      this.selectParcel(this.player)
+      this.select_FacBlock(this.player, true)
       this.viewPane.entities = (x) => {
-        return Array.from(this.viewPane.parcel.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
+        return Array.from(this.viewPane.facBlock.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
       }
+      this.mgrs.Ticker.toggle()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -85,12 +90,13 @@ export class App {
         }, 0)
       }
     }
-    addParcel() {
-      this.parcels.push(new Parcel(0, this.mgrs, false))
+    add_FacBlock(type) {
+      this.facBlocks.push(new FactoryBlock(type, prompt("Enter Block Name")))
     }
-    selectParcel(which) {
+    select_FacBlock(which, isPlayer = false) {
       this.showItem = null
-      this.viewPane.parcel = which
+      this.viewPane.facBlock = which
+      this.viewPlayer = isPlayer
     }
     async save() {
       let save = { player: {}}
@@ -98,9 +104,9 @@ export class App {
       save.version = IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
-      save.parcels = []
-      for (let each of this.parcels) {
-        save.parcels.push(each.serialize())
+      save.facBlocks = []
+      for (let each of this.facBlocks) {
+        save.facBlocks.push(each.serialize())
       }
       this.saveGame(save)
       console.log("...done")

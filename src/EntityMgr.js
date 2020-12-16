@@ -1,6 +1,7 @@
 import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack} from "./ItemMgr"
+import {mgrs as MGRS} from 'managers'
 
 export class EntityMgr {
   entities_base = {}
@@ -330,10 +331,10 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(em, facBlock, Ticker) {
-    this.mgr = em
+  constructor(facBlock) {
+    this.mgr = MGRS.em
     this.parent = facBlock
-    Ticker.subscribe( (obj) => { this.tick(obj) } )
+    MGRS.Ticker.subscribe( (obj) => { this.tick(obj) } )
   }
   deserialize(saveEntities, mgrs) {
     let next = null
