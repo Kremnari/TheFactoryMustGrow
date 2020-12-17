@@ -79,6 +79,7 @@
           <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
           <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
           <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
+          <span class="button" click.delegate="add_FacBlock('research')">Add Lab Block</span>
         </div>
       </section>
       <section id="machines" if.bind="viewPane.main == 'entities' && viewPlayer">
@@ -96,7 +97,7 @@
           <require from="./resources/elements/byModule/crafting-infopane.html"></require>
           <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
           <div class="entityList">
-            <icon-base repeat.for="crafter of viewPane.entities('crafting') & signal:'addedEntity'" item.bind="crafter" alt-image.bind="crafter.recipe.icon" click.delegate="showing(crafter, 'crafter')" class.bind="crafter.selectedClass"></icon-base>
+            <icon-base repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'" item.bind="crafter" alt-image.bind="crafter.recipe.icon" click.delegate="showing(crafter, 'crafter')" class.bind="crafter.selectedClass"></icon-base>
           </div>
         </div>
         <div show.bind="viewPane.entityPane == 'labs'">
@@ -113,7 +114,7 @@
         <require from="resources/elements/factoryBlocks/entityLine.html" as="entity-line"></require>
         <div repeat.for="line of viewPane.facBlock.lines">
           <transport-line if.bind="line.constructor.name=='TransportLine'" line.bind="line" type.bind="($first && 'input') || ($last && 'output') || 'internal'"></transport-line>
-          <entity-line if.bind="line.constructor.name=='EntityStorage'" line.bind="line"></entity-line>
+          <entity-line if.bind="line.constructor.name=='EntityStorage'" line.bind="line" click.delegate="viewPane.facBlock.selectLine($index)"></entity-line>
         </div>
       </section>
     </article>

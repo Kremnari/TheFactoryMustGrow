@@ -13,7 +13,7 @@ export class FactoryBlock {
         includes = {output:true, line:true }
         break;
       case "bus":
-        includes = {input: true, output: true}
+        includes = {input: true, output: true, delay: true}
         break;
       case "research":
         includes = {input: true, line: true}
@@ -24,11 +24,20 @@ export class FactoryBlock {
     }
 
     this.lines = []
+    this.transports = []
     this.name = name
     this.type = whichType
     if(includes.input) this.lines.push(new TransportLine(this, mgrs))
     if(includes.line) this.lines.push(new EntityStorage(this, mgrs))
+    /*if(includes.delay) {
+      this.lines.push()
+      this.drains = []
+      this.feeds = []
+    }
+    */
     if(includes.output) this.lines.push(new TransportLine(this, mgrs))
+
+    this.line_select = includes.line ? 1 : 0
   }
   static deserialize(DEPRECIATED, saveData) {
     let ret = new FactoryBlock()
@@ -46,22 +55,21 @@ export class FactoryBlock {
     this.input.tick(tickData)
   }
   useItem(item) {
-    this.lines[0].AddEntity(item)
+    this.lines[this.line_select].AddEntity(item)
   }
   getStore(line = 0) {
     return this.lines[line]
   }
   selectLine(which) {
-    this.selected = which
+    this.line_select = which
   }
   add_EntityLine() {
-    this.lines.splice(-1, 0, new TransportLine(), new EntityStorage(this, mgrs))
+    this.lines.splice(-1, 0, new TransportLine(this, mgrs), new EntityStorage(this, mgrs))
   }
-}
-export class BusLineBlock {
-  constructor() {
-    this.lines.push(new TransportLine())
-  }
+  AddBusDrain(who) { this.drains.push(who) }
+  DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
+  AddBusFeed(who)  { this.feeds.push(who) }
+  DelBusFeed(who)  { this.feeds = this.feeds.filter( (x) => x!=who)}
 }
 
 export class PlayerBlock {
@@ -78,6 +86,11 @@ export class PlayerBlock {
     let ret = {}
     ret.inv = this.inv.serialize()
     ret.entityStore = this.entityStore.serialize()
+    return ret
+  }
+  getEntities(tag) {
+    let ret = Array.from(this.entityStore.entityTags.get("type").get(tag).values() || []) 
+    console.log(ret)
     return ret
   }
   useItem(item) {

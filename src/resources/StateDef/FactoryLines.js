@@ -13,15 +13,19 @@ export class TransportLine {
   setSource() {
     this.mgrs.DS.open({viewModel: SelectBus, model: {base: this.mgrs.baseApp}, lock: false}).whenClosed(response => {
       if(response.wasCancelled){ return }
-      debugger
+      //@response.output.selected is a factoryBlock
+      this.feed?.DelBusDrain(this.parent)
       this.feed = response.output.selected
+      response.output.selected.AddBusDrain(this.parent)
     })
   }
   setTarget() {
     this.mgrs.DS.open({viewModel: SelectBus, model: {base: this.mgrs.baseApp}, lock: false}).whenClosed(response => {
       if(response.wasCancelled){ return }
-      debugger
+      //@response.output.selected is a factoryBlock
+      this.feed?.DelBusFeed(this.parent)
       this.drain = response.output.selected
+      response.output.selected.AddBusFeed(this.parent)
     })
   }
 }

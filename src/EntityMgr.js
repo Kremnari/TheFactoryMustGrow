@@ -48,30 +48,30 @@ export class EntityMgr {
     tickerObj.entities.types.push('crafting')
     tickerObj.entities.types.push('mining')
   }
-  GenerateEntity(name, parcel, tagArray) {
+  GenerateEntity(name, facBlock, tagArray) {
     let obj = this.entities_base[name]
     if (obj.resource_categories) {
-      return new MiningEntity(obj, parcel, tagArray)
+      return new MiningEntity(obj, facBlock, tagArray)
     }
     if (obj.crafting_categories) {
-      return new CraftingEntity(obj, parcel, tagArray)
+      return new CraftingEntity(obj, facBlock, tagArray)
     }
     if (obj.inputs) {
-      return new LabEntity(obj, parcel, tagArray)
+      return new LabEntity(obj, facBlock, tagArray)
     }
     return false //Entity not added
   }
-  RestoreEntity(save, parcel, tagArray, mgrs) {
+  RestoreEntity(save, facBlock, tagArray, mgrs) {
     let obj = this.entities_base[save.name]
     let ret = null
     if(save.type=="mining") {
-      ret = new MiningEntity(obj, parcel, tagArray)
+      ret = new MiningEntity(obj, facBlock, tagArray)
       if(save.mining!="") ret.set_mining(mgrs.res.resList[save.mining], save.mining_timer)
     } else if(save.type=="crafting") {
-      ret = new CraftingEntity(obj, parcel, tagArray)
+      ret = new CraftingEntity(obj, facBlock, tagArray)
       if(save.recipe!="") ret.set_recipe(mgrs.rec.recipeList[save.recipe], save.crafting_timer)
     } else if(save.type=="lab") { 
-      ret = new LabEntity(obj, parcel, tagArray)
+      ret = new LabEntity(obj, facBlock, tagArray)
       ret.research_timer = save.research_timer
     }
     ret.restoreBuffers(save.buffers)
@@ -332,9 +332,9 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(facBlock, mgrs) {
+  constructor(facBlock, mgrs, ) {
     this.mgr = mgrs.entity
-    this.parent = facBlock
+    this.parent = facBlock.parent || facBlock
     MGRS.Ticker.subscribe( (obj) => { this.tick(obj) } )
   }
   deserialize(saveEntities, mgrs) {
