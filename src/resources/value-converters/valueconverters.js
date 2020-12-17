@@ -23,3 +23,10 @@ export class HasPropertyValueConverter {
     return array.filter( (item) => item[property].toLowerCase().indexOf(exp.toLowerCase())>-1).length > 0
   }
 }
+
+export class BlobToUrlValueConverter {
+  toView(blob) {
+    if(!blob) return
+    return URL.createObjectURL(blob);
+  }
+}

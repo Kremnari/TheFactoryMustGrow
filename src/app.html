@@ -133,9 +133,17 @@
       <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
     </select>
     <button click.delegate="IEshow()">Show</button><br>
-    <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px" view-spy/>
-    <button>Store</button>
-    <button click.delegate="saveIconEditor">Save</button>
+    <figcaption class="inline">Old</figcaption>
+    <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px"/>
+    <img src.bind="IE.showNew & signal:'update'" height="64px" width="64px"/>
+    <figcaption class="inline">New</figcaption><br>
+    <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replace</input>
+    <img src.bind="IE.fileBlob"></img><br>
+    <button click.delegate="IEStore()">Store</button>
+    <button click.delegate="saveIconEditor()">SaveDB</button><br>
+    <button click.delegate="dlIconEditor()">Download</button>
+    <input type="file" name="name" files.bind="IE.upload" style="display:none" id="IconFileSelect" accept=".json" change.delegate="ulIconEditor()">
+    <button onclick="document.getElementById('IconFileSelect').click();">Upload</button>
   </div>
   <section id="inventoryList">
     <h3>Inventory</h3>

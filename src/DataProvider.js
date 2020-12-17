@@ -12,6 +12,8 @@ export let DataProvider = {
       console.log('loaded from file')
       await mgrs.idb.set('dataSet', ds)
     } else console.log('loaded from db')
+    let icons = await mgrs.idb.get("Icons")
+    icons && (ds.icons = icons)
     let save = await mgrs.idb.get("SaveGame") || {}
 
     DataProvider.init(ds, save)
