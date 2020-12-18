@@ -89,9 +89,7 @@ export class PlayerBlock {
     return ret
   }
   getEntities(tag) {
-    let ret = Array.from(this.entityStore.entityTags.get("type").get(tag).values() || []) 
-    console.log(ret)
-    return ret
+    return Array.from(this.entityStore.entityTags.get("type")?.get(tag)?.values() || []) 
   }
   useItem(item) {
     this.entityStore.AddEntity(item)

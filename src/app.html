@@ -88,7 +88,7 @@
           <require from="./resources/elements/byModule/mining-infopane.html"></require>
           <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
           <div class="entityList">
-            <icon-base repeat.for="miner of viewPane.entities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
+            <icon-base repeat.for="miner of viewPane.facBlock.getEntities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
                       click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
           </div>
         </div>
@@ -105,7 +105,7 @@
           <require from="./resources/elements/byModule/lab-infopane.html"></require>
           <lab-infopane if.bind="viewPane.showingCat=='labs'" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
           <div class="entityList">
-            <icon-base repeat.for="labee of viewPane.entities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
+            <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
           </div>
         </div>
       </section>

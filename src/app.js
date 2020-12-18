@@ -55,9 +55,6 @@ export class App {
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
-      this.viewPane.entities = (x) => {
-        return Array.from(this.viewPane.facBlock.entityStore?.entityTags?.get("type")?.get(x)?.values() || [])
-      }
       this.mgrs.Ticker.toggle()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }

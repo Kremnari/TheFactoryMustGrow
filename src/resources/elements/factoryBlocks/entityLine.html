@@ -1,3 +1,6 @@
-<template bindable="line, entities">
+<template bindable="line">
   Entity Line
+  <div>
+    <icon-base repeat.for="e of line.entities" item.bind="e"></icon-base>
+  </div>
 </template>
