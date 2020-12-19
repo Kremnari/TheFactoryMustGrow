@@ -116,11 +116,11 @@ export default class RecipeMgr {
         inv.add(obj.name, obj.amount || 1 )
     })
   }
-  recipesByTags(property, tagList) {
+  recipesByTags(property, tagList, recList = this.recipeList) {
     if (tagList == null) return []
     if (!Array.isArray(tagList)) tagList = [tagList]
-    let list = Object.values(this.recipeList).filter( (elm) => {
-      return (elm.enabled == undefined || elm.enabled) && tagList.includes(elm[property])
+    let list = Object.values(recList).filter( (elm) => {
+      return (elm.enabled == undefined || elm.enabled) && (tagList.includes(elm[property]) || !elm[property])
     })
     //console.log(list)
     return list

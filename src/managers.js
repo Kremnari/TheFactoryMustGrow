@@ -5,7 +5,9 @@ import RecipeMgr from 'RecipeMgr'
 import TechMgr from 'TechMgr'
 import Ticker from "ticker"
 import {EntityMgr} from 'EntityMgr'
+import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {set as dbSet, get as dbGet, del as dbDel} from 'idb-keyval'
+import {inject} from 'aurelia-framework'
 
 export const mgrs =  {
   icon: new IconMgr(),
@@ -14,7 +16,7 @@ export const mgrs =  {
   tech: new TechMgr(),
   rec: new RecipeMgr(),
   entity: new EntityMgr(),
-  DS: null,
+  DS: DialogMgr,
   idb: {
     set: dbSet,
     get: dbGet,

@@ -1,0 +1,16 @@
+<template>
+  <ux-dialog>
+    <ux-dialog-header>Select Recipe</ux-dialog-header>
+    <ux-dialog-body>
+      <icon-base
+        repeat.for="rec of recList"
+        item.bind="rec"
+        click.delegate="select(rec)"
+        class="${rec==selected ? 'selected' : ''}"
+      ></icon-base>
+    </ux-dialog-body>
+    <ux-dialog-footer>
+      <button click.trigger="complete()">Done</button>
+    </ux-dialog-footer>
+  </ux-dialog>
+</template>

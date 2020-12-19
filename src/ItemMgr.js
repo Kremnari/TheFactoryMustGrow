@@ -135,8 +135,7 @@ export class Inventory {
         let item = data.which.item || this.itemMgr.get(data.which.name)
         if(data.which.count>0) {
           if(item.hasEntity) {
-            data.where.useItem(data.which.name)
-            data.which.count--
+            data.where.useItem(data.which.name) && data.which.count--
             this.signaler.signal('addedEntity')
             return
           }

@@ -1,6 +1,11 @@
-<template bindable="line">
+<template>
   Entity Line
+  <span click.delegate="click(line.entityType)">Set Recipe</span>
   <div>
-    <icon-base repeat.for="e of line.entities" item.bind="e"></icon-base>
+    <icon-base
+      repeat.for="e of line.entities"
+      item.bind="line.entityType"
+
+    ></icon-base>
   </div>
 </template>

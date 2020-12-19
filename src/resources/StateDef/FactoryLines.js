@@ -1,41 +1,59 @@
 import {Inventory} from 'ItemMgr'
-import {SelectBus} from 'resources/dialogs/SelectBus'
-PLATFORM.moduleName('resources/dialogs/SelectBus')
+import {mgrs} from 'managers'
+
 
 export class TransportLine {
-  feed = "null"
-  drain = "null"
-  constructor(parent, partwo) {
+  feed = null
+  drain = null
+  constructor(parent) {
     this.parent = parent
-    this.mgrs = partwo
+    //this.inv = new Inventory()
+    this.mgrs = mgrs
   }
   tick(tickData) {}
-  setSource() {
-    this.mgrs.DS.open({viewModel: SelectBus, model: {base: this.mgrs.baseApp}, lock: false}).whenClosed(response => {
-      if(response.wasCancelled){ return }
-      //@response.output.selected is a factoryBlock
-      this.feed?.DelBusDrain(this.parent)
-      this.feed = response.output.selected
-      response.output.selected.AddBusDrain(this.parent)
-    })
+  async setSource() {
+    let out = await this.mgrs.DS.open("SelectBus", {base: this.mgrs.baseApp})
+    if(!out.selected){ return }
+    //@response.output.selected is a factoryBlock
+    this.feed?.DelBusDrain(this.parent)
+    this.feed = out.selected
+    out.selected.AddBusDrain(this.parent)
   }
-  setTarget() {
-    this.mgrs.DS.open({viewModel: SelectBus, model: {base: this.mgrs.baseApp}, lock: false}).whenClosed(response => {
-      if(response.wasCancelled){ return }
-      //@response.output.selected is a factoryBlock
-      this.feed?.DelBusFeed(this.parent)
-      this.drain = response.output.selected
-      response.output.selected.AddBusFeed(this.parent)
-    })
+  async setTarget() {
+    let out = await this.mgrs.DS.open("SelectBus", {base: this.mgrs.baseApp})
+    if(!out.selected){ return }
+    //@response.output.selected is a factoryBlock
+    this.feed?.DelBusFeed(this.parent)
+    this.drain = out.selected
+    out.selected.AddBusFeed(this.parent)
   }
 }
 
 export class EntityLine {
-  entityType = "null"
-  entityCount = 0
-
+  entityType = undefined
+  recipe = 
+  entities = new EntityStorage(this.parent, )
   constructor(parent) { this.parent = parent}
-  tick(tickData) {}
+  tick(tickData) {
+    this.entities.forEach( (e) => e.tick(tickData))
+  }
+  SetRecipe(which) {
+    //Process ingredient refunds and reset busses
+    if(which) {
+      this.recipe=which
+    } else {
+      this.recipe=undefined
+    }
+  }
+  AddEntity(which) {
+    if(!this.entityType) {
+      this.entityType = which.name
+    } else if( this.entityType!=which) {
+      return false
+    }
+    this.entities.push(which)
+    return true
+  }
 }
 
 //Eventually add through CephlaComm

@@ -2,11 +2,11 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
-import {DialogService} from 'aurelia-dialog'
+import {DialogMgr} from 'resources/dialogs/DialogMgr'
 
 const IDB_SAVE_VERSION = "0.01"
 
-@inject(BindingSignaler, DataProvider, DialogService)
+@inject(BindingSignaler, DataProvider, DialogMgr)
 export class App {
     viewPane = {main: "home", showingItem: null }
     dataBase = {}
@@ -28,7 +28,7 @@ export class App {
     }
     async init(database, DS) {
       this.mgrs = database.mgrs
-      this.mgrs.DS = DS
+      //this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       if(database.save) {

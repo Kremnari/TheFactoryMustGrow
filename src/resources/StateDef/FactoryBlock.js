@@ -25,6 +25,8 @@ export class FactoryBlock {
 
     this.lines = []
     this.transports = []
+    this.feeds = []
+    this.drains = []
     this.name = name
     this.type = whichType
     if(includes.input) this.lines.push(new TransportLine(this, mgrs))
@@ -55,7 +57,7 @@ export class FactoryBlock {
     this.input.tick(tickData)
   }
   useItem(item) {
-    this.lines[this.line_select].AddEntity(item)
+    return this.lines[this.line_select].AddEntity(item)
   }
   getStore(line = 0) {
     return this.lines[line]

@@ -88,7 +88,6 @@ export default class TechMgr {
     this.visFilters.splice(idx, 1)
   }
   updateVisible() {
-    console.log('updating')
     let nextSet = []
     Object.entries(this.techList).forEach( ([name, tech]) => {
       if (this.visFilters.every((filterElm) => {

@@ -1,11 +1,11 @@
 <template bindable="line, type">
   <div if.bind="type=='input'">
-    Input Line
-    <span click.delegate="line.setSource()">Set Source</span>
+    Input from ${line.feed.name}
+    <span click.delegate="line.setSource()">Set Source...</span>
   </div>
   <div if.bind="type=='output'">
-    Output
-    <span click.delegate="line.setTarget()">Set Target</span>
+    Output to ${line.drain.name}
+    <span click.delegate="line.setTarget()">Set Target...</span>
   </div>
   <div if.bind="type=='internal'">Internal</div>
 </template>

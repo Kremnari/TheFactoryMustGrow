@@ -7,7 +7,7 @@ export let DataProvider = {
   async beginLoad() {
     let ds = await mgrs.idb.get('dataSet')
     if(!ds) {
-      let resp = await fetch("./data_source.json")
+      let resp = await fetch("/data_source.json")
       ds = await resp.json()
       console.log('loaded from file')
       await mgrs.idb.set('dataSet', ds)
