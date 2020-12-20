@@ -1,3 +1,4 @@
+import {EntityStorage} from 'EntityMgr'
 import {Inventory} from 'ItemMgr'
 import {mgrs} from 'managers'
 
@@ -8,11 +9,10 @@ export class TransportLine {
   constructor(parent) {
     this.parent = parent
     //this.inv = new Inventory()
-    this.mgrs = mgrs
   }
   tick(tickData) {}
   async setSource() {
-    let out = await this.mgrs.DS.open("SelectBus", {base: this.mgrs.baseApp})
+    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
     if(!out.selected){ return }
     //@response.output.selected is a factoryBlock
     this.feed?.DelBusDrain(this.parent)
@@ -20,7 +20,7 @@ export class TransportLine {
     out.selected.AddBusDrain(this.parent)
   }
   async setTarget() {
-    let out = await this.mgrs.DS.open("SelectBus", {base: this.mgrs.baseApp})
+    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
     if(!out.selected){ return }
     //@response.output.selected is a factoryBlock
     this.feed?.DelBusFeed(this.parent)
@@ -31,9 +31,12 @@ export class TransportLine {
 
 export class EntityLine {
   entityType = undefined
-  recipe = 
-  entities = new EntityStorage(this.parent, )
-  constructor(parent) { this.parent = parent}
+  recipe = undefined
+  entities = undefined
+  constructor(parent) {
+    this.parent = parent
+    this.entities = new EntityStorage(this.parent, mgrs)
+  }
   tick(tickData) {
     this.entities.forEach( (e) => e.tick(tickData))
   }
@@ -47,11 +50,11 @@ export class EntityLine {
   }
   AddEntity(which) {
     if(!this.entityType) {
-      this.entityType = which.name
+      this.entityType = which
     } else if( this.entityType!=which) {
       return false
     }
-    this.entities.push(which)
+    this.entities.AddEntity(which)
     return true
   }
 }

@@ -1,11 +1,11 @@
 <template>
   Entity Line
-  <span click.delegate="click(line.entityType)">Set Recipe</span>
+  <span click.delegate="click(line.entityType)" if.bind="line.entityType">Set Recipe</span>
   <div>
     <icon-base
-      repeat.for="e of line.entities"
-      item.bind="line.entityType"
-
+      repeat.for="e of line.entities.entities"
+      item.bind="e"
+      alt-image.bind="line.recipe.icon"
     ></icon-base>
   </div>
 </template>

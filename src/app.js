@@ -28,7 +28,7 @@ export class App {
     }
     async init(database, DS) {
       this.mgrs = database.mgrs
-      //this.mgrs.DS = DS
+      this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       if(database.save) {

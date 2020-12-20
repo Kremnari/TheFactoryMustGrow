@@ -2,8 +2,7 @@ import {EntityStorage} from 'EntityMgr'
 import {Inventory} from 'ItemMgr'
 import {TransportLine, EntityLine} from './FactoryLines'
 import {DialogService} from 'aurelia-dialog'
-import {mgrs as MGRS} from 'managers'
-let mgrs = MGRS
+import {mgrs} from 'managers'
 
 export class FactoryBlock {
   constructor(whichType, name) {
@@ -29,17 +28,12 @@ export class FactoryBlock {
     this.drains = []
     this.name = name
     this.type = whichType
-    if(includes.input) this.lines.push(new TransportLine(this, mgrs))
-    if(includes.line) this.lines.push(new EntityStorage(this, mgrs))
-    /*if(includes.delay) {
-      this.lines.push()
-      this.drains = []
-      this.feeds = []
-    }
-    */
-    if(includes.output) this.lines.push(new TransportLine(this, mgrs))
+    if(includes.input) this.lines.push(new TransportLine(this))
+    if(includes.line) this.lines.push(new EntityLine(this))
+    if(includes.output) this.lines.push(new TransportLine(this))
 
     this.line_select = includes.line ? 1 : 0
+    mgrs.Ticker.subscribe( (x) => this.tick(x))
   }
   static deserialize(DEPRECIATED, saveData) {
     let ret = new FactoryBlock()
@@ -50,11 +44,9 @@ export class FactoryBlock {
     return ret
   }
   tick(tickData) {
-    this.output.tick(tickData)
     for (let line of this.lines) {
       line.tick(tickData)
     }
-    this.input.tick(tickData)
   }
   useItem(item) {
     return this.lines[this.line_select].AddEntity(item)
@@ -66,7 +58,7 @@ export class FactoryBlock {
     this.line_select = which
   }
   add_EntityLine() {
-    this.lines.splice(-1, 0, new TransportLine(this, mgrs), new EntityStorage(this, mgrs))
+    this.lines.splice(-1, 0, new TransportLine(this), new EntityStorage(this))
   }
   AddBusDrain(who) { this.drains.push(who) }
   DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
@@ -77,11 +69,11 @@ export class FactoryBlock {
 export class PlayerBlock {
   constructor(invSeed) {
     this.inv = new Inventory(mgrs, invSeed)
-    this.entityStore = new EntityStorage(this, mgrs)
+    this.entityStore = new EntityStorage(this)
   }
   static deserialize(DEPRECIATED, saveData) {
-    let ret = new PlayerBlock(saveData.inv, mgrs, saveData.isPlayer)
-    ret.entityStore.deserialize(saveData.entityStore, mgrs)
+    let ret = new PlayerBlock(saveData.inv)
+    ret.entityStore.deserialize(saveData.entityStore)
     return ret
   }
   serialize() {

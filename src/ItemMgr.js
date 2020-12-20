@@ -1,4 +1,4 @@
-import {EventAggregator} from 'aurelia-event-aggregator'
+import {mgrs} from 'managers'
 
 export default class ItemMgr {
   itemList = {}
@@ -44,7 +44,7 @@ export class ItemStack {
 }
 
 export class Inventory {
-  constructor(mgrs, from = 0) {
+  constructor(DEPRECIATED, from = 0) {
     this.items = Array.isArray(from) ? from : new Array(from) 
     this.itemMgr = mgrs.item // ?? is needed? ... just for stacksizes?
     this.recMgr = mgrs.rec

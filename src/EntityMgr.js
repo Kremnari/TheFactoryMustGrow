@@ -1,8 +1,7 @@
 import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack} from "./ItemMgr"
-import {mgrs as MGRS} from 'managers'
-let mgrs = MGRS
+import {mgrs} from 'managers'
 
 export class EntityMgr {
   entities_base = {}
@@ -95,6 +94,9 @@ export class EntityMgr {
           console.log('not enough...awesome')
         }
       }
+  }
+  craftingCats(entityStr) {
+    return this.entities_base[entityStr].crafting_categories
   }
 }
 class Entity {
@@ -332,11 +334,12 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(facBlock, mgrs, ) {
+  constructor(facBlock) {
     this.mgr = mgrs.entity
     this.parent = facBlock.parent || facBlock
-    MGRS.Ticker.subscribe( (obj) => { this.tick(obj) } )
+    mgrs.Ticker.subscribe( (obj) => { this.tick(obj) } )
   }
+  [Symbol.iterator]() { return this.entities }
   deserialize(saveEntities, mgrs) {
     let next = null
     for (let each of saveEntities) {

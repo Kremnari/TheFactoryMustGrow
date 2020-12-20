@@ -121,7 +121,7 @@
         <div repeat.for="line of viewPane.facBlock.lines">
           <span click.delegate="facBlock.selectLine($index)">*</span>
           <transport-line if.bind="line.constructor.name=='TransportLine'" line.bind="line" type.bind="($first && 'input') || ($last && 'output') || 'internal'"></transport-line>
-          <entity-line if.bind="line.constructor.name=='EntityStorage'" line.bind="line" click.delegate="viewPane.facBlock.selectLine($index)"></entity-line>
+          <entity-line if.bind="line.constructor.name=='EntityLine'" line.bind="line" click.delegate="viewPane.facBlock.selectLine($index)"></entity-line>
         </div>
       </section>
     </article>
