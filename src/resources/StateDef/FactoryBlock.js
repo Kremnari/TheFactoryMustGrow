@@ -68,12 +68,14 @@ export class FactoryBlock {
 
 export class PlayerBlock {
   constructor(invSeed) {
-    this.inv = new Inventory(mgrs, invSeed)
+    this.inv = new Inventory(invSeed)
     this.entityStore = new EntityStorage(this)
   }
   static deserialize(DEPRECIATED, saveData) {
-    let ret = new PlayerBlock(saveData.inv)
+    let ret = new PlayerBlock()
+    ret.inv.deserialize(saveData.inv)
     ret.entityStore.deserialize(saveData.entityStore)
+    //debugger
     return ret
   }
   serialize() {
@@ -86,8 +88,7 @@ export class PlayerBlock {
     return Array.from(this.entityStore.entityTags.get("type")?.get(tag)?.values() || []) 
   }
   useItem(item) {
-    this.entityStore.AddEntity(item)
-
+    return this.entityStore.AddEntity(item)
   }
   tick(tickData) {
     //subscribe moved to entitystorage, where it's used

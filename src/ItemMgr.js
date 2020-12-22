@@ -32,10 +32,11 @@ class Item {
 }
 
 export class ItemStack {
-  constructor(item, count) {
+  constructor(item, count, filtered = false) {
     if(typeof item == "string") this.name = item
     if(typeof item == "Object") { this.name = item.name; this.item = item }
     this.count = count
+    this.filtered = filtered
   }
   static convert(fromRec) {
     if(fromRec.count) return fromRec
@@ -44,20 +45,24 @@ export class ItemStack {
 }
 
 export class Inventory {
-  constructor(DEPRECIATED, from = 0) {
+  constructor(from = 0, max_stack) {
     this.items = Array.isArray(from) ? from : new Array(from) 
+    this.max_stack = max_stack
     this.itemMgr = mgrs.item // ?? is needed? ... just for stacksizes?
     this.recMgr = mgrs.rec
     this.signaler = mgrs.signaler
   }
   serialize() {
-    return this.items
+    return { items: this.items, max_stack: this.max_stack }
   }
   deserialize(save) {
-    this.items = save
+    this.items = save.items
+    this.max_stack = save.max_stack
+    //debugger
   }
   [Symbol.iterator]() { return this.items }
   addAll(itemStacks, returnPartial = true, multi = 1.0) {
+    if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
     let part = []
     let retCount = 0
     for (let each of itemStacks) {
@@ -67,27 +72,77 @@ export class Inventory {
     if (returnPartial) return part
   }
   consumeAll(itemStacks, revertOnFailFast = true, multi = 1.0) {
+    //console.log("start consume")
+    //console.log(itemStacks)
+    if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
     let consumed = []
     let retCount = 0
     for (let IS of itemStacks) {
       let each = ItemStack.convert(IS)
-      retCount = this.consume(each.item || each.name, (each.count || each.amount)*multi )
-      if(retCount==0) consumed.push(each)
+      //console.log(each)
+      retCount = this.consume(each.name, each.count*multi )
+      //console.log(retCount)
+      if(retCount===true) consumed.push(each)
       else if(revertOnFailFast) {
+        //console.log('reverting')
         consumed.length>=1 ? this.addAll(consumed, false, multi) : void
         this.add(each.item, each.count-retCount)
         consumed = null
         return itemStacks
       }
     }
-    return []
+    return revertOnFailFast ? true : []
   }
-  total(item) {
+  absorbFrom(inv, specific) {
+    for(let i of inv.items) {
+      if(!i) return 
+      let rest
+      if(specific && i.name!=specific) continue
+      rest = this.addAll(i)
+      if(rest.length==0) {
+        //console.log(i)
+        inv.consumeAll(i)
+      } else {
+        //TODO finish for partial adds
+        console.log("couldn't add all")
+        console.log(rest)
+      }
+    }
+    mgrs.signaler.signal("generalUpdate")
+  }
+  /*fill(inv, IS) {
+    let toAdd = mgrs.rounder.calc(inv.total(IS.name), inv.max_in, this.total(IS.name))
+    console.log(toAdd)
+  }*/
+  setFilter(where, what, actor = mgrs.baseApp.player) {
+    if(where>this.items.length) return false
+    let filterStack = new ItemStack(what, 0, true)
+
+    if(!this.items[where]) {
+      this.items[where] = filterStack
+    } else if(this.items[where].name==what) {
+      this.items[where].filtered = true
+    } else {
+      let consumed = this.items[where]
+      this.items[where] = filterStack
+      actor.inv.addAll(consumed, false)
+    }
+    mgrs.signaler.signal("generalUpdate")
+    return true
+  }
+  removeFilter(where, what) {
+    if(where>this.items.length
+      || this.items[where].name!=what)
+      return false
+    this.items[where].filtered = false
+    return true
+  }
+  total(item, log = false) {
     return this.items.reduce( (acc, curr) => { return curr && curr.name == item ? acc+curr.count : acc }, 0)
   }
-  add(item, count) { //will ALWAY returns unadded portion
+  add(item, count) { //will ALWAYS returns unadded portion
     if(count==0) return
-    let maxStack = this.itemMgr.get(item).stack_size
+    let maxStack = this.max_stack || this.itemMgr.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
     if(!targ) { return count }
     let toAdd = Math.min(maxStack - targ.count, count)
@@ -96,20 +151,28 @@ export class Inventory {
     else return 0
   }
   consume(item, count) { //will ALWAYS return unconsumed portion
-    let targIdx = this._GetSubStack(item, true) //By_Idx
-    let targ = this.items[targIdx]
+    //console.log("consuming")
+    //console.log(item)
+    //console.log(count)
+    let targ = this._GetSubStack(item, false) //By_elm
     if(!targ) return count
-    targ.count -= count
-    if (targ.count<0) {
+    //targ.count -= count
+    /*if (targ.count<0) {
       let left = targ.count*-1
       targ.count = 0
-      this.items[targIdx] = undefined
-      return this.consume(item, left)
+      !this.items[targIdx].filtered && (this.items[targIdx] = undefined)
+      return this.add(item, left)
     }
-    if(targ.count==0) this.items[targIdx] = undefined
-    return 0
-  }
-  
+    if(targ.count==0) !this.items[targIdx] && (this.items[targIdx] = undefined)
+    */
+    //console.log(targ.count)
+    if(targ.count>=count) {
+      targ.count-=count
+      //console.log("found enough")
+      return true
+    }
+    return false
+  }  
   _GetAddStack(item, maxStack) {
     let targ = -1
     let byName = (elm) => { return elm && elm.name == item && elm.count < maxStack }
@@ -118,7 +181,8 @@ export class Inventory {
 
     for (let func of [byName, byZeroStack, byEmpty]) {
       targ = this.items.findIndex(func)
-      if(targ>-1) {
+      //? filter check appropriate?
+      if(targ>-1 && (!this.items[targ]?.filtered || this.items[targ].name==item)) {
         break
       }
     }
@@ -146,6 +210,8 @@ export class Inventory {
         let unconsumed = data.where.inv.consume(data.which.name, count)
         let unaddable = data.who.inv.add(data.which.name, count-unconsumed)
         data.where.inv.add(data.which.name, unaddable)
+        break;
+      case "setFilter":
         break;
     }
   }

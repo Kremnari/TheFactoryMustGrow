@@ -4,8 +4,12 @@
     <p>Select Resource to Mine</p>
     <icon-base repeat.for="res of resMgr.resListByTag('category', miner.resource_categories)" item.bind="res" click.delegate="miner.set_mining(res)" class="${res==miner.mining? 'selected': ''}"></icon-base>
     <p click.delegate="miner.collectBuffer(actor)" if.bind="miner.mining" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${miner.mining_timer/16*100}%, red ${miner.mining_timer/16*100}%)"
-      title="Click to collect">Buffer: ${miner.buffers.out.qty}/${miner.buffers.out.max} of
-      <icon-base item.bind="miner.mining.mining_results"></icon-base>
+      title="Click to collect">
+      <icon-base
+        item.bind="miner.mining.mining_results"
+        count.bind="miner.buffers.out.total(miner.mining.mining_results) & signal:'generalUpdate'"
+      ></icon-base>
+      /${miner.buffers.max_out} (max)
     </p>
     <upgrades-infopane entity.bind="miner" parcel.bind="miner.parent"></upgrades-infopane>
   </div>

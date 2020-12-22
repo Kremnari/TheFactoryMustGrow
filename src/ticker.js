@@ -1,4 +1,5 @@
 import * as CONFIG from './Config'
+import {mgrs} from "managers"
 
 export default class Ticker {
   _cbs = {
@@ -43,6 +44,7 @@ export default class Ticker {
         if (this.ticks % cbObj.nth == cbObj.phase) cbObj.cb(tickData)
       })
     }
+    mgrs.signaler.signal("tickUpdate")
     return true;
   }
   DataProvider(cb) {

@@ -1,13 +1,13 @@
 <template title.bind="altTip">
   <require from="./icon-base.css"> </require>
-  <div>
+  <div class="${item.filtered && 'ghosted'}">
     <img src.bind="item.icon || mgrs.icon.getSrc('item', item.name)" height="32px"/>
     <span if.bind="showName">${item.name}</span>
   </div>
   <div class="modifiers"> 
     <span if.bind="altImage" class="altImage"><img src="${altImage}" /></span>
-    <span if.bind="count">${count}</span>
-    <span></span>
+    <span if.bind="count!=undefined">${count}</span>
+    <span if.bind="required" class="required">${required}</span>
     <span></span> 
   </div>
   <div>

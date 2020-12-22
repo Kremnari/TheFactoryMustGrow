@@ -1,13 +1,22 @@
-<template bindable="crafter, recMgr, itemMgr, actor, rounder">
+<template bindable="crafter, recMgr, itemMgr, actor">
   <require from="../../value-converters/lib/ObjectFilters"></require>
   <require from="./upgrades-infopane"></require>
-  <div class="showRecipe" if.bind="crafter.recipe"> 
+  <div class="showRecipe, ${crafter.crafting_timer!=NaN && 'progressBarBase'}" if.bind="crafter.recipe" css="border-image-source: linear-gradient(to right, green ${crafter.crafting_timer/16*100}%, red ${crafter.crafting_timer/16*100}%)"> 
       Recipe:
-      <p show.bind="crafter.canConsumeIngs" click.delegate="crafter.consumeIngs(rounder)">Load</p>
-      <icon-base repeat.for="ing of crafter.recipe.ingredients | objectValues" item.bind="itemMgr.itemList[ing.name]" count.bind="ing.amount"></icon-base>
-      <div class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${crafter.crafting_timer/16*100}%, red ${crafter.crafting_timer/16*100}%)">${crafter.buffers.in.qty}/${crafter.buffers.in.max}
-          =>${crafter.buffers.out.qty}/${crafter.buffers.out.max}</div>
-      <icon-base repeat.for="res of crafter.recipe.results | objectValues" item.bind="itemMgr.itemList[res.name]" count.bind="res.amount" click.delegate="crafter.collectBuffer(actor)"></icon-base>
+      <icon-base
+        repeat.for="ing of crafter.recipe.ingredients | objectValues"
+        item.bind="itemMgr.itemList[ing.name]"
+        required.bind="ing.amount"
+        count.bind="crafter.buffers.in.total(ing.name) & signal:'generalUpdate'"
+        click.delegate="crafter.consumeFrom(actor.inv, ing)"
+      ></icon-base>
+      <icon-base
+        repeat.for="res of crafter.recipe.results | objectValues"
+        item.bind="itemMgr.itemList[res.name]"
+        required.bind="res.amount"
+        count.bind="crafter.buffers.out.total(res.name) & signal:'generalUpdate'"
+        click.delegate="actor.inv.absorbFrom(crafter.buffers.out, res.name)"
+      ></icon-base>
     </p>
     <p click.delegate="crafter.clear_recipe()">Clear recipe</p>
   </div>

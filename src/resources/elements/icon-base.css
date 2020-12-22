@@ -55,3 +55,11 @@ icon-base > div.modifiers > span.altImage {
 .altImage > img {
   height: 100%;
 }
+
+icon-base > .required {
+  color: red;
+}
+.ghosted {
+  border: 1px dashed grey;
+  border-radius: 4px
+}

@@ -95,7 +95,7 @@
         <div show.bind="viewPane.entityPane == 'manuf'">
           <h4>Manufacturing</h4>
           <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-          <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+          <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
           <div class="entityList">
             <icon-base
               repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
@@ -128,8 +128,12 @@
     <article class="rightside">
       <section id="inventoryList" if.bind="!viewPane.facBlock.isPlayer">
         <h3>Inventory</h3>
-        <icon-base repeat.for="item of viewPane.facBlock.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="viewPane.facBlock.inv.click({where:viewPane.facBlock, which:item, who:player, what:'move', rounder})">
-        </icon-base>
+        <icon-base
+          repeat.for="item of viewPane.facBlock.inv.items & signal:'generalUpdate'"
+          item.bind="item"
+          count.bind="item.count"
+          click.delegate="viewPane.facBlock.inv.click({where:viewPane.facBlock, which:item, who:player, what:'move', rounder})"
+        ></icon-base>
       </section>
     </article>
   </div>
@@ -155,8 +159,13 @@
   </div>
   <section id="inventoryList">
     <h3>Inventory</h3>
-    <icon-base repeat.for="item of player.inv.items" item.bind="item" show.bind="item.count>0" count.bind="item.count" click.delegate="player.inv.click({where:viewPane.facBlock, which:item, who:player, what:'use'})">
-    </icon-base>
+    <icon-base
+      repeat.for="item of player.inv.items"
+      item.bind="item"
+      show.bind="item.count>0 || item.filtered"
+      count.bind="item.count"
+      click.delegate="player.inv.click({where:viewPane.facBlock, which:item, who:player, what:'use'})"
+    ></icon-base>
   </section>
   <section id="numSelectors">
     <input type="checkbox" id="numSelToggle" style="display:none">

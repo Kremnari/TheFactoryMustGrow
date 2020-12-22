@@ -31,6 +31,7 @@ export class App {
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
+      this.mgrs.rounder = this.rounder
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
           this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
