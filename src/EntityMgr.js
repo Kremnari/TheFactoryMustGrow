@@ -5,8 +5,6 @@ import {mgrs} from 'managers'
 
 export class EntityMgr {
   entities_base = {}
-  //entity_types = {"assembling-machine": {$total: {qty:0}}, "furnace": {$total: {qty:0}}, "mining-drill": {$total: {qty:0}}, "lab": {$total: {qty:0}}} 
-  //entity_types = {"mining": [], "crafting": [], "lab": []}
   entity_cats = []
   constructor() {}
   import(entityData, mgrs) {
@@ -76,23 +74,23 @@ export class EntityMgr {
     ret.restoreBuffers(save.buffers)
     return ret
   }
-  set_player(who) {
-    this.player = who
-  }
   upgrade(obj) {
+    //TODO ugly implementation of actor acquisition
+    //TODO ugly implementation of defining upgrade period
     //consume upgrade ingredients from inventory
       if(obj.type=="buffers") {
-        if(this.player.inv.consumeAll([new ItemStack("iron-chest", 2)], true).length==0) {
-          obj.who.buffers[obj.dir].max += 10
+        let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("iron-chest", 2)], true)
+        if(consumed) {
+          obj.who.buffers["max_"+obj.dir] += 10
         } else {
           console.log('not enough...awesome')
         }
       } else if(obj.type=="autoload") {
-        if(this.player.inv.consumeAll([new ItemStack("burner-inserter", 1)], true).length==0) {
+/*        if(mgrs.baseApp.player.inv.consumeAll([new ItemStack("burner-inserter", 1)], true).length==0) {
           obj.who.buffers[obj.dir].xfer.count++
         } else {
           console.log('not enough...awesome')
-        }
+        }*/
       }
   }
   craftingCats(entityStr) {
@@ -154,7 +152,7 @@ class MiningEntity extends Entity{
     ret.name = this.name
     ret.type = "mining"
     ret.mining = this.mining?.name || ""
-    ret.buffers = this.buffers
+    ret.buffers = {out: this.buffers.out.serialize()}
     ret.mining_timer = this.mining_timer
     return ret
   }
@@ -191,7 +189,7 @@ class MiningEntity extends Entity{
     }
   }
   collectBuffer(actor = this, count= this.buffers.out.total(this.mining.mining_results)) {
-    //if (this.buffers.out.qty == 0 ) return
+    if(count==0) return
     let consumed = actor.inv.add(this.mining.mining_results, count)
     this.buffers.out.consume(this.mining.mining_results, count - consumed)
   }
@@ -240,7 +238,6 @@ class CraftingEntity extends Entity {
     }
   }
   deserialize(data) {
-    debugger
     Object.assign(this, data)
   }
   serialize() {
@@ -254,8 +251,6 @@ class CraftingEntity extends Entity {
     return ret
   }
   clear_recipe() {
-    //if(this.tickSub) this.ticker.dispose(this.tickSub)
-    //this.tickSub = null
     this.inv.absorbFrom(this.buffers.in)
     this.inv.absorbFrom(this.buffers.out)
     this.tags.delete("ticking")
@@ -263,7 +258,6 @@ class CraftingEntity extends Entity {
   }
   consumeFrom(inv, IS) {
     let toAdd = mgrs.rounder.calc(this.buffers.in.total(IS.name), this.buffers.max_in, inv.total(IS.name))
-    //let toAdd = mgrs.rounder.calc(inv.total(IS.name), inv.max_in, this.total(IS.name))
     inv.consume(IS.name, toAdd)
     this.buffers.in.add(IS.name, toAdd)
     this.tags.push("ticking", "crafting")
@@ -286,7 +280,6 @@ class LabEntity extends Entity {
   //technology is set elsewhere
   constructor(baseItem, inventory, tagArray) {
     super(baseItem, inventory, tagArray, "lab")
-    //this.tickSub = this.ticker.subscribe(() => {this.tick()}, 10)
     this.buffers.in = new Inventory(this.inputs.length, this.buffers.max_in)
     this.buffers.max_in = 5;
     this.inputs.forEach( (name, idx) => this.buffers.in.setFilter(idx, name))
@@ -299,7 +292,7 @@ class LabEntity extends Entity {
     let ret = {}
     ret.name = this.name
     ret.type = "lab"
-    ret.buffers = this.buffers
+    ret.buffers = { in: this.buffers.in.serialize()}
     ret.research_timer = this.research_timer
     return ret
   }
@@ -313,7 +306,6 @@ class LabEntity extends Entity {
 
     let toAdd = rounder.calc(this.buffers.in.total(name), this.buffers.max_in, this.inv.total(name))
     toAdd -= this.inv.consume(name, toAdd) //returns unconsumed
-    //this.itemMgr.itemList[name].count -= toAdd
     this.buffers.in.add(name, toAdd)
     this.tags.push("ticking", "lab")
   }
@@ -330,14 +322,17 @@ class LabEntity extends Entity {
       }
     }*/
     if(!tickData.mgrs.tech.researching) return
-    if(Number.isNaN(this.research_timer)) this.nextUnit(tickData.mgrs.tech.nextIngredients)
-    else this.research_timer++
+    if(!Number.isNaN(this.research_timer) && this.research_timer<16) this.research_timer++
     if (this.research_timer%16==0) {
       tickData.mgrs.tech.increment_research()
       this.research_timer = NaN
     }
+    if(Number.isNaN(this.research_timer)) {
+      this.nextUnit(tickData.mgrs.tech.nextIngredients)
+    }
   }
   nextUnit(ings) {
+    if(!ings) return
     let canConsume = ings.every( ([name, qty]) => { return this.buffers.in.total(name) >= qty } )
     if(!canConsume) { this.tags.delete("ticking"); return }
     ings.forEach( ([name, qty]) => this.buffers.in.consume(name, qty))

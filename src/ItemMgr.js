@@ -82,7 +82,7 @@ export class Inventory {
       //console.log(each)
       retCount = this.consume(each.name, each.count*multi )
       //console.log(retCount)
-      if(retCount===true) consumed.push(each)
+      if(retCount===0) consumed.push(each)
       else if(revertOnFailFast) {
         //console.log('reverting')
         consumed.length>=1 ? this.addAll(consumed, false, multi) : void
@@ -130,6 +130,11 @@ export class Inventory {
     mgrs.signaler.signal("generalUpdate")
     return true
   }
+  seeFilteredItems() {
+    let out = []
+    this.items.forEach((i) => i.filtered && out.push(i.name))
+    return out
+  }
   removeFilter(where, what) {
     if(where>this.items.length
       || this.items[where].name!=what)
@@ -169,7 +174,7 @@ export class Inventory {
     if(targ.count>=count) {
       targ.count-=count
       //console.log("found enough")
-      return true
+      return 0
     }
     return false
   }  

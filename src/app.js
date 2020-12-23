@@ -52,11 +52,11 @@ export class App {
         this.jumpStart()
       }
       this.showDev = await this.mgrs.idb.get("dev")
-      this.mgrs.entity.set_player(this.player)  //SMELL
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
       this.mgrs.Ticker.toggle()
+      this.testing()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -88,8 +88,9 @@ export class App {
         }, 0)
       }
     }
-    add_FacBlock(type) {
-      this.facBlocks.push(new FactoryBlock(type, prompt("Enter Block Name")))
+    add_FacBlock(type, name) {
+      name = name || prompt("Enter Block Name")
+      name && this.facBlocks.push(new FactoryBlock(type, name))
     }
     select_FacBlock(which, isPlayer = false) {
       this.showItem = null
@@ -115,6 +116,16 @@ export class App {
       this.player.inv.add("lab", 2)
       this.player.inv.add("automation-science-pack", 200)
     }
+    testing() {
+      //if(!confirm("Initialize Testing?")) return
+
+      this.add_FacBlock("bus", "main")
+      this.add_FacBlock("resource", "iron-mine")
+      this.add_FacBlock("factory", "alpha")
+      this.add_FacBlock("factory", "beta")
+      this.add_FacBlock("research", "main")
+    }
+
     async iconEditor() {
       if(this.viewPane=="iconEditor") {
         this.viewPane = {main: "home", showingItem: null }

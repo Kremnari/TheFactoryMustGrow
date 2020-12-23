@@ -1,17 +1,16 @@
 <template bindable="tech, techMgr, tooltip">
-  <!-- mouseenter.trigger="tooltip = tech" mouseleave.trigger="tooltip = null"  click.delegate="mgrs.tech.select_research(tech)" -->
   <div>
     <div><icon-base item.bind="tech"></icon-base>${tech.name}</div>
-    <div>
+    <div if.bind="!tech.researched">
       <b>Cost</b>
       <icon-base repeat.for="unit of tech.cost.ingredients" item.bind="unit[0]"></icon-base>
       x${tech.cost.count - tech.completeUnits}
     </div>
     <div>
       <b>Unlocks</b>
-      <icon-base repeat.for="unlock of tech.unlocks" item.bind="unlock" mouseenter.trigger="tooltip = tech" mouseleave.trigger="tooltip = null"></icon-base>
+      <icon-base repeat.for="unlock of tech.unlocks" item.bind="unlock" mouseenter.trigger="tooltip = unlock" mouseleave.trigger="tooltip = null"></icon-base>
     </div>
-    <button click.delegate="techMgr.select_research(tech)" if.bind="!techMgr.researching">Research</button>
+    <button click.delegate="techMgr.select_research(tech)" if.bind="!techMgr.researching && !tech.researched">Research</button>
     <button click.delegate="techMgr.cancel_research()" if.bind="techMgr.researching == tech">Cancel</button>
   </div>
 </template>

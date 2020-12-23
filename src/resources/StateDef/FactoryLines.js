@@ -8,7 +8,7 @@ export class TransportLine {
   drain = null
   constructor(parent) {
     this.parent = parent
-    //this.inv = new Inventory()
+    this.inv = new Inventory()
   }
   tick(tickData) {}
   async setSource() {
@@ -37,9 +37,7 @@ export class EntityLine {
     this.parent = parent
     this.entities = new EntityStorage(this.parent, mgrs)
   }
-  tick(tickData) {
-    this.entities.forEach( (e) => e.tick(tickData))
-  }
+  tick(tickData) {}
   SetRecipe(which) {
     //Process ingredient refunds and reset busses
     if(which) {
