@@ -119,6 +119,7 @@ export class PlayerBlock {
   constructor(invSeed) {
     this.inv = new Inventory(invSeed)
     this.entityStore = new EntityStorage(this)
+    mgrs.Ticker.subscribe((x)=>{this.tick(x)})
   }
   static deserialize(DEPRECIATED, saveData) {
     let ret = new PlayerBlock()
