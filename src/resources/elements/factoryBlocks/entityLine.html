@@ -1,11 +1,24 @@
 <template>
   Entity Line
-  <span click.delegate="click(line.entityType)" if.bind="line.entityType">Set Recipe</span>
+  <span
+    click.delegate="click(line)"
+    if.bind="line.restrictedTo=='crafting'"
+  >Set Recipe</span>
+  <span
+    click.delegate="click(line)"
+    if.bind="line.restrictedTo=='mining'"
+  >Set Resource</span>
   <div>
     <icon-base
-      repeat.for="e of line.entities.entities"
+      if.bind="line.setFn"
+      item.bind="line.setFn.name"
+    ></icon-base>
+    <span if.bind="line.setFn">:</span>
+    <icon-base
+      repeat.for="e of line.entities"
       item.bind="e"
       alt-image.bind="line.recipe.icon"
+      progress.bind="e.progress"
     ></icon-base>
   </div>
 </template>

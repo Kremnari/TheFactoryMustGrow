@@ -1,11 +1,13 @@
-<template bindable="line, type">
-  <div if.bind="type=='input'">
-    Input from ${line.feed.name}
-    <span click.delegate="line.setSource()">Set Source...</span>
-  </div>
+<template bindable="line, type, upgrades">
   <div if.bind="type=='output'">
-    Output to ${line.drain.name}
-    <span click.delegate="line.setTarget()">Set Target...</span>
+    <upgrade-select repeat.for="upgrades.transport"></upgrade-select>
   </div>
   <div if.bind="type=='internal'">Internal</div>
+  <icon-base
+    repeat.for="item of line.items"
+    item.bind="item"
+    count.bind="item.count"
+  ></icon-base>
+  <div if.bind="type=='input'">
+  </div>
 </template>

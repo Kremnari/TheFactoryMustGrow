@@ -10,6 +10,8 @@
     <span if.bind="required" class="required">${required}</span>
     <span></span> 
   </div>
+  <div if.bind="progress" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${progress}%, red ${progress}%)">
+  </div>
   <div>
     <span class="animTarget" style.bind="anim_style"></span> 
   </div>

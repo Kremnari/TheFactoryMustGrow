@@ -1,36 +1,40 @@
 import {EntityStorage} from 'EntityMgr'
-import {Inventory} from 'ItemMgr'
-import {TransportLine, EntityLine} from './FactoryLines'
-import {DialogService} from 'aurelia-dialog'
+import {Inventory, ItemStack} from 'ItemMgr'
 import {mgrs} from 'managers'
+import {InvXFer} from 'gameCode/Inventory'
 
 export class FactoryBlock {
+  entityTypes = false
+  upgrades = {}
   constructor(whichType, name) {
     let includes
     switch(whichType) {
       case "resource":
         includes = {output:true, line:true }
+        this.entityTypes = "mining"
         break;
       case "bus":
         includes = {input: true, output: true, delay: true}
         break;
       case "research":
         includes = {input: true, line: true}
+        this.entityTypes = "research"
         break;
       case "factory":
       default:
+        this.entityTypes = "crafting"
         includes = {input: true, output: true, line:true}
     }
-
     this.lines = []
     this.transports = []
     this.feeds = []
     this.drains = []
     this.name = name
     this.type = whichType
-    if(includes.input) this.lines.push(new TransportLine(this))
-    if(includes.line) this.lines.push(new EntityLine(this))
-    if(includes.output) this.lines.push(new TransportLine(this))
+    this.upgrades = {}
+    if(includes.input) this.inputLine = new Inventory(5)
+    if(includes.output) this.outputLine = new Inventory(5)
+    if(includes.line) this.lines.push(new EntityStorage(this, {type: this.entityTypes, feed: this.inputLine, drain: this.outputLine}))
 
     this.line_select = includes.line ? 1 : 0
     mgrs.Ticker.subscribe( (x) => this.tick(x))
@@ -44,26 +48,71 @@ export class FactoryBlock {
     return ret
   }
   tick(tickData) {
-    for (let line of this.lines) {
-      line.tick(tickData)
+    if(tickData.ticks%16!=0) return
+    //console.log('tickStart')
+    if(this.type=="bus") {
+      for(let x of this.drains) {
+        if(x.type=="bus") return
+        x.inputLine.absorbFrom(this.outputLine)
+      }
+    } else {
+      //NYI
+      //this.inputLine && InvXFer(this.inputLine, this.lines[0])
+
+      if(this.inputLine) {
+        for(let each of this.inputLine.getTypes(false)) {
+          let total = this.inputLine.total(each)
+          if(total>0) {
+            this.lines[0].recieveItem(new ItemStack(each, total), this.inputLine)
+            console.log('total: '+this.inputLine.total(each))
+          }
+        }
+      }
+      tickData.fromParent = {
+        feed: this.inputLine
+        ,drain: this.outputLine
+      }
+      for(let line of this.lines) {
+        line.tick(tickData)
+      }
+      this.drains[0]?.inputLine.absorbFrom(this.outputLine)
     }
+    //console.log('tickEnd')
   }
-  useItem(item) {
-    return this.lines[this.line_select].AddEntity(item)
-  }
-  getStore(line = 0) {
-    return this.lines[line]
-  }
-  selectLine(which) {
-    this.line_select = which
+
+  useItem(item, line = this.line_select) {
+    return this.lines[0].AddEntity(item)
   }
   add_EntityLine() {
-    this.lines.splice(-1, 0, new TransportLine(this), new EntityStorage(this))
+    this.lines.splice(-1, 0, new Inventory(5), new EntityStorage(this, this.entityTypes))
   }
-  AddBusDrain(who) { this.drains.push(who) }
+  async SelectBusFeed() {
+    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
+    if(!out?.selected) return
+    this.AddBusFeed(out.selected)
+  }
+  AddBusFeed(who)  {
+    if(!this.inputLine || !who || this.feeds.includes(who)) return 
+    this.feeds.push(who)
+    who.AddBusDrain(this)
+  }
+  DelBusFeed(who)  {
+    this.feeds = this.feeds.filter( (x) => x!=who)
+  }
+  async SelectBusDrain() {
+    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
+    if(!out?.selected) return
+    this.AddBusDrain(out.selected)
+  }
+  AddBusDrain(who) {
+    if(!who || this.drains.includes(who)) return
+    this.drains.push(who)
+    who.AddBusFeed(this)
+  }
   DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
-  AddBusFeed(who)  { this.feeds.push(who) }
-  DelBusFeed(who)  { this.feeds = this.feeds.filter( (x) => x!=who)}
+  ApplyUpgrade() {
+
+  }
 }
 
 export class PlayerBlock {

@@ -1,0 +1,16 @@
+<template>
+  <ux-dialog>
+    <ux-dialog-header>Select ${type}</ux-dialog-header>
+    <ux-dialog-body>
+      <icon-base
+        repeat.for="each of list"
+        item.bind="each"
+        click.delegate="select(each)"
+        class="${each==selected ? 'selected' : ''}"
+      >${each.name}</icon-base>
+    </ux-dialog-body>
+    <ux-dialog-footer>
+      <button click.trigger="complete()">Close</button>
+    </ux-dialog-footer>
+  </ux-dialog>
+</template>

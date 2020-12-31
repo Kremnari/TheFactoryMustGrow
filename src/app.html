@@ -15,7 +15,9 @@
     <div id="devControls" if.bind="showDev">
       <button click.delegate="save()">Save</button>
       <button click.delegate="resetSave()">Start Anew</button>
+      <button click.delegate="mgrs.Ticker.once()">Tick 1</button>
       <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
+      <button click.delegate="testing()">Testing...</button>
       <button click.delegate="iconEditor()">Edit Icons</button>
     </div>
     <div id="playerControls">
@@ -118,10 +120,35 @@
       <section if.bind="viewPane.main == 'entities' && !viewPlayer">
         <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
         <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
+        ${viewPane.facBlock.name}
+        <div if.bind="viewPane.facBlock.inputLine">
+          <span click.delegate="viewPane.facBlock.SelectBusFeed()">Set Feed</span>
+          <span if.bind="viewPane.facBlock.feeds[0]">Feed From: ${viewPane.facBlock.feeds[0].name}</span>
+        </div>
+        <transport-line
+          if.bind="viewPane.facBlock.inputLine"
+          line.bind="viewPane.facBlock.inputLine"
+          type="input"
+        ></transport-line>
         <div repeat.for="line of viewPane.facBlock.lines">
-          <span click.delegate="facBlock.selectLine($index)">*</span>
-          <transport-line if.bind="line.constructor.name=='TransportLine'" line.bind="line" type.bind="($first && 'input') || ($last && 'output') || 'internal'"></transport-line>
-          <entity-line if.bind="line.constructor.name=='EntityLine'" line.bind="line" click.delegate="viewPane.facBlock.selectLine($index)"></entity-line>
+          <transport-line
+            if.bind="line.constructor.name=='Inventory'"
+            line.bind="line"
+            type="internal"
+          ></transport-line>
+          <entity-line
+            if.bind="line.constructor.name=='EntityStorage'"
+            line.bind="line"
+          ></entity-line>
+        </div>
+        <transport-line
+          if.bind="viewPane.facBlock.outputLine"
+          line.bind="viewPane.facBlock.outputLine"
+          type="output"
+        ></transport-line>
+        <div if.bind="viewPane.facBlock.outputLine">
+          <span click.delegate="viewPane.facBlock.SelectBusDrain()">SetDrain</span>
+          <span if.bind="viewPane.facBlock.drains[0]">Drains From: ${viewPane.facBlock.drains[0].name}</span>
         </div>
       </section>
     </article>
@@ -160,7 +187,7 @@
   <section id="inventoryList">
     <h3>Inventory</h3>
     <icon-base
-      repeat.for="item of player.inv.items"
+      repeat.for="item of player.inv.items & signal:'generalUpdate'"
       item.bind="item"
       show.bind="item.count>0 || item.filtered"
       count.bind="item.count"

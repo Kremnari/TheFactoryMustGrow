@@ -8,6 +8,7 @@ export class IconBaseCustomElement {
   @bindable debug;
   @bindable count;
   @bindable altImage;
+  @bindable progress;
   @bindable showName = false;
   parsedCount = null
   mgrs = mgrs;

@@ -45,6 +45,13 @@ export class EntityMgr {
     tickerObj.entities.types.push('crafting')
     tickerObj.entities.types.push('mining')
   }
+  EntityType(name) {
+    let obj = this.entities_base[name]
+    if(obj.resource_categories) return "mining"
+    if(obj.crafting_categories) return "crafting"
+    if(obj.inputs) return "research"
+    return false
+  }
   GenerateEntity(name, facBlock, tagArray) {
     let obj = this.entities_base[name]
     if (obj.resource_categories) {
@@ -156,32 +163,28 @@ class MiningEntity extends Entity{
     ret.mining_timer = this.mining_timer
     return ret
   }
-  tick(tickNum) {
-    /*
-    let xfer = this.buffers.out.xfer
-    if(xfer.count>0) {
-      if(++xfer.timer==xfer.ticks) {
-        this.collectBuffer(this, xfer.count)
-        xfer.timer = 0
-      }
+  tick(tickData) {
+    if(tickData.ticks%30==0) {
+      //console.log("xfer to outputline")
+      tickData.fromParent.drain.absorbFrom(this.buffers.out)
     }
-    */
     if (!this.mining || this.buffers.out.total(this.mining.mining_results) == this.buffers.max_out) return
-    if (++this.mining_timer%16 == 0) {
+    if (++this.mining_timer%this.mining_time == 0) {
       this.buffers.out.add(this.mining.mining_results, 1)
+      console.log('adding one mined')
       this.mining_timer = 0
       mgrs.signaler.signal("generalUpdate")
     }
+    this.progress = this.mining_timer/this.mining_time*100
  }
   set_mining(resObj, timer) {
     this.mining && this.collectBuffer() 
     if (resObj!=this.mining) {
       this.mining = null
-      window.setTimeout( () => {
-        this.mining = resObj
-        this.mining_time = resObj.mining_time / this.mining_speed * 100
-        this.mining_timer = timer || 0
-      }, 0)
+      this.mining = resObj
+      this.mining_time = resObj.mining_time / this.mining_speed * 100
+      this.mining_timer = timer || 0
+      this.buffers.out.addFilter(this.mining.mining_results)
       this.tags.push("ticking", "mining")
     } else {
       this.mining = null
@@ -204,38 +207,27 @@ class CraftingEntity extends Entity {
     this.buffers.max_out = 5;
     this.crafting_timer = NaN
   }
-  tick(tickNum) {
-    /*
-    let xfer = this.buffers.in.xfer
-    if(xfer.count>0) {
-      if(++xfer.timer==xfer.ticks) {
-        this.consumeIngs()
-        xfer.timer = 0
-      }
-    }
-    xfer = this.buffers.out.xfer
-    if(xfer.count>0) {
-      if(++xfer.timer==xfer.ticks) {
-        this.collectBuffer(this, xfer.count)
-        xfer.timer = 0
-      }
-    }
-    */
-    if(!Number.isNaN(this.crafting_timer) && this.crafting_timer<16) this.crafting_timer++
-    if (this.crafting_timer%16 == 0) {
-      if(this.buffers.out.addAll(this.recipe.results, true)) {
-        this.crafting_timer = NaN
-        mgrs.signaler.signal("generalUpdate")
-      }
+  tick(tickData) {
+    if(tickData.ticks%30==0) {
+      tickData.fromParent.drain.absorbFrom(this.buffers.out)
+      //console.log("buffer in absorb")
+      //this.buffers.in.absorbFrom(tickData.fromParent.feed)
+      // *Improve
+      //if(this.buffers.in.total(this.recipe.ingredients[0].name)) this.tags.push('ticking', 'crafting')
     }
     if(Number.isNaN(this.crafting_timer)) {
-      let cond = this.buffers.in.consumeAll(this.recipe.ingredients)
-      if(cond===true) {
+      if(this.buffers.in.consumeAll(this.recipe.ingredients)===true) {
         this.crafting_timer = 0
-      } else {
-        this.tags.delete("ticking")
+      }
+    } else {
+      if (++this.crafting_timer%this.crafting_time == 0) {
+        if(this.buffers.out.addAll(this.recipe.results, true)) {
+          this.crafting_timer = NaN
+          mgrs.signaler.signal("generalUpdate")
+        }
       }
     }
+    this.crafting_timer && (this.progress = this.crafting_timer/this.crafting_time*100)
   }
   deserialize(data) {
     Object.assign(this, data)
@@ -310,25 +302,17 @@ class LabEntity extends Entity {
     this.tags.push("ticking", "lab")
   }
   tick(tickData) {
-    /*let xfer = this.buffers.in.xfer
-    if(xfer.count>0) {
-      if(++xfer.timer==xfer.ticks) {
-        let room = NaN
-        for (let potion of this.inputs) {
-          room = this.buffers.in.max - this.buffers.in[potion].qty 
-          if(room>0) this.inv.consume(potion, Math.min(xfer.count, room))
-        }
-        xfer.timer = 0
-      }
-    }*/
-    if(!tickData.mgrs.tech.researching) return
+    if(tickData.ticks%30==0) {
+      this.buffers.in(tickData.fromParent.feed)
+    }
+    if(!mgrs.tech.researching) return
     if(!Number.isNaN(this.research_timer) && this.research_timer<16) this.research_timer++
     if (this.research_timer%16==0) {
-      tickData.mgrs.tech.increment_research()
+      mgrs.tech.increment_research()
       this.research_timer = NaN
     }
     if(Number.isNaN(this.research_timer)) {
-      this.nextUnit(tickData.mgrs.tech.nextIngredients)
+      this.nextUnit(mgrs.tech.nextIngredients)
     }
   }
   nextUnit(ings) {
@@ -345,10 +329,10 @@ class LabEntity extends Entity {
 export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
-  constructor(facBlock) {
+  constructor(facBlock, restricted = false) {
     this.mgr = mgrs.entity
     this.parent = facBlock.parent || facBlock
-    mgrs.Ticker.subscribe( (obj) => { this.tick(obj) } )
+    this.restricted = restricted
   }
   [Symbol.iterator]() { return this.entities }
   deserialize(saveEntities, mgrs) {
@@ -366,16 +350,89 @@ export class EntityStorage {
     }
     return ret
   }
+  SetEntityFn(doing) {
+    if(!this.restricted) return
+    if(this.setFn) {
+      if(this.restricted.type=="crafting") {
+        for(let each of this.setFn.results) {
+          this.restricted.drain.removeFilter(each.name, true)
+        }
+        for(let each of this.setFn.ingredients) {
+          this.restricted.feed.addFilter(each.name)
+        }
+      }
+      if(this.restricted.type=="mining") {
+        this.restricted.drain.removeFilter(this.setFn.mining_results, true)
+      } 
+    }
+
+    this.setFn = doing
+    this.entities.forEach( (e)=> this.ApplyEntityFn(e))
+    if(this.restricted.type=="crafting") {
+      for(let each of this.setFn.results) {
+        this.restricted.drain.addFilter(each.name)
+      }
+      for(let each of this.setFn.ingredients) {
+        this.restricted.feed.addFilter(each.name)
+      }
+    }
+    if(this.restricted.type=="mining") {
+      //console.log(this.setFn)
+      let done = this.restricted.drain.addFilter(this.setFn.mining_results)
+      //console.log("set filter: "+done)
+    }
+  }
+  ApplyEntityFn(e) {
+    if(!this.restricted) return
+    if(this.restricted.type=="crafting") {
+      e.set_recipe(this.setFn)
+      return
+    }
+    if(this.restricted.type=="mining") {
+      e.set_mining(this.setFn)
+    }
+  }
   AddEntity(name) {
+    if(this.restricted && this.mgr.EntityType(name)!=this.restricted.type) return
+
     let new_e = this.mgr.GenerateEntity(name, this.parent.inv, this.entityTags)
     new_e.parent = this.parent
     this.entities.push(new_e)
-    return true
+    if(this.restricted && this.setFn) this.ApplyEntityFn(new_e)
+    return new_e
   }
-  tick(tickData, inv) {
+  recieveItem(itemStack, from) {
+    console.log(itemStack)
+    let whole = Math.floor(itemStack.count/this.entities.length)
+    let parts = itemStack.count % this.entities.length
+    let accum = 0
+    let SplitRounder = () => {
+      let add = whole
+      parts>0 && add++ && parts--
+      accum -= add
+      console.log('adding: '+add)
+      return add
+    }
+    let toAdd
+    let unconsumed
+    for(let each of this.entities) {
+      toAdd = SplitRounder()
+      unconsumed = each.buffers.in.add(itemStack.name, toAdd)
+      console.log(toAdd+" : "+unconsumed)
+      from.consume(itemStack.name, toAdd-unconsumed)
+    }
+    return itemStack.count - accum
+  }
+  tick(tickData) {
+    //console.log('%ces tick start', "color: blue")
     let which = tickData.entities.types
     for (let type of which) {
-      this.entityTags.getSetValues("ticking", type).forEach( (entity) => { entity.tick(tickData, inv) })
+      this.entityTags.getSetValues("ticking", type).forEach(
+        (entity) => {
+          entity.tick(tickData)
+        }
+      )
     }
+    //console.log('%ces tick end', "color: blue")
   }
 }

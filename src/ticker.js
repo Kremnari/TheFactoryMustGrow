@@ -36,7 +36,7 @@ export default class Ticker {
       
       this.ticks++
       if(this.ticks == CONFIG.TICKS_MAX_PHASE) this.ticks = 0
-      let tickData = {}
+      let tickData = { ticks: this.ticks }
       this._cbs.providers.forEach( (providerCB) => {
         providerCB(tickData)
       })

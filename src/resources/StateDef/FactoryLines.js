@@ -2,42 +2,19 @@ import {EntityStorage} from 'EntityMgr'
 import {Inventory} from 'ItemMgr'
 import {mgrs} from 'managers'
 
-
-export class TransportLine {
-  feed = null
-  drain = null
-  constructor(parent) {
-    this.parent = parent
-    this.inv = new Inventory()
-  }
-  tick(tickData) {}
-  async setSource() {
-    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
-    if(!out.selected){ return }
-    //@response.output.selected is a factoryBlock
-    this.feed?.DelBusDrain(this.parent)
-    this.feed = out.selected
-    out.selected.AddBusDrain(this.parent)
-  }
-  async setTarget() {
-    let out = await mgrs.DS.open("SelectBus", {base: mgrs.baseApp})
-    if(!out.selected){ return }
-    //@response.output.selected is a factoryBlock
-    this.feed?.DelBusFeed(this.parent)
-    this.drain = out.selected
-    out.selected.AddBusFeed(this.parent)
-  }
-}
-
 export class EntityLine {
   entityType = undefined
   recipe = undefined
   entities = undefined
-  constructor(parent) {
+  constructor(parent, feed, drain) {
     this.parent = parent
-    this.entities = new EntityStorage(this.parent, mgrs)
+    this.entities = new EntityStorage(this.parent)
+    this.feed = feed
+    this.drain = drain
   }
-  tick(tickData) {}
+  tick(tickData) {
+    this.entities.tick(tickData, this.feed, this.drain)
+  }
   SetRecipe(which) {
     //Process ingredient refunds and reset busses
     if(which) {
@@ -52,7 +29,8 @@ export class EntityLine {
     } else if( this.entityType!=which) {
       return false
     }
-    this.entities.AddEntity(which)
+    let new_e = this.entities.AddEntity(which)
+    this.recipe && new_e.set_recipe(this.recipe)
     return true
   }
 }

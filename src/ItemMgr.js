@@ -94,53 +94,76 @@ export class Inventory {
     return revertOnFailFast ? true : []
   }
   absorbFrom(inv, specific) {
+    //console.log('me')
+    //console.log(this.items)
+    //console.log(inv.items)
     for(let i of inv.items) {
       if(!i) return 
       let rest
       if(specific && i.name!=specific) continue
-      rest = this.addAll(i)
-      if(rest.length==0) {
-        //console.log(i)
-        inv.consumeAll(i)
-      } else {
-        //TODO finish for partial adds
-        console.log("couldn't add all")
-        console.log(rest)
-      }
+      //console.log(i)
+      if(i.count==0) continue
+      rest = this.add(i.name, i.count)
+      //console.log("here")
+      //console.log('adding: '+i.count)
+      inv.consume(i.name, i.count-rest)
     }
     mgrs.signaler.signal("generalUpdate")
   }
-  /*fill(inv, IS) {
-    let toAdd = mgrs.rounder.calc(inv.total(IS.name), inv.max_in, this.total(IS.name))
-    console.log(toAdd)
-  }*/
   setFilter(where, what, actor = mgrs.baseApp.player) {
     if(where>this.items.length) return false
     let filterStack = new ItemStack(what, 0, true)
 
     if(!this.items[where]) {
-      this.items[where] = filterStack
+      this.items.splice(where, 1, filterStack)
     } else if(this.items[where].name==what) {
       this.items[where].filtered = true
     } else {
       let consumed = this.items[where]
-      this.items[where] = filterStack
+      this.items.splice(where, 1, filterStack)
       actor.inv.addAll(consumed, false)
     }
     mgrs.signaler.signal("generalUpdate")
     return true
+  }
+  addFilter(what, actor = mgrs.baseApp.player) {
+    for(const [idx, i] of this.items.entries()) {
+      if(!i) {
+        this.items[idx] = new ItemStack(what, 0, true)
+        return true
+      }
+      if(!i.filtered && (i.name==what || !i.name)) {
+        i.filtered = true
+        i.name = what
+        return true
+      }
+    }
+    return false
   }
   seeFilteredItems() {
     let out = []
     this.items.forEach((i) => i.filtered && out.push(i.name))
     return out
   }
-  removeFilter(where, what) {
-    if(where>this.items.length
-      || this.items[where].name!=what)
-      return false
-    this.items[where].filtered = false
-    return true
+  removeFilter(what, clear, actor= mgrs.baseApp.player) {
+    for( let i of this.items) {
+      if(i.filtered && i.name==what) {
+        i.filtered = false
+        clear && actor.inv.addAll(i)
+        return true
+      }
+    }
+    return false
+  }
+  getTypes(includeEmpty = true) {
+    let ret = []
+    for(let i of this.items) {
+      if(i && !ret.includes(i.name)) {
+        if(includeEmpty || (!includeEmpty && i.count>0))
+        ret.push(i.name)
+      }
+    }
+    return ret
   }
   total(item, log = false) {
     return this.items.reduce( (acc, curr) => { return curr && curr.name == item ? acc+curr.count : acc }, 0)
@@ -156,24 +179,10 @@ export class Inventory {
     else return 0
   }
   consume(item, count) { //will ALWAYS return unconsumed portion
-    //console.log("consuming")
-    //console.log(item)
-    //console.log(count)
     let targ = this._GetSubStack(item, false) //By_elm
     if(!targ) return count
-    //targ.count -= count
-    /*if (targ.count<0) {
-      let left = targ.count*-1
-      targ.count = 0
-      !this.items[targIdx].filtered && (this.items[targIdx] = undefined)
-      return this.add(item, left)
-    }
-    if(targ.count==0) !this.items[targIdx] && (this.items[targIdx] = undefined)
-    */
-    //console.log(targ.count)
     if(targ.count>=count) {
       targ.count-=count
-      //console.log("found enough")
       return 0
     }
     return false

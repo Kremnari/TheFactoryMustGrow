@@ -55,8 +55,8 @@ export class App {
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
-      this.mgrs.Ticker.toggle()
-      this.testing()
+      //this.testing()
+      //this.mgrs.Ticker.toggle()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -90,7 +90,11 @@ export class App {
     }
     add_FacBlock(type, name) {
       name = name || prompt("Enter Block Name")
-      name && this.facBlocks.push(new FactoryBlock(type, name))
+      if(!name) return false
+
+      let add = new FactoryBlock(type, name)
+      this.facBlocks.push(add)
+      return add
     }
     select_FacBlock(which, isPlayer = false) {
       this.showItem = null
@@ -119,11 +123,26 @@ export class App {
     testing() {
       //if(!confirm("Initialize Testing?")) return
 
-      this.add_FacBlock("bus", "main")
-      this.add_FacBlock("resource", "iron-mine")
-      this.add_FacBlock("factory", "alpha")
-      this.add_FacBlock("factory", "beta")
-      this.add_FacBlock("research", "main")
+      this.add_FacBlock("bus", "resource") //0
+      this.add_FacBlock("resource", "iron-mine") //1
+      this.add_FacBlock("resource", "copper-mine") //2
+      this.facBlocks[1].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[1].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[1].lines[0].SetEntityFn(this.mgrs.res.resList["iron-ore"])
+      this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[2].lines[0].SetEntityFn(this.mgrs.res.resList["copper-ore"])
+      
+      this.add_FacBlock("factory", "iron-plates") //3
+      this.facBlocks[1].AddBusDrain(this.facBlocks[3])
+      this.facBlocks[3].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[3].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[3].lines[0].SetEntityFn(this.mgrs.rec.recipeList["iron-plate"])
+      this.add_FacBlock("factory", "copper-plates") //4
+      this.facBlocks[2].AddBusDrain(this.facBlocks[4])
+      this.facBlocks[4].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[4].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[4].lines[0].SetEntityFn(this.mgrs.rec.recipeList["copper-plate"])
     }
 
     async iconEditor() {
