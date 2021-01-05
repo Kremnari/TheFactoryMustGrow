@@ -1,4 +1,6 @@
 import {mgrs} from 'managers'
+import {InvXFer} from 'gameCode/Inventory'
+globalThis.InvXFer = InvXFer
 
 export default class ItemMgr {
   itemList = {}
@@ -98,7 +100,7 @@ export class Inventory {
     //console.log(this.items)
     //console.log(inv.items)
     for(let i of inv.items) {
-      if(!i) return 
+      if(!i) continue 
       let rest
       if(specific && i.name!=specific) continue
       //console.log(i)
@@ -150,6 +152,7 @@ export class Inventory {
       if(i.filtered && i.name==what) {
         i.filtered = false
         clear && actor.inv.addAll(i)
+        if(i.count==0) i.name = undefined
         return true
       }
     }
@@ -167,6 +170,10 @@ export class Inventory {
   }
   total(item, log = false) {
     return this.items.reduce( (acc, curr) => { return curr && curr.name == item ? acc+curr.count : acc }, 0)
+  }
+  addStack(is) {
+    if(is.count==0) return 0
+    return is.count-this.add(is.name, is.count)
   }
   add(item, count) { //will ALWAYS returns unadded portion
     if(count==0) return

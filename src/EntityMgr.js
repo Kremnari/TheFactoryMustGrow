@@ -164,12 +164,14 @@ class MiningEntity extends Entity{
     return ret
   }
   tick(tickData) {
+    //console.log('tick')
     if(tickData.ticks%30==0) {
       //console.log("xfer to outputline")
-      tickData.fromParent.drain.absorbFrom(this.buffers.out)
+      //tickData.fromParent.drain.absorbFrom(this.buffers.out)
+      InvXFer(this.buffers.out, tickData.fromParent.drain)
     }
     if (!this.mining || this.buffers.out.total(this.mining.mining_results) == this.buffers.max_out) return
-    if (++this.mining_timer%this.mining_time == 0) {
+    if (++this.mining_timer>this.mining_time) {
       this.buffers.out.add(this.mining.mining_results, 1)
       console.log('adding one mined')
       this.mining_timer = 0
@@ -182,7 +184,7 @@ class MiningEntity extends Entity{
     if (resObj!=this.mining) {
       this.mining = null
       this.mining = resObj
-      this.mining_time = resObj.mining_time / this.mining_speed * 100
+      this.mining_time = resObj.mining_time / this.mining_speed
       this.mining_timer = timer || 0
       this.buffers.out.addFilter(this.mining.mining_results)
       this.tags.push("ticking", "mining")
@@ -209,7 +211,9 @@ class CraftingEntity extends Entity {
   }
   tick(tickData) {
     if(tickData.ticks%30==0) {
-      tickData.fromParent.drain.absorbFrom(this.buffers.out)
+      InvXFer(this.buffers.out, tickData.fromParent.drain)
+      //tickData.fromParent.drain.absorbFrom(this.buffers.out)
+
       //console.log("buffer in absorb")
       //this.buffers.in.absorbFrom(tickData.fromParent.feed)
       // *Improve
@@ -220,7 +224,7 @@ class CraftingEntity extends Entity {
         this.crafting_timer = 0
       }
     } else {
-      if (++this.crafting_timer%this.crafting_time == 0) {
+      if (++this.crafting_timer>this.crafting_time) {
         if(this.buffers.out.addAll(this.recipe.results, true)) {
           this.crafting_timer = NaN
           mgrs.signaler.signal("generalUpdate")
@@ -258,7 +262,7 @@ class CraftingEntity extends Entity {
   set_recipe(recipeObj) {
     if(this.recipe) this.clear_recipe()
     this.recipe = recipeObj
-    this.crafting_time = recipeObj.crafting_speed / this.crafting_speed * 100
+    this.crafting_time = recipeObj.crafting_speed / this.crafting_speed
     recipeObj.ingredients.forEach((ing, idx) => {
       this.buffers.in.setFilter(idx, ing.name)
     })
@@ -358,7 +362,7 @@ export class EntityStorage {
           this.restricted.drain.removeFilter(each.name, true)
         }
         for(let each of this.setFn.ingredients) {
-          this.restricted.feed.addFilter(each.name)
+          this.restricted.feed.removeFilter(each.name, true)
         }
       }
       if(this.restricted.type=="mining") {
@@ -367,6 +371,7 @@ export class EntityStorage {
     }
 
     this.setFn = doing
+    //console.log(this.setFn)
     this.entities.forEach( (e)=> this.ApplyEntityFn(e))
     if(this.restricted.type=="crafting") {
       for(let each of this.setFn.results) {
@@ -401,8 +406,8 @@ export class EntityStorage {
     if(this.restricted && this.setFn) this.ApplyEntityFn(new_e)
     return new_e
   }
-  recieveItem(itemStack, from) {
-    console.log(itemStack)
+  recieveItem(itemStack) {
+    //console.log(itemStack)
     let whole = Math.floor(itemStack.count/this.entities.length)
     let parts = itemStack.count % this.entities.length
     let accum = 0
@@ -410,7 +415,7 @@ export class EntityStorage {
       let add = whole
       parts>0 && add++ && parts--
       accum -= add
-      console.log('adding: '+add)
+      //console.log('adding: '+add)
       return add
     }
     let toAdd
@@ -418,7 +423,7 @@ export class EntityStorage {
     for(let each of this.entities) {
       toAdd = SplitRounder()
       unconsumed = each.buffers.in.add(itemStack.name, toAdd)
-      console.log(toAdd+" : "+unconsumed)
+      //console.log(toAdd+" : "+unconsumed)
       from.consume(itemStack.name, toAdd-unconsumed)
     }
     return itemStack.count - accum

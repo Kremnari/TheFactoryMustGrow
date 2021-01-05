@@ -3,6 +3,21 @@ import {Inventory, ItemStack} from 'ItemMgr'
 import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
 
+const lineUpgrades = () => {
+  return {
+    buffers: {
+      count: 0      
+      ,type: "buffers"
+      , max: 3
+    }
+    ,loaders: {
+      count: 0
+      ,type: "loaders"
+      , max: 10
+    }
+  }
+}
+
 export class FactoryBlock {
   entityTypes = false
   upgrades = {}
@@ -31,9 +46,15 @@ export class FactoryBlock {
     this.drains = []
     this.name = name
     this.type = whichType
-    this.upgrades = {}
-    if(includes.input) this.inputLine = new Inventory(5)
-    if(includes.output) this.outputLine = new Inventory(5)
+    this.upgrades = {base: this }
+    if(includes.input) {
+      this.upgrades.input = lineUpgrades()
+      this.inputLine = new Inventory(5, 5)
+    }
+    if(includes.output) {
+      this.upgrades.output = lineUpgrades()
+      this.outputLine = new Inventory(5, 5)
+    }
     if(includes.line) this.lines.push(new EntityStorage(this, {type: this.entityTypes, feed: this.inputLine, drain: this.outputLine}))
 
     this.line_select = includes.line ? 1 : 0
@@ -49,7 +70,6 @@ export class FactoryBlock {
   }
   tick(tickData) {
     if(tickData.ticks%16!=0) return
-    //console.log('tickStart')
     if(this.type=="bus") {
       for(let x of this.drains) {
         if(x.type=="bus") return
@@ -58,12 +78,20 @@ export class FactoryBlock {
     } else {
       //NYI
       //this.inputLine && InvXFer(this.inputLine, this.lines[0])
-
+      /*
+      this.inputLine && InvXFer(this.inputLine, this.lines[0], {
+        maxXfer: this.upgrades.input.count * 2
+        ,toAs: "entity"
+        ,maxPerType: true
+      })
+      */
       if(this.inputLine) {
         for(let each of this.inputLine.getTypes(false)) {
           let total = this.inputLine.total(each)
           if(total>0) {
-            this.lines[0].recieveItem(new ItemStack(each, total), this.inputLine)
+            let consumed = this.lines[0].recieveItem(new ItemStack(each, total))
+            console.log('con: '+consumed)
+            this.inputLine.consume(each, consumed)
             console.log('total: '+this.inputLine.total(each))
           }
         }
@@ -79,7 +107,6 @@ export class FactoryBlock {
     }
     //console.log('tickEnd')
   }
-
   useItem(item, line = this.line_select) {
     return this.lines[0].AddEntity(item)
   }
@@ -110,8 +137,27 @@ export class FactoryBlock {
     who.AddBusFeed(this)
   }
   DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
-  ApplyUpgrade() {
-
+  ApplyUpgrade(obj) {
+    //console.log(obj)
+    if(obj.upgrade.type=="buffers") {
+      let unconsumed = obj.inv.consume("iron-chest", 2)
+      //console.log(unconsumed)
+      if(unconsumed==0) {
+        obj.upgrade.count++
+      } else {
+        //console.log('not enough')
+      }
+      return
+    }
+    if(obj.upgrade.type=="loader") {
+      let unconsumed = obj.inv.consume("inserter", 2)
+      if(unconsumed==0) {
+        obj.upgrade.count++
+      } else {
+        //console.log('not enough')
+      }
+      return
+    }
   }
 }
 
@@ -119,7 +165,7 @@ export class PlayerBlock {
   constructor(invSeed) {
     this.inv = new Inventory(invSeed)
     this.entityStore = new EntityStorage(this)
-    mgrs.Ticker.subscribe((x)=>{this.tick(x)})
+    mgrs.Ticker.subscribe((x)=>{ this.tick(x)})
   }
   static deserialize(DEPRECIATED, saveData) {
     let ret = new PlayerBlock()
@@ -143,6 +189,10 @@ export class PlayerBlock {
   tick(tickData) {
     //subscribe moved to entitystorage, where it's used
     //This may become relevant when more things are added to a parcel
-    this.entityStore.tick(tickData, this.inv)
+    tickData.fromParent = {
+      feed: this.inv,
+      drain: this.inv
+    }
+    this.entityStore.tick(tickData)
   }
 }

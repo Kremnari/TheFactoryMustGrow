@@ -1,16 +1,15 @@
 <template>
-  Entity Line
   <span
     click.delegate="click(line)"
-    if.bind="line.restrictedTo=='crafting'"
+    if.bind="line.restricted.type=='crafting'"
   >Set Recipe</span>
   <span
     click.delegate="click(line)"
-    if.bind="line.restrictedTo=='mining'"
+    if.bind="line.restricted.type=='mining'"
   >Set Resource</span>
   <div>
     <icon-base
-      if.bind="line.setFn"
+      if.bind="line.setFn & signal:'generalUpdate'"
       item.bind="line.setFn.name"
     ></icon-base>
     <span if.bind="line.setFn">:</span>

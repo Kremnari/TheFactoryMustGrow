@@ -39,35 +39,17 @@ export default class RecipeMgr {
       each.ingCheck(this.player.inv)
     }
   }
-  canProduceOLD(recipe) {
-    let checkIngs = (obj) => {
-      return this.itemMgr.itemList[obj.name]?.count >= obj.amount || false
-    }
-    return recipe.ingredients.every(checkIngs)
-  }
   canProduce(recipe, inv) {
     let checkIngs = (obj) => {
       return inv.total(obj.name) >= obj.amount || false
     }
     return recipe.ingredients.every(checkIngs)
   }
-  canProduceMaxOLD(recipe) {
-    let checkIngs = (obj) => {
-      if (!this.itemMgr.itemList[obj.name]) return false
-      return Math.floor(this.itemMgr.itemList[obj.name].count/obj.amount)
-    }
-    return recipe.ingredients.reduce((acc, obj) => {return Math.min(acc, checkIngs(obj) )}, Infinity)
-  }
   canProduceMax(recipe, inv) {
     let checkIngs = (obj) => {
       return Math.floor(inv.total(obj.name)/obj.amount)
     }
     return recipe.ingredients.reduce((acc, obj) => {return Math.min(acc, checkIngs(obj) )}, Infinity)
-  }
-  consumeIngsOLD(recipe, multi = 1, refund = false) {
-    recipe.ingredients.forEach( (obj) => {
-      this.itemMgr.itemList[obj.name].count -= (refund ? -obj.amount : obj.amount) * multi
-    })
   }
   consumeIngs(recipe, inv, multi = 1, refund = false) {
     recipe.ingredients.forEach( (obj) => {
@@ -105,11 +87,6 @@ export default class RecipeMgr {
       recipe.style = "animation: testXform "+craftingTime+"s"
       recipe.classes[CLASSES.crafting] = "crafting"
     }
-  }
-  craftOLD(recipe) {
-    recipe.results.forEach((obj) => {
-        this.itemMgr.itemList[obj.name].count += (obj.amount || 1 )
-    })
   }
   craft(recipe, inv) {
     recipe.results.forEach((obj) => {

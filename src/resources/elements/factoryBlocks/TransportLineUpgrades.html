@@ -1,0 +1,17 @@
+<template bindable="upgrades, applyUpgrade">
+  Upgrades:
+  <td if.bind="upgrades.buffers">
+    <icon-base
+      item="iron-chest"
+      count="${upgrades.buffers.count}(${upgrades.buffers.max})"
+      click.delegate="applyUpgrade({upgrade:upgrades.buffers})"
+    ></icon-base>
+  </td>
+  <td if.bind="upgrades.loaders">
+    <icon-base
+      item="inserter"
+      count="${upgrades.loaders.count}(${upgrades.loaders.max})"
+      click.delegate="applyUpgrade({upgrade:upgrades.loaders})"
+    ></icon-base>
+  </td>
+</template>

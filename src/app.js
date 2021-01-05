@@ -10,11 +10,6 @@ const IDB_SAVE_VERSION = "0.01"
 export class App {
     viewPane = {main: "home", showingItem: null }
     dataBase = {}
-    rounder = { ones: 1, tens: 0, huns: 0, abs: false, fail: false,
-                get val() { return this.huns*100+this.tens*10+this.ones},
-                calc_val(max) { return Math.min(this.val, max)},
-                calc(current, max, avail) { return Math.min(this.val, Math.min(avail, max-current))}
-              } // absolute vs modulus, fail... on partial
     viewRecCat = false
     tooltip = null
     constructor(signaler, DataProv, DS) { 
@@ -31,7 +26,6 @@ export class App {
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
-      this.mgrs.rounder = this.rounder
       if(database.save) {
         if(database.save.version==IDB_SAVE_VERSION) {
           this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
@@ -42,21 +36,20 @@ export class App {
         } else {
           console.log("idb save data out of date")
           this.facBlocks = []
-          this.player =  new PlayerBlock(10, this.mgrs, true)
+          this.player =  new PlayerBlock(10)
           this.jumpStart()
           this.save()
         }
       } else {
         this.facBlocks = []
-        this.player =  new PlayerBlock(10, this.mgrs, true)
+        this.player =  new PlayerBlock(10)
         this.jumpStart()
       }
       this.showDev = await this.mgrs.idb.get("dev")
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
-      //this.testing()
-      //this.mgrs.Ticker.toggle()
+      if(!this.showDev) this.mgrs.Ticker.toggle()
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -122,7 +115,7 @@ export class App {
     }
     testing() {
       //if(!confirm("Initialize Testing?")) return
-
+      this.player2 = new PlayerBlock(10)
       this.add_FacBlock("bus", "resource") //0
       this.add_FacBlock("resource", "iron-mine") //1
       this.add_FacBlock("resource", "copper-mine") //2

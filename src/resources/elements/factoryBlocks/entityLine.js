@@ -11,16 +11,18 @@ export class EntityLine {
   }
   async click(what) {
     let out
-    if(this.line.restrictedTo=="mining") {
+    if(this.line.restricted.type=="mining") {
       out = await mgrs.DS.open("SelectX",
       {list: Object.values(mgrs.res.resList), type: "resource", default: this.line.setFn?.name})
     }
-    if(this.line.restrictedTo=="crafting") {
+    if(this.line.restricted.type=="crafting") {
       //Need to refine this list
       let recList = Object.values(mgrs.rec.recipeList)
       out = await mgrs.DS.open("SelectX",
       {list: recList, type: "recipe", default: this.line.setFn?.name})
     }
+    console.log(out.item)
     this.line.SetEntityFn(out.item)
+    mgrs.signaler.signal("generalUpdate")
   }
 }
