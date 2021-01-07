@@ -173,7 +173,7 @@ class MiningEntity extends Entity{
     if (!this.mining || this.buffers.out.total(this.mining.mining_results) == this.buffers.max_out) return
     if (++this.mining_timer>this.mining_time) {
       this.buffers.out.add(this.mining.mining_results, 1)
-      console.log('adding one mined')
+      //console.log('adding one mined')
       this.mining_timer = 0
       mgrs.signaler.signal("generalUpdate")
     }
@@ -203,9 +203,11 @@ class CraftingEntity extends Entity {
   recipe = null
   constructor(baseItem, inventory, tagArray) {
     super(baseItem, inventory, tagArray, "crafting")
-    this.buffers.in = new Inventory(5)
+
+    let items = this.type=="furnace" ? 1: 5
+    this.buffers.in = new Inventory(items)
     this.buffers.max_in = 5
-    this.buffers.out = new Inventory(5)
+    this.buffers.out = new Inventory(items)
     this.buffers.max_out = 5;
     this.crafting_timer = NaN
   }
@@ -407,14 +409,14 @@ export class EntityStorage {
     return new_e
   }
   recieveItem(itemStack) {
-    //console.log(itemStack)
+    //console.log('target: '+itemStack.count)
     let whole = Math.floor(itemStack.count/this.entities.length)
     let parts = itemStack.count % this.entities.length
     let accum = 0
     let SplitRounder = () => {
       let add = whole
       parts>0 && add++ && parts--
-      accum -= add
+      accum += add
       //console.log('adding: '+add)
       return add
     }
@@ -423,10 +425,11 @@ export class EntityStorage {
     for(let each of this.entities) {
       toAdd = SplitRounder()
       unconsumed = each.buffers.in.add(itemStack.name, toAdd)
-      //console.log(toAdd+" : "+unconsumed)
-      from.consume(itemStack.name, toAdd-unconsumed)
+      //console.log(toAdd+":"+unconsumed+":"+accum)
+      accum -=  unconsumed
     }
-    return itemStack.count - accum
+    //console.log("accum: "+accum)
+    return accum
   }
   tick(tickData) {
     //console.log('%ces tick start', "color: blue")

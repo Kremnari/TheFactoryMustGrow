@@ -77,25 +77,10 @@ export class FactoryBlock {
       }
     } else {
       //NYI
-      //this.inputLine && InvXFer(this.inputLine, this.lines[0])
-      /*
-      this.inputLine && InvXFer(this.inputLine, this.lines[0], {
-        maxXfer: this.upgrades.input.count * 2
-        ,toAs: "entity"
-        ,maxPerType: true
-      })
-      */
-      if(this.inputLine) {
-        for(let each of this.inputLine.getTypes(false)) {
-          let total = this.inputLine.total(each)
-          if(total>0) {
-            let consumed = this.lines[0].recieveItem(new ItemStack(each, total))
-            console.log('con: '+consumed)
-            this.inputLine.consume(each, consumed)
-            console.log('total: '+this.inputLine.total(each))
-          }
-        }
-      }
+     this.inputLine && InvXFer(this.inputLine, this.lines[0], {
+       maxXfer: this.upgrades.input.count * 2
+       ,toAs: "entity"
+     })
       tickData.fromParent = {
         feed: this.inputLine
         ,drain: this.outputLine
@@ -138,19 +123,20 @@ export class FactoryBlock {
   }
   DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
   ApplyUpgrade(obj) {
-    //console.log(obj)
+    console.log(obj)
     if(obj.upgrade.type=="buffers") {
-      let unconsumed = obj.inv.consume("iron-chest", 2)
+      let unconsumed = obj.inv.consume("iron-chest", 1)
       //console.log(unconsumed)
       if(unconsumed==0) {
         obj.upgrade.count++
+        obj.line.max_stack *= 2
       } else {
         //console.log('not enough')
       }
       return
     }
-    if(obj.upgrade.type=="loader") {
-      let unconsumed = obj.inv.consume("inserter", 2)
+    if(obj.upgrade.type=="loaders") {
+      let unconsumed = obj.inv.consume("inserter", 1)
       if(unconsumed==0) {
         obj.upgrade.count++
       } else {

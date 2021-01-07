@@ -125,13 +125,13 @@ export class Inventory {
       this.items.splice(where, 1, filterStack)
       actor.inv.addAll(consumed, false)
     }
-    mgrs.signaler.signal("generalUpdate")
     return true
   }
   addFilter(what, actor = mgrs.baseApp.player) {
     for(const [idx, i] of this.items.entries()) {
       if(!i) {
-        this.items[idx] = new ItemStack(what, 0, true)
+        this.items.splice(idx, 1, new ItemStack(what, 0, true))
+        //this.items[idx] = new ItemStack(what, 0, true)
         return true
       }
       if(!i.filtered && (i.name==what || !i.name)) {

@@ -21,8 +21,8 @@ export class EntityLine {
       out = await mgrs.DS.open("SelectX",
       {list: recList, type: "recipe", default: this.line.setFn?.name})
     }
-    console.log(out.item)
+    if(!out?.item) return 
     this.line.SetEntityFn(out.item)
-    mgrs.signaler.signal("generalUpdate")
+    //mgrs.signaler.signal("generalUpdate")
   }
 }

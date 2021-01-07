@@ -26,7 +26,7 @@
       <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
-    <div id="facBlockControls" if.bind="!viewPane.facBlock.isPlayer" show.bind="viewPane.facBlock">
+    <div id="facBlockControls" if.bind="viewPane.facBlock==player">
       <div show.bind="viewPane.main == 'entities'">
         <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
         <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
@@ -144,12 +144,12 @@
         </div>
         <div repeat.for="line of viewPane.facBlock.lines">
           <transport-line
-            if.bind="line.constructor.name=='Inventory'"
+            if.bind="line.items"
             line.bind="line"
             type="internal"
           ></transport-line>
           <entity-line
-            if.bind="line.constructor.name=='EntityStorage'"
+            if.bind="line.entities"
             line.bind="line"
           ></entity-line>
         </div>
@@ -157,7 +157,7 @@
           <hr>
           <p>
             Drains To: ${viewPane.facBlock.drains[0].name}
-            <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
+            <span click.delegate=" viewPane.facBlock.SelectBusDrain()">(Change)</span>
           </p>
           <tlu
             upgrades.bind="viewPane.facBlock.upgrades.output"
