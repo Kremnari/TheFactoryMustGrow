@@ -4,13 +4,6 @@
   <require from="./styles.scss"></require>
   <require from="./tfmg.css"></require>
 
-  <require from="resources/elements/icon-base"></require>
-  <require from="resources/elements/tool-tip"></require>
-  <require from="resources/value-converters/lib/ObjectFilters"></require>
-  <require from="resources/value-converters/CanMine"></require>
-  <require from="resources/value-converters/isVisible"></require>
-  <require from="resources/value-converters/valueconverters"></require>
-
   <header id="selector">
     <div id="devControls" if.bind="showDev">
       <button click.delegate="save()">Save</button>
@@ -33,6 +26,7 @@
         <h5 click.delegate="viewPane.entityPane = 'labs'">Labs</h5>
       </div>
     </div>
+    <require from="resources/elements/tool-tip"></require>
     <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
   </header>
   <div id="mainView" if.bind="viewPane!='iconEditor'">
@@ -175,17 +169,6 @@
         </div>
       </section>
     </article>
-    <article class="rightside">
-      <section id="inventoryList" if.bind="!viewPane.facBlock.isPlayer">
-        <h3>Inventory</h3>
-        <icon-base
-          repeat.for="item of viewPane.facBlock.inv.items & signal:'generalUpdate'"
-          item.bind="item"
-          count.bind="item.count"
-          click.delegate="viewPane.facBlock.inv.click({where:viewPane.facBlock, which:item, who:player, what:'move', rounder})"
-        ></icon-base>
-      </section>
-    </article>
   </div>
   <div id="iconEditor" if.bind="viewPane=='iconEditor'">
     <select value.bind="IE.select.Cat">
@@ -209,13 +192,13 @@
   </div>
   <section id="inventoryList">
     <h3>Inventory</h3>
-    <icon-base
-      repeat.for="item of player.inv.items & signal:'generalUpdate'"
-      item.bind="item"
-      show.bind="item.count>0 || item.filtered"
-      count.bind="item.count"
-      click.delegate="player.inv.click({where:viewPane.facBlock, which:item, who:player, what:'use'})"
-    ></icon-base>
+    <inventory
+      items.bind="player.inv.items"
+      click-call.call="player.inv.click({
+         where:viewPane.facBlock, which: item
+        ,who: player, what:'use'
+        })"
+      ></inventory>
   </section>
   <section id="numSelectors">
     <input type="checkbox" id="numSelToggle" style="display:none">

@@ -1,0 +1,8 @@
+<template bindable="items, clickCall">
+  <icon-base
+    repeat.for="item of items & signal:'generalUpdate'"
+    item.bind="item"
+    count.bind="item.count"
+    click.delegate="clickCall({item})"
+  ></icon-base>
+</template>

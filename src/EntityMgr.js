@@ -2,6 +2,7 @@ import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack, Inventory} from "./ItemMgr"
 import {mgrs} from 'managers'
+import {TICKS_PER_SECOND} from "./Config"
 
 export class EntityMgr {
   entities_base = {}
@@ -184,7 +185,7 @@ class MiningEntity extends Entity{
     if (resObj!=this.mining) {
       this.mining = null
       this.mining = resObj
-      this.mining_time = resObj.mining_time / this.mining_speed
+      this.mining_time = resObj.mining_time / this.mining_speed * TICKS_PER_SECOND
       this.mining_timer = timer || 0
       this.buffers.out.addFilter(this.mining.mining_results)
       this.tags.push("ticking", "mining")
@@ -212,14 +213,9 @@ class CraftingEntity extends Entity {
     this.crafting_timer = NaN
   }
   tick(tickData) {
+    //# Ticks mod should come from somewhere
     if(tickData.ticks%30==0) {
       InvXFer(this.buffers.out, tickData.fromParent.drain)
-      //tickData.fromParent.drain.absorbFrom(this.buffers.out)
-
-      //console.log("buffer in absorb")
-      //this.buffers.in.absorbFrom(tickData.fromParent.feed)
-      // *Improve
-      //if(this.buffers.in.total(this.recipe.ingredients[0].name)) this.tags.push('ticking', 'crafting')
     }
     if(Number.isNaN(this.crafting_timer)) {
       if(this.buffers.in.consumeAll(this.recipe.ingredients)===true) {
@@ -264,7 +260,7 @@ class CraftingEntity extends Entity {
   set_recipe(recipeObj) {
     if(this.recipe) this.clear_recipe()
     this.recipe = recipeObj
-    this.crafting_time = recipeObj.crafting_speed / this.crafting_speed
+    this.crafting_time = recipeObj.crafting_speed / this.crafting_speed * TICKS_PER_SECOND
     recipeObj.ingredients.forEach((ing, idx) => {
       this.buffers.in.setFilter(idx, ing.name)
     })
@@ -299,10 +295,10 @@ class LabEntity extends Entity {
     if(this.buffers.in.total(name) == this.buffers.max_in) return false
     return true
   }
-  addPotion(name, rounder) {
+  addPotion(name) {
     if(!this.canAdd(name)) return
 
-    let toAdd = rounder.calc(this.buffers.in.total(name), this.buffers.max_in, this.inv.total(name))
+    let toAdd = mgrs.rounder.calc(this.buffers.in.total(name), this.buffers.max_in, this.inv.total(name))
     toAdd -= this.inv.consume(name, toAdd) //returns unconsumed
     this.buffers.in.add(name, toAdd)
     this.tags.push("ticking", "lab")

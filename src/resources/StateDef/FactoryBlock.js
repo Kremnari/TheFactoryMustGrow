@@ -41,7 +41,6 @@ export class FactoryBlock {
         includes = {input: true, output: true, line:true}
     }
     this.lines = []
-    this.transports = []
     this.feeds = []
     this.drains = []
     this.name = name
@@ -57,15 +56,25 @@ export class FactoryBlock {
     }
     if(includes.line) this.lines.push(new EntityStorage(this, {type: this.entityTypes, feed: this.inputLine, drain: this.outputLine}))
 
-    this.line_select = includes.line ? 1 : 0
     mgrs.Ticker.subscribe( (x) => this.tick(x))
   }
-  static deserialize(DEPRECIATED, saveData) {
-    let ret = new FactoryBlock()
+  static deserialize(DEPRECIATED, save) {
+    let ret = new FactoryBlock(save.type, save.name)
+    ret.upgrades = save.upgrades
+
     return ret
   }
   serialize() {
     let ret = {}
+    ret.name = this.name
+    ret.type = this.type
+    ret.entityTypes = this.entityTypes
+    this.inputLine && (ret.inputLine = this.inputLine.serialize())
+    this.outputLine && (ret.outputLine = this.outputLine.serialize())
+    this.feeds && (ret.feeds = this.feeds.map(x => x.name+":"+x.type))
+    this.drains && (ret.drains = this.drains.map(x => x.name+":"+x.type))
+    this.lines && (ret.lines = this.lines.map(x => x.serialize()))
+    ret.upgrades = this.upgrades
     return ret
   }
   tick(tickData) {
@@ -92,7 +101,7 @@ export class FactoryBlock {
     }
     //console.log('tickEnd')
   }
-  useItem(item, line = this.line_select) {
+  useItem(item) {
     return this.lines[0].AddEntity(item)
   }
   add_EntityLine() {
@@ -123,7 +132,7 @@ export class FactoryBlock {
   }
   DelBusDrain(who) { this.drains = this.drains.filter( (x) => x!=who) }
   ApplyUpgrade(obj) {
-    console.log(obj)
+    //console.log(obj)
     if(obj.upgrade.type=="buffers") {
       let unconsumed = obj.inv.consume("iron-chest", 1)
       //console.log(unconsumed)
