@@ -2,7 +2,7 @@
   <require from="bootstrap/dist/css/bootstrap.min.css"></require>
   <require from="@fortawesome/fontawesome-free/css/all.min.css"></require>
   <require from="./styles.scss"></require>
-  <require from="./tfmg.css"></require>
+  <require from="./tfmg.scss"></require>
 
   <header id="selector">
     <div id="devControls" if.bind="showDev">
@@ -213,5 +213,13 @@
     <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
     <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
   </section>
-
+  <section id="tagFilter">
+    <input id="drawer-toggle" type="checkbox" />
+    <label for="drawer-toggle" id="drawer-toggle-label">
+      <span>Filters</span>
+    </label>
+    <div id="drawer">
+      More Data!
+    </div> 
+  </section>
 </template>

@@ -198,8 +198,8 @@ class MiningEntity extends Entity{
  }
   set_mining(resObj, timer) {
     this.mining && this.collectBuffer()
+    this.mining && this.buffers.out.removeFilter(this.mining.mining_results)
     if (resObj!=this.mining) {
-      this.mining && this.buffers.out.removeFilter(this.mining.mining_results)
       this.mining = resObj
       this.mining_time = resObj.mining_time / this.mining_speed * TICKS_PER_SECOND
       this.mining_timer = timer || 0

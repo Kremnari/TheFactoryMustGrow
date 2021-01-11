@@ -21,4 +21,12 @@ export class IconBaseCustomElement {
       this.altTip = this.item.name
     }
   }
+  itemChanged(newVal) {
+    if(typeof newVal === 'string') {
+      this.altTip = newVal
+      this.item = mgrs.item.get(newVal)
+    } else if(typeof newVal === 'object') {
+      this.altTip = newVal.name
+    }
+  }
 }

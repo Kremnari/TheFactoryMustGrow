@@ -89,7 +89,6 @@ export class Inventory {
         //console.log('reverting')
         consumed.length>=1 ? this.addAll(consumed, false, multi) : void
         this.add(each.item, each.count-retCount)
-        consumed = null
         return itemStacks
       }
     }
@@ -163,7 +162,7 @@ export class Inventory {
     for(let i of this.items) {
       if(i && !ret.includes(i.name)) {
         if(includeEmpty || (!includeEmpty && i.count>0))
-        ret.push(i.name)
+            ret.push(i.name)
       }
     }
     return ret
