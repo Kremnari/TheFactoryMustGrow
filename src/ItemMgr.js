@@ -73,6 +73,33 @@ export class Inventory {
     }
     if (returnPartial) return part
   }
+  addAllOrFail(itemStacks) {
+    //! assume itemStacks is array
+    let added = []
+    let retCount = 0
+    let revert = false
+    let toAdd
+    for(let each of itemStacks) {
+      toAdd = ItemStack.convert(each)
+      retCount = this.add(toAdd.name, toAdd.count)
+      if(retCount > 0) {
+        revert = true
+        toAdd.count -= retCount
+        added.push(toAdd)
+        break
+      } else {
+        added.push(toAdd)
+      }
+    }
+    if(revert) {
+      //console.log("reverting")
+      for(let each of added) {
+        this.consume(each.name, each.count)
+      }
+      return false
+    }
+    return true
+  }
   consumeAll(itemStacks, revertOnFailFast = true, multi = 1.0) {
     //console.log("start consume")
     //console.log(itemStacks)

@@ -19,7 +19,7 @@
         item.bind="itemMgr.itemList[res.name]"
         required.bind="res.amount"
         count.bind="crafter.buffers.out.total(res.name) & signal:'generalUpdate'"
-        click.delegate="actor.inv.absorbFrom(crafter.buffers.out, res.name)"
+        click.delegate="crafter.dump(actor, res)"
       ></icon-base>
     </p>
     <p click.delegate="crafter.clear_recipe()">Clear recipe</p>

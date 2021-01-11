@@ -222,12 +222,13 @@ class MiningEntity extends Entity{
 }
 class CraftingEntity extends Entity {
   recipe = null
+  outputFull = false
   constructor(baseItem, inventory, tagArray) {
     super(baseItem, inventory, tagArray, "crafting")
 
     let items = this.type=="furnace" ? 1: 5
     this.buffers.in = new Inventory(items)
-    this.buffers.max_in = 10
+    this.buffers.max_in = 5
     this.buffers.out = new Inventory(items)
     this.buffers.max_out = 5
     this.crafting_timer = NaN
@@ -254,6 +255,7 @@ class CraftingEntity extends Entity {
         }
 
       )
+      this.outputFull = false
       this.buffers.upgrades.in.xferAt = 0
     }
     this.buffers.upgrades.in.xferProgress = this.buffers.upgrades.in.xferAt/this.buffers.upgrades.in.xferMod * 100
@@ -266,11 +268,15 @@ class CraftingEntity extends Entity {
         this.crafting_timer = 0
       }
     } else {
-      if (++this.crafting_timer>this.crafting_time) {
-        if(this.buffers.out.addAll(this.recipe.results, true)) {
+      if (!this.outputFull && ++this.crafting_timer>this.crafting_time) {
+        let addResult = this.buffers.out.addAllOrFail(this.recipe.results)
+        //console.log(addResult)
+        if(addResult) {
           this.crafting_timer = NaN
           this.progress = 0
           mgrs.signaler.signal("generalUpdate")
+        } else {
+          this.outputFull = true
         }
       }
     }
@@ -288,6 +294,10 @@ class CraftingEntity extends Entity {
     ret.recipe = this.recipe?.name || ""
 
     return ret
+  }
+  dump(actor, res) {
+    actor.inv.absorbFrom(this.buffers.out, res.name)
+    this.outputFull = false
   }
   clear_recipe() {
     this.inv.absorbFrom(this.buffers.in)
