@@ -83,25 +83,28 @@ export class EntityMgr {
     return ret
   }
   upgrade(obj) {
+    //TODO no maximums present...
     //SMELL ugly implementation of actor acquisition
     //SMELL ugly implementation of defining upgrade period
     //consume upgrade ingredients from inventory
       let at = obj.who.buffers.upgrades[obj.dir]
       if(obj.type=="buffers") {
         let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("iron-chest", 1)], true)
-        if(consumed) {
+        console.log(consumed)
+        if(consumed && !Array.isArray(consumed)) {
           at.size++
           obj.who.buffers["max_"+obj.dir] += 10
         } else {
-          console.log('not enough...awesome')
+          //console.log('not enough...awesome')
         }
       } else if(obj.type=="autoload") {
         let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("inserter", 1)], true)
-        if(consumed) {
+        console.log(consumed)
+        if(consumed && !Array.isArray(consumed)) {
           at.xfer++
           at.xferAt || (at.xferAt = 0)
         } else {
-          console.log('not enough...awesome')
+          //console.log('not enough...awesome')
         }
       }
   }
