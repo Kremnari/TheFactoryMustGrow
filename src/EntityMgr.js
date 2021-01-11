@@ -227,9 +227,9 @@ class CraftingEntity extends Entity {
 
     let items = this.type=="furnace" ? 1: 5
     this.buffers.in = new Inventory(items)
-    this.buffers.max_in = 5
+    this.buffers.max_in = 10
     this.buffers.out = new Inventory(items)
-    this.buffers.max_out = 5;
+    this.buffers.max_out = 5
     this.crafting_timer = NaN
   }
   tick_outXfer(tickData) {
