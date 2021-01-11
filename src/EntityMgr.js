@@ -90,7 +90,7 @@ export class EntityMgr {
       let at = obj.who.buffers.upgrades[obj.dir]
       if(obj.type=="buffers") {
         let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("iron-chest", 1)], true)
-        console.log(consumed)
+        //console.log(consumed)
         if(consumed && !Array.isArray(consumed)) {
           at.size++
           obj.who.buffers["max_"+obj.dir] += 10
@@ -99,7 +99,7 @@ export class EntityMgr {
         }
       } else if(obj.type=="autoload") {
         let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("inserter", 1)], true)
-        console.log(consumed)
+        //console.log(consumed)
         if(consumed && !Array.isArray(consumed)) {
           at.xfer++
           at.xferAt || (at.xferAt = 0)
