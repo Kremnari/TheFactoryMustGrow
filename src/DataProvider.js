@@ -1,5 +1,4 @@
-import {mgrs as MGRS} from 'managers'
-let mgrs = MGRS
+import {mgrs} from 'managers'
 export let DataProvider = {
   onLoadComplete(cb) {
     DataProvider.loadCb = cb
@@ -14,7 +13,7 @@ export let DataProvider = {
     } else console.log('loaded from db')
     let icons = await mgrs.idb.get("Icons")
     icons && (ds.icons = icons)
-    let save = await mgrs.idb.get("SaveGame") || {}
+    let save = await mgrs.idb.get("SaveGame") || null
 
     DataProvider.init(ds, save)
   },

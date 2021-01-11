@@ -8,7 +8,7 @@ export class EntityMgr {
   entities_base = {}
   entity_cats = []
   constructor() {}
-  import(entityData, mgrs) {
+  import(entityData) {
     this.itemMgr = mgrs.item
     this.techMgr = mgrs.tech
     Object.entries(entityData).forEach( ([name, obj]) => {
@@ -83,22 +83,26 @@ export class EntityMgr {
     return ret
   }
   upgrade(obj) {
-    //TODO ugly implementation of actor acquisition
-    //TODO ugly implementation of defining upgrade period
+    //SMELL ugly implementation of actor acquisition
+    //SMELL ugly implementation of defining upgrade period
     //consume upgrade ingredients from inventory
+      let at = obj.who.buffers.upgrades[obj.dir]
       if(obj.type=="buffers") {
-        let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("iron-chest", 2)], true)
+        let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("iron-chest", 1)], true)
         if(consumed) {
+          at.size++
           obj.who.buffers["max_"+obj.dir] += 10
         } else {
           console.log('not enough...awesome')
         }
       } else if(obj.type=="autoload") {
-/*        if(mgrs.baseApp.player.inv.consumeAll([new ItemStack("burner-inserter", 1)], true).length==0) {
-          obj.who.buffers[obj.dir].xfer.count++
+        let consumed = mgrs.baseApp.player.inv.consumeAll([new ItemStack("inserter", 1)], true)
+        if(consumed) {
+          at.xfer++
+          at.xferAt || (at.xferAt = 0)
         } else {
           console.log('not enough...awesome')
-        }*/
+        }
       }
   }
   craftingCats(entityStr) {
@@ -106,7 +110,13 @@ export class EntityMgr {
   }
 }
 class Entity {
-  buffers = { out: undefined, in: undefined }
+  buffers = {
+    out: undefined, in: undefined
+    ,upgrades: {
+      out: {size: 0, xfer:0, xferMod: 120, xferProgress: NaN }
+      ,in: {size: 0, xfer:0, xferMod: 120, xferProgress: NaN }
+    }
+  }
   constructor(baseItem, inventory, tagArray, type = null) {
     Object.assign(this, baseItem)
     this.inv = inventory
@@ -164,13 +174,19 @@ class MiningEntity extends Entity{
     ret.mining_timer = this.mining_timer
     return ret
   }
-  tick(tickData) {
-    //console.log('tick')
-    if(tickData.ticks%30==0) {
-      //console.log("xfer to outputline")
-      //tickData.fromParent.drain.absorbFrom(this.buffers.out)
-      InvXFer(this.buffers.out, tickData.fromParent.drain)
+  tick_outXfer(tickData) {
+    if(++this.buffers.upgrades.out.xferAt>this.buffers.upgrades.out.xferMod) {
+      InvXFer(
+        this.buffers.out
+        ,tickData.fromParent.drain
+        ,{maxXfer: this.buffers.upgrades.out.xfer}
+      )
+      this.buffers.upgrades.out.xferAt = 0
     }
+    this.buffers.upgrades.out.xferProgress = this.buffers.upgrades.out.xferAt/this.buffers.upgrades.out.xferMod * 100
+  }
+  tick(tickData) {
+    this.buffers.upgrades.out.xfer && this.tick_outXfer(tickData)
     if (!this.mining || this.buffers.out.total(this.mining.mining_results) == this.buffers.max_out) return
     if (++this.mining_timer>this.mining_time) {
       this.buffers.out.add(this.mining.mining_results, 1)
@@ -181,9 +197,9 @@ class MiningEntity extends Entity{
     this.progress = this.mining_timer/this.mining_time*100
  }
   set_mining(resObj, timer) {
-    this.mining && this.collectBuffer() 
+    this.mining && this.collectBuffer()
     if (resObj!=this.mining) {
-      this.mining = null
+      this.mining && this.buffers.out.removeFilter(this.mining.mining_results)
       this.mining = resObj
       this.mining_time = resObj.mining_time / this.mining_speed * TICKS_PER_SECOND
       this.mining_timer = timer || 0
@@ -198,6 +214,7 @@ class MiningEntity extends Entity{
     if(count==0) return
     let consumed = actor.inv.add(this.mining.mining_results, count)
     this.buffers.out.consume(this.mining.mining_results, count - consumed)
+    mgrs.signaler.signal("generalUpdate")
   }
 }
 class CraftingEntity extends Entity {
@@ -212,11 +229,35 @@ class CraftingEntity extends Entity {
     this.buffers.max_out = 5;
     this.crafting_timer = NaN
   }
-  tick(tickData) {
-    //# Ticks mod should come from somewhere
-    if(tickData.ticks%30==0) {
-      InvXFer(this.buffers.out, tickData.fromParent.drain)
+  tick_outXfer(tickData) {
+    if(++this.buffers.upgrades.out.xferAt>this.buffers.upgrades.out.xferMod) {
+      InvXFer(
+        this.buffers.out
+        ,tickData.fromParent.drain
+        ,{maxXfer: this.buffers.upgrades.out.xfer}
+      )
+      this.buffers.upgrades.out.xferAt = 0
     }
+    this.buffers.upgrades.out.xferProgress = this.buffers.upgrades.out.xferAt/this.buffers.upgrades.out.xferMod * 100
+  }
+  tick_inXfer(tickData) {
+    if(++this.buffers.upgrades.in.xferAt>this.buffers.upgrades.in.xferMod) {
+      InvXFer(
+        tickData.fromParent.feed
+        ,this.buffers.in
+        ,{
+          types: this.recipe.ingredients.map((x)=> x.name)
+          ,maxXfer: this.buffers.upgrades.in.xfer
+        }
+
+      )
+      this.buffers.upgrades.in.xferAt = 0
+    }
+    this.buffers.upgrades.in.xferProgress = this.buffers.upgrades.in.xferAt/this.buffers.upgrades.in.xferMod * 100
+  }
+  tick(tickData) {
+    this.buffers.upgrades.out.xfer && this.tick_outXfer(tickData)
+    this.buffers.upgrades.in.xfer && this.tick_inXfer(tickData)
     if(Number.isNaN(this.crafting_timer)) {
       if(this.buffers.in.consumeAll(this.recipe.ingredients)===true) {
         this.crafting_timer = 0
@@ -225,6 +266,7 @@ class CraftingEntity extends Entity {
       if (++this.crafting_timer>this.crafting_time) {
         if(this.buffers.out.addAll(this.recipe.results, true)) {
           this.crafting_timer = NaN
+          this.progress = 0
           mgrs.signaler.signal("generalUpdate")
         }
       }
@@ -305,7 +347,7 @@ class LabEntity extends Entity {
   }
   tick(tickData) {
     if(tickData.ticks%30==0) {
-      this.buffers.in(tickData.fromParent.feed)
+      InvXFer(tickData.fromParent.feed, this.buffers.in)
     }
     if(!mgrs.tech.researching) return
     if(!Number.isNaN(this.research_timer) && this.research_timer<16) this.research_timer++
@@ -337,7 +379,7 @@ export class EntityStorage {
     this.restricted = restricted
   }
   [Symbol.iterator]() { return this.entities }
-  deserialize(saveEntities, mgrs) {
+  deserialize(saveEntities) {
     let next = null
     for (let each of saveEntities) {
       next = this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags, mgrs)
@@ -380,9 +422,7 @@ export class EntityStorage {
       }
     }
     if(this.restricted.type=="mining") {
-      //console.log(this.setFn)
-      let done = this.restricted.drain.addFilter(this.setFn.mining_results)
-      //console.log("set filter: "+done)
+      this.restricted.drain.addFilter(this.setFn.mining_results)
     }
   }
   ApplyEntityFn(e) {

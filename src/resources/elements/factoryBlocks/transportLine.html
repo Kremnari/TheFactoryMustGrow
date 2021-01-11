@@ -1,4 +1,4 @@
-<template bindable="line, type, upgrades">
+<template bindable="line, type, upgrades, invClick">
   <div if.bind="type=='output'">
   </div>
   <div if.bind="type=='internal'">Internal</div>
@@ -6,6 +6,7 @@
     repeat.for="item of line.items"
     item.bind="item"
     count.bind="item.count"
+    click.delegate="invClick({inv: line, item})"
   ></icon-base>
   <div if.bind="type=='input'">
   </div>

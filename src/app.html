@@ -30,7 +30,7 @@
     <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
   </header>
   <div id="mainView" if.bind="viewPane!='iconEditor'">
-    <article class="leftside">
+    <article>
       <section id="recipes" show.bind="viewPane.main == 'home'">
         <h3>Crafting categories</h3>
         <div>
@@ -124,6 +124,7 @@
           <transport-line
             if.bind="viewPane.facBlock.inputLine"
             line.bind="viewPane.facBlock.inputLine"
+            inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
             type="input"
           ></transport-line>
           <tlu 
@@ -151,7 +152,7 @@
           <hr>
           <p>
             Drains To: ${viewPane.facBlock.drains[0].name}
-            <span click.delegate=" viewPane.facBlock.SelectBusDrain()">(Change)</span>
+            <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
           </p>
           <tlu
             upgrades.bind="viewPane.facBlock.upgrades.output"
@@ -164,6 +165,7 @@
           <transport-line
             if.bind="viewPane.facBlock.outputLine"
             line.bind="viewPane.facBlock.outputLine"
+            inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
             type="output"
           ></transport-line>
         </div>

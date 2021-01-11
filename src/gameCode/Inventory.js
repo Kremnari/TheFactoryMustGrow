@@ -8,15 +8,16 @@
   stacks: [ItemStacks]
  */
 export function InvXFer(from, to, options) {
-  //console.log('called:')
-  //console.log(options)
+  options?.debug && console.log('called:')
+  options?.debug && console.log(options)
+  if(!from || !to) debugger
+  if(options?.maxXFer==0) return 
   let send = options?.toAs=="entity" ? 'recieveItem' : 'addStack'
-  //console.log(send)
   let accum = 0
-  let xFer = (itemStack) => {
-    //console.log(itemStack)
+  let XFer = (itemStack) => {
+    options?.debug && console.log(itemStack)
     let consumed = to[send](itemStack)
-    //console.log(consumed)
+    options?.debug && console.log(consumed)
     from.consume(itemStack.name, consumed)
     return consumed
   }
@@ -25,23 +26,26 @@ export function InvXFer(from, to, options) {
   } : (count) => {
     return count
   }
-  //console.log(XFerCount)
-  switch(true) {
-    case options?.stacks:
-      break;
-    default:
-      for(let i of from.items) {
-        if(!i || !i.name ||  i.count==0) continue
-        if(options?.types && !options.types.includes(i.name)) continue
-        accum += xFer({
-            name: i.name
-          ,count: XFerCount(i.count)
-        })
-        //console.log('accum: '+accum)
-      }
+  if(options?.stacks) {
+    debugger
+    for(let each of options.stacks) {
+      XFer(each)
+    }
+  } else {
+    for(let i of from.items) {
+      if(!i || !i.name ||  i.count==0) continue
+      if(options?.types && !options.types.includes(i.name)) continue
+      accum += XFer({
+          name: i.name
+        ,count: XFerCount(i.count)
+      })
+      options?.debug && console.log('accum: '+accum)
+    }
   }
 }
 
+import {CephlaCommTemp as CC} from "CephlaComm/main"
+CC.InvXFer = InvXFer
 
 /*
 

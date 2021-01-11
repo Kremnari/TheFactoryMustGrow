@@ -45,6 +45,7 @@ export default class Ticker {
       })
     }
     mgrs.signaler.signal("tickUpdate")
+    mgrs.signaler.signal("generalUpdate")
     return true;
   }
   DataProvider(cb) {

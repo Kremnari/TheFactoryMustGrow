@@ -3,6 +3,7 @@ import {inject} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
+import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
 const IDB_SAVE_VERSION = "0.01"
 
@@ -19,6 +20,7 @@ export class App {
       this.signaler = signaler
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
+      this.CC = CC
       this.saveGame = DataProv.saveGame
     }
     async init(database, DS) {
@@ -190,13 +192,13 @@ export class App {
     }
     async ulIconEditor() {
       if(!this.IE.upload) return
-      let convert = async function(data) {
+      let convert = async function(icon) {
         var a = new FileReader()
         return new Promise( (res) => {
           a.onload = () => {
             res(a.result)
           }
-          a.readAsText(data)
+          a.readAsText(icon)
         })
       }
       let data = JSON.parse(await convert(this.IE.upload[0]))

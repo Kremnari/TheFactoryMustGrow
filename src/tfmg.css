@@ -43,7 +43,7 @@ header#selector h5 {
 }
 
 header#selector {
-  height: 100px;
+  height: 15vh;
 }
 header#selector tool-tip {
   height: 80px;

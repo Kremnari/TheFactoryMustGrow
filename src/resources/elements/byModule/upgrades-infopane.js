@@ -1,11 +1,8 @@
-import {inject, bindable} from 'aurelia-framework'
-import {EntityMgr} from 'EntityMgr'
+import {bindable} from 'aurelia-framework'
+import {mgrs} from 'managers'
 
-@inject(EntityMgr)
 export class upgradesInfopaneCustomElement {
   @bindable entity;
   @bindable parcel;
-  constructor(EM) {
-    this.EM = EM
-  }
+  EM = mgrs.entity
 }

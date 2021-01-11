@@ -3,13 +3,33 @@
       <h5>Upgrades</h5>
       <p if.bind="entity.buffers.in">
         Input Buffers
-        <button click.delegate="EM.upgrade({type:'buffers', dir:'in', who: entity})">Expand</button>
-        <button if.bind="!parcel.isPlayer" click.delegate="EM.upgrade({type:'autoload', dir:'in', who: entity})">AutoLoad</button>
+        <icon-base
+          item="iron-chest"
+          count.bind="entity.buffers.upgrades.in.size"
+          click.delegate="EM.upgrade({type:'buffers', dir:'in', who: entity})"
+        >Expand</icon-base>
+        <icon-base
+          item="inserter"
+          if.bind="!parcel.isPlayer"
+          count.bind="entity.buffers.upgrades.in.xfer"
+          progress.bind="entity.buffers.upgrades.in.xferProgress"
+          click.delegate="EM.upgrade({type:'autoload', dir:'in', who: entity})"
+        >AutoLoad</icon-base>
       </p>
       <p if.bind="entity.buffers.out">
-        Expand Output Buffers
-        <button click.delegate="EM.upgrade({type:'buffers', dir:'out', who: entity})">Expand</button>
-        <button if.bind="!parcel.isPlayer" click.delegate="EM.upgrade({type:'autoload', dir:'out', who: entity})">AutoUnload</button>
+        Output Buffers
+        <icon-base
+          item="iron-chest"
+          count.bind="entity.buffers.upgrades.out.size"
+          click.delegate="EM.upgrade({type:'buffers', dir:'out', who: entity})"
+        >Expand</icon-base>
+        <icon-base
+          item="inserter"
+          count.bind="entity.buffers.upgrades.out.xfer"
+          if.bind="!parcel.isPlayer"
+          progress.bind="entity.buffers.upgrades.out.xferProgress"
+          click.delegate="EM.upgrade({type:'autoload', dir:'out', who: entity})"
+        >AutoUnload</icon-base>
       </p>
     </div>
 </template>
