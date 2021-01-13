@@ -4,7 +4,7 @@
     <ux-dialog-body>
       <div repeat.for="block of options" click.trigger="selected = (block == selected && undefined ) || block">
         <span class.bind="block==selected && 'button'">
-        ${block.name}
+        ${block.name+":"+block.type}
         </span>
       </div>
     </ux-dialog-body>

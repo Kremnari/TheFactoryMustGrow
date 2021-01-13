@@ -22,7 +22,7 @@ export let DataProvider = {
     mgrs.item.import(mgrs.icon.restoreIcons(data.item))
     mgrs.res.import(mgrs.icon.restoreIcons(data.resource))
     mgrs.rec.import(mgrs.icon.restoreIcons(data.recipe), mgrs.item)
-    mgrs.tech.import(mgrs.icon.restoreIcons(data.technology), mgrs, save?.techs)
+    mgrs.tech.import(mgrs.icon.restoreIcons(data.technology), save?.techs)
     mgrs.entity.import(mgrs.icon.restoreIcons(data.entity), mgrs)
     DataProvider.loadCb({mgrs: mgrs, save: save})
   },

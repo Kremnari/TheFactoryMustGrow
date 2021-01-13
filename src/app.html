@@ -35,16 +35,18 @@
         <h3>Crafting categories</h3>
         <div>
           <h4>Hand Craft</h4>
-          <icon-base
-            repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
-            item.bind="rec"
-            click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
-            show.bind="rec.enabled"
-            class.bind="rec.classesStr"
-            anim_class.bind="rec.style"
-            mouseenter.trigger="tooltip = rec"
-            mouseleave.trigger="tooltip = null"
-          ></icon-base>
+          <div class="overflow">
+            <icon-base
+              repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
+              item.bind="rec"
+              click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
+              show.bind="rec.enabled"
+              class.bind="rec.classesStr"
+              anim_class.bind="rec.style"
+              mouseenter.trigger="tooltip = rec"
+              mouseleave.trigger="tooltip = null"
+            ></icon-base>
+          </div>
         </div>
       </section>
       <section id="resources" show.bind="viewPane.main == 'home'">
@@ -56,11 +58,13 @@
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
-        <icon-base repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'" click.delegate="showItem = {item: tech, cat: 'tech'}"
-                    item.bind="tech" count.bind="tech.prerequisites.length"
-                    class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
-        >
-        </icon-base>
+        <div class="overflow">
+          <icon-base repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'" click.delegate="showItem = {item: tech, cat: 'tech'}"
+                      item.bind="tech" count.bind="tech.prerequisites.length"
+                      class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
+          >
+          </icon-base>
+        </div>
         <div>
           <h5>Filters</h5>
           <p>Filter Complete<button click.delegate="mgrs.tech.toggleFilter('complete')">${mgrs.tech.filters.ShowComplete? "Hide":"Show"}</button></p>

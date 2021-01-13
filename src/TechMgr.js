@@ -1,5 +1,6 @@
 import {inject} from 'aurelia-framework'
 import {EventAggregator} from 'aurelia-event-aggregator'
+import {mgrs} from "managers"
 
 @inject(EventAggregator)
 export default class TechMgr {
@@ -20,9 +21,8 @@ export default class TechMgr {
   }
   researching = null
   constructor(ea) {this.events = ea}
-  import(baseData, mgrs, savedTech) {
+  import(baseData, savedTech) {
     this.recipeMgr = mgrs.rec
-    this.mgrs = mgrs
     Object.entries(baseData).forEach( ([name, tech]) => {
       let newTech = new TechItem(tech, savedTech?.get(name))
       this.techList[name] = newTech
@@ -35,13 +35,17 @@ export default class TechMgr {
   serialize() {
     let ret = new Map()
     for(let tech of Object.values(this.techList)) {
-      if(!tech.researched || !tech.completeUnits) continue
+      if(!tech.researched && !tech.completeUnits) {
+        //console.log('skipping: '+tech.name)
+        continue
+      }
       let toAdd = {
         name: tech.name,
         type: tech.type,
         researched: tech.researched,
         completeUnits: tech.completeUnits,
       }
+      //console.warn("toAdd: "+tech.name)
       ret.set(tech.name, toAdd)
     }
     return ret
@@ -75,7 +79,7 @@ export default class TechMgr {
     this.updateVisible()
   } 
   applyFilter(type, args) {
-    let filter = {type: type, args: args}
+    //let filter = {type: type, args: args}
     //validate filter
     return this.visFilters.push({type: type, args: args}) - 1
   }
@@ -101,17 +105,15 @@ export default class TechMgr {
             }
             if(tech.prerequisites.reduce(reducer, 0)==filterElm.args.count) return true
             return false
-            break
           case "byPack":
             return tech.cost.ingredients.some( ([name, amount]) => { return name==filterElm.args.pack})
-            break;
           case "complete":
             return !tech.researched
-            break;
         }
         return false
-      }))
-      nextSet.push(tech)
+      })) {
+        nextSet.push(tech)
+      }
     })
     this.shownTechs = nextSet
     this.mgrs?.signaler?.signal('techUpdate')
@@ -139,6 +141,10 @@ class TechItem {
   constructor(baseTechData, saved) {
     Object.assign(this, baseTechData)
     this.completeUnits = saved?.completeUnits || 0
-    this.researched = saved?.researched||   false
+    this.researched = false
+    if(saved?.researched) {
+      this.researched = true
+      this.unlocks.forEach( (item) => mgrs.rec.recipeList[item].enabled=true)
+    }
   }
 }

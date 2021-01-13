@@ -22,6 +22,7 @@ export class IconBaseCustomElement {
     }
   }
   itemChanged(newVal) {
+    if(!newVal) return
     if(typeof newVal === 'string') {
       this.altTip = newVal
       this.item = mgrs.item.get(newVal)

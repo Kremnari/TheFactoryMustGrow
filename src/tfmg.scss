@@ -229,8 +229,9 @@ section {
   box-sizing: content-box;
   margin: 0.5rem;
 }
-
-
+div.overflow {
+  overflow-y: auto;
+}
 icon-base.researched {
   border: 2px solid black;
   border-radius: 4px

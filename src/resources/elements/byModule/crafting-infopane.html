@@ -26,8 +26,10 @@
   </div>
   <div if.bind="!crafter.recipe">
     <p>Select recipe to craft</p>
-    <icon-base repeat.for="rec of recMgr.recipesByTags('category', crafter.crafting_categories)" item.bind="rec" click.delegate="crafter.set_recipe(rec)"
-    class="${rec==crafter.recipe ? 'selected': ''}" mouseenter.bind="(tooltip = rec) & debounce:2000" mouseleave.bind="(tooltip = null) & debounce:2000"></icon-base>
+    <div class="overflow">
+      <icon-base repeat.for="rec of recMgr.recipesByTags('category', crafter.crafting_categories)" item.bind="rec" click.delegate="crafter.set_recipe(rec)"
+      class="${rec==crafter.recipe ? 'selected': ''}" mouseenter.bind="(tooltip = rec) & debounce:2000" mouseleave.bind="(tooltip = null) & debounce:2000"></icon-base>
+    </div>
   </div>
   <upgrades-infopane entity.bind="crafter" parcel.bind="crafter.parent"></upgrades-infopane>
 </template>
