@@ -65,12 +65,13 @@ export default class RecipeMgr {
       window.clearTimeout(catTO.timer)
       catTO.recipe.style = ""
       catTO.recipe.classes[CLASSES.crafting] = ""
-      this.consumeIngs(catTO.recipe, inv, true)
+      this.consumeIngs(catTO.recipe, inv, 1, true)
       if (recipe.name == catTO.recipe.name) {
         //same recipe, we need to finish clearing and exit
         this.crafting[recCategory] = null
         return false
       }
+      // else we shall continue to the consume,,,
     }
     if(this.canProduce(recipe, inv)) {
       catTO = {}

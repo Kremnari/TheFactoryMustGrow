@@ -1,6 +1,7 @@
 body {
   color: goldenrod;
   background-color: darkslategrey;
+  user-select: none;
 }
 .recipeDisabled {
   filter: saturate(0.2);

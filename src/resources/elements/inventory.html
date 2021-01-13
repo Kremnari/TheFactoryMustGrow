@@ -2,6 +2,7 @@
   <icon-base
     repeat.for="item of items & signal:'generalUpdate'"
     item.bind="item"
+    if.bind="item.filtered || item.count>0"
     count.bind="item.count"
     click.delegate="clickCall({item})"
   ></icon-base>

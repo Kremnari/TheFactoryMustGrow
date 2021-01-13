@@ -125,24 +125,21 @@ class Entity {
     this.inv = inventory
     this.tags = TagMapProxy({to: tagArray, entity: this})
     if(type) this.tags.push("type", type);
-    (function(me) {
-      let max_in = 0
-      let max_out = 0
-      Object.defineProperty(me.buffers, 'max_in', {
-      get: function() { return max_in; },
-      set: function(val) {
-        max_in = val;
-        me.buffers.in && (me.buffers.in.max_stack = val);
-      }
-      })
-      Object.defineProperty(me.buffers, 'max_out', {
-        get: function() { return max_out; },
-        set: function(val) {
-          max_out = val;
-          me.buffers.out && (me.buffers.out.max_stack = val);
+    
+    if(baseItem.type!="mining-drill")
+      Object.defineProperty(this.buffers, 'max_in', {
+        get() { return this.in.max_stack; },
+        set(val) {
+          this.in.max_stack = val;
         }
       })
-    })(this)
+    if(baseItem.type!="lab")
+      Object.defineProperty(this.buffers, 'max_out', {
+        get() { return this.out.max_stack; },
+        set(val) {
+          this.out.max_stack = val;
+        }
+      })
   }
   deserialize(data) {
     throw new Error("Abstract method, please override")
@@ -156,6 +153,10 @@ class Entity {
   restoreBuffers(buffers) {
     buffers.out && (this.buffers.out = new Inventory(buffers.out.items, buffers.out.max_stack))
     buffers.in  && (this.buffers.in  = new Inventory(buffers.in.items, buffers.in.max_stack))
+    this.buffers.upgrades = buffers.upgrades
+    buffers.max_in  && (this.buffers.max_in  = buffers.max_in)
+    buffers.max_out && (this.buffers.max_out = buffers.max_out)
+
   }
 }
 class MiningEntity extends Entity{
@@ -167,13 +168,18 @@ class MiningEntity extends Entity{
   }
   deserialize(data) {
     Object.assign(this, data)
+    debugger
   }
   serialize() {
     let ret = {}
     ret.name = this.name
     ret.type = "mining"
     ret.mining = this.mining?.name || ""
-    ret.buffers = {out: this.buffers.out.serialize()}
+    ret.buffers = {
+       out: this.buffers.out.serialize()
+      ,upgrades: this.buffers.upgrades 
+      ,max_out: this.buffers.max_out
+    }
     ret.mining_timer = this.mining_timer
     return ret
   }
@@ -189,7 +195,7 @@ class MiningEntity extends Entity{
     this.buffers.upgrades.out.xferProgress = this.buffers.upgrades.out.xferAt/this.buffers.upgrades.out.xferMod * 100
   }
   tick(tickData) {
-    this.buffers.upgrades.out.xfer && this.tick_outXfer(tickData)
+    //this.buffers.upgrades.out.xfer && this.tick_outXfer(ickData)
     if (!this.mining || this.buffers.out.total(this.mining.mining_results) == this.buffers.max_out) return
     if (++this.mining_timer>this.mining_time) {
       this.buffers.out.add(this.mining.mining_results, 1)
@@ -261,8 +267,8 @@ class CraftingEntity extends Entity {
     this.buffers.upgrades.in.xferProgress = this.buffers.upgrades.in.xferAt/this.buffers.upgrades.in.xferMod * 100
   }
   tick(tickData) {
-    this.buffers.upgrades.out.xfer && this.tick_outXfer(tickData)
-    this.buffers.upgrades.in.xfer && this.tick_inXfer(tickData)
+    //this.buffers.upgrades.out.xfer && this.tick_outXfer(tickData)
+    //this.buffers.upgrades.in.xfer && this.tick_inXfer(tickData)
     if(Number.isNaN(this.crafting_timer)) {
       if(this.buffers.in.consumeAll(this.recipe.ingredients)===true) {
         this.crafting_timer = 0
@@ -289,7 +295,14 @@ class CraftingEntity extends Entity {
     let ret = {}
     ret.name = this.name
     ret.type = "crafting"
-    ret.buffers = {out: this.buffers.out.serialize(), in: this.buffers.in.serialize() }
+    ret.buffers = {
+      out: this.buffers.out.serialize()
+      ,in: this.buffers.in.serialize()
+      ,upgrades: this.buffers.upgrades
+      ,max_out: this.buffers.max_out
+      ,max_in: this.buffers.max_in
+
+    }
     ret.crafting_timer = this.crafting_timer
     ret.recipe = this.recipe?.name || ""
 
@@ -322,6 +335,8 @@ class CraftingEntity extends Entity {
     recipeObj.results.forEach((ing, idx) => {
       this.buffers.out.setFilter(idx, ing.name)
     })
+    this.buffers.in.items.length = recipeObj.ingredients.length
+    this.buffers.out.items.length = recipeObj.ingredients.length
     this.tags.push("ticking", "crafting")
   }
 }
@@ -329,7 +344,7 @@ class LabEntity extends Entity {
   //technology is set elsewhere
   constructor(baseItem, inventory, tagArray) {
     super(baseItem, inventory, tagArray, "lab")
-    this.buffers.in = new Inventory(this.inputs.length, this.buffers.max_in)
+    this.buffers.in = new Inventory(this.inputs.length)
     this.buffers.max_in = 5;
     this.inputs.forEach( (name, idx) => this.buffers.in.setFilter(idx, name))
     this.research_timer = NaN
@@ -341,7 +356,11 @@ class LabEntity extends Entity {
     let ret = {}
     ret.name = this.name
     ret.type = "lab"
-    ret.buffers = { in: this.buffers.in.serialize()}
+    ret.buffers = {
+      in: this.buffers.in.serialize()
+      ,upgrades: this.buffers.upgrades
+      ,max_in: this.buffers.max_in
+    }
     ret.research_timer = this.research_timer
     return ret
   }
@@ -484,10 +503,16 @@ export class EntityStorage {
     //console.log('%ces tick start', "color: blue")
     let which = tickData.entities.types
     for (let type of which) {
+      this.entityTags.getSetValues("outputTicker", true).forEach(
+        entity => entity.tick_outXfer(tickData)
+      )
       this.entityTags.getSetValues("ticking", type).forEach(
         (entity) => {
           entity.tick(tickData)
         }
+      )
+      this.entityTags.getSetValues("inputTicker", true).forEach(
+        entity => entity.tick_inXfer(tickData)
       )
     }
     //console.log('%ces tick end', "color: blue")

@@ -7,14 +7,15 @@
           item="iron-chest"
           count.bind="entity.buffers.upgrades.in.size"
           click.delegate="EM.upgrade({type:'buffers', dir:'in', who: entity})"
-        >Expand</icon-base>
+        ></icon-base>
         <icon-base
           item="inserter"
           if.bind="!parcel.isPlayer"
           count.bind="entity.buffers.upgrades.in.xfer"
           progress.bind="entity.buffers.upgrades.in.xferProgress"
           click.delegate="EM.upgrade({type:'autoload', dir:'in', who: entity})"
-        >AutoLoad</icon-base>
+        ></icon-base>
+        <active-trigger entity.bind="entity" tag="inputTicker" if.bind="entity.buffers.upgrades.in.xfer>0"></active-trigger>
       </p>
       <p if.bind="entity.buffers.out">
         Output Buffers
@@ -22,14 +23,15 @@
           item="iron-chest"
           count.bind="entity.buffers.upgrades.out.size"
           click.delegate="EM.upgrade({type:'buffers', dir:'out', who: entity})"
-        >Expand</icon-base>
+        ></icon-base>
         <icon-base
           item="inserter"
           count.bind="entity.buffers.upgrades.out.xfer"
           if.bind="!parcel.isPlayer"
           progress.bind="entity.buffers.upgrades.out.xferProgress"
           click.delegate="EM.upgrade({type:'autoload', dir:'out', who: entity})"
-        >AutoUnload</icon-base>
+        ></icon-base>
+        <active-trigger entity.bind="entity" tag="outputTicker" if.bind="entity.buffers.upgrades.out.xfer>0"></active-trigger>
       </p>
     </div>
 </template>

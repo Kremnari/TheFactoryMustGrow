@@ -38,14 +38,14 @@ export class App {
         } else {
           console.log("idb save data out of date")
           this.facBlocks = []
-          this.player =  new PlayerBlock(10)
-          this.jumpStart()
+          this.player =  new PlayerBlock(20)
+          //this.jumpStart()
           this.save()
         }
       } else {
         this.facBlocks = []
-        this.player =  new PlayerBlock(10)
-        this.jumpStart()
+        this.player =  new PlayerBlock(20)
+        //this.jumpStart()
       }
       this.showDev = await this.mgrs.idb.get("dev")
       this.mgrs.rec.set_player(this.player) //SMELL

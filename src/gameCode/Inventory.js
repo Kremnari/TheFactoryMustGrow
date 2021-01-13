@@ -27,7 +27,6 @@ export function InvXFer(from, to, options) {
     return count
   }
   if(options?.stacks) {
-    debugger
     for(let each of options.stacks) {
       XFer(each)
     }

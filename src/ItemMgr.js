@@ -114,8 +114,9 @@ export class Inventory {
       if(retCount===0) consumed.push(each)
       else if(revertOnFailFast) {
         //console.log('reverting')
-        consumed.length>=1 ? this.addAll(consumed, false, multi) : void
-        this.add(each.item, each.count-retCount)
+        //console.log(retCount)
+        consumed.length>=1 && this.addAll(consumed, false, multi)
+        //this.add(each.name, retCount)
         return itemStacks
       }
     }
@@ -213,6 +214,7 @@ export class Inventory {
   }
   consume(item, count) { //will ALWAYS return unconsumed portion
     let targ = this._GetSubStack(item, false) //By_elm
+    //console.log(targ)
     if(!targ) return count
     if(targ.count>=count) {
       targ.count-=count
