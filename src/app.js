@@ -5,7 +5,7 @@ import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
-const IDB_SAVE_VERSION = "0.01"
+const IDB_SAVE_VERSION = "0.02"
 
 @inject(BindingSignaler, DataProvider, DialogMgr)
 export class App {
