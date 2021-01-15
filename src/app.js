@@ -14,8 +14,6 @@ export class App {
     viewRecCat = false
     tooltip = null
     constructor(signaler, DataProv, DS) { 
-      //import("./data_source.json").then( (mod) => this.init(mod.default))
-      //fetch("data_source.json").then( (data) => data.json().then( (what) => this.init(what) ) )
       window.tfmg = this
       this.signaler = signaler
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
@@ -33,7 +31,7 @@ export class App {
           this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
           this.facBlocks = []
           for (let each of database.save.facBlocks) {
-            this.facBlocks.push(FactoryBlock.deserialize(this.mgrs, each))
+            this.facBlocks.push(FactoryBlock.deserialize(each))
           }
         } else {
           console.log("idb save data out of date")

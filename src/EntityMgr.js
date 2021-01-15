@@ -1,6 +1,7 @@
 import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack, Inventory} from "./ItemMgr"
+import {FactoryBlock} from './resources/StateDef/FactoryBlock'
 import {mgrs} from 'managers'
 import {TICKS_PER_SECOND} from "./Config"
 
@@ -313,8 +314,8 @@ class CraftingEntity extends Entity {
     this.outputFull = false
   }
   clear_recipe() {
-    this.inv.absorbFrom(this.buffers.in)
-    this.inv.absorbFrom(this.buffers.out)
+    mgrs.baseApp.player.inv.absorbFrom(this.buffers.in)
+    mgrs.baseApp.player.inv.absorbFrom(this.buffers.out)
     this.tags.delete("ticking")
     this.recipe = null
   }
@@ -348,6 +349,7 @@ class LabEntity extends Entity {
     this.buffers.max_in = 5;
     this.inputs.forEach( (name, idx) => this.buffers.in.setFilter(idx, name))
     this.research_timer = NaN
+    this.tags.push("ticking", "lab")
   }
   deserialize(data) {
     Object.assign(this, data)
@@ -375,29 +377,28 @@ class LabEntity extends Entity {
     let toAdd = mgrs.rounder.calc(this.buffers.in.total(name), this.buffers.max_in, this.inv.total(name))
     toAdd -= this.inv.consume(name, toAdd) //returns unconsumed
     this.buffers.in.add(name, toAdd)
-    this.tags.push("ticking", "lab")
+  }
+  tick_inXfer(tickData) {
+    InvXFer(tickData.fromParent.feed, this.buffers.in)
   }
   tick(tickData) {
-    if(tickData.ticks%30==0) {
-      InvXFer(tickData.fromParent.feed, this.buffers.in)
-    }
     if(!mgrs.tech.researching) return
-    if(!Number.isNaN(this.research_timer) && this.research_timer<16) this.research_timer++
-    if (this.research_timer%16==0) {
-      mgrs.tech.increment_research()
-      this.research_timer = NaN
-    }
     if(Number.isNaN(this.research_timer)) {
       this.nextUnit(mgrs.tech.nextIngredients)
+    } else {
+      if (++this.research_timer%mgrs.tech.researching.cost.time==0) {
+        mgrs.tech.increment_research()
+        this.research_timer = NaN
+      }
     }
+    this.progress = this.research_timer/mgrs.tech.researching.cost.time*100
   }
   nextUnit(ings) {
     if(!ings) return
     let canConsume = ings.every( ([name, qty]) => { return this.buffers.in.total(name) >= qty } )
-    if(!canConsume) { this.tags.delete("ticking"); return }
+    if(!canConsume) {  return }
     ings.forEach( ([name, qty]) => this.buffers.in.consume(name, qty))
     this.research_timer = 0
-    this.tags.push("ticking", "lab")
   }
 
 }
@@ -411,19 +412,55 @@ export class EntityStorage {
     this.restricted = restricted
   }
   [Symbol.iterator]() { return this.entities }
-  deserialize(saveEntities) {
+  static deserialize(facBlock, save) {
+    let ret = new EntityStorage(facBlock)
+    if(save.restricted) {
+      ret.restricted = {}
+      ret.restricted.type = save.restricted.type
+      save.restricted.feed && FactoryBlock.acquire(save.restricted.feed, (fb) => { ret.restricted.feed = fb})
+      save.restricted.drain && FactoryBlock.acquire(save.restricted.drain, (fb) => { ret.restricted.drain = fb})
+    }
+    if(save.setFn) {
+      let itIs
+      let [type, name] = save.setFn.split(":")
+      type=="resource" ? itIs = mgrs.res.resList[name] : itIs = mgrs.rec.recipeList[name]
+      debugger
+      ret.setFn = itIs
+      //TODO should be below, but won't work until FacBlock feed/drains are resolved
+      //ret.SetEntityFn(itIs)
+    }
+    let newE
+    save.entities.forEach( (e) => {
+      newE = mgrs.entity.RestoreEntity(e, facBlock.inv, ret.entityTags)
+      ret.entities.push(newE)
+      ret.setFn && ret.ApplyEntityFn(newE)
+    })
+    //ret.deserialize(save)
+    return ret
+  }
+  deserialize(save) {
     let next = null
-    for (let each of saveEntities) {
-      next = this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags, mgrs)
+    for (let each of save.entities) {
+      next = this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags)
       next.parent = this.parent
       this.entities.push(next)
     }    
   }
   serialize() {
-    let ret = []
-    for (let idx in this.entities) {
-      ret[idx] = this.entities[idx].serialize()
+    let ret = {
+      entities: []
     }
+    if(this.restricted) {
+      ret.restricted = {
+        type: this.restricted.type
+      }
+      this.restricted.feed && (ret.restricted.feed = this.restricted.feed.name+":"+this.restricted.feed.type)
+      this.restricted.drain && (ret.restricted.drain =  this.restricted.drain.name+":"+this.restricted.drain.type)
+    }
+    for (let idx in this.entities) {
+      ret.entities[idx] = this.entities[idx].serialize()
+    }
+    this.setFn && (ret.setFn = this.setFn.type+":"+this.setFn.name)
     return ret
   }
   SetEntityFn(doing) {

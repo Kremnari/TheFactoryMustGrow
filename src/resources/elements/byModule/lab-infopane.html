@@ -3,9 +3,18 @@
   <p>
     Max Buffer: ${lab.buffers.max_in}
   </p>
-  <div repeat.for="input of lab.inputs" class="labInput">
-    <icon-base item.bind="itemMgr.itemList[input]" count.bind="lab.buffers.in.items[$index].count" class="${lab.canAdd(input) ? 'fillable': ''}"
-               click.delegate="lab.addPotion(input, rounder)" title="Click to add ${input}"></icon-base>
+  <div
+    class="labInput, progressBarBase"
+    css="border-image-source: linear-gradient(to right, green ${lab.progress}%, red ${lab.progress}%)"
+  >
+    <icon-base
+      repeat.for="input of lab.inputs"
+      item.bind="itemMgr.itemList[input]"
+      count.bind="lab.buffers.in.items[$index].count"
+      class="${lab.canAdd(input) ? 'fillable': ''}"
+      click.delegate="lab.addPotion(input, rounder)"
+      title="Click to add ${input}"
+    ></icon-base>
   </div>
   <upgrades-infopane entity.bind="lab" parcel.bind="lab.parent"></upgrades-infopane>
 </template>

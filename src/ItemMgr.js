@@ -57,6 +57,9 @@ export class Inventory {
   serialize() {
     return { items: this.items, max_stack: this.max_stack }
   }
+  static deserialize(save) {
+    return new Inventory(save.items, save.max_stack)
+  }
   deserialize(save) {
     this.items = save.items
     this.max_stack = save.max_stack

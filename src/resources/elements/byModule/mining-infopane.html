@@ -2,8 +2,17 @@
   <require from="./upgrades-infopane"></require>
   <div>
     <p>Select Resource to Mine</p>
-    <icon-base repeat.for="res of resMgr.resListByTag('category', miner.resource_categories)" item.bind="res" click.delegate="miner.set_mining(res)" class="${res==miner.mining? 'selected': ''}"></icon-base>
-    <p click.delegate="miner.collectBuffer(actor)" if.bind="miner.mining" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${miner.progress}%, red ${miner.progress}%)"
+    <icon-base
+      repeat.for="res of resMgr.resListByTag('category', miner.resource_categories)"
+      item.bind="res"
+      click.delegate="miner.set_mining(res)"
+      class="${res==miner.mining? 'selected': ''}"
+    ></icon-base>
+    <p
+      click.delegate="miner.collectBuffer(actor)"
+      if.bind="miner.mining"
+      class="progressBarBase"
+      css="border-image-source: linear-gradient(to right, green ${miner.progress}%, red ${miner.progress}%)"
       title="Click to collect">
       <icon-base
         item.bind="miner.mining.mining_results"

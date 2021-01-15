@@ -46,6 +46,7 @@ export class FactoryBlock {
     this.name = name
     this.type = whichType
     this.upgrades = {base: this }
+    FactoryBlock.assign(this.name+":"+this.type, this)
     if(includes.input) {
       this.upgrades.input = lineUpgrades()
       this.inputLine = new Inventory(5, 5)
@@ -58,10 +59,46 @@ export class FactoryBlock {
 
     mgrs.Ticker.subscribe( (x) => this.tick(x))
   }
-  static deserialize(DEPRECIATED, save) {
+  static #blocks = {}
+  static #awaiting = {}
+  static assign(name, facBlock) {
+    if(this.#awaiting[name]) {
+      this.#awaiting[name].forEach((cb) => {cb(facBlock)})
+      this.#awaiting[name] = undefined
+    }
+    this.#blocks[name] = facBlock
+  }
+  static acquire(name, cb) {
+    if(this.#blocks[name]) {
+      cb(this.#blocks[name])
+      return
+    }
+    if(!this.#awaiting[name]) {
+      this.#awaiting[name] = []
+    }
+    this.#awaiting[name].push(cb)
+  }
+  static deserialize(save) {
     let ret = new FactoryBlock(save.type, save.name)
     ret.upgrades = save.upgrades
-
+    ret.base = ret
+    save.inputLine && (ret.inputLine = Inventory.deserialize(save.inputLine))
+    save.outputLine && (ret.outputLine = Inventory.deserialize(save.outputLine))
+    if(save.lines) {
+      ret.lines = []
+      save.lines.forEach((l, i)=> {
+        ret.lines[i] = EntityStorage.deserialize(this, l)
+      })
+      debugger
+    }
+    if(save.feeds) {
+      ret.feeds = []
+      save.feeds.forEach((x,i) => FactoryBlock.acquire(x, (fb) => { ret.feeds[i] = fb}))
+    }
+    if(save.drains) {
+      ret.drains = []
+      save.drains.forEach( (x,i) => FactoryBlock.acquire(x, (fb) => { ret.drains[i] = fb}))
+    }
     return ret
   }
   serialize() {
@@ -75,6 +112,8 @@ export class FactoryBlock {
     this.drains && (ret.drains = this.drains.map(x => x.name+":"+x.type))
     this.lines && (ret.lines = this.lines.map(x => x.serialize()))
     ret.upgrades = this.upgrades
+    ret.upgrades.base = undefined
+    console.log(ret)
     return ret
   }
   tick(tickData) {
