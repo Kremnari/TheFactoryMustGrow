@@ -89,7 +89,6 @@ export class FactoryBlock {
       save.lines.forEach((l, i)=> {
         ret.lines[i] = EntityStorage.deserialize(this, l)
       })
-      debugger
     }
     if(save.feeds) {
       ret.feeds = []
@@ -113,7 +112,6 @@ export class FactoryBlock {
     this.lines && (ret.lines = this.lines.map(x => x.serialize()))
     ret.upgrades = this.upgrades
     ret.upgrades.base = undefined
-    console.log(ret)
     return ret
   }
   tick(tickData) {

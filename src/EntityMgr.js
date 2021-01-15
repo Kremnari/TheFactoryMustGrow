@@ -327,7 +327,7 @@ class CraftingEntity extends Entity {
     mgrs.signaler.signal("generalUpdate")
   }
   set_recipe(recipeObj) {
-    if(this.recipe) this.clear_recipe()
+    if(this.recipe && this.recipe.name!=recipeObj.name) this.clear_recipe()
     this.recipe = recipeObj
     this.crafting_time = recipeObj.crafting_speed / this.crafting_speed * TICKS_PER_SECOND
     recipeObj.ingredients.forEach((ing, idx) => {
@@ -424,9 +424,9 @@ export class EntityStorage {
       let itIs
       let [type, name] = save.setFn.split(":")
       type=="resource" ? itIs = mgrs.res.resList[name] : itIs = mgrs.rec.recipeList[name]
-      debugger
       ret.setFn = itIs
-      //TODO should be below, but won't work until FacBlock feed/drains are resolved
+      //! SetEntityFn is not required. :D
+      // because the inventory filters were serialized
       //ret.SetEntityFn(itIs)
     }
     let newE
