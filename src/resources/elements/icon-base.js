@@ -20,6 +20,8 @@ export class IconBaseCustomElement {
     } else if(typeof this.item === 'object') {
       this.altTip = this.item.name
     }
+    if(this.altImage) {
+    }
   }
   itemChanged(newVal) {
     if(!newVal) return
@@ -28,6 +30,14 @@ export class IconBaseCustomElement {
       this.item = mgrs.item.get(newVal)
     } else if(typeof newVal === 'object') {
       this.altTip = newVal.name
+    }
+  }
+  altImageChanged2(newVal) {
+    if(!newVal) return
+    if(newVal.includes("@")) {
+      console.log("lookup "+newVal)
+      this.altImage = mgrs.item.get(newVal)
+      console.log(this.altImage)
     }
   }
 }

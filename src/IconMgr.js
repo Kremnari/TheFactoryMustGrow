@@ -12,9 +12,6 @@ export default class IconMgr {
     if (type.indexOf("@")> -1 && !name) {
       [type, name] = type.split("@")
     }
-    if (!this.iconList[type]?.[name]) {
-      return this.iconList.item[name] || null
-    }
-    return this.iconList[type][name]
+    return this.iconList[type][name] || this.iconList.item[name] || null
   }
 }
