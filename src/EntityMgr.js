@@ -409,7 +409,7 @@ export class EntityStorage {
   entityTags = new KVSMap()
   constructor(facBlock, restricted = false) {
     this.parent = facBlock.parent || facBlock
-    console.log(restricted)
+    //console.log(restricted)
     this.restricted = restricted
   }
   [Symbol.iterator]() { return this.entities }

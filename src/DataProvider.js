@@ -19,11 +19,11 @@ export let DataProvider = {
   },
   async init(data, save) {
     mgrs.icon.import(data.icons)
-    mgrs.item.import(mgrs.icon.restoreIcons(data.item))
-    mgrs.res.import(mgrs.icon.restoreIcons(data.resource))
-    mgrs.rec.import(mgrs.icon.restoreIcons(data.recipe), mgrs.item)
-    mgrs.tech.import(mgrs.icon.restoreIcons(data.technology), save?.techs)
-    mgrs.entity.import(mgrs.icon.restoreIcons(data.entity), mgrs)
+    mgrs.item.import(data.item)
+    mgrs.res.import(data.resource)
+    mgrs.rec.import(data.recipe, mgrs.item)
+    mgrs.tech.import(data.technology, save?.techs)
+    mgrs.entity.import(data.entity, mgrs)
     DataProvider.loadCb({mgrs: mgrs, save: save})
   },
   saveGame(data) {

@@ -18,13 +18,4 @@ export default class IconMgr {
     }
     return this.iconList[type][name]
   }
-  restoreIcons(dataSet) {
-    Object.values(dataSet).forEach((obj) => {
-      if(!obj.icon) return
-      let [type, name] = obj.icon.split('@')
-      obj.icon = this.iconList[type]?.[name] || this.iconList.item[name]
-      //if(!obj.icon) console.log("couldn't load an icon for: "+type+"@"+name)
-    })
-    return dataSet 
-  }
 }

@@ -1,5 +1,4 @@
-//import {computedFrom} from 'aurelia-framework'
-
+import {mgrs} from 'managers'
 
 export default class RecipeMgr {
   recipeList = {}
@@ -107,9 +106,8 @@ export default class RecipeMgr {
 
 class Recipe {
   style = ""
-  constructor(recipe, ItemMgr, RecMgr) {
+  constructor(recipe) {
     Object.assign(this, recipe)
-    this.recMgr = RecMgr
     this.enabled = recipe.enabled == undefined ? true : recipe.enabled
     Object.defineProperty(this, 'classesStr', {
       get: () => {
@@ -117,7 +115,7 @@ class Recipe {
       }
     })
     if (!this.category) this.category = "crafting"
-    if (this.icon == "") this.icon = ItemMgr.itemList[this.results[0].name]?.icon
+    if (this.icon == "") this.icon = mgrs.item.itemList[this.results[0].name]?.icon
     if (this.icon == "") return false
   }
   classes = []
