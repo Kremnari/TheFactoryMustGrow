@@ -17,7 +17,6 @@ const lineUpgrades = () => {
     }
   }
 }
-
 export class FactoryBlock {
   entityTypes = false
   upgrades = {}
@@ -64,7 +63,6 @@ export class FactoryBlock {
   static assign(name, facBlock) {
     if(this.#awaiting[name]) {
       this.#awaiting[name].forEach((cb) => {cb(facBlock)})
-      this.#awaiting[name] = undefined
     }
     this.#blocks[name] = facBlock
   }

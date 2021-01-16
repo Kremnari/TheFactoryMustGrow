@@ -207,6 +207,7 @@ class MiningEntity extends Entity{
     this.progress = this.mining_timer/this.mining_time*100
  }
   set_mining(resObj, timer) {
+    if(resObj==this.mining) return 
     this.mining && this.collectBuffer()
     this.mining && this.buffers.out.removeFilter(this.mining.mining_results)
     if (resObj!=this.mining) {
@@ -407,8 +408,8 @@ export class EntityStorage {
   entities = []
   entityTags = new KVSMap()
   constructor(facBlock, restricted = false) {
-    this.mgr = mgrs.entity
     this.parent = facBlock.parent || facBlock
+    console.log(restricted)
     this.restricted = restricted
   }
   [Symbol.iterator]() { return this.entities }
@@ -441,7 +442,7 @@ export class EntityStorage {
   deserialize(save) {
     let next = null
     for (let each of save.entities) {
-      next = this.mgr.RestoreEntity(each, this.parent.inv, this.entityTags)
+      next = mgrs.entity.RestoreEntity(each, this.parent.inv, this.entityTags)
       next.parent = this.parent
       this.entities.push(next)
     }    
@@ -505,9 +506,9 @@ export class EntityStorage {
     }
   }
   AddEntity(name) {
-    if(this.restricted && this.mgr.EntityType(name)!=this.restricted.type) return
+    if(this.restricted && mgrs.entity.EntityType(name)!=this.restricted.type) return
 
-    let new_e = this.mgr.GenerateEntity(name, this.parent.inv, this.entityTags)
+    let new_e = mgrs.entity.GenerateEntity(name, this.parent.inv, this.entityTags)
     new_e.parent = this.parent
     this.entities.push(new_e)
     if(this.restricted && this.setFn) this.ApplyEntityFn(new_e)

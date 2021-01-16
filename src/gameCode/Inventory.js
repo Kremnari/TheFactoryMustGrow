@@ -45,6 +45,7 @@ export function InvXFer(from, to, options) {
 
 import {CephlaCommTemp as CC} from "CephlaComm/main"
 CC.InvXFer = InvXFer
+globalThis.InvXFer = InvXFer
 
 /*
 

@@ -24,7 +24,7 @@ export default class TechMgr {
   import(baseData, savedTech) {
     this.recipeMgr = mgrs.rec
     Object.entries(baseData).forEach( ([name, tech]) => {
-      let newTech = new TechItem(tech, savedTech?.get(name))
+      let newTech = new TechItem(tech, savedTech?.[name])
       this.techList[name] = newTech
     })
     this.applyFilter("prereqs", {count: 0})
@@ -33,7 +33,7 @@ export default class TechMgr {
     mgrs.Ticker.DataProvider((obj) => { this.TickerProvider(obj) } )
   }
   serialize() {
-    let ret = new Map()
+    let ret = {}
     for(let tech of Object.values(this.techList)) {
       if(!tech.researched && !tech.completeUnits) {
         //console.log('skipping: '+tech.name)
@@ -46,7 +46,7 @@ export default class TechMgr {
         completeUnits: tech.completeUnits,
       }
       //console.warn("toAdd: "+tech.name)
-      ret.set(tech.name, toAdd)
+      ret[tech.name] = toAdd
     }
     return ret
   }

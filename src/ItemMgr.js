@@ -1,6 +1,5 @@
 import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
-globalThis.InvXFer = InvXFer
 
 export default class ItemMgr {
   itemList = {}
@@ -50,9 +49,6 @@ export class Inventory {
   constructor(from = 0, max_stack) {
     this.items = Array.isArray(from) ? from : new Array(from) 
     this.max_stack = max_stack
-    this.itemMgr = mgrs.item // ?? is needed? ... just for stacksizes?
-    this.recMgr = mgrs.rec
-    this.signaler = mgrs.signaler
   }
   serialize() {
     return { items: this.items, max_stack: this.max_stack }
@@ -207,7 +203,7 @@ export class Inventory {
   }
   add(item, count) { //will ALWAYS returns unadded portion
     if(count==0) return
-    let maxStack = this.max_stack || this.itemMgr.get(item).stack_size
+    let maxStack = this.max_stack || mgrs.item.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
     if(!targ) { return count }
     let toAdd = Math.min(maxStack - targ.count, count)
@@ -248,11 +244,11 @@ export class Inventory {
   click(data) {
     switch(data.what) {
       case "use":
-        let item = data.which.item || this.itemMgr.get(data.which.name)
+        let item = data.which.item || mgrs.item.get(data.which.name)
         if(data.which.count>0) {
           if(item.hasEntity) {
             data.where.useItem(data.which.name) && data.which.count--
-            this.signaler.signal('addedEntity')
+            mgrs.signaler.signal('addedEntity')
             return
           }
         }
