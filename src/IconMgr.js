@@ -13,8 +13,7 @@ export default class IconMgr {
       [type, name] = type.split("@")
     }
     if (!this.iconList[type]?.[name]) {
-      //console.log('cannot find icon for: '+name+"@"+type)
-      return null
+      return this.iconList.item[name] || null
     }
     return this.iconList[type][name]
   }
