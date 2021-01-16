@@ -14,13 +14,16 @@ export class IconBaseCustomElement {
   mgrs = mgrs;
   constructor() {}
   bind(bindContext, overContext) {
+    if(!this.item) return
     if(typeof this.item === 'string') {
       this.altTip = this.item
       this.item = mgrs.item.get(this.item)
+      if(!this.item) return
     } else if(typeof this.item === 'object') {
       this.altTip = this.item.name
     }
-    if(this.altImage) {
+    if(!this.item.icon) {
+      this.item.icon = "item@"+this.item.name
     }
   }
   itemChanged(newVal) {
