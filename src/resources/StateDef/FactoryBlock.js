@@ -113,7 +113,6 @@ export class FactoryBlock {
     return ret
   }
   tick(tickData) {
-    if(tickData.ticks%16!=0) return
     if(this.type=="bus") {
       for(let x of this.drains) {
         if(x.type=="bus") return
