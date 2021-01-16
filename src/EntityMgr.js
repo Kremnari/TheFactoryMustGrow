@@ -387,12 +387,12 @@ class LabEntity extends Entity {
     if(Number.isNaN(this.research_timer)) {
       this.nextUnit(mgrs.tech.nextIngredients)
     } else {
-      if (++this.research_timer%mgrs.tech.researching.cost.time==0) {
+      if (++this.research_timer%(mgrs.tech.researching.cost.time*TICKS_PER_SEC)==0) {
         mgrs.tech.increment_research()
         this.research_timer = NaN
       }
     }
-    this.progress = this.research_timer/mgrs.tech.researching.cost.time*100
+    this.progress = this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SEC)*100
   }
   nextUnit(ings) {
     if(!ings) return
