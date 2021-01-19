@@ -29,6 +29,7 @@ export class FactoryBlock {
         break;
       case "bus":
         includes = {input: true, output: true, delay: true}
+        this.tick = this.tick_bus
         break;
       case "research":
         includes = {input: true, line: true}
@@ -112,30 +113,39 @@ export class FactoryBlock {
     ret.upgrades.base = undefined
     return ret
   }
-  tick(tickData) {
-    if(this.type=="bus") {
-      for(let x of this.drains) {
-        if(x.type=="bus") return
-        x.inputLine.absorbFrom(this.outputLine)
-      }
-    } else {
-      //NYI
-     this.inputLine && InvXFer(this.inputLine, this.lines[0], {
-       maxXfer: this.upgrades.input.count * 2
-       ,toAs: "entity"
-     })
-      tickData.fromParent = {
-        feed: this.inputLine
-        ,drain: this.outputLine
-      }
-      for(let line of this.lines) {
-        line.tick(tickData)
-      }
-      this.drains[0]?.inputLine.absorbFrom(this.outputLine)
+  tick_bus(tickData) {
+    if(tickData.ticks%40!=0) return 
+    for(let x of this.drains) {
+      if(x.type=="bus") return
+      if(this.upgrades.output.count==0) continue
+      InvXFer(this.outputLine, x.inputLine, {maxXfer: this.upgrades.output.loaders.count})
     }
+    InvXFer(this.inputLine, this.outputLine, {maxXfer: this.upgrades.input.loaders.count * 2})    
+  }
+  tick(tickData) {
+    this.inputLine
+      && tickData.ticks%30==0
+      && this.upgrades.input.loaders.count &&InvXFer(this.inputLine, this.lines[0], {
+        maxXfer: this.upgrades.input.loaders.count * 2
+        ,toAs: "entity"
+      })
+    tickData.fromParent = {
+      feed: this.inputLine 
+      ,drain: this.outputLine
+    }
+    for(let line of this.lines) {
+      line.tick(tickData)
+      line.tick_restricted(tickData)
+    }
+    this.drains[0]
+      && tickData.ticks%30==0
+      && this.upgrades.output.loaders.count
+      && InvXFer(this.outputLine, this.drains[0].inputLine, {maxXfer: this.upgrades.output.loaders.count*2})
+    //this.drains[0]?.inputLine.absorbFrom(this.outputLine)
     //console.log('tickEnd')
   }
   useItem(item) {
+    if(this.type=="bus") return
     return this.lines[0].AddEntity(item)
   }
   add_EntityLine() {

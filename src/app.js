@@ -116,26 +116,30 @@ export class App {
     testing() {
       //if(!confirm("Initialize Testing?")) return
       this.player2 = new PlayerBlock(10)
-      this.add_FacBlock("bus", "resource") //0
       this.add_FacBlock("resource", "iron-mine") //1
-      this.add_FacBlock("resource", "copper-mine") //2
-      this.facBlocks[1].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[1].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[1].lines[0].SetEntityFn(this.mgrs.res.resList["iron-ore"])
+      this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
+      this.facBlocks[0].lines[0].SetEntityFn(this.mgrs.res.resList["iron-ore"])
+      this.add_FacBlock("factory", "iron-plates") //3
+      this.facBlocks[1].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[1].lines[0].AddEntity("stone-furnace")
+      this.facBlocks[1].lines[0].SetEntityFn(this.mgrs.rec.recipeList["iron-plate"])
+
+      this.add_FacBlock("resource", "copper-mine") //1
       this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
       this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
       this.facBlocks[2].lines[0].SetEntityFn(this.mgrs.res.resList["copper-ore"])
-      
-      this.add_FacBlock("factory", "iron-plates") //3
-      this.facBlocks[1].AddBusDrain(this.facBlocks[3])
+      this.add_FacBlock("factory", "copper-plates") //3
       this.facBlocks[3].lines[0].AddEntity("stone-furnace")
       this.facBlocks[3].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[3].lines[0].SetEntityFn(this.mgrs.rec.recipeList["iron-plate"])
-      this.add_FacBlock("factory", "copper-plates") //4
-      this.facBlocks[2].AddBusDrain(this.facBlocks[4])
-      this.facBlocks[4].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[4].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[4].lines[0].SetEntityFn(this.mgrs.rec.recipeList["copper-plate"])
+      this.facBlocks[3].lines[0].SetEntityFn(this.mgrs.rec.recipeList["copper-plate"])
+      this.add_FacBlock("bus", "plates")
+      this.facBlocks[0].AddBusDrain(this.facBlocks[1])
+      this.facBlocks[1].AddBusDrain(this.facBlocks[4])
+      this.facBlocks[2].AddBusDrain(this.facBlocks[3])
+      this.facBlocks[3].AddBusDrain(this.facBlocks[4])
+
+      this.player.inv.add("inserter", 10)
     }
 
     async iconEditor() {

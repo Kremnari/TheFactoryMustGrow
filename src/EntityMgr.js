@@ -216,6 +216,7 @@ class MiningEntity extends Entity{
       this.mining_timer = timer || 0
       this.buffers.out.addFilter(this.mining.mining_results)
       this.tags.push("ticking", "mining")
+      this.tags.push("outputTicker", true)
     } else {
       this.mining = null
       this.tags.delete("ticking")
@@ -541,7 +542,7 @@ export class EntityStorage {
     //console.log('%ces tick start', "color: blue")
     let which = tickData.entities.types
     for (let type of which) {
-      this.entityTags.getSetValues("outputTicker", true).forEach(
+      !this.restricted && this.entityTags.getSetValues("outputTicker", true).forEach(
         entity => entity.tick_outXfer(tickData)
       )
       this.entityTags.getSetValues("ticking", type).forEach(
@@ -549,10 +550,16 @@ export class EntityStorage {
           entity.tick(tickData)
         }
       )
-      this.entityTags.getSetValues("inputTicker", true).forEach(
+      !this.restricted && this.entityTags.getSetValues("inputTicker", true).forEach(
         entity => entity.tick_inXfer(tickData)
       )
     }
-    //console.log('%ces tick end', "color: blue")
+  }
+  tick_restricted(tickData) {
+    if(tickData.ticks%30==0) {
+      this.entities.forEach( (e) => {
+        InvXFer(e.buffers.out, tickData.fromParent.drain, {maxXfer: 1})
+      })      
+    }
   }
 }

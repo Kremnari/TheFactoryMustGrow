@@ -205,7 +205,10 @@ export class Inventory {
     if(count==0) return
     let maxStack = this.max_stack || mgrs.item.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
-    if(!targ) { return count }
+    if(!targ) {
+      console.log('no targ')
+      return count
+    }
     let toAdd = Math.min(maxStack - targ.count, count)
     targ.count+=toAdd
     if(count-toAdd>0) return this.add(item, count-toAdd)
@@ -218,6 +221,10 @@ export class Inventory {
     if(targ.count>=count) {
       targ.count-=count
       return 0
+    } else {
+      count -= targ.count
+      targ.count = 0
+      return this.consume(item, count)
     }
     return false
   }  
@@ -238,7 +245,7 @@ export class Inventory {
     return this.items[targ]
   }
   _GetSubStack(item, returnIdx = true) {
-    let idx = this.items.length-1 - this.items.slice().reverse().findIndex( (elm) => { return elm && elm.name == item })
+    let idx = this.items.length-1 - this.items.slice().reverse().findIndex( (elm) => { return elm && elm.name == item && elm.count>0 })
     return returnIdx ? idx : this.items[idx]
   }
   click(data) {
