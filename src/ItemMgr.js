@@ -206,7 +206,7 @@ export class Inventory {
     let maxStack = this.max_stack || mgrs.item.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
     if(!targ) {
-      console.log('no targ')
+      //console.log('no targ')
       return count
     }
     let toAdd = Math.min(maxStack - targ.count, count)

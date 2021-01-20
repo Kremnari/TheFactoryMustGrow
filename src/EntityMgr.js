@@ -381,19 +381,20 @@ class LabEntity extends Entity {
     this.buffers.in.add(name, toAdd)
   }
   tick_inXfer(tickData) {
-    InvXFer(tickData.fromParent.feed, this.buffers.in)
+    if(tickData.ticks%30!=0) return
+    InvXFer(tickData.fromParent.feed, this.buffers.in, {maxXfer: this.buffers.upgrades.in.xfer})
   }
   tick(tickData) {
     if(!mgrs.tech.researching) return
     if(Number.isNaN(this.research_timer)) {
       this.nextUnit(mgrs.tech.nextIngredients)
     } else {
-      if (++this.research_timer%(mgrs.tech.researching.cost.time*TICKS_PER_SEC)==0) {
+      if (++this.research_timer%(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)==0) {
         mgrs.tech.increment_research()
         this.research_timer = NaN
       }
     }
-    this.progress = this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SEC)*100
+    this.progress = this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)*100
   }
   nextUnit(ings) {
     if(!ings) return
