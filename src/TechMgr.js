@@ -101,6 +101,7 @@ export default class TechMgr {
               if(!tech.prerequisites || tech.prerequisites.count==0) return true
             }
             let reducer = (acc, name) => {
+              if(!this.techList[name]) console.log(name)
               return acc + !this.techList[name].researched
             }
             if(tech.prerequisites.reduce(reducer, 0)==filterElm.args.count) return true

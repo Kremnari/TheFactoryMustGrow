@@ -179,7 +179,6 @@ export class App {
     }
     IEStore() {
       this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = this.IE.fileBlob
-      debugger
     }
     async saveIconEditor() {
       await this.mgrs.idb.set("Icons", this.IE.ds.new)
