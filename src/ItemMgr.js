@@ -115,7 +115,7 @@ export class Inventory {
         //console.log('reverting')
         //console.log(retCount)
         consumed.length>=1 && this.addAll(consumed, false, multi)
-        //this.add(each.name, retCount)
+        this.add(each.name, retCount)
         return itemStacks
       }
     }
