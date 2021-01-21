@@ -394,7 +394,7 @@ class LabEntity extends Entity {
         this.research_timer = NaN
       }
     }
-    this.progress = this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)*100
+    this.progress = (this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)*100) || NaN
   }
   nextUnit(ings) {
     if(!ings) return

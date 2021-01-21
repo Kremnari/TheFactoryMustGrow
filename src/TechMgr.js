@@ -73,7 +73,7 @@ export default class TechMgr {
   }
   complete_research() {
     this.researching.researched = true;
-    this.researching.unlocks.forEach( (item) => this.recipeMgr.recipeList[item].enabled=true)
+    this.researching.unlocks.forEach( (item) => mgrs.rec.recipeList[item] && (mgrs.rec.recipeList[item].enabled=true))
     this.researching = null
     this.nextIngredients = null
     this.updateVisible()
