@@ -145,7 +145,7 @@ class TechItem {
     this.researched = false
     if(saved?.researched) {
       this.researched = true
-      this.unlocks.forEach( (item) => mgrs.rec.recipeList[item].enabled=true)
+      this.unlocks.forEach( (item) => mgrs.rec.recipeList[item]?.enabled=true)
     }
   }
 }
