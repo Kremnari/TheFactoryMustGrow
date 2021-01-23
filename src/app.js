@@ -1,21 +1,24 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
-import {inject} from 'aurelia-framework'
+import {inject, TaskQueue} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
+import {Tutorial} from 'Tutorial'
+import * as Config from 'Config'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
 const IDB_SAVE_VERSION = "0.02"
 
-@inject(BindingSignaler, DataProvider, DialogMgr)
+@inject(BindingSignaler, DataProvider, DialogMgr, TaskQueue)
 export class App {
     viewPane = {main: "home", showingItem: null }
     dataBase = {}
     viewRecCat = false
     tooltip = null
-    constructor(signaler, DataProv, DS) { 
+    constructor(signaler, DataProv, DS, TQ) { 
       window.tfmg = this
       this.signaler = signaler
+      this.task = TQ
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CC = CC
@@ -26,30 +29,32 @@ export class App {
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
-      if(database.save) {
-        if(database.save.version==IDB_SAVE_VERSION) {
-          this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
-          this.facBlocks = []
-          for (let each of database.save.facBlocks) {
-            this.facBlocks.push(FactoryBlock.deserialize(each))
-          }
-        } else {
-          console.log("idb save data out of date")
-          this.facBlocks = []
-          this.player =  new PlayerBlock(20)
-          //this.jumpStart()
-          this.save()
+      if(database.save && database.save.version==IDB_SAVE_VERSION) {
+        this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
+        this.facBlocks = []
+        for (let each of database.save.facBlocks) {
+          this.facBlocks.push(FactoryBlock.deserialize(each))
         }
       } else {
         this.facBlocks = []
         this.player =  new PlayerBlock(20)
         //this.jumpStart()
+        this.mgrs.signaler.signal("generalUpdate")
+        //this.task.queueTask( () => {
+          Tutorial.start()
+        //})
       }
-      this.showDev = await this.mgrs.idb.get("dev")
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
-      if(!this.showDev) this.mgrs.Ticker.toggle()
+      this.showDev = await this.mgrs.idb.get("dev")
+      if(!this.showDev) {
+        this.mgrs.Ticker.subscribe(()=> {
+          console.log('saving')
+          this.save()
+        }, Config.TICKS_MAX_PHASE)
+        this.mgrs.Ticker.toggle()
+      }
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -141,7 +146,6 @@ export class App {
 
       this.player.inv.add("inserter", 10)
     }
-
     async iconEditor() {
       if(this.viewPane=="iconEditor") {
         this.viewPane = {main: "home", showingItem: null }

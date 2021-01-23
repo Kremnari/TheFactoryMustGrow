@@ -39,6 +39,7 @@
             <icon-base
               repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
               item.bind="rec"
+              title = "${rec.name}"
               click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
               show.bind="rec.enabled"
               class.bind="rec.classesStr"
@@ -214,6 +215,12 @@
         })"
       ></inventory>
   </section>
+  <div id="tutorial">
+    <div id="tut_pos" class="center">
+      <span id="tut_text"></span>
+      <button id="tut_button" class="center"></button>
+    </div>
+  </div>
   <section id="numSelectors">
     <input type="checkbox" id="numSelToggle" style="display:none">
     <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>

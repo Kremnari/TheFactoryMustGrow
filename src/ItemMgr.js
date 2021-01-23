@@ -62,6 +62,25 @@ export class Inventory {
     //debugger
   }
   [Symbol.iterator]() { return this.items }
+  when(itemStack, cb) {
+    this.check = {itemStack, cb}
+    this.check.sub = mgrs.Ticker.subscribe((t) => {this.whenTickCheck()})
+    //console.log("set a when")
+  }
+  whenTickCheck() {
+    if(!this.check) return 
+    //console.log("wtc")
+    //? It may not be performant to do this every tick
+    // Then again... it should only be used on an "as need" (ie tutorial) basis
+    if(this.total(this.check.itemStack.name)>=this.check.itemStack.count) {
+      mgrs.Ticker.dispose(this.check.sub)
+      //SMELL - If I run the callback before undefining,
+      //it will undefined the new criteria
+      let temp = this.check.cb
+      this.check = undefined
+      temp()
+    }
+  }
   addAll(itemStacks, returnPartial = true, multi = 1.0) {
     if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
     let part = []

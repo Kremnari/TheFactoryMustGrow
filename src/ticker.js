@@ -31,10 +31,11 @@ export default class Ticker {
     this.isRunning ? this.pause() : this.resume()
   }
   onTick() {
-    if (this.isRunning) {                      
+    if (this.isRunning) {
+      this.ticks++
+      //console.time(this.ticks)
       if (this.debugging) console.log('tick')
       
-      this.ticks++
       if(this.ticks == CONFIG.TICKS_MAX_PHASE) this.ticks = 0
       let tickData = { ticks: this.ticks }
       this._cbs.providers.forEach( (providerCB) => {
@@ -43,9 +44,10 @@ export default class Ticker {
       this._cbs.subscribers.forEach( (cbObj) => {
         if (this.ticks % cbObj.nth == cbObj.phase) cbObj.cb(tickData)
       })
+      mgrs.signaler.signal("tickUpdate")
+      mgrs.signaler.signal("generalUpdate")
+      //console.timeEnd(this.ticks)
     }
-    mgrs.signaler.signal("tickUpdate")
-    mgrs.signaler.signal("generalUpdate")
     return true;
   }
   DataProvider(cb) {
