@@ -7,16 +7,17 @@ import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
-const IDB_SAVE_VERSION = "0.02"
+import URLQuery from 'URLQuery'
+
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
-  @observable ({changeHandler: 'whenCheck'})
-  viewPane = {
+    viewPane = {
       main: "home",
       entityPane: "",
       showingItem: null
     }
+    showTut = true
     dataBase = {}
     viewRecCat = false
     tooltip = null
@@ -29,14 +30,13 @@ export class App {
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
       BE.expressionObserver(this, "viewPane.entityPane").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "entityPane")})
-
     }
     async init(database, DS) {
       this.mgrs = database.mgrs
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
-      if(database.save && database.save.version==IDB_SAVE_VERSION) {
+      if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
         this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
         for (let each of database.save.facBlocks) {
@@ -47,19 +47,19 @@ export class App {
         this.player =  new PlayerBlock(20)
         //this.jumpStart()
         this.mgrs.signaler.signal("generalUpdate")
-        Tutorial.start()
       }
+      URLQuery(this.mgrs)
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
-        /*this.mgrs.Ticker.subscribe(()=> {
+        this.mgrs.Ticker.subscribe(()=> {
           console.log('saving')
           this.save()
         }, Config.TICKS_MAX_PHASE)
-        */
-        this.mgrs.Ticker.toggle()
+       this.showTut && Tutorial.start()
+       this.mgrs.Ticker.toggle()
       }
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
@@ -122,7 +122,7 @@ export class App {
     async save() {
       let save = { player: {}}
       console.log('saving...')
-      save.version = IDB_SAVE_VERSION
+      save.version = Config.IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
       save.facBlocks = []

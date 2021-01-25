@@ -1,6 +1,5 @@
 import {mgrs} from 'managers'
-
-const LAST_DB = "15012021"
+import * as Config from 'Config'
 
 export let DataProvider = {
   onLoadComplete(cb) {
@@ -8,11 +7,12 @@ export let DataProvider = {
   },
   async beginLoad() {
     let ds
-    if(await mgrs.idb.get('last_ds')!=LAST_DB) {
+    if(await mgrs.idb.get('last_ds')!=Config.LAST_DS_DB) {
       console.log("last datasource out of data")
-      let resp = await fetch(location.href+"/data_source.json")
+      let url = location.href.slice(0, location.href.lastIndexOf("/"))
+      let resp = await fetch(url+"/data_source.json")
       ds = await resp.json()
-      mgrs.idb.set("last_ds", LAST_DB)
+      mgrs.idb.set("last_ds", Config.LAST_DS_DB)
       mgrs.idb.set("dataSet", ds)
     } else {
       console.log('last datasource up to date')
