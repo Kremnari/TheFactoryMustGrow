@@ -19,7 +19,7 @@
       <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
-    <div id="facBlockControls" if.bind="viewPane.facBlock==player">
+    <div id="facBlockControls" show.bind="viewPane.facBlock==player">
       <div show.bind="viewPane.main == 'entities'">
         <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
         <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
@@ -109,6 +109,7 @@
             <icon-base
               repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
               item.bind="crafter"
+              title.bind="crafter.name"
               alt-image.bind="crafter.recipe.icon"
               click.delegate="showing(crafter, 'crafter')"
               class.bind="crafter.selectedClass"

@@ -72,7 +72,7 @@ export class Inventory {
     //console.log("wtc")
     //? It may not be performant to do this every tick
     // Then again... it should only be used on an "as need" (ie tutorial) basis
-    if(this.total(this.check.itemStack.name)>=this.check.itemStack.count) {
+    if(this.total(this.check.itemStack.name)==this.check.itemStack.count) {
       mgrs.Ticker.dispose(this.check.sub)
       //SMELL - If I run the callback before undefining,
       //it will undefined the new criteria

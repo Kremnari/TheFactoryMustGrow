@@ -1,5 +1,5 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
-import {inject, TaskQueue} from 'aurelia-framework'
+import {inject, observable, BindingEngine} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
@@ -9,20 +9,27 @@ import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
 const IDB_SAVE_VERSION = "0.02"
 
-@inject(BindingSignaler, DataProvider, DialogMgr, TaskQueue)
+@inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
-    viewPane = {main: "home", showingItem: null }
+  @observable ({changeHandler: 'whenCheck'})
+  viewPane = {
+      main: "home",
+      entityPane: "",
+      showingItem: null
+    }
     dataBase = {}
     viewRecCat = false
     tooltip = null
-    constructor(signaler, DataProv, DS, TQ) { 
+    constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
       this.signaler = signaler
-      this.task = TQ
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CC = CC
       this.saveGame = DataProv.saveGame
+      BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
+      BE.expressionObserver(this, "viewPane.entityPane").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "entityPane")})
+
     }
     async init(database, DS) {
       this.mgrs = database.mgrs
@@ -40,19 +47,18 @@ export class App {
         this.player =  new PlayerBlock(20)
         //this.jumpStart()
         this.mgrs.signaler.signal("generalUpdate")
-        //this.task.queueTask( () => {
-          Tutorial.start()
-        //})
+        Tutorial.start()
       }
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
-        this.mgrs.Ticker.subscribe(()=> {
+        /*this.mgrs.Ticker.subscribe(()=> {
           console.log('saving')
           this.save()
         }, Config.TICKS_MAX_PHASE)
+        */
         this.mgrs.Ticker.toggle()
       }
     }
@@ -98,6 +104,20 @@ export class App {
       this.showItem = null
       this.viewPane.facBlock = which
       this.viewPlayer = isPlayer
+    }
+    when(targ, cb) {
+      this.whenTarg = {targ, cb}
+      console.log('whenSet')
+    }
+    whenCheck(newVal, oldVal, prop) {
+      //debugger
+      //console.log('whencheck')
+      if(!this.whenTarg) return
+      if(this.whenTarg.targ.entityPane && this.viewPane.entityPane != this.whenTarg.targ.entityPane) return
+      if(this.whenTarg.targ.main && this.viewPane.main != this.whenTarg.targ.main) return
+      //console.log('still here')
+      this.whenTarg.cb()
+      this.whenTarg = undefined
     }
     async save() {
       let save = { player: {}}

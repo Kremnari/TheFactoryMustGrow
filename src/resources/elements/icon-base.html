@@ -1,5 +1,5 @@
 <template title.bind="altTip">
-  <require from="./icon-base.css"> </require>
+  <require from="./icon-base.scss"> </require>
   <div class="${item.filtered && 'ghosted'}">
     <img src.bind="mgrs.icon.getSrc(item.icon)" height="32px"/>
     <span if.bind="showName">${item.name}</span>
@@ -9,6 +9,9 @@
     <span if.bind="count!=undefined">${count}</span>
     <span if.bind="required" class="required">${required}</span>
     <span></span>
+  </div>
+  <div class="modifiers2">
+    <span if.bind="hasEntity" class="entityIcon">E</span>
   </div>
   <div if.bind="progress" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${progress}%, red ${progress}%)">
   </div>

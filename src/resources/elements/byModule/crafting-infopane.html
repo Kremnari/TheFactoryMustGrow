@@ -2,7 +2,7 @@
   <require from="../../value-converters/lib/ObjectFilters"></require>
   <require from="./upgrades-infopane"></require>
   <div 
-    class="showRecipe, ${crafter.crafting_timer!=NaN && 'progressBarBase'}"
+    class="showRecipe ${crafter.crafting_timer!=NaN && 'progressBarBase'}"
     if.bind="crafter.recipe"
     css="border-image-source: linear-gradient(to right, green ${crafter.progress}%, red ${crafter.progress}%)"> 
       Recipe:

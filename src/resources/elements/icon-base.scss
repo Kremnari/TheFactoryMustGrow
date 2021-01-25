@@ -11,6 +11,18 @@ icon-base {
   padding: 2px;
   box-sizing: content-box;
   margin-right: 5px;
+  & .modifiers2 {
+    & span.entityIcon {
+      color: red;
+      font-weight: bold;
+      bottom: -16px;
+      font-size: 1.5em;
+      left: 0;
+      right: 0;
+      position: absolute;
+      text-align: center;
+    }
+  }
 }
 icon-base > div {
   display: inline-block;
