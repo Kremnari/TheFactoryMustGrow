@@ -35,25 +35,22 @@ body {
     background: radial-gradient(rgba(165, 42, 42, .9) 0%, rgba(165, 42, 42, .9) 10%, transparent 100%);
   }
 }
+header {
+  &#selector {
+    height: 15vh;
+    & h4, & h5 {
+      display: inline-block;
+      position: relative;
+    }
+    & tool-tip {
+      height: 80px;
+    }
+    & #facBlockControls > div {
+      display: inline;
+    }
+  }
+}
 
-header#selector h4 {
-  display: inline-block;
-  position: relative;
-}
-header#selector h5 {
-  display: inline-block;
-  position: relative;
-}
-
-header#selector {
-  height: 15vh;
-}
-header#selector tool-tip {
-  height: 80px;
-}
-header#selector #facBlockControls > div {
-  display: inline;
-}
 .leftside {
   width:100%;
   box-sizing: border-box;
@@ -210,6 +207,9 @@ input:checked + .slider.text_full_part:after {
 #machines, #recipes, #technologies {
   height: 45vh;
 }
+#recipes > div {
+  height: 40vh;
+}
 #inventoryList {
   border: 2px solid black;
   border-radius: 8px;
@@ -251,6 +251,7 @@ span.button {
   display: inline;
 }
 
+/*
 #drawer {
   transition: right 300ms;
   position: fixed;
@@ -302,7 +303,7 @@ span.button {
       box-shadow: 0 6px 0 #fff, 0 12px 0 #fff;
     }
   }
-}
+}*/
 
 #tutorial {
   display: none;
@@ -336,4 +337,64 @@ span.button {
   border: 2px solid red;
   z-index: 2000;
   isolation: isolate;
+}
+.tutTarget {
+  border: 2px dashed red;
+  z-index: 2000;
+  isolation: isolate;
+}
+
+/*
+ * //NYI
+.drawer {
+  position: fixed;
+  & > input[type='checkbox'] {
+    display: none;
+  }
+  & > label {
+    position: fixed;
+  }
+  & > div.content {
+  }
+  & > input[type='checkbox']:checked {
+    & ~ label {
+      color: red;
+    }
+    & ~ div.content {
+      border: 2px dashed red;
+    }
+  }
+}
+.drawer.bottom {
+  bottom: 0px;
+  & > label {
+    bottom: 0px;
+    //transform: translate(-50%, -50%);
+  }
+  & > div.content {
+    transform: translateY(110%)
+  }
+  & > input[type='checkbox']:checked {
+    & > label {
+      transform: translate(0, 100%)
+    }
+    & ~ div.content {
+      transform: translateY(0);
+    }
+  }
+}
+
+.drawer.center {
+  left: 50%;
+  transform: translateX(50%);
+  & > label {
+  }
+}
+*/
+.cmd_label {
+  font-size: 2em;
+}
+
+#commands .content {
+  border: 2px dashed black;
 }

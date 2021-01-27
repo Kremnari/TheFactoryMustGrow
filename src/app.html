@@ -14,6 +14,7 @@
       <button click.delegate="iconEditor()">Edit Icons</button>
     </div>
     <div id="playerControls">
+      <h4 click.delegate="viewPane.main = 'menu'">&#9776;</h4>
       <h4 click.delegate="viewPane.main = 'home'">Home</h4>
       <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
       <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
@@ -32,22 +33,19 @@
   <div id="mainView" if.bind="viewPane!='iconEditor'">
     <article>
       <section id="recipes" show.bind="viewPane.main == 'home'">
-        <h3>Crafting categories</h3>
-        <div>
-          <h4>Hand Craft</h4>
-          <div class="overflow">
-            <icon-base
-              repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
-              item.bind="rec"
-              title = "${rec.name}"
-              click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
-              show.bind="rec.enabled"
-              class.bind="rec.classesStr"
-              anim_class.bind="rec.style"
-              mouseenter.trigger="tooltip = rec"
-              mouseleave.trigger="tooltip = null"
-            ></icon-base>
-          </div>
+        <h4>Craftables</h4>
+        <div class="overflow">
+          <icon-base
+            repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
+            item.bind="rec"
+            title = "${rec.name}"
+            click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
+            show.bind="rec.enabled"
+            class.bind="rec.classesStr"
+            anim_class.bind="rec.style"
+            mouseenter.trigger="tooltip = rec"
+            mouseleave.trigger="tooltip = null"
+          ></icon-base>
         </div>
       </section>
       <section id="resources" show.bind="viewPane.main == 'home'">
@@ -184,6 +182,15 @@
           ></transport-line>
         </div>
       </section>
+      <section id="menu" show.bind="viewPane.main=='menu'" style="z-index: 2000">
+        <div click.delegate="resetSave()">Reset Save</div>
+        <div click.delegate="menuFns.resetDS()">Reset DataSource</div>
+        <div click.delegate="menuFns.setDev()" if.bind="!showDev">Set Dev</div>
+        <div click.delegate="menuFns.unsetDev()" if.bind="showDev">Unset Dev</div>
+        <div click.delegate="jumpStart()">JumpStart</div>
+        <div click.delegate="testing()">Testing()</div>
+
+      </section>
     </article>
   </div>
   <div id="iconEditor" if.bind="viewPane=='iconEditor'">
@@ -233,7 +240,7 @@
     <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
     <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
   </section>
-  <section id="tagFilter">
+  <!-- section id="tagFilter">
     <input id="drawer-toggle" type="checkbox" />
     <label for="drawer-toggle" id="drawer-toggle-label">
       <span>Filters</span>
@@ -241,5 +248,15 @@
     <div id="drawer">
       More Data!
     </div> 
-  </section>
+  </!-->
+  <!--NYI div id="commands" class="drawer bottom center" hidden>
+    <input type="checkbox" id="show_command_drawer">
+    <label class="cmd_label" for="show_command_drawer">
+      <span id="cmd_text">?</span>
+      <img src="" id="cmd_icon" hidden>
+    </label>
+    <div class="content">
+      potatoes
+    </div>
+  </!--NYI>
 </template>

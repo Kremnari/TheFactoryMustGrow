@@ -1,10 +1,13 @@
 import {mgrs} from "managers"
 import $ from "jquery"
 
-let steps = [0, 0.1, 0.9, 1, 1.1, 1.2
-            ,2, 2.1, 2.2, 2.3, 2.4
-            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5
-            ,10]
+let steps = [0, 0.1, 0.9 //Intro
+            ,1, 1.1, 1.2 //Basic info
+            ,2, 2.1, 2.2, 2.3, 2.4 
+            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6, 3.7, 3.75, 3.8, 3.81, 3.9, 3.91
+            ,4, 4.1
+            //
+            ,100]
 window.jq = $
 
 console.log($().jquery)
@@ -52,7 +55,7 @@ class tutorial {
         $("#tut_button").text("Which are the machines?").show()
         break;
       case 1.2:
-        $("#tut_text").text("Machines have a red 'E' at the bottom of their icon")
+        $("#tut_text").text("Machines have a red 'M' at the bottom of their icon")
         $("#tut_button").text("So many options").show()
         break;
       case 2:
@@ -75,12 +78,12 @@ class tutorial {
         this.setTutClick()
         break;
       case 2.4:
-        $("#tut_text").text("For your machines, you must set a recipe.\nLets start with iron plates")
+        $("#tut_text").html("For your machines, you must set a recipe.<br>Lets start with iron plates")
         $("crafting-infopane icon-base[title='iron-plate']").addClass("tutStep")
         this.setTutClick()
         break;
       case 3:
-        $("#tut_text").text("Now let's mine some iron")
+        $("#tut_text").text("Now head back and mine 5 iron ore")
         $("#playerControls h4:contains('Home')").addClass("tutStep")
         this.setTutClick()
         break;
@@ -109,7 +112,57 @@ class tutorial {
         $("crafting-infopane .showRecipe icon-base[title='iron-plate']").addClass('tutStep')
         this.playerInvWait({name:"iron-plate", count:5})
         break;
-      case 10:
+      case 3.6:
+        $("#tut_text").text("Mining by hand takes a while, lets get a mining-drill set up")
+        $("#tut_button").text("I can dig it").show()
+        break;
+      case 3.7:
+        mgrs.baseApp.viewPane.main = "home"
+        mgrs.baseApp.tooltip = mgrs.rec.recipeList["burner-mining-drill"]
+        $("#recipes icon-base[title='burner-mining-drill']").addClass('tutTarget')
+        $("#tut_text").html("A mining drill requires the following:<br>3 gears, a furnace and 3 plates<br>build away")
+        $("#tut_button").text("Hi ho, it's off to work I go").show()
+        break;
+      case 3.75:
+        $("#tutorial").hide()
+        this.playerInvWait({name:"burner-mining-drill", count: 1})
+        break;
+      case 3.8:
+        $(".tutTarget").removeClass("tutTarget")
+        $("#tutorial").show()
+        $("#tut_text").text("A mining drill can produce resources automatically.\nAdd it to your machines and lets take a look at it")
+        $("#tut_button").text("I'll see you shortly").show()
+        break;
+      case 3.81:
+        $("#tutorial").hide()
+        $("#playerControls h4:contains('Machina')").addClass("tutStep")
+        $("#facBlockControls h5:contains('Mining')").addClass("tutStep")
+        this.playerInvWait({name:"burner-mining-drill", count:0})
+        //mgrs.baseApp.when({entityPane: 'mining'}, ()=>{this.nextStep()})
+        break;
+      case 3.9:
+        $("#machines .entityList icon-base[title='burner-mining-drill']").addClass("tutStep")
+        this.setTutClick()
+        break;
+      case 3.91:
+        $("#tutorial").show()
+        $("#tut_text").text("Now select iron to begin automagical mining")
+        $("mining-infopane icon-base[title='iron-ore']").addClass('tutStep')
+        this.setTutClick()
+        break;
+      case 4:
+        $("upgrades-infopane icon-base[title='iron-chest']").addClass("tutStep")
+        $("#tut_text").text("Each item buffer can only hold so much.  Add iron chests to increase that capacity")
+        $("#tut_button").text("Useful to not have to babysit").show()
+        this.setTutClick()
+        break;
+      case 4.1:
+        $("upgrades-infopane icon-base[title='inserter']").addClass('tutStep')
+        $("#tut_text").text("Item buffers can be improved with inserters to create some basic automation")
+        $("#tut_button").text("Too bad I can't watch them move back and forth like some other game I know").show()
+        this.setTutClick()
+        break;
+      case 100:
         $("#tut_text").text("End of tutorial...so far")
         $("#tut_button").text("But now what...?").show()
         break;

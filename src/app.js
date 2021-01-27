@@ -7,15 +7,17 @@ import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 
-import URLQuery from 'URLQuery'
-
-
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
     viewPane = {
       main: "home",
       entityPane: "",
       showingItem: null
+    }
+    menuFns = {
+      resetDS() { mgrs.idb.del('last_ds')}
+      ,setDev() { mgrs.idb.set('dev', true); this.showDev = true}
+      ,unsetDev() {mgrs.idb.set('dev', false); this.showDev = false}
     }
     showTut = true
     dataBase = {}
@@ -31,7 +33,7 @@ export class App {
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
       BE.expressionObserver(this, "viewPane.entityPane").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "entityPane")})
     }
-    async init(database, DS) {
+    async init(database, DS) { 
       this.mgrs = database.mgrs
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
@@ -39,6 +41,7 @@ export class App {
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
         this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
+        this.showTut = false
         for (let each of database.save.facBlocks) {
           this.facBlocks.push(FactoryBlock.deserialize(each))
         }
@@ -48,17 +51,13 @@ export class App {
         //this.jumpStart()
         this.mgrs.signaler.signal("generalUpdate")
       }
-      URLQuery(this.mgrs)
       this.mgrs.rec.set_player(this.player) //SMELL
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
-        this.mgrs.Ticker.subscribe(()=> {
-          console.log('saving')
-          this.save()
-        }, Config.TICKS_MAX_PHASE)
        this.showTut && Tutorial.start()
+       !this.showTut && this.autoSave()
        this.mgrs.Ticker.toggle()
       }
     }
@@ -74,6 +73,17 @@ export class App {
           this.viewPane.showingItem = obj.item
           this.viewPane.showingCat = obj.cat
         }, 0)
+      }
+    }
+    autoSave() {
+      if(!this.autoSave.sub) {
+        this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
+          console.log('saving')
+          this.save()
+        }, Config.TICKS_MAX_PHASE)
+      } else {
+        this.mgrs.Ticker.dispose(this.autoSave.sub)
+        this.autoSave.sub = null
       }
     }
     resetSave() {
