@@ -173,6 +173,7 @@ class tutorial {
       default:
         $("#tutorial").hide()
         console.log('default, reset')
+        mgrs.baseApp.autoSave()
         break;
     }
   }
