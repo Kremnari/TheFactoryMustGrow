@@ -331,6 +331,11 @@ span.button {
       }
     }
   }
+  & span[note='off'] {
+    position: fixed;
+    top: 2vh;
+    right: 2vw;
+  }
 }
 
 .tutStep {

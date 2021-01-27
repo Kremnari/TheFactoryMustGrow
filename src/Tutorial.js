@@ -1,7 +1,7 @@
 import {mgrs} from "managers"
 import $ from "jquery"
 
-let steps = [0, 0.1, 0.9 //Intro
+let steps = [0, 0.1, 0.2, 0.9 //Intro
             ,1, 1.1, 1.2 //Basic info
             ,2, 2.1, 2.2, 2.3, 2.4 
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6, 3.7, 3.75, 3.8, 3.81, 3.9, 3.91
@@ -38,6 +38,10 @@ class tutorial {
       case 0.1:
         $("#tut_text").text("This alpha is about the mechanics, most everything else is slated to be improved")
         $("#tut_button").text("I won't judge!").show()
+        break;
+      case 0.2:
+        $("#tut_text").text("You can cancel the tutorial by clicking the 'X' in the upper right corner")
+        $("#tut_button").text("Just don't condescend me, and we'll be fine").show()
         break;
       case 0.9: 
         $("#resources").addClass("tutStep")
@@ -171,6 +175,10 @@ class tutorial {
         console.log('default, reset')
         break;
     }
+  }
+  hide() {
+    $(".tutStep").off("click")
+    $("#tutorial").removeClass("Block")
   }
   setTutClick(num = 0) {
     this.tutClicks = num

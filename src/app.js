@@ -15,9 +15,9 @@ export class App {
       showingItem: null
     }
     menuFns = {
-      resetDS() { mgrs.idb.del('last_ds')}
-      ,setDev() { mgrs.idb.set('dev', true); this.showDev = true}
-      ,unsetDev() {mgrs.idb.set('dev', false); this.showDev = false}
+      resetDS() { this.mgrs.idb.del('last_ds')}
+      ,setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
+      ,unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
     }
     showTut = true
     dataBase = {}
@@ -75,6 +75,7 @@ export class App {
         }, 0)
       }
     }
+    hideTutorial() { Tutorial.hide() }
     autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
