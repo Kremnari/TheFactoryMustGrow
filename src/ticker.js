@@ -36,7 +36,7 @@ export default class Ticker {
       //console.time(this.ticks)
       if (this.debugging) console.log('tick')
       
-      if(this.ticks == CONFIG.TICKS_MAX_PHASE) this.ticks = 0
+      if(this.ticks >= CONFIG.TICKS_MAX_PHASE) this.ticks = 0
       let tickData = { ticks: this.ticks }
       this._cbs.providers.forEach( (providerCB) => {
         providerCB(tickData)

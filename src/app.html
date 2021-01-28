@@ -16,7 +16,7 @@
     <div id="playerControls">
       <h4 click.delegate="viewPane.main = 'menu'">&#9776;</h4>
       <h4 click.delegate="viewPane.main = 'home'">Home</h4>
-      <h4 click.delegate="viewPane.main = 'entities'">Machina</h4>
+      <h4 click.delegate="viewPane.main = 'entities'">Workshop</h4>
       <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
       <h4 click.delegate="viewPane.main = 'research'">Research</h4>
     </div>
@@ -184,9 +184,9 @@
       </section>
       <section id="menu" show.bind="viewPane.main=='menu'" style="z-index: 2000">
         <div click.delegate="resetSave()">Reset Save</div>
-        <div click.delegate="menuFns.resetDS()">Reset DataSource</div>
-        <div click.delegate="menuFns.setDev()" if.bind="!showDev">Set Dev</div>
-        <div click.delegate="menuFns.unsetDev()" if.bind="showDev">Unset Dev</div>
+        <div click.delegate="resetDS()">Reset DataSource</div>
+        <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
+        <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
         <div click.delegate="jumpStart()">JumpStart</div>
         <div click.delegate="testing()">Testing()</div>
 
@@ -250,7 +250,7 @@
       More Data!
     </div> 
   </!-->
-  <!--NYI div id="commands" class="drawer bottom center" hidden>
+  <!-- div id="commands" class="drawer bottom center" hidden>
     <input type="checkbox" id="show_command_drawer">
     <label class="cmd_label" for="show_command_drawer">
       <span id="cmd_text">?</span>
@@ -259,5 +259,5 @@
     <div class="content">
       potatoes
     </div>
-  </!--NYI>
+  </!-->
 </template>

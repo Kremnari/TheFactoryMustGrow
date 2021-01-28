@@ -28,7 +28,7 @@ class tutorial {
     }, 10)
   }
   setStep(num) {
-    console.log("running step: "+num)
+    //console.log("running step: "+num)
     switch(num) {
       case 0:
         //lego
@@ -73,7 +73,7 @@ class tutorial {
         this.setTutClick()
         break;
       case 2.2:
-        $("#playerControls h4:contains('Machina')").addClass("tutStep")
+        $("#playerControls h4:contains('Workshop')").addClass("tutStep")
         $("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
         mgrs.baseApp.when({entityPane: 'manuf'}, ()=>{this.nextStep()})
         break;
@@ -180,12 +180,13 @@ class tutorial {
   hide() {
     $(".tutStep").off("click")
     $("#tutorial").removeClass("Block")
+    mgrs.baseApp.autoSave()
   }
   setTutClick(num = 0) {
     this.tutClicks = num
     $(".tutStep").click( ()=>{
       if(--this.tutClicks>0) {
-        console.log("not there yet")
+        //console.log("not there yet")
         return
       }
       this.nextStep()

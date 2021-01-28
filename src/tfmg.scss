@@ -347,6 +347,13 @@ span.button {
   border: 2px dashed red;
   z-index: 2000;
   isolation: isolate;
+  &.recipeDisabled {
+    filter: saturate(1);
+  }
+  &.recipeEnabled {
+    border-left: 2px dashed green;
+    border-right: 2px dashed green;
+  }
 }
 
 /*

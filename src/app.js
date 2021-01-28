@@ -14,11 +14,6 @@ export class App {
       entityPane: "",
       showingItem: null
     }
-    menuFns = {
-      resetDS() { this.mgrs.idb.del('last_ds')}
-      ,setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
-      ,unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
-    }
     showTut = true
     dataBase = {}
     viewRecCat = false
@@ -76,10 +71,12 @@ export class App {
       }
     }
     hideTutorial() { Tutorial.hide() }
+    resetDS() { this.mgrs.idb.del('last_ds')}
+    setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
+    unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
     autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
-          console.log('saving')
           this.save()
         }, Config.TICKS_MAX_PHASE)
       } else {
