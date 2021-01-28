@@ -71,7 +71,7 @@ export class App {
       }
     }
     hideTutorial() { Tutorial.hide() }
-    resetDS() { this.mgrs.idb.del('last_ds')}
+    resetDS() { this.mgrs.idb.del('last_ds'); location.href = location.href}
     setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
     unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
     autoSave() {
