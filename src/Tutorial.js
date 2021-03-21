@@ -73,8 +73,10 @@ class tutorial {
         this.setTutClick()
         break;
       case 2.2:
-        $("#playerControls h4:contains('Workshop')").addClass("tutStep")
-        $("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
+        //$("#playerControls h4:contains('Workshop')").addClass("tutStep")
+        //$("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
+        $(".navEntities").addClass("tutStep");
+        $(".navE_Manuf").addClass("tutStep")
         mgrs.baseApp.when({entityPane: 'manuf'}, ()=>{this.nextStep()})
         break;
       case 2.3:
@@ -88,7 +90,7 @@ class tutorial {
         break;
       case 3:
         $("#tut_text").text("Now head back and mine 5 iron ore")
-        $("#playerControls h4:contains('Home')").addClass("tutStep")
+        $(".navHome").addClass("tutStep")
         this.setTutClick()
         break;
       case 3.1:
@@ -139,8 +141,8 @@ class tutorial {
         break;
       case 3.81:
         $("#tutorial").hide()
-        $("#playerControls h4:contains('Machina')").addClass("tutStep")
-        $("#facBlockControls h5:contains('Mining')").addClass("tutStep")
+        $(".navEntities").addClass("tutStep")
+        $(".navE_mining").addClass("tutStep")
         this.playerInvWait({name:"burner-mining-drill", count:0})
         //mgrs.baseApp.when({entityPane: 'mining'}, ()=>{this.nextStep()})
         break;

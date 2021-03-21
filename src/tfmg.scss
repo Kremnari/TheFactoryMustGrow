@@ -152,47 +152,50 @@ input:checked + .slider.text_full_part:after {
   content: "part";
 }
 
-#numSelectors {
-  position: absolute;
+#numSelectors2 {
+  position: fixed;
   width: 70px;
   display: inline-block;
   bottom: 0px;
-  left: -10vw;
-  & > * {
+  left: 0vw;
+  & > *:not(label[for="numSelToggle"]) {
     position: relative;
-    left: -10vw;
-    transition: 0.5s ease-in-out;
+    visibility: hidden;
+    display: none; 
   }
   & > #numSelToggle:checked {
     & ~ * {
-      left: 10vw;
-      transition: 0.5s ease-in-out;
+      visibility: visible;
+      display: inline-block;
     }
     & + label {
       left: 10vw;
       padding: 2px 75%;
       top: 20vh;
+      position: absolute;
     }
     & ~ * > .tabOnly {
       display: none;
     }
-  } 
+    & ~ span {
+      width: 100%;
+      text-align: center;
+      display: inline-block;
+    }
+    } 
   & > label[for="numSelToggle"] {
-    left: -3vw;
-    top: 20vh;
-    position: relative;
-    padding: 2px 25%;
-    transform: rotate(90deg);
+    padding: 2px 3vh;
+    transform: translateX(-100%) rotate(90deg);
+    transform-origin: bottom right;
     background-color: rgba(127, 127, 127, 0.5);
-    text-align: center
+    text-align: center;
+    margin: 0;
+    bottom: 0px;
+    position: absolute;
+    display: inline-block;
   }
   & > #numSelToggle ~ * > .tabOnly {
     display: inline;
-  }
-  & > span {
-    width: 100%;
-    text-align: center;
-    display: inline-block;
   }
   & input[type="range"] {
     -webkit-appearance: slider-vertical;
@@ -214,12 +217,11 @@ input:checked + .slider.text_full_part:after {
   border: 2px solid black;
   border-radius: 8px;
   height: 20vh;
-  width: 80vw;
   position: absolute;
   display: inline-block;
   bottom: 0px;
-  right: 5vw;
-  left: 5vw;
+  right: 7.5vw;
+  left: 7.5vw;
   box-sizing: border-box;
 }
 #machines > div {
@@ -335,6 +337,7 @@ span.button {
     position: fixed;
     top: 2vh;
     right: 2vw;
+    font-size: 2em;
   }
 }
 

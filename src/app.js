@@ -11,9 +11,20 @@ import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
 export class App {
     viewPane = {
       main: "home",
-      entityPane: "",
-      showingItem: null
+      entityPane: "mining",
+      showingItem: null,
+      version: 'beta'
     }
+    viewHelpers =  {
+      //HACK no this reference....
+      //using tfmg from window
+      PlayerBlock(where) {
+        tfmg.select_FacBlock(tfmg.player, true)
+        tfmg.viewPane.main = "entities"
+        tfmg.viewPane.entityPane = where
+      }
+    }
+
     showTut = true
     dataBase = {}
     viewRecCat = false
@@ -71,7 +82,7 @@ export class App {
       }
     }
     hideTutorial() { Tutorial.hide() }
-    resetDS() { this.mgrs.idb.del('last_ds'); location.href = location.href}
+    resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
     unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
     autoSave() {

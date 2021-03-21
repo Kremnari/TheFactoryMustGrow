@@ -1,0 +1,255 @@
+{
+  "type": "object",
+  "properties": {
+    "item": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/item"
+      }
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/recipe"
+      }
+    },
+    "technology": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/technology"
+      }
+    },
+    "resouce": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/resource"
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/entity"
+      }
+    },
+    "icons": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "tool": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "technology": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "assembling-machine": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "mining-drill": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "furnace": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        },
+        "lab": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/icon"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "const": "item"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "stack_size": {
+          "type": "integer"
+        }
+      }
+    },
+    "itemStack": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "const": "recipe"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/itemStack"
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/itemStack"
+          }
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "crafting_speed": {
+          "type": "number"
+        }
+      }
+    },
+    "technology": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "const": "technology"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "ingredients": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                }
+              ]
+            },
+            "count": {
+              "type": "integer"
+            },
+            "time": {
+              "type": "integer"
+            }
+          }
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "unlocks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hidden": {
+          "type": "boolean"
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "const": "resource"
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        },
+        "mining_time": {
+          "type": "integer"
+        },
+        "mining_results": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "assembling-machine",
+            "mining-drill",
+            "furnace",
+            "lab"
+          ]
+        },
+        "icon": {
+          "$ref": "#/$defs/icon"
+        }
+      }
+    },
+    "icon": {
+      "type": "string"
+    }
+  }
+}

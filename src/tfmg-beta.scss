@@ -1,0 +1,142 @@
+[beta] {
+  & * {
+    box-sizing: border-box;
+  }
+  & > .statusBox {
+    height: 10vh;
+    text-align: center;
+  }
+  & > nav {
+    width: 100vw;
+    display: flex;
+    justify-content: space-evenly;
+    overflow: hidden;
+    & > * {
+      flex: 1;
+      text-align: center;
+      margin: 0 4px;
+      padding: 2px 4px;
+      &.selected {
+        border: 1px solid lightblue;
+        border-radius: 8px;
+      }
+    }
+  & > .fa-bars {
+      flex-grow: 2;
+    }
+    &:before, &:after {
+      border-top: 3px solid black;
+      content: '';
+      display: table-cell;
+      position: relative;
+      top: 0.5em;
+      width: 40%;
+    }
+    &:before {
+      right: 2.5%;
+    }
+    &:after {
+      left: 2.5%;
+    }
+  }
+  & #nav {
+    left: 20vw;
+    width: 60vw;
+    position: relative;
+  }
+  & #playerHome {
+    & h3 {
+      text-align: center;
+    }
+  }
+}
+
+.tab {
+  position: fixed;
+  & > .tab_toggle {
+    display: none;
+  }
+  & > label {
+    padding: 2px 3vh;
+    background-color: rgba(127, 127, 127, 0.5);
+    text-align: center;
+    margin: 0px;
+    position: absolute;
+    display: inline-block;
+    & .tabOnly {
+      display: inline;
+    }
+  }
+  & .tab_content {
+    display: none;
+  }
+  & > input[type="checkbox"]:checked {
+    & ~ .tab_content {
+      display: block;
+      & > * {
+        display: inline-block;
+      }
+    }
+    & ~ label .tabOnly {
+      display: none;
+    }
+  }
+  &.tab_bottom_left {
+    bottom: 0px;
+    left:0px;
+    & > label {
+      transform: translateX(-100%) rotate(90deg);
+      transform-origin: bottom right;
+      bottom: 0px;
+      left: 0px;
+    }
+    & > .tab_toggle:checked {
+      & ~ label {
+        left: 70px;
+        padding: 2px 75%;
+        transform: translate(-100%, -150%) rotate(90deg);
+        bottom: unset;
+      }
+    }
+  }
+  &.tab_bottom_right {
+    bottom: 0px;
+    right: 0px;
+    & > label {
+      transform: translateX(100%) rotate(-90deg);
+      transform-origin: bottom left;
+      bottom: 0px;
+      right: 0px;
+    }
+    & > .tab_toggle:checked {
+      & ~ label {
+        right: 70px;
+        padding: 2px 75%;
+        transform: translate(100%, -150%) rotate(-90deg);
+        bottom: unset;
+      }
+    }
+  }
+}
+
+#numSelectors {
+  & .tab_content {
+  }
+  & input[type="range"] {
+    appearance: slider-vertical;
+    width: 16px;
+  }
+  & > .tab_toggle:checked {
+    & ~ .tab_content {
+      width: 70px;
+      & > * {
+        display: inline-block;
+      }
+      & > span {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+  }
+}

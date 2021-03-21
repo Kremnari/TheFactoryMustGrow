@@ -3,38 +3,70 @@
   <require from="@fortawesome/fontawesome-free/css/all.min.css"></require>
   <require from="./styles.scss"></require>
   <require from="./tfmg.scss"></require>
+  <require from="resources/elements/tool-tip"></require>
 
-  <header id="selector">
-    <div id="devControls" if.bind="showDev">
-      <button click.delegate="save()">Save</button>
-      <button click.delegate="resetSave()">Start Anew</button>
-      <button click.delegate="mgrs.Ticker.once()">Tick 1</button>
-      <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
-      <button click.delegate="testing()">Testing...</button>
-      <button click.delegate="iconEditor()">Edit Icons</button>
-    </div>
-    <div id="playerControls">
-      <h4 click.delegate="viewPane.main = 'menu'">&#9776;</h4>
-      <h4 click.delegate="viewPane.main = 'home'">Home</h4>
-      <h4 click.delegate="viewPane.main = 'entities'">Workshop</h4>
-      <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
-      <h4 click.delegate="viewPane.main = 'research'">Research</h4>
-    </div>
-    <div id="facBlockControls" show.bind="viewPane.facBlock==player">
-      <div show.bind="viewPane.main == 'entities'">
-        <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
-        <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
-        <h5 click.delegate="viewPane.entityPane = 'labs'">Labs</h5>
+  <div if.bind="viewPane.version=='beta'" beta>
+    <require from="./tfmg-beta.scss"></require>
+    <section class="statusBox">
+      <div if.bind="!tooltip">
+        status box<br>
+        Here there will be dragons
       </div>
-    </div>
-    <require from="resources/elements/tool-tip"></require>
-    <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
-  </header>
-  <div id="mainView" if.bind="viewPane!='iconEditor'">
-    <article>
-      <section id="recipes" show.bind="viewPane.main == 'home'">
-        <h4>Craftables</h4>
-        <div class="overflow">
+      <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
+    </section>
+    <nav>
+      <span click.delegate="viewPane.main='nav'" class="fas fa-level-up-alt fa-rotate-90 ${viewPane.main=='nav'?'selected':''}"></span>
+      <span click.delegate="viewPane.main='menu'" class="fas fa-bars ${viewPane.main=='menu'?'selected':''}" ></span>
+      <span click.delegate="viewPane.main='dev'" class="fab fa-dev ${viewPane.main=='dev'?'selected':''}" if.bind="showDev"></span>
+      <span class="fas spacer"></span>
+      <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
+      <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
+
+      <span click.delegate="viewPane.entityPane='mining'" class="fas fa-mountain navE_Mining ${viewPane.entityPane=='mining' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
+      <span click.delegate="viewPane.entityPane='manuf'" class="fas fa-warehouse navE_Manuf ${viewPane.entityPane=='manuf' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
+      <span click.delegate="viewPane.entityPane='labs'" class="fas fa-flask navE_Lab ${viewPane.entityPane=='labs' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
+      <span class="fas spacer" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
+
+      <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
+      <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
+    </nav>
+    <main>
+      <section id="nav" if.bind="viewPane.main=='nav'">
+        <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected"></span>Expanded Nav</p>
+        <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
+        <p click.delegate="viewPane.main='dev'"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
+        <p class="fas spacer"></p>
+        <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
+        <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
+  
+        <li click.delegate="viewHelpers.PlayerBlock('mining')"><span class="fas fa-mountain navE_Mining"></span>Player Mining</li>
+        <li click.delegate="viewHelpers.PlayerBlock('manuf')"><span class="fas fa-warehouse navE_Manuf"></span>Player Manufacturing</li>
+        <li click.delegate="viewHelpers.PlayerBlock('labs')"><span class="fas fa-flask navE_Lab"></span>Player Labs</li>
+        <p class="fas spacer"></p>
+  
+        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
+        <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
+      </section>
+      <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
+          <div click.delegate="resetSave()">Reset Save</div>
+          <div click.delegate="resetDS()">Reset DataSource</div>
+          <div click.delegate="viewPane.version = 'alpha'">Alpha</div>
+          <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
+          <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
+          <div click.delegate="jumpStart()">JumpStart</div>
+          <div click.delegate="testing()">Testing()</div>
+      </section>
+      <section id="devControls" if.bind="viewPane.main=='dev'">
+        <button click.delegate="save()">Save</button>
+        <button click.delegate="resetSave()">Start Anew</button>
+        <button click.delegate="mgrs.Ticker.once()">Tick 1</button>
+        <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
+        <button click.delegate="testing()">Testing...</button>
+        <button click.delegate="iconEditor()">Edit Icons</button>
+      </section>
+      <section id="playerHome" show.bind="viewPane.main=='home'">
+        <h3>Craftables</h3>
+        <div class="overflow" id="recipes">
           <icon-base
             repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
             item.bind="rec"
@@ -47,13 +79,131 @@
             mouseleave.trigger="tooltip = null"
           ></icon-base>
         </div>
+        <div id="resources">
+          <h3>Mineables</h3>
+          <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
+                    class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+        </div>
+        <div id="inventoryList">
+          <h3>Inventory</h3>
+          <inventory
+            items.bind="player.inv.items"
+            click-call.call="player.inv.click({
+              where:viewPane.facBlock, which: item
+              ,who: player, what:'use'
+              })"
+            ></inventory>
+        </div>
       </section>
-      <section id="resources" show.bind="viewPane.main == 'home'">
-        <h3>Mineables</h3>
-        <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
-                  class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+      <section id="machines" show.bind="viewPane.main=='entities'">
+        <div show.bind="viewPlayer">
+          <div show.bind="viewPane.entityPane == 'mining'">
+            <h4>Mining</h4>
+            <require from="./resources/elements/byModule/mining-infopane.html"></require>
+            <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
+            <div class="entityList">
+              <icon-base repeat.for="miner of viewPane.facBlock.getEntities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
+                        click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
+            </div>
+          </div>
+          <div show.bind="viewPane.entityPane == 'manuf'">
+            <h4>Manufacturing</h4>
+            <require from="./resources/elements/byModule/crafting-infopane.html"></require>
+            <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+            <div class="entityList">
+              <icon-base
+                repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
+                item.bind="crafter"
+                title.bind="crafter.name"
+                alt-image.bind="crafter.recipe.icon"
+                click.delegate="showing(crafter, 'crafter')"
+                class.bind="crafter.selectedClass"
+              ></icon-base>
+            </div>
+          </div>
+          <div show.bind="viewPane.entityPane == 'labs'">
+            <h4>Labs</h4>
+            <require from="./resources/elements/byModule/lab-infopane.html"></require>
+            <lab-infopane if.bind="viewPane.showingCat=='labs'" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
+            <div class="entityList">
+              <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
+            </div>
+          </div>
+        </div>
+        <div show.bind="!viewPlayer">
+          <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
+          <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
+          <require from="resources/elements/factoryBlocks/TransportLineUpgrades.html" as="tlu"></require>
+          Block Name: ${viewPane.facBlock.name}
+          <div if.bind="viewPane.facBlock.inputLine">
+            <p>
+              Feed From: ${viewPane.facBlock.feeds[0].name}
+              <span click.delegate="viewPane.facBlock.SelectBusFeed()">(Change)</span>
+            </p>
+            <transport-line
+              if.bind="viewPane.facBlock.inputLine"
+              line.bind="viewPane.facBlock.inputLine"
+              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              type="input"
+            ></transport-line>
+            <tlu 
+              upgrades.bind="viewPane.facBlock.upgrades.input"
+              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+                upgrade
+                ,inv: player.inv
+                ,line: viewPane.facBlock.inputLine
+              })"
+            ></tlu>
+            <hr>
+          </div>
+          <div repeat.for="line of viewPane.facBlock.lines">
+            <transport-line
+              if.bind="line.items"
+              line.bind="line"
+              type="internal"
+            ></transport-line>
+            <entity-line
+              if.bind="line.entities"
+              line.bind="line"
+            ></entity-line>
+          </div>
+          <div if.bind="viewPane.facBlock.outputLine">
+            <hr>
+            <p>
+              Drains To: ${viewPane.facBlock.drains[0].name}
+              <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
+            </p>
+            <tlu
+              upgrades.bind="viewPane.facBlock.upgrades.output"
+              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+                upgrade
+                ,inv: player.inv
+                ,line: viewPane.facBlock.outputLine
+              })"
+            ></tlu>
+            <transport-line
+              if.bind="viewPane.facBlock.outputLine"
+              line.bind="viewPane.facBlock.outputLine"
+              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              type="output"
+            ></transport-line>
+          </div>
+        </div>
       </section>
-      <section id="technologies"  show.bind="viewPane.main == 'research'">
+      <section id="facBlocks" show.bind="viewPane.main=='facBlocks'">
+        <h3>Factory Blocks</h3>
+        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
+        <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
+          ${facBlock.name}:${facBlock.type}
+        </div>
+        <div>
+          <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
+          <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
+          <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
+          <span class="button" click.delegate="add_FacBlock('research')">Add Lab Block</span>
+        </div>
+      </section>
+      <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
@@ -76,188 +226,292 @@
           </p>
         </div>
       </section>
-      <section id="facBlocks" show.bind="viewPane.main == 'facBlocks'">
-        <h3>Factory Blocks</h3>
-        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
-        <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
-          ${facBlock.name}:${facBlock.type}
+    </main>
+    <div id="tutorial">
+      <div id="tut_pos" class="center">
+        <span id="tut_text"></span>
+        <button id="tut_button" class="center"></button>
+      </div>
+      <span click.delegate="hideTutorial()" note="off">X</span>
+    </div>
+    <section class="tabs">
+      <div id="numSelectors" class="tab tab_bottom_left">
+        <input type="checkbox" class="tab_toggle" id="numSelToggle">
+        <div class="tab_content">
+          <input id="huns" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.huns">
+          <input id="tens" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.tens">
+          <input id="ones" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.ones">
+          <span>${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
+          <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
+          <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
         </div>
-        <div>
-          <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
-          <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
-          <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
-          <span class="button" click.delegate="add_FacBlock('research')">Add Lab Block</span>
+        <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span></label>
+      </div>
+      <div id="filterSelectors" class="tab tab_bottom_right">
+        <input type="checkbox" class="tab_toggle" id="filterSelectorToggle">
+        <div class="tab_content">
+          Yay! Filters
         </div>
-      </section>
-      <section id="machines" if.bind="viewPane.main == 'entities' && viewPlayer">
-        <div show.bind="viewPane.entityPane == 'mining'">
-          <h4>Mining</h4>
-          <require from="./resources/elements/byModule/mining-infopane.html"></require>
-          <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
-          <div class="entityList">
-            <icon-base repeat.for="miner of viewPane.facBlock.getEntities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
-                      click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
-          </div>
+        <label for="filterSelectorToggle">Filters</label>
+      </div>
+    </section>
+  </div>
+  <div if.bind="viewPane.version!='beta'">
+    <header id="selector">
+      <div id="devControls" if.bind="showDev">
+        <button click.delegate="save()">Save</button>
+        <button click.delegate="resetSave()">Start Anew</button>
+        <button click.delegate="mgrs.Ticker.once()">Tick 1</button>
+        <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
+        <button click.delegate="testing()">Testing...</button>
+        <button click.delegate="iconEditor()">Edit Icons</button>
+      </div>
+      <div id="playerControls">
+        <h4 click.delegate="viewPane.main = 'menu'">&#9776;</h4>
+        <h4 click.delegate="viewPane.main = 'home'">Home</h4>
+        <h4 click.delegate="viewPane.main = 'entities'">Workshop</h4>
+        <h4 click.delegate="viewPane.main = 'facBlocks'">Blocks</h4>
+        <h4 click.delegate="viewPane.main = 'research'">Research</h4>
+      </div>
+      <div id="facBlockControls" show.bind="viewPane.facBlock==player">
+        <div show.bind="viewPane.main == 'entities'">
+          <h5 click.delegate="viewPane.entityPane = 'mining'">Mining</h5>
+          <h5 click.delegate="viewPane.entityPane = 'manuf'">Manufacturing</h5>
+          <h5 click.delegate="viewPane.entityPane = 'labs'">Labs</h5>
         </div>
-        <div show.bind="viewPane.entityPane == 'manuf'">
-          <h4>Manufacturing</h4>
-          <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-          <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
-          <div class="entityList">
+      </div>
+      <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
+    </header>
+    <div id="mainView" if.bind="viewPane!='iconEditor'">
+      <article>
+        <section id="recipes" show.bind="viewPane.main == 'home'">
+          <h4>Craftables</h4>
+          <div class="overflow">
             <icon-base
-              repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
-              item.bind="crafter"
-              title.bind="crafter.name"
-              alt-image.bind="crafter.recipe.icon"
-              click.delegate="showing(crafter, 'crafter')"
-              class.bind="crafter.selectedClass"
+              repeat.for="rec of mgrs.rec.recipes_by_cats['crafting']  | objectValues "
+              item.bind="rec"
+              title = "${rec.name}"
+              click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
+              show.bind="rec.enabled"
+              class.bind="rec.classesStr"
+              anim_class.bind="rec.style"
+              mouseenter.trigger="tooltip = rec"
+              mouseleave.trigger="tooltip = null"
             ></icon-base>
           </div>
-        </div>
-        <div show.bind="viewPane.entityPane == 'labs'">
-          <h4>Labs</h4>
-          <require from="./resources/elements/byModule/lab-infopane.html"></require>
-          <lab-infopane if.bind="viewPane.showingCat=='labs'" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
-          <div class="entityList">
-            <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
+        </section>
+        <section id="resources" show.bind="viewPane.main == 'home'">
+          <h3>Mineables</h3>
+          <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
+                    class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+        </section>
+        <section id="technologies"  show.bind="viewPane.main == 'research'">
+          <h3>Research</h3>
+          <require from="./resources/elements/byModule/tech-infopane.html"></require>
+          <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
+          <div class="overflow">
+            <icon-base repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'" click.delegate="showItem = {item: tech, cat: 'tech'}"
+                        item.bind="tech" count.bind="tech.prerequisites.length"
+                        class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
+            >
+            </icon-base>
           </div>
-        </div>
-      </section>
-      <section if.bind="viewPane.main == 'entities' && !viewPlayer">
-        <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
-        <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
-        <require from="resources/elements/factoryBlocks/TransportLineUpgrades.html" as="tlu"></require>
-        Block Name: ${viewPane.facBlock.name}
-        <div if.bind="viewPane.facBlock.inputLine">
-          <p>
-            Feed From: ${viewPane.facBlock.feeds[0].name}
-            <span click.delegate="viewPane.facBlock.SelectBusFeed()">(Change)</span>
-          </p>
-          <transport-line
-            if.bind="viewPane.facBlock.inputLine"
-            line.bind="viewPane.facBlock.inputLine"
-            inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
-            type="input"
-          ></transport-line>
-          <tlu 
-            upgrades.bind="viewPane.facBlock.upgrades.input"
-            apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
-              upgrade
-              ,inv: player.inv
-              ,line: viewPane.facBlock.inputLine
-            })"
-          ></tlu>
-          <hr>
-        </div>
-        <div repeat.for="line of viewPane.facBlock.lines">
-          <transport-line
-            if.bind="line.items"
-            line.bind="line"
-            type="internal"
-          ></transport-line>
-          <entity-line
-            if.bind="line.entities"
-            line.bind="line"
-          ></entity-line>
-        </div>
-        <div if.bind="viewPane.facBlock.outputLine">
-          <hr>
-          <p>
-            Drains To: ${viewPane.facBlock.drains[0].name}
-            <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
-          </p>
-          <tlu
-            upgrades.bind="viewPane.facBlock.upgrades.output"
-            apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
-              upgrade
-              ,inv: player.inv
-              ,line: viewPane.facBlock.outputLine
-            })"
-          ></tlu>
-          <transport-line
-            if.bind="viewPane.facBlock.outputLine"
-            line.bind="viewPane.facBlock.outputLine"
-            inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
-            type="output"
-          ></transport-line>
-        </div>
-      </section>
-      <section id="menu" show.bind="viewPane.main=='menu'" style="z-index: 2000">
-        <div click.delegate="resetSave()">Reset Save</div>
-        <div click.delegate="resetDS()">Reset DataSource</div>
-        <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
-        <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
-        <div click.delegate="jumpStart()">JumpStart</div>
-        <div click.delegate="testing()">Testing()</div>
+          <div>
+            <h5>Filters</h5>
+            <p>Filter Complete<button click.delegate="mgrs.tech.toggleFilter('complete')">${mgrs.tech.filters.ShowComplete? "Hide":"Show"}</button></p>
+            <p>Filter Pack:
+              <span repeat.for="pack of mgrs.tech.filters.ShowPack | objectEntries & signal:'techUpdate'"
+                class="${pack[1]? 'selected':''}" click.delegate="mgrs.tech.toggleFilter('byPack', pack[0])"
+                >
+                <img src.bind="mgrs.icon.getSrc('item', pack[0])" height="16px">
+              </span>
+            </p>
+          </div>
+        </section>
+        <section id="facBlocks" show.bind="viewPane.main == 'facBlocks'">
+          <h3>Factory Blocks</h3>
+          <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
+          <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
+            ${facBlock.name}:${facBlock.type}
+          </div>
+          <div>
+            <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
+            <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
+            <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
+            <span class="button" click.delegate="add_FacBlock('research')">Add Lab Block</span>
+          </div>
+        </section>
+        <section id="machines" if.bind="viewPane.main == 'entities' && viewPlayer">
+          <div show.bind="viewPane.entityPane == 'mining'">
+            <h4>Mining</h4>
+            <require from="./resources/elements/byModule/mining-infopane.html"></require>
+            <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
+            <div class="entityList">
+              <icon-base repeat.for="miner of viewPane.facBlock.getEntities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
+                        click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
+            </div>
+          </div>
+          <div show.bind="viewPane.entityPane == 'manuf'">
+            <h4>Manufacturing</h4>
+            <require from="./resources/elements/byModule/crafting-infopane.html"></require>
+            <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+            <div class="entityList">
+              <icon-base
+                repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
+                item.bind="crafter"
+                title.bind="crafter.name"
+                alt-image.bind="crafter.recipe.icon"
+                click.delegate="showing(crafter, 'crafter')"
+                class.bind="crafter.selectedClass"
+              ></icon-base>
+            </div>
+          </div>
+          <div show.bind="viewPane.entityPane == 'labs'">
+            <h4>Labs</h4>
+            <require from="./resources/elements/byModule/lab-infopane.html"></require>
+            <lab-infopane if.bind="viewPane.showingCat=='labs'" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
+            <div class="entityList">
+              <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
+            </div>
+          </div>
+        </section>
+        <section if.bind="viewPane.main == 'entities' && !viewPlayer">
+          <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
+          <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
+          <require from="resources/elements/factoryBlocks/TransportLineUpgrades.html" as="tlu"></require>
+          Block Name: ${viewPane.facBlock.name}
+          <div if.bind="viewPane.facBlock.inputLine">
+            <p>
+              Feed From: ${viewPane.facBlock.feeds[0].name}
+              <span click.delegate="viewPane.facBlock.SelectBusFeed()">(Change)</span>
+            </p>
+            <transport-line
+              if.bind="viewPane.facBlock.inputLine"
+              line.bind="viewPane.facBlock.inputLine"
+              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              type="input"
+            ></transport-line>
+            <tlu 
+              upgrades.bind="viewPane.facBlock.upgrades.input"
+              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+                upgrade
+                ,inv: player.inv
+                ,line: viewPane.facBlock.inputLine
+              })"
+            ></tlu>
+            <hr>
+          </div>
+          <div repeat.for="line of viewPane.facBlock.lines">
+            <transport-line
+              if.bind="line.items"
+              line.bind="line"
+              type="internal"
+            ></transport-line>
+            <entity-line
+              if.bind="line.entities"
+              line.bind="line"
+            ></entity-line>
+          </div>
+          <div if.bind="viewPane.facBlock.outputLine">
+            <hr>
+            <p>
+              Drains To: ${viewPane.facBlock.drains[0].name}
+              <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
+            </p>
+            <tlu
+              upgrades.bind="viewPane.facBlock.upgrades.output"
+              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+                upgrade
+                ,inv: player.inv
+                ,line: viewPane.facBlock.outputLine
+              })"
+            ></tlu>
+            <transport-line
+              if.bind="viewPane.facBlock.outputLine"
+              line.bind="viewPane.facBlock.outputLine"
+              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              type="output"
+            ></transport-line>
+          </div>
+        </section>
+        <section id="menu" show.bind="viewPane.main=='menu'" style="z-index: 2000">
+          <div click.delegate="resetSave()">Reset Save</div>
+          <div click.delegate="resetDS()">Reset DataSource</div>
+          <div click.delegate="viewPane.version = 'beta'">Beta</div>
+          <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
+          <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
+          <div click.delegate="jumpStart()">JumpStart</div>
+          <div click.delegate="testing()">Testing()</div>
 
-      </section>
-    </article>
-  </div>
-  <div id="iconEditor" if.bind="viewPane=='iconEditor'">
-    <select value.bind="IE.select.Cat">
-      <option repeat.for="cat of IE.ds.old | objectKeys & signal:'update'" model.bind="cat">${cat}</option>
-    </select>
-    <select value.bind="IE.select.Icon">
-      <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
-    </select>
-    <button click.delegate="IEshow()">Show</button><br>
-    <figcaption class="inline">Old</figcaption>
-    <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px"/>
-    <img src.bind="IE.showNew & signal:'update'" height="64px" width="64px"/>
-    <figcaption class="inline">New</figcaption><br>
-    <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replace</input>
-    <img src.bind="IE.fileBlob"></img><br>
-    <button click.delegate="IEStore()">Store</button>
-    <button click.delegate="saveIconEditor()">SaveDB</button><br>
-    <button click.delegate="dlIconEditor()">Download</button>
-    <input type="file" name="name" files.bind="IE.upload" style="display:none" id="IconFileSelect" accept=".json" change.delegate="ulIconEditor()">
-    <button onclick="document.getElementById('IconFileSelect').click();">Upload</button>
-  </div>
-  <section id="inventoryList">
-    <h3>Inventory</h3>
-    <inventory
-      items.bind="player.inv.items"
-      click-call.call="player.inv.click({
-         where:viewPane.facBlock, which: item
-        ,who: player, what:'use'
-        })"
-      ></inventory>
-  </section>
-  <div id="tutorial">
-    <div id="tut_pos" class="center">
-      <span id="tut_text"></span>
-      <button id="tut_button" class="center"></button>
+        </section>
+      </article>
     </div>
-    <span click.delegate="hideTutorial()" note="off">X</span>
-  </div>
-  <section id="numSelectors">
-    <input type="checkbox" id="numSelToggle" style="display:none">
-    <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
-    </label>
-    <input id="huns" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.huns">
-    <input id="tens" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.tens">
-    <input id="ones" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.ones">
-    <span>${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
-    <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
-    <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
-  </section>
-  <!-- section id="tagFilter">
-    <input id="drawer-toggle" type="checkbox" />
-    <label for="drawer-toggle" id="drawer-toggle-label">
-      <span>Filters</span>
-    </label>
-    <div id="drawer">
-      More Data!
-    </div> 
-  </!-->
-  <!-- div id="commands" class="drawer bottom center" hidden>
-    <input type="checkbox" id="show_command_drawer">
-    <label class="cmd_label" for="show_command_drawer">
-      <span id="cmd_text">?</span>
-      <img src="" id="cmd_icon" hidden>
-    </label>
-    <div class="content">
-      potatoes
+    <div id="iconEditor" if.bind="viewPane=='iconEditor'">
+      <select value.bind="IE.select.Cat">
+        <option repeat.for="cat of IE.ds.old | objectKeys & signal:'update'" model.bind="cat">${cat}</option>
+      </select>
+      <select value.bind="IE.select.Icon">
+        <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
+      </select>
+      <button click.delegate="IEshow()">Show</button><br>
+      <figcaption class="inline">Old</figcaption>
+      <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px"/>
+      <img src.bind="IE.showNew & signal:'update'" height="64px" width="64px"/>
+      <figcaption class="inline">New</figcaption><br>
+      <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replace</input>
+      <img src.bind="IE.fileBlob"></img><br>
+      <button click.delegate="IEStore()">Store</button>
+      <button click.delegate="saveIconEditor()">SaveDB</button><br>
+      <button click.delegate="dlIconEditor()">Download</button>
+      <input type="file" name="name" files.bind="IE.upload" style="display:none" id="IconFileSelect" accept=".json" change.delegate="ulIconEditor()">
+      <button onclick="document.getElementById('IconFileSelect').click();">Upload</button>
     </div>
-  </!-->
+    <section id="inventoryList">
+      <h3>Inventory</h3>
+      <inventory
+        items.bind="player.inv.items"
+        click-call.call="player.inv.click({
+          where:viewPane.facBlock, which: item
+          ,who: player, what:'use'
+          })"
+        ></inventory>
+    </section>
+    <div id="tutorial">
+      <div id="tut_pos" class="center">
+        <span id="tut_text"></span>
+        <button id="tut_button" class="center"></button>
+      </div>
+      <span click.delegate="hideTutorial()" note="off">X</span>
+    </div>
+    <section id="numSelectors">
+      <input type="checkbox" id="numSelToggle" style="display:none">
+      <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
+      </label>
+      <input id="huns" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.huns">
+      <input id="tens" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.tens">
+      <input id="ones" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.ones">
+      <span>${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
+      <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
+      <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
+    </section>
+    <!-- section id="tagFilter">
+      <input id="drawer-toggle" type="checkbox" />
+      <label for="drawer-toggle" id="drawer-toggle-label">
+        <span>Filters</span>
+      </label>
+      <div id="drawer">
+        More Data!
+      </div> 
+    </!-->
+    <!-- div id="commands" class="drawer bottom center" hidden>
+      <input type="checkbox" id="show_command_drawer">
+      <label class="cmd_label" for="show_command_drawer">
+        <span id="cmd_text">?</span>
+        <img src="" id="cmd_icon" hidden>
+      </label>
+      <div class="content">
+        potatoes
+      </div>
+    </!-->
+  </section>
 </template>
