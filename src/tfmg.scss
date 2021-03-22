@@ -207,8 +207,9 @@ input:checked + .slider.text_full_part:after {
   border: 2px dashed black;
   border-radius: 8px;
 }
-#machines, #recipes, #technologies {
+main {
   height: 45vh;
+  overflow-y: auto;
 }
 #recipes > div {
   height: 40vh;
