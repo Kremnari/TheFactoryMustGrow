@@ -10,7 +10,7 @@
     <section class="statusBox">
       <div if.bind="!tooltip">
         status box<br>
-        Here there will be dragons
+        Land, pollution, enemies, oh my!
       </div>
       <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
     </section>
@@ -32,7 +32,7 @@
     </nav>
     <main>
       <section id="nav" if.bind="viewPane.main=='nav'">
-        <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected"></span>Expanded Nav</p>
+        <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
         <p click.delegate="viewPane.main='dev'"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
@@ -129,6 +129,16 @@
               <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
             </div>
           </div>
+          <div id="inventoryList">
+            <h3>Inventory</h3>
+            <inventory
+              items.bind="player.inv.items"
+              click-call.call="player.inv.click({
+                where:viewPane.facBlock, which: item
+                ,who: player, what:'use'
+                })"
+              ></inventory>
+          </div>
         </div>
         <div show.bind="!viewPlayer">
           <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
@@ -192,7 +202,7 @@
       </section>
       <section id="facBlocks" show.bind="viewPane.main=='facBlocks'">
         <h3>Factory Blocks</h3>
-        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>player</div>
+        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>Player Workshop</div>
         <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
           ${facBlock.name}:${facBlock.type}
         </div>

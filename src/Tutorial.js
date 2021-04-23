@@ -1,23 +1,33 @@
 import {mgrs} from "managers"
 import $ from "jquery"
 
-let steps = [0, 0.1, 0.2, 0.9 //Intro
-            ,1, 1.1, 1.2 //Basic info
-            ,2, 2.1, 2.2, 2.3, 2.4 
-            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6, 3.7, 3.75, 3.8, 3.81, 3.9, 3.91
-            ,4, 4.1
+let steps = [0, 0.1, 0.2, 0.9 //Intro ..3
+            ,1, 1.1, 1.2 //Basic info ..6
+            ,2, 2.1, 2.2, 2.3, 2.4 //  ..11
+            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..19
+              , 3.7, 3.75, 3.8, 3.81, 3.9, 3.91  // ..25
+            ,4, 4.1, 4.2, 4.3, 4.4  // ..30
+              ,4.41, 4.42, 4.43, 4.44, 4.45  //  ..35
+              ,4.5, 4.51, 4.52
             //
             ,100]
 window.jq = $
-
+let __
 console.log($().jquery)
 class tutorial {
   atStep = 0
   tutClicks = 0
+  constructor() {
+    __ = this
+  }
   start() {
     $("#tutorial").addClass("Block")
     $("#tut_button").click( () => { this.nextStep()})
     this.setStep(steps[this.atStep])
+  }
+  jumpTo(stepID) {
+    this.atStep = steps.indexOf(stepID)
+    this.start()    
   }
   nextStep() {
     $(".tutStep").removeClass("tutStep").off("click")
@@ -103,6 +113,7 @@ class tutorial {
         break;
       case 3.21:
         $("#tutorial").hide()
+        $(".navEntities").addClass("tutStep")
         mgrs.baseApp.when({entityPane: 'manuf'}, ()=>{this.nextStep()})
         break;
       case 3.3:
@@ -140,9 +151,10 @@ class tutorial {
         $("#tut_button").text("I'll see you shortly").show()
         break;
       case 3.81:
+        //DEBUG this doesn't quite show up
         $("#tutorial").hide()
         $(".navEntities").addClass("tutStep")
-        $(".navE_mining").addClass("tutStep")
+        $(".navE_Mining").addClass("tutStep")
         this.playerInvWait({name:"burner-mining-drill", count:0})
         //mgrs.baseApp.when({entityPane: 'mining'}, ()=>{this.nextStep()})
         break;
@@ -168,6 +180,60 @@ class tutorial {
         $("#tut_button").text("Too bad I can't watch them move back and forth like some other game I know").show()
         this.setTutClick()
         break;
+      case 4.2:
+        mgrs.baseApp.viewPane.main = "home"
+        mgrs.baseApp.tooltip = mgrs.rec.recipeList["lab"]
+        $("#tut_text").html("These paltry machines are a start, but won't hold you forever.<br>Keep expanding, but you're next goal should be a research lab.")
+        $("#recipes icon-base[title='lab']").addClass('tutTarget')
+        $("#tut_button").text("The Factory...Is Growing...").show()
+        this.setTutClick()
+        break;
+      case 4.3: 
+        $("#tutorial").hide()
+        this.playerInvWait({name:"lab", count: 1})
+        break;
+      case 4.4:
+        $("#inventoryList icon-base[title='lab']").addClass("tutStep")
+        this.setTutClick()
+        break;
+      case 4.41:
+        $(".navEntities").addClass("tutStep")
+        $(".navE_Lab").addClass("tutStep")
+        $("#machines .entityList icon-base[title='lab']:first").addClass("tutStep")
+        __.setTutClick()
+        break;
+      case 4.42:
+        $("#tut_text").text("This is a research lab.  You will need to add [science-packs] for it to consume to process research.")
+        __.tutButton("Are these machines or magic?")
+        break;
+      case 4.43:
+        __.tutText("I was going to tell you to make 5, but for that comment make 10 'automation science packs'")
+        __.tutButton("*grumble*")
+        break;
+      case 4.44:
+        mgrs.baseApp.viewPane.main = "home"
+        mgrs.baseApp.tooltip = mgrs.rec.recipeList["automation-science-pack"]
+        __.playerInvWait({name:"automation-science-pack", count: 10})
+        break;
+      case 4.45:
+        __.tutText("Now go back to your lab and add the [science-packs]")
+        __.tutStep(".navEntities")
+        __.tutStep(".navE_Lab")
+        __.tutStep(".labInput icon-base[title='automation-science-pack']")
+        break;
+      case 4.5:
+        __.tutStep(".navTechs")
+        break;
+      case 4.51:
+        __.tutText("This tab allows you to direct technology research.<br>We should start with automation")
+        __.tutButton("I hope there's more than this")
+        break;
+      case 4.52:
+        __.tutText("More techs will become available with each research")
+        __.tutStep("#technologies icon-base[title='automation']")
+        break;
+      case 4.53:
+        break;
       case 100:
         $("#tut_text").text("End of tutorial...so far")
         $("#tut_button").text("But now what...?").show()
@@ -178,6 +244,16 @@ class tutorial {
         mgrs.baseApp.autoSave()
         break;
     }
+  }
+  tutStep(selector) {
+    $(selector).addClass("tutStep")
+  }
+  tutText(text) {
+    $("tut_text").html(text)
+  }
+  tutButton(text) {
+    $("#tut_button").html(text).show()
+    this.setTutClick()
   }
   hide() {
     $(".tutStep").off("click")
