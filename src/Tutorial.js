@@ -60,7 +60,7 @@ class tutorial {
         break;
       case 0.4:
         __.tutText("This menu has a number of options, including a subscription to my mailing list. ")
-        __.tutStep()
+        __.tutStep(".fa-bars")
         __.tutButton("Maybe I'll want to stay updated...")
         break;
       case 0.9: 
@@ -259,7 +259,7 @@ class tutorial {
     $(selector).addClass("tutStep")
   }
   tutText(text) {
-    $("tut_text").html(text)
+    $("#tut_text").html(text)
   }
   tutButton(text) {
     $("#tut_button").html(text).show()
