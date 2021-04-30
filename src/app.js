@@ -13,7 +13,8 @@ export class App {
       main: "home",
       entityPane: "mining",
       showingItem: null,
-      version: 'beta'
+      version: 'beta',
+      showSubUp: false,
     }
     viewHelpers =  {
       //HACK no this reference....

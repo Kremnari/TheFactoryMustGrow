@@ -13,7 +13,6 @@ let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
             ,100]
 window.jq = $
 let __
-console.log($().jquery)
 class tutorial {
   atStep = 0
   tutClicks = 0

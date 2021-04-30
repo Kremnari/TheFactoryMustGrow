@@ -1,0 +1,5 @@
+This file will contain attribution information until I get official integration
+
+angine-investor.png:
+first used - 30 Apr 2021
+found at - <a href="https://iconscout.com/icons/angel-investor" target="_blank">Angel investor Icon</a> by <a href="https://iconscout.com/contributors/andinur" target="_blank">Andi Nur Abdillah</a>

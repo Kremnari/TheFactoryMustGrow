@@ -3,6 +3,12 @@ body {
   background-color: darkslategrey;
   user-select: none;
 }
+a.notLink {
+  color: inherit;
+  &:hover {
+    text-decoration: none;
+  }
+}
 .recipeDisabled {
   filter: saturate(0.2);
   border: 2px dashed red;
