@@ -220,7 +220,11 @@ export class PlayerBlock {
     return ret
   }
   getEntities(tag) {
-    return Array.from(this.entityStore.entityTags.get("type")?.get(tag)?.values() || []) 
+    if(tag) {
+      return Array.from(this.entityStore.entityTags.get("type")?.get(tag)?.values() || []) 
+    } else {
+      return Array.from(this.entityStore.entities)
+    }
   }
   useItem(item) {
     return this.entityStore.AddEntity(item)

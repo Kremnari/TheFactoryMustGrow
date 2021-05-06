@@ -22,10 +22,6 @@
       <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
       <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
 
-      <span click.delegate="viewPane.entityPane='mining'" class="fas fa-mountain navE_Mining ${viewPane.entityPane=='mining' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
-      <span click.delegate="viewPane.entityPane='manuf'" class="fas fa-warehouse navE_Manuf ${viewPane.entityPane=='manuf' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
-      <span click.delegate="viewPane.entityPane='labs'" class="fas fa-flask navE_Lab ${viewPane.entityPane=='labs' ? 'selected': ''}" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
-      <span class="fas spacer" show.bind="viewPane.main=='entities' && viewPane.facBlock==player"></span>
 
       <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
@@ -36,12 +32,9 @@
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
         <p click.delegate="viewPane.main='dev'"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
+
         <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
-  
-        <li click.delegate="viewHelpers.PlayerBlock('mining')"><span class="fas fa-mountain navE_Mining"></span>Player Mining</li>
-        <li click.delegate="viewHelpers.PlayerBlock('manuf')"><span class="fas fa-warehouse navE_Manuf"></span>Player Manufacturing</li>
-        <li click.delegate="viewHelpers.PlayerBlock('labs')"><span class="fas fa-flask navE_Lab"></span>Player Labs</li>
         <p class="fas spacer"></p>
   
         <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
@@ -145,35 +138,21 @@
       <section id="machines" show.bind="viewPane.main=='entities'">
         <div show.bind="viewPlayer">
           <div show.bind="viewPane.entityPane == 'mining'">
-            <h4>Mining</h4>
+            <h4>Workshop</h4>
             <require from="./resources/elements/byModule/mining-infopane.html"></require>
-            <mining-infopane if.bind="viewPane.showingCat=='miner'" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
-            <div class="entityList">
-              <icon-base repeat.for="miner of viewPane.facBlock.getEntities('mining') & signal:'addedEntity'" item.bind="miner" alt-image.bind="miner.mining.icon"
-                        click.delegate="showing(miner, 'miner')" class.bind="miner.selectedClass"></icon-base>
-            </div>
-          </div>
-          <div show.bind="viewPane.entityPane == 'manuf'">
-            <h4>Manufacturing</h4>
+            <require from="./resources/elements/byModule/lab-infopane.html"></require>
             <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-            <crafting-infopane if.bind="viewPane.showingCat=='crafter'" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+            <mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
+            <crafting-infopane if.bind="viewPane.showingItem['crafting_speed']" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+            <lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
             <div class="entityList">
               <icon-base
-                repeat.for="crafter of viewPane.facBlock.getEntities('crafting') & signal:'addedEntity'"
-                item.bind="crafter"
-                title.bind="crafter.name"
-                alt-image.bind="crafter.recipe.icon"
-                click.delegate="showing(crafter, 'crafter')"
-                class.bind="crafter.selectedClass"
+                repeat.for="machina of viewPane.facBlock.getEntities() & signal:'addedEntity'"
+                item.bind="machina"
+                alt-image.bind="machina.recipe.icon || machina.mining.icon"
+                click.delegate="showing(machina)"
+                class.bind="machina.selectedClass"
               ></icon-base>
-            </div>
-          </div>
-          <div show.bind="viewPane.entityPane == 'labs'">
-            <h4>Labs</h4>
-            <require from="./resources/elements/byModule/lab-infopane.html"></require>
-            <lab-infopane if.bind="viewPane.showingCat=='labs'" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
-            <div class="entityList">
-              <icon-base repeat.for="labee of viewPane.facBlock.getEntities('lab') & signal:'addedEntity'" item.bind="labee" click.delegate="showing(labee, 'labs')" class.bind="labee.selectedClass"></icon-base>
             </div>
           </div>
           <div id="inventoryList">
@@ -569,6 +548,7 @@
       <div class="content">
         potatoes
       </div>
-    </!-->
-  </section>
+    </>
+    </section !-->
+  </div>
 </template>

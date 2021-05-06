@@ -9,6 +9,10 @@ a.notLink {
     text-decoration: none;
   }
 }
+.NYI {
+  cursor: not-allowed;
+  color: darkred;
+}
 .recipeDisabled {
   filter: saturate(0.2);
   border: 2px dashed red;

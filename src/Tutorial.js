@@ -95,8 +95,7 @@ class tutorial {
         //$("#playerControls h4:contains('Workshop')").addClass("tutStep")
         //$("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
         $(".navEntities").addClass("tutStep");
-        $(".navE_Manuf").addClass("tutStep")
-        mgrs.baseApp.when({entityPane: 'manuf'}, ()=>{this.nextStep()})
+        this.setTutClick()
         break;
       case 2.3:
         $("#machines .entityList icon-base[title='stone-furnace']").addClass("tutStep")
@@ -123,7 +122,7 @@ class tutorial {
       case 3.21:
         $("#tutorial").hide()
         $(".navEntities").addClass("tutStep")
-        mgrs.baseApp.when({entityPane: 'manuf'}, ()=>{this.nextStep()})
+        this.setTutClick()
         break;
       case 3.3:
         $("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
@@ -163,7 +162,6 @@ class tutorial {
         //DEBUG this doesn't quite show up
         $("#tutorial").hide()
         $(".navEntities").addClass("tutStep")
-        $(".navE_Mining").addClass("tutStep")
         this.playerInvWait({name:"burner-mining-drill", count:0})
         //mgrs.baseApp.when({entityPane: 'mining'}, ()=>{this.nextStep()})
         break;
