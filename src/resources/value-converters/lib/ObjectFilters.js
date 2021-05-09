@@ -25,6 +25,14 @@ export class ObjectValuesValueConverter {
   return Object.values(obj)
 	}
 }
+export class JsonStringValueConverter {
+  toView(item) {
+    return JSON.stringify(item, null, 1)
+  }
+  fromView(item) {
+    return JSON.parse(item, null, 1)
+  }
+}
 /**
  * Usage
  * Shows how to use the custom ValueConverter to iterate an objects properties

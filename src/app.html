@@ -26,7 +26,7 @@
       <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
     </nav>
-    <main>
+    <main class="tfmg">
       <section id="nav" if.bind="viewPane.main=='nav'">
         <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
@@ -97,12 +97,13 @@
           </div>
       </section>
       <section id="devControls" if.bind="viewPane.main=='dev'">
-        <button click.delegate="save()">Save</button>
-        <button click.delegate="resetSave()">Start Anew</button>
-        <button click.delegate="mgrs.Ticker.once()">Tick 1</button>
-        <button click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</button>
-        <button click.delegate="testing()">Testing...</button>
-        <button click.delegate="iconEditor()">Edit Icons</button>
+        <div click.delegate="save()">Save</div>
+        <div click.delegate="resetSave()">Start Anew</div>
+        <div click.delegate="mgrs.Ticker.once()">Tick 1</div>
+        <div click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</div>
+        <div click.delegate="testing()">Testing...</div>
+        <!-- button click.delegate="iconEditor()">Edit Icons</!-->
+        <div click.delegate="viewPane.main = 'editData'">Edit DataSource</div>
       </section>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
@@ -262,6 +263,10 @@
           </p>
         </div>
       </section>
+      <section id="editDataSource" if.bind="viewPane.main=='editData'">
+        <require from="resources/elements/dataEditor"></require>
+        <data-editor></data-editor>
+      </section>
     </main>
     <div id="tutorial">
       <div id="tut_pos" class="center">
@@ -292,7 +297,7 @@
       </div>
     </section>
   </div>
-  <div if.bind="viewPane.version!='beta'">
+  <!-- div if.bind="viewPane.version!='beta'">
     <header id="selector">
       <div id="devControls" if.bind="showDev">
         <button click.delegate="save()">Save</button>
@@ -549,6 +554,6 @@
         potatoes
       </div>
     </>
-    </section !-->
-  </div>
+    </section>
+  </!-->
 </template>

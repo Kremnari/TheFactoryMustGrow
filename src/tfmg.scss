@@ -217,9 +217,12 @@ input:checked + .slider.text_full_part:after {
   border: 2px dashed black;
   border-radius: 8px;
 }
-main {
-  height: 45vh;
+main.tfmg {
+  height: 70vh;
   overflow-y: auto;
+  & > * {
+    height: 95%;
+  }
 }
 #recipes > div {
   height: 40vh;

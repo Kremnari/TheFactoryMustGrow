@@ -1,0 +1,87 @@
+<template>
+  <require from="./dataEditor.scss"></require>
+  <header>
+    <h5 click.delegate="editType='item'">Items</h5>
+    <h5 click.delegate="editType='recipe'">Recipes</h5>
+    <h5 click.delegate="editType='technology'">Technologies</h5>
+    <h5 click.delegate="editType='resource'">Resources</h5>
+    <h5 click.delegate="editType='entity'">Entities</h5>
+    <!-- h5 click.delegate="editType='icons'">Icons</!-->
+  </header>
+  <aside id="editorList">
+    <span click.delegate="addNew()" if.bind="editType">New...</span>
+    <ul class="list-group">
+      <li 
+        repeat.for="each of editList"
+        class="list-group-item"
+        class.bind="editing.name == each ? 'active' : ''"
+        click.delegate="selectEdit(each)"
+        >
+        ${each}
+      </li>
+    </ul>
+  </aside>
+  <main>
+    <div if.bind="editing">
+      <div if.bind="editType=='item'">
+        Name: <input type="text" value.bind="editing.name"><br>
+        Icon: <input type="text" value.bind="editing.icon"><br>
+        StackSize: <input type="text" value.bind="editing.stack_size">
+      </div>
+      <div if.bind="editType=='recipe'">
+        Name: <input type="text" value.bind="editing.name"><br>
+        Icon: <input type="text" value.bind="editing.icon"><br>
+        Time: <input type="number" value.bind="editing.crafting_speed">
+        Enabled: <input type="checkbox" value.bind="editing.enabled"><br>
+        ings: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
+        ress: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
+      </div>
+      <div if.bind="editType=='technology'">
+        Name: <input type="text" value.bind="editing.name"><br>
+        Icon: <input type="text" value.bind="editing.icon"><br>
+        Enabled: <input type="checkbox" value.bind="editing.enabled">
+        Hidden: <input type="checkbox" value.bind="editing.hidden"><br>
+        Prereqs:<textarea value.bind="editing.prerequisites | jsonString" rows="6"></textarea><br>
+        Unlocks:<textarea value.bind="editing.unlocks | jsonString" rows="6"></textarea><br>
+        Cost: <input type="number" value.bind="editing.cost.count">
+        Time: <input type="number" value.bind="editing.cost.time"><br>
+        Ings: <textarea value.bind="editing.cost.ingredients | jsonString" rows="6"></textarea>
+      </div>
+      <div if.bind="editType=='resource'">
+        Name: <input type="text" value.bind="editing.name"><br>
+        Icon: <input type="text" value.bind="editing.icon"><br>
+        Time: <input type="numebr" value.bind="editing.mining_time">
+        Ress: <input type="text" value.bind="editing.mining_results"><br>
+        Cat:  <input type="text" value.bind="editing.category">
+      </div>
+      <div if.bind="editType=='entity'">
+        Name: <input type="text" value.bind="editing.name"><br> 
+        Icon: <input type="text" value.bind="editing.icon"><br>
+        <hr>
+        Craft: <textarea value.bind="editing.crafting_categories"></textarea>
+        Speed:<input type="number" value.bind="editing.crafting_speed">
+        <hr>
+        ResC: <textarea value.bind="editing.resource_categories"></textarea>
+        Speed:<input type="number" value.bind="editing.mining_speed">
+        <hr>
+        Labs: <textarea value.bind="editing.inputs"></textarea>
+        Speed: <input type="number" value.bind="editing.researching_speed">
+      </div>
+    </div>
+    <div if.bind="editType=='icons'">
+      <div if.bind="editing">
+        ${editing.name}
+      </div>
+      <div if.bind="!editing">
+        Icons
+      </div>
+    </div>
+  </main>
+  <footer class="btn-group">
+    <span class="btn btn-secondary" click.delegate="editing = null">cancel</span>
+    <span class="btn btn-danger" click.delegate="deletItem()" if.bind="editing">Delete</span>
+    <span class="btn btn-success" click.delegate="saveItem()">save Item</span>
+    <span class="btn btn-info" click.delegate="saveDataSet()">save list</span>
+    <span class="btn btn-light" click.delegate="dlDataSet()">download</span>
+  </footer>
+</template>
