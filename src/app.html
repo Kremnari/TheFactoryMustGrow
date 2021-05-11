@@ -103,7 +103,7 @@
         <div click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</div>
         <div click.delegate="testing()">Testing...</div>
         <!-- button click.delegate="iconEditor()">Edit Icons</!-->
-        <div click.delegate="viewPane.main = 'editData'">Edit DataSource</div>
+        <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
       </section>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
@@ -263,10 +263,6 @@
           </p>
         </div>
       </section>
-      <section id="editDataSource" if.bind="viewPane.main=='editData'">
-        <require from="resources/elements/dataEditor"></require>
-        <data-editor></data-editor>
-      </section>
     </main>
     <div id="tutorial">
       <div id="tut_pos" class="center">
@@ -297,6 +293,11 @@
       </div>
     </section>
   </div>
+  <div id="editDataSource" if.bind="viewPane.version=='editData'">
+    <require from="resources/elements/dataEditor"></require>
+    <data-editor></data-editor>
+  </div>
+
   <!-- div if.bind="viewPane.version!='beta'">
     <header id="selector">
       <div id="devControls" if.bind="showDev">

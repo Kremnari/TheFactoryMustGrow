@@ -33,8 +33,8 @@
         Icon: <input type="text" value.bind="editing.icon"><br>
         Time: <input type="number" value.bind="editing.crafting_speed">
         Enabled: <input type="checkbox" value.bind="editing.enabled"><br>
-        ings: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
-        ress: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
+        Ingredients: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
+        Results: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
       </div>
       <div if.bind="editType=='technology'">
         Name: <input type="text" value.bind="editing.name"><br>
@@ -45,13 +45,13 @@
         Unlocks:<textarea value.bind="editing.unlocks | jsonString" rows="6"></textarea><br>
         Cost: <input type="number" value.bind="editing.cost.count">
         Time: <input type="number" value.bind="editing.cost.time"><br>
-        Ings: <textarea value.bind="editing.cost.ingredients | jsonString" rows="6"></textarea>
+        Ingredients: <textarea value.bind="editing.cost.ingredients | jsonString" rows="6"></textarea>
       </div>
       <div if.bind="editType=='resource'">
         Name: <input type="text" value.bind="editing.name"><br>
         Icon: <input type="text" value.bind="editing.icon"><br>
         Time: <input type="numebr" value.bind="editing.mining_time">
-        Ress: <input type="text" value.bind="editing.mining_results"><br>
+        Results: <input type="text" value.bind="editing.mining_results"><br>
         Cat:  <input type="text" value.bind="editing.category">
       </div>
       <div if.bind="editType=='entity'">
@@ -78,7 +78,8 @@
     </div>
   </main>
   <footer class="btn-group">
-    <span class="btn btn-secondary" click.delegate="editing = null">cancel</span>
+    <span class="btn btn-secondary" click.delegate="editing = null" if.bind="editing">cancel</span>
+    <span class="btn btn-secondary" click.delegate="close()" if.bind="!editing">Close</span>
     <span class="btn btn-danger" click.delegate="deletItem()" if.bind="editing">Delete</span>
     <span class="btn btn-success" click.delegate="saveItem()">save Item</span>
     <span class="btn btn-info" click.delegate="saveDataSet()">save list</span>

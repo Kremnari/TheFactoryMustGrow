@@ -15,7 +15,6 @@ export class DataEditor {
     this.editing = null
   }
   selectEdit(name) {
-    console.log(name)
     this.editing = mgrs.data[this.editType][name]
   }
   addNew() {
@@ -35,6 +34,9 @@ export class DataEditor {
   dlDataSet() {
     let file = new File([JSON.stringify(mgrs.data)], "data_source.json", {type: "application/json"})
     saveAs(file)
+  }
+  close() {
+    mgrs.baseApp.viewPane.version = 'beta'
   }
 }
 
