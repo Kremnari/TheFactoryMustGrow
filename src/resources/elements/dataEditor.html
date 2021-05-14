@@ -1,14 +1,15 @@
 <template>
   <require from="./dataEditor.scss"></require>
+  <require from="./iconEditor"></require>
   <header>
     <h5 click.delegate="editType='item'">Items</h5>
     <h5 click.delegate="editType='recipe'">Recipes</h5>
     <h5 click.delegate="editType='technology'">Technologies</h5>
     <h5 click.delegate="editType='resource'">Resources</h5>
     <h5 click.delegate="editType='entity'">Entities</h5>
-    <!-- h5 click.delegate="editType='icons'">Icons</!-->
+    <h5 click.delegate="editType='icons'">Icons</h5>
   </header>
-  <aside id="editorList">
+  <aside id="editorList" show.bind="editType!='icons'">
     <span click.delegate="addNew()" if.bind="editType">New...</span>
     <ul class="list-group">
       <li 
@@ -22,23 +23,23 @@
     </ul>
   </aside>
   <main>
+    <div if.bind="editType=='icons'">
+      <icon-editor></icon-editor>
+    </div>
     <div if.bind="editing">
-      <div if.bind="editType=='item'">
-        Name: <input type="text" value.bind="editing.name"><br>
-        Icon: <input type="text" value.bind="editing.icon"><br>
+      Name: <input type="text" value.bind="editing.name"><br>
+      Icon: <input type="text" value.bind="editing.icon"><br>
+      <img src.bind="mgrs.icon.getSrc(editing.icon)"></img>
+    <div if.bind="editType=='item'">
         StackSize: <input type="text" value.bind="editing.stack_size">
       </div>
       <div if.bind="editType=='recipe'">
-        Name: <input type="text" value.bind="editing.name"><br>
-        Icon: <input type="text" value.bind="editing.icon"><br>
         Time: <input type="number" value.bind="editing.crafting_speed">
         Enabled: <input type="checkbox" value.bind="editing.enabled"><br>
         Ingredients: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
         Results: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
       </div>
       <div if.bind="editType=='technology'">
-        Name: <input type="text" value.bind="editing.name"><br>
-        Icon: <input type="text" value.bind="editing.icon"><br>
         Enabled: <input type="checkbox" value.bind="editing.enabled">
         Hidden: <input type="checkbox" value.bind="editing.hidden"><br>
         Prereqs:<textarea value.bind="editing.prerequisites | jsonString" rows="6"></textarea><br>
@@ -48,15 +49,11 @@
         Ingredients: <textarea value.bind="editing.cost.ingredients | jsonString" rows="6"></textarea>
       </div>
       <div if.bind="editType=='resource'">
-        Name: <input type="text" value.bind="editing.name"><br>
-        Icon: <input type="text" value.bind="editing.icon"><br>
         Time: <input type="numebr" value.bind="editing.mining_time">
         Results: <input type="text" value.bind="editing.mining_results"><br>
         Cat:  <input type="text" value.bind="editing.category">
       </div>
       <div if.bind="editType=='entity'">
-        Name: <input type="text" value.bind="editing.name"><br> 
-        Icon: <input type="text" value.bind="editing.icon"><br>
         <hr>
         Craft: <textarea value.bind="editing.crafting_categories"></textarea>
         Speed:<input type="number" value.bind="editing.crafting_speed">

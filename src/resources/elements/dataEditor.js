@@ -7,11 +7,17 @@ export class DataEditor {
   @observable editType = null
   constructor() {
     mgrs.de = this
+    this.mgrs = mgrs
   }
 
   editTypeChanged(newVal) {
+    if(newVal=='icons') {
+      this.editList = null
+      this.editing = null
+      return
+    }
     this.editList = Object.keys(mgrs.data[newVal])
-    this.suggestions = new ListSuggestionService(newVal)
+    //this.suggestions = new ListSuggestionService(newVal)
     this.editing = null
   }
   selectEdit(name) {

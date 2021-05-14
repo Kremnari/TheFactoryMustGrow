@@ -1,0 +1,24 @@
+<template>
+  New: <input type="text" placeholder="New Icon cat@name" value.bind="newName"><span click.delegate="newIcon()">Add</span><br>
+
+  <input type="checkbox" checked.bind="show_on"></input>
+  <select value.bind="IE.select.Cat">
+    <option repeat.for="cat of IE.ds[show_on ? 'new': 'old'] | objectKeys & signal:'update'" model.bind="cat">${cat}</option>
+  </select>
+  <select value.bind="IE.select.Icon">
+    <option repeat.for="icon of IE.ds[show_on ? 'new': 'old'][IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
+  </select>
+  <button click.delegate="IEshow()">Show</button><br>
+  <figcaption class="inline">Old</figcaption>
+  <span class="btn" click.delegate="revertIcon()">Revert</span>
+  <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px"/>
+  <img src.bind="IE.showNew & signal:'update'" height="64px" width="64px"/>
+  <figcaption class="inline">New</figcaption><br>
+  <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replace</input>
+  <img src.bind="IE.fileBlob"></img><br>
+  <button click.delegate="IEStore()">Store</button>
+  <button click.delegate="saveIconEditor()">SaveDB</button><br>
+  <button click.delegate="dlIconEditor()">Download</button>
+  <input type="file" name="name" files.bind="IE.upload" style="display:none" id="IconFileSelect" accept=".json" change.delegate="ulIconEditor()">
+  <button onclick="document.getElementById('IconFileSelect').click();">Upload</button>
+</template>

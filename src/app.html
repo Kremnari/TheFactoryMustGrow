@@ -272,6 +272,16 @@
       <span click.delegate="hideTutorial()" note="off">X</span>
     </div>
     <section class="tabs">
+      <!-- TODO: use this format with content-projection>
+        <tab-popout>
+          <slot name="tab">
+            <div>tab name</div>
+          </slot>
+          <slot name="content">
+            <compose view="content-element"></compose>
+          </slot>
+        </tab-popout>
+      </!-->
       <div id="numSelectors" class="tab tab_bottom_left">
         <input type="checkbox" class="tab_toggle" id="numSelToggle">
         <div class="tab_content">
@@ -487,26 +497,6 @@
 
         </section>
       </article>
-    </div>
-    <div id="iconEditor" if.bind="viewPane=='iconEditor'">
-      <select value.bind="IE.select.Cat">
-        <option repeat.for="cat of IE.ds.old | objectKeys & signal:'update'" model.bind="cat">${cat}</option>
-      </select>
-      <select value.bind="IE.select.Icon">
-        <option repeat.for="icon of IE.ds.old[IE.select.Cat] | objectKeys & signal:'update'" model.bind="icon">${icon}</option>
-      </select>
-      <button click.delegate="IEshow()">Show</button><br>
-      <figcaption class="inline">Old</figcaption>
-      <img src.bind="IE.showOld & signal:'update'" height="64px" width="64px"/>
-      <img src.bind="IE.showNew & signal:'update'" height="64px" width="64px"/>
-      <figcaption class="inline">New</figcaption><br>
-      <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replace</input>
-      <img src.bind="IE.fileBlob"></img><br>
-      <button click.delegate="IEStore()">Store</button>
-      <button click.delegate="saveIconEditor()">SaveDB</button><br>
-      <button click.delegate="dlIconEditor()">Download</button>
-      <input type="file" name="name" files.bind="IE.upload" style="display:none" id="IconFileSelect" accept=".json" change.delegate="ulIconEditor()">
-      <button onclick="document.getElementById('IconFileSelect').click();">Upload</button>
     </div>
     <section id="inventoryList">
       <h3>Inventory</h3>
