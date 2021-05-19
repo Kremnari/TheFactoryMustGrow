@@ -1,0 +1,12 @@
+<template>
+  <require from="./tabPopout.scss"></require>
+  <input type="checkbox" class="tab_toggle" id.one-time="id">
+  <label for.one-time="id">
+    <slot name="tab">
+      Tab Name Goes Here
+    </slot>
+  </label>
+  <slot name="content">
+    Random Content!
+  </slot>
+</template>

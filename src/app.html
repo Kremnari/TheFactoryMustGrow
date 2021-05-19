@@ -272,25 +272,24 @@
       <span click.delegate="hideTutorial()" note="off">X</span>
     </div>
     <section class="tabs">
-      <div id="numSelectors" class="tab tab_bottom_left">
-        <input type="checkbox" class="tab_toggle" id="numSelToggle">
-        <div class="tab_content">
-          <input id="huns" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.huns">
-          <input id="tens" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.tens">
-          <input id="ones" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.ones">
-          <span>${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
-          <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
-          <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
+      <require from="resources/components/tabPopout"></require>
+      <tab-popout class="tab_bottom_left" id="numSelectors">
+        <div slot="tab">
+          Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
         </div>
-        <label for="numSelToggle">Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span></label>
-      </div>
-      <div id="filterSelectors" class="tab tab_bottom_right">
-        <input type="checkbox" class="tab_toggle" id="filterSelectorToggle">
-        <div class="tab_content">
-          Yay! Filters
+        <div slot="content">
+          <compose view="resources/elements/rounderTab.html"></compose>
         </div>
-        <label for="filterSelectorToggle">Filters</label>
-      </div>
+      </tab-popout>
+      <tab-popout class="tab_bottom_right">
+        <div slot="tab">
+          Filters
+        </div>
+        <div slot="content">
+          <!-- compose view="content-element"></!-->
+          Yay! Filters!
+        </div>
+      </tab-popout>
     </section>
   </div>
   <div id="editDataSource" if.bind="viewPane.version=='editData'">

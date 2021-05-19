@@ -1,0 +1,19 @@
+#numSelectors {
+  & input[type="range"] {
+    appearance: slider-vertical;
+    width: 16px;
+  }
+  & > .tab_toggle:checked {
+    & ~ [slot="content"] > compose {
+      width: 70px;
+      & > * {
+        display: inline-block;
+      }
+      & > span {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+  }
+}

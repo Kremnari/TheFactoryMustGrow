@@ -1,0 +1,65 @@
+tab-popout {
+  position: fixed;
+  & > .tab_toggle {
+    display: none;
+  };
+  & > label {
+    padding: 2px 3vh;
+    background-color: rgba(127, 127, 127, 0.5);
+    text-align: center;
+    margin: 0px;
+    position: absolute;
+    display: inline-block;
+    & .tabOnly {
+      display: inline;
+    }
+  }
+  & [slot="content"] {
+    display: none;
+  }
+  & > input[type="checkbox"]:checked {
+    & ~ [slot="content"] {
+      display: block;
+      & > * {
+        display: inline-block;
+      }
+    }
+    & ~ label .tabOnly {
+      display: none;
+    }
+  }
+  &.tab_bottom_left {
+    bottom: 0px;
+    left:0px;
+    & > label {
+      transform: translateX(-100%) rotate(90deg);
+      transform-origin: bottom right;
+      bottom: 0px;
+      left: 0px;
+    }
+    & > .tab_toggle:checked {
+      & ~ label {
+        left: 70px;
+        padding: 2px 75%;
+        transform: translate(-100%, -150%) rotate(90deg);
+      }
+    }
+  }
+  &.tab_bottom_right {
+    bottom: 0px;
+    right: 0px;
+    & > label {
+      transform: translateX(100%) rotate(-90deg);
+      transform-origin: bottom left;
+      bottom: 0px;
+      right: 0px;
+    }
+    & > .tab_toggle:checked {
+      & ~ label {
+        right: 70px;
+        padding: 2px 75%;
+        transform: translate(100%, -150%) rotate(-90deg);
+        bottom: unst;
+      }
+    }
+  }}

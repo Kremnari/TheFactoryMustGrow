@@ -162,57 +162,6 @@ input:checked + .slider.text_full_part:after {
   content: "part";
 }
 
-#numSelectors2 {
-  position: fixed;
-  width: 70px;
-  display: inline-block;
-  bottom: 0px;
-  left: 0vw;
-  & > *:not(label[for="numSelToggle"]) {
-    position: relative;
-    visibility: hidden;
-    display: none; 
-  }
-  & > #numSelToggle:checked {
-    & ~ * {
-      visibility: visible;
-      display: inline-block;
-    }
-    & + label {
-      left: 10vw;
-      padding: 2px 75%;
-      top: 20vh;
-      position: absolute;
-    }
-    & ~ * > .tabOnly {
-      display: none;
-    }
-    & ~ span {
-      width: 100%;
-      text-align: center;
-      display: inline-block;
-    }
-    } 
-  & > label[for="numSelToggle"] {
-    padding: 2px 3vh;
-    transform: translateX(-100%) rotate(90deg);
-    transform-origin: bottom right;
-    background-color: rgba(127, 127, 127, 0.5);
-    text-align: center;
-    margin: 0;
-    bottom: 0px;
-    position: absolute;
-    display: inline-block;
-  }
-  & > #numSelToggle ~ * > .tabOnly {
-    display: inline;
-  }
-  & input[type="range"] {
-    -webkit-appearance: slider-vertical;
-    width: 16px;
-  }
-}
-
 .entityList {
   border: 2px dashed black;
   border-radius: 8px;

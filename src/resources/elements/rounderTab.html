@@ -1,0 +1,9 @@
+<template>
+  <require from="resources/elements/rounderTab.scss"></require>
+  <input id="huns" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.huns">
+  <input id="tens" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.tens">
+  <input id="ones" type="range" min="0" max="9" step="1" value.bind="mgrs.rounder.ones">
+  <span>${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
+  <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.abs"><span class="slider text_abs_mod"></span></label>
+  <label class="switch"><input type="checkbox" value.bind="mgrs.rounder.fail"><span class="slider text_full_part"></span></label>
+</template>
