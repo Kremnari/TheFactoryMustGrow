@@ -52,6 +52,7 @@ export class IconEditor {
     this.IE.ds.new[cat][name] = null
     this.IE.select.Cat = cat
     this.IE.select.Icon = name
+    this.show_on = true
     this.signaler.signal("update")
     debugger
   }

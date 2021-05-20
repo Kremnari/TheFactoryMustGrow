@@ -11,6 +11,7 @@ export class DataEditor {
   }
 
   editTypeChanged(newVal) {
+    if(!newVal) return
     if(newVal=='icons') {
       this.editList = null
       this.editing = null
@@ -32,10 +33,15 @@ export class DataEditor {
   }
   deleteItem() {
     delete mgrs.data[this.editType][this.editing.name]
+    this.editList.splice(this.editList.indexOf(this.editing.name), 1)
     this.editing = null
+
   }
   saveDataSet() {
     mgrs.idb.set("dataSet", mgrs.data)
+    this.editList = null
+    this.editType = null
+
   }
   dlDataSet() {
     let file = new File([JSON.stringify(mgrs.data)], "data_source.json", {type: "application/json"})
