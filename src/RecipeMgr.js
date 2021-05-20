@@ -2,7 +2,7 @@ import {mgrs} from 'managers'
 
 export default class RecipeMgr {
   recipeList = {}
-  recipes_by_cats = { " ": [] }
+  recipes_by_cats = { "hand_only": [], "crafting": [] }
   showing_item = null
   import(recList, IM) {
     this.itemMgr = IM
@@ -24,7 +24,8 @@ export default class RecipeMgr {
         }
         this.recipes_by_cats[recipe.category].push(recipe)
       } else
-        this.recipes_by_cats[" "].push(recipe)
+        this.recipes_by_cats["hand_only"].push(recipe)
+        this.recipes_by_cats["crafting"].push(recipe)
     })
   }
   set_player(player) {
@@ -114,7 +115,7 @@ class Recipe {
         return this.classes.join(" ")
       }
     })
-    if (!this.category) this.category = "crafting"
+    //if (!this.category) this.category = "crafting"
     if (this.icon == "") this.icon = mgrs.item.itemList[this.results[0].name]?.icon
     if (this.icon == "") return false
   }

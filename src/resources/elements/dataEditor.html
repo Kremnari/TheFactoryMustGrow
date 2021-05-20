@@ -36,6 +36,7 @@
       <div if.bind="editType=='recipe'">
         Time: <input type="number" value.bind="editing.crafting_speed">
         Enabled: <input type="checkbox" value.bind="editing.enabled"><br>
+        Category: <input type="text" value.bind="editing.category"><br>
         Ingredients: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
         Results: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
       </div>

@@ -1,5 +1,5 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
-import {inject, observable, BindingEngine} from 'aurelia-framework'
+import {inject, BindingEngine} from 'aurelia-framework'
 import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'

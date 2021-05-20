@@ -52,16 +52,33 @@ export class IconEditor {
     this.IE.ds.new[cat][name] = null
     this.IE.select.Cat = cat
     this.IE.select.Icon = name
+    this.signaler.signal("update")
     debugger
+  }
+  deleteNew() {
+    this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = null
+    this.IE.select.Icon = null
+    this.signaler.signal("update")
   }
   IEStore() {
     this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = this.IE.fileBlob
+    this.IE.fileBlob = null
+    this.signaler.signal("update")
   }
   async saveIconEditor() {
     await this.mgrs.idb.set("Icons", this.IE.ds.new)
   }
   revertIcon() {
     this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = this.IE.ds.old[this.IE.select.Cat][this.IE.select.Icon]
+  }
+  dlIcon(which) {
+    let a = document.createElement('a')
+    a.download = this.IE.select.Icon+".jpg"
+    a.href = which=="new" ? this.IE.showNew : this.IE.showOld
+    a.style = "display:none"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
   }
   dlIconEditor() {
     let a = document.createElement('a')
@@ -70,6 +87,7 @@ export class IconEditor {
     a.style = "display:none"
     document.body.appendChild(a)
     a.click()
+    a.remove()
   }
   async ulIconEditor() {
     if(!this.IE.upload) return
