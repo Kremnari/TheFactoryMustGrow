@@ -25,6 +25,9 @@
 
       <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
+      <span class="fas spacer"></span>
+      <span click2.delegate="viewPane.main=''" class="NYI fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''}"></span>
+      <span click2.delegate="viewPane.main=''" class="NYI fas fa-fighter-jet navOffense ${viewPane.main=='offense'?'selected':''}"></span>
     </nav>
     <main class="tfmg">
       <section id="nav" if.bind="viewPane.main=='nav'">
@@ -137,23 +140,21 @@
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'">
         <div show.bind="viewPlayer">
-          <div show.bind="viewPane.entityPane == 'mining'">
-            <h4>Workshop</h4>
-            <require from="./resources/elements/byModule/mining-infopane.html"></require>
-            <require from="./resources/elements/byModule/lab-infopane.html"></require>
-            <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-            <mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
-            <crafting-infopane if.bind="viewPane.showingItem['crafting_speed']" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
-            <lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
-            <div class="entityList">
-              <icon-base
-                repeat.for="machina of viewPane.facBlock.getEntities() & signal:'addedEntity'"
-                item.bind="machina"
-                alt-image.bind="machina.recipe.icon || machina.mining.icon"
-                click.delegate="showing(machina)"
-                class.bind="machina.selectedClass"
-              ></icon-base>
-            </div>
+          <h4>Workshop</h4>
+          <require from="./resources/elements/byModule/mining-infopane.html"></require>
+          <require from="./resources/elements/byModule/lab-infopane.html"></require>
+          <require from="./resources/elements/byModule/crafting-infopane.html"></require>
+          <mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
+          <crafting-infopane if.bind="viewPane.showingItem['crafting_speed']" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
+          <lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
+          <div class="entityList">
+            <icon-base
+              repeat.for="machina of viewPane.facBlock.getEntities() & signal:'addedEntity'"
+              item.bind="machina"
+              alt-image.bind="machina.recipe.icon || machina.mining.icon"
+              click.delegate="showing(machina)"
+              class.bind="machina.selectedClass"
+            ></icon-base>
           </div>
           <div id="inventoryList">
             <h3>Inventory</h3>
@@ -232,6 +233,14 @@
         <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
           ${facBlock.name}:${facBlock.type}
         </div>
+        <div id="facBlocks stats">
+          <ul>
+            <li>Land use:</li>
+            <li>Land available:</li>
+            <li>Complexity Rating:</li>
+          </ul>
+        </div>
+
         <div>
           <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
           <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>

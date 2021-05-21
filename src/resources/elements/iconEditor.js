@@ -54,7 +54,6 @@ export class IconEditor {
     this.IE.select.Icon = name
     this.show_on = true
     this.signaler.signal("update")
-    debugger
   }
   deleteNew() {
     this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = null

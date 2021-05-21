@@ -13,9 +13,9 @@
     <div if.bind="!editing">
       <ul class="icon-list">
         <img
-          repeat.for="each of editList"
-          src.bind="mgrs.icon.getSrc(editType+'@'+each)"
-          click.delegate="selectEdit(each)"
+          repeat.for="each of editList | objectValues"
+          src.bind="mgrs.icon.getSrc(each.icon)"
+          click.delegate="selectEdit(each.name)"
           >
         </img>
       </ul>
@@ -53,14 +53,16 @@
       </div>
       <div if.bind="editType=='entity'">
         <hr>
-        Craft: <textarea value.bind="editing.crafting_categories"></textarea>
+        CraftCats: <textarea value.bind="editing.crafting_categories"></textarea>
         Speed:<input type="number" value.bind="editing.crafting_speed">
         <hr>
-        ResC: <textarea value.bind="editing.resource_categories"></textarea>
+        ResCats: <textarea value.bind="editing.resource_categories"></textarea>
         Speed:<input type="number" value.bind="editing.mining_speed">
         <hr>
         Labs: <textarea value.bind="editing.inputs"></textarea>
         Speed: <input type="number" value.bind="editing.researching_speed">
+        <hr>
+        Space used: <input value.bind="editing.space"></input>
       </div>
     </div>
     <div if.bind="editType=='icons'">

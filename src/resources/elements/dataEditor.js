@@ -21,7 +21,7 @@ export class DataEditor {
       this.editing = null
       return
     }
-    this.editList = Object.keys(mgrs.data[newVal])
+    this.editList = mgrs.data[newVal]
     //this.suggestions = new ListSuggestionService(newVal)
     this.editing = null
   }
