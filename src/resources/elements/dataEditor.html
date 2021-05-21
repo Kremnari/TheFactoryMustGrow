@@ -75,6 +75,7 @@
   <footer class="btn-group">
     <span class="btn btn-secondary" click.delegate="editing = null" if.bind="editing">cancel</span>
     <span class="btn btn-secondary" click.delegate="close()" if.bind="!editing">Close</span>
+    <span class="btn btn-primary" click.delegate="addNew()" if.bind="!editing && editType">Add</span>
     <span class="btn btn-danger" click.delegate="deleteItem()" if.bind="editing">Delete</span>
     <span class="btn btn-success" click.delegate="saveItem()" if.bind="editing">save Item</span>
     <span class="btn btn-info" click.delegate="saveDataSet()">save list</span>

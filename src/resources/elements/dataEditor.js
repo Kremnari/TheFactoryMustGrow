@@ -9,7 +9,11 @@ export class DataEditor {
     mgrs.de = this
     this.mgrs = mgrs
   }
-
+  detached() {
+    this.editing = null
+    this.editList = null
+    this.editType = null
+  }
   editTypeChanged(newVal) {
     if(!newVal) return
     if(newVal=='icons') {
