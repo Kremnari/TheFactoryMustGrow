@@ -97,11 +97,11 @@ export default class RecipeMgr {
   recipesByTags(property, tagList, recList = this.recipeList) {
     if (tagList == null) return []
     if (!Array.isArray(tagList)) tagList = [tagList]
-    let list = Object.values(recList).filter( (elm) => {
-      return (elm.enabled == undefined || elm.enabled) && (tagList.includes(elm[property]) || !elm[property])
+    let includeUndefineds = false;
+    if (tagList.includes("crafting"))  includeUndefineds = true
+    return Object.values(recList).filter( (elm) => {
+      return (elm.enabled == undefined || elm.enabled) && tagList.includes(elm[property]) || (includeUndefineds && !elm[property])
     })
-    //console.log(list)
-    return list
   }
 }
 
