@@ -29,7 +29,7 @@ export class IconBaseCustomElement {
       this.hasEntity = this.item.hasEntity || mgrs.item.get(this.item.name)?.hasEntity
     }
     if(!this.item.icon) {
-      this.item.icon = "item@"+this.item.name
+      this.item.icon = mgrs.item.get(this.item.name).icon
     }
   }
   itemChanged(newVal) {

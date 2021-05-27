@@ -52,17 +52,39 @@
         Cat:  <input type="text" value.bind="editing.category">
       </div>
       <div if.bind="editType=='entity'">
-        <hr>
-        CraftCats: <textarea value.bind="editing.crafting_categories"></textarea>
-        Speed:<input type="number" value.bind="editing.crafting_speed">
-        <hr>
-        ResCats: <textarea value.bind="editing.resource_categories"></textarea>
-        Speed:<input type="number" value.bind="editing.mining_speed">
-        <hr>
-        Labs: <textarea value.bind="editing.inputs"></textarea>
-        Speed: <input type="number" value.bind="editing.researching_speed">
-        <hr>
         Space used: <input value.bind="editing.space"></input>
+        <fieldset>
+          <label repeat.for="eType of eTypes">
+            <input type="radio" name="eType" value.bind="eType" checked.bind="eTypeSelect">
+            ${eType}
+          </label>
+        </fieldset>
+        <div if.bind="eTypeSelect=='crafter'">
+          <h5>Crafter</h5>
+          CraftCats: <textarea value.bind="editing.crafting_categories"></textarea>
+          Speed:<input type="number" value.bind="editing.crafting_speed">
+        </div>
+        <div if.bind="eTypeSelect=='miner'">
+          <h5>Miner</h5>
+          ResCats: <textarea value.bind="editing.resource_categories"></textarea>
+          Speed:<input type="number" value.bind="editing.mining_speed">
+        </div>
+        <div if.bind="eTypeSelect=='research'">
+          <h5>Researcher</h5>
+          Inputs: <textarea value.bind="editing.inputs"></textarea>
+          Speed: <input type="number" value.bind="editing.researching_speed">
+        </div>
+        <div if.bind="eTypeSelect=='defense'">
+          <h5>Defense</h5>
+          Value: <input type="number" value.bind="editing.defense_value">
+          Range: <input type="number" value.bind="editing.defense_range">
+        </div>
+        <div if.bind="eTypeSelect=='offense'">
+          <h5>Offense</h5>
+          Attack: <input type="number" value.bind="editing.offense_value">
+          Supply: <input type="number" value.bind="editing.offense_supply">
+          Radar: <input type="number" value.bind="editing.radar">
+        </div>
       </div>
     </div>
     <div if.bind="editType=='icons'">

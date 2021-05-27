@@ -1,4 +1,5 @@
 import {bindable} from 'aurelia-framework';
+import {mgrs} from 'managers'
 
 export class ToolTipCustomElement {
   @bindable display;
@@ -8,6 +9,9 @@ export class ToolTipCustomElement {
   }
   displayChanged() {
     //console.log(this.display)
+  }
+  showRec(name) {
+    mgrs.baseApp.tooltip = this.recipeMgr.recipeList[name]
   }
 
 }

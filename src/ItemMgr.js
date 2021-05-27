@@ -59,21 +59,19 @@ export class Inventory {
   deserialize(save) {
     this.items = save.items
     this.max_stack = save.max_stack
-    //debugger
   }
   [Symbol.iterator]() { return this.items }
   when(itemStack, cb) {
     this.check = {itemStack, cb}
     this.check.sub = mgrs.Ticker.subscribe((t) => {this.whenTickCheck()})
-    //console.log("set a when")
   }
   whenTickCheck() {
     if(!this.check) return 
-    //console.log("wtc")
     //? It may not be performant to do this every tick
     // Then again... it should only be used on an "as need" (ie tutorial) basis
     if(this.total(this.check.itemStack.name)==this.check.itemStack.count) {
       mgrs.Ticker.dispose(this.check.sub)
+
       //SMELL - If I run the callback before undefining,
       //it will undefined the new criteria
       let temp = this.check.cb
@@ -110,7 +108,6 @@ export class Inventory {
       }
     }
     if(revert) {
-      //console.log("reverting")
       for(let each of added) {
         this.consume(each.name, each.count)
       }
@@ -119,20 +116,14 @@ export class Inventory {
     return true
   }
   consumeAll(itemStacks, revertOnFailFast = true, multi = 1.0) {
-    //console.log("start consume")
-    //console.log(itemStacks)
     if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
     let consumed = []
     let retCount = 0
     for (let IS of itemStacks) {
       let each = ItemStack.convert(IS)
-      //console.log(each)
       retCount = this.consume(each.name, each.count*multi )
-      //console.log(retCount)
       if(retCount===0) consumed.push(each)
       else if(revertOnFailFast) {
-        //console.log('reverting')
-        //console.log(retCount)
         consumed.length>=1 && this.addAll(consumed, false, multi)
         this.add(each.name, each.count-retCount)
         return itemStacks
@@ -141,18 +132,12 @@ export class Inventory {
     return revertOnFailFast ? true : []
   }
   absorbFrom(inv, specific) {
-    //console.log('me')
-    //console.log(this.items)
-    //console.log(inv.items)
     for(let i of inv.items) {
       if(!i) continue 
       let rest
       if(specific && i.name!=specific) continue
-      //console.log(i)
       if(i.count==0) continue
       rest = this.add(i.name, i.count)
-      //console.log("here")
-      //console.log('adding: '+i.count)
       inv.consume(i.name, i.count-rest)
     }
     mgrs.signaler.signal("generalUpdate")
@@ -176,7 +161,6 @@ export class Inventory {
     for(const [idx, i] of this.items.entries()) {
       if(!i) {
         this.items.splice(idx, 1, new ItemStack(what, 0, true))
-        //this.items[idx] = new ItemStack(what, 0, true)
         return true
       }
       if(!i.filtered && (i.name==what || !i.name)) {
@@ -225,7 +209,6 @@ export class Inventory {
     let maxStack = this.max_stack || mgrs.item.get(item).stack_size
     let targ = this._GetAddStack(item, maxStack)
     if(!targ) {
-      //console.log('no targ')
       return count
     }
     let toAdd = Math.min(maxStack - targ.count, count)
@@ -235,7 +218,6 @@ export class Inventory {
   }
   consume(item, count) { //will ALWAYS return unconsumed portion
     let targ = this._GetSubStack(item, false) //By_elm
-    //console.log(targ)
     if(!targ) return count
     if(targ.count>=count) {
       targ.count-=count

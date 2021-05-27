@@ -4,6 +4,7 @@ import {saveAs} from 'file-saver';
 
 export class DataEditor {
   editList = null
+  eTypes = ["crafter", "miner", "research", "defense", "offense"]
   @observable editType = null
   constructor() {
     mgrs.de = this
@@ -27,6 +28,24 @@ export class DataEditor {
   }
   selectEdit(name) {
     this.editing = mgrs.data[this.editType][name]
+    if(this.editType=='entity') {
+      if(this.editing.crafting_categories) {
+        this.eTypeSelect = 'crafter'
+        this.editing.subType = 'crafter'
+      } else if(this.editing.resource_categories) {
+        this.eTypeSelect = 'miner'
+        this.editing.subType = 'miner'
+      } else if(this.editing.inputs) {
+        this.eTypeSelect = 'research'
+        this.editing.subType = 'research'
+      } else if(this.editing.defense_value) {
+        this.eTypeSelect = 'defense'
+        this.editing.subType = 'defense'
+      } else if(this.editing.offense_value) {
+        this.eTypeSelect = 'offense'
+        this.editing.subType = 'offense'
+      }
+    }
   }
   addNew() {
     this.editing = { type: this.editType }

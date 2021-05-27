@@ -4,7 +4,7 @@
   <div show.bind="display">
     <div if.bind="display.type=='recipe'">
       <h5>${display.name}</h5>
-      <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"></icon-base>
+      <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount" click.delegate="showRec(ing.name)"></icon-base>
       =>
       <icon-base repeat.for="result of display.results | objectValues" item.bind="result.name" count.bind="result.amount"></icon-base>
     </div>
