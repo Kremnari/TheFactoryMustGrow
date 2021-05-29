@@ -49,6 +49,16 @@ export class DataEditor {
   }
   addNew() {
     this.editing = { type: this.editType }
+    if (this.editType=='recipe') {
+      this.editing.ingredients = [{name: "__someitem__", amount: 1}]
+      this.editing.category = "crafting"
+      this.editing.results = [{name: "__someitem__", amount: 1}]
+    }
+    if (this.editType=='technology') {
+      this.editing.prerequisites = ['__sometech__']
+      this.editing.unlocks = ['__somerecipe__']
+      this.editing.cost = { ingreditents: [['automation-science-pack', 1]]}
+    }
   }
   saveItem() {
     mgrs.data[this.editType][this.editing.name] = this.editing

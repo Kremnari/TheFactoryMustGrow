@@ -30,6 +30,7 @@ export class JsonStringValueConverter {
     return JSON.stringify(item, null, 1)
   }
   fromView(item) {
+    //SMELL - I don't like the constant "couldn't parse" errors while someone is typing...
     return JSON.parse(item, null, 1)
   }
 }
