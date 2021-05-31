@@ -4,12 +4,13 @@
   <require from="./styles.scss"></require>
   <require from="./tfmg.scss"></require>
   <require from="resources/elements/tool-tip"></require>
+  <!-- from="resources/attributes/activeWhen"></!-->
 
   <div if.bind="viewPane.version=='beta'" beta>
     <require from="./tfmg-beta.scss"></require>
-    <section class="statusBox">
+    <section class="statusBox"> 
       <div if.bind="!tooltip" click.delegate="viewPane.main='overview'">
-        status box<br>
+        status box<br> 
         Land, pollution, enemies, oh my!
       </div>
       <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
@@ -26,8 +27,8 @@
       <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
       <span class="fas spacer"></span>
-      <span click2.delegate="viewPane.main=''" class="NYI fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''}"></span>
-      <span click2.delegate="viewPane.main=''" class="NYI fas fa-fighter-jet navOffense ${viewPane.main=='offense'?'selected':''}"></span>
+      <span active-when.bind="activeFeatures['defense']" click2.when_active="viewPane.main='defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
+      <span active-when.bind="activeFeatures['offense']" click2.when_active="viewPane.main='offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
     </nav>
     <main class="tfmg">
       <section id="nav" if.bind="viewPane.main=='nav'">
@@ -107,6 +108,8 @@
         <!-- button click.delegate="iconEditor()">Edit Icons</!-->
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
       </section>
+      <compose if.bind="viewPane.main=='offense'" view="./resources/elements/mainPanes/offensePane.html"></compose>
+      <compose if.bind="viewPane.main=='defense'" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
@@ -229,16 +232,24 @@
       </section>
       <section id="facBlocks" show.bind="viewPane.main=='facBlocks'">
         <h3>Factory Blocks</h3>
-        <div click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>Player Workshop</div>
-        <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
-          ${facBlock.name}:${facBlock.type}
-        </div>
         <div id="facBlocks stats">
           <ul>
-            <li>Land use:</li>
-            <li>Land available:</li>
-            <li>Complexity Rating:</li>
+            <li>Land use: ${globals.land.used}</li>
+            <li>Land available: ${globals.land.total-globals.land.used}</li>
+            <li>Complexity Rating: ${globals.land.complexity</li>
           </ul>
+        </div>
+        <div>
+          <span click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>Player Workshop</span>
+          <span click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</span>
+          <span click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</span>
+          <span click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Defenses</span>
+          <span click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Defenses</span>
+        </div>
+        <div>
+          <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
+            ${facBlock.name}:${facBlock.type}
+          </div>
         </div>
 
         <div>
@@ -296,10 +307,8 @@
         <div slot="tab">
           Filters
         </div>
-        <div slot="content">
-          <!-- compose view="content-element"></!-->
-          Yay! Filters!
-        </div>
+        <require from="resources/elements/popouts/filtersPopout.html"></require>
+        <filtersPopout slot="content"></filtersPopout>
       </tab-popout>
     </section>
   </div>

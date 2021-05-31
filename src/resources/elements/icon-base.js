@@ -12,7 +12,6 @@ export class IconBaseCustomElement {
   @bindable showName = false;
   parsedCount = null
   mgrs = mgrs;
-  constructor() {}
   bind(bindContext, overContext) {
     if(!this.item) return
     if(typeof this.item === 'string') {

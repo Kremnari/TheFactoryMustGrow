@@ -200,7 +200,7 @@ export class FactoryBlock {
   }
 }
 
-export class PlayerBlock {
+class PlayerBlock {
   constructor(invSeed) {
     this.inv = new Inventory(invSeed)
     this.entityStore = new EntityStorage(this)
@@ -238,4 +238,28 @@ export class PlayerBlock {
     }
     this.entityStore.tick(tickData)
   }
+}
+class DefenseBlock {
+  name = "defense Block"
+  constructor() {}
+}
+class DefenseBus {
+  name = "defense bus"
+  constructor()  {}
+}
+class OffenseBlock {
+  name = "offense Block"
+  constructor()  {}
+}
+class OffenseBus {
+  name = "offense bus"
+  constructor()  {}
+}
+
+export const NamedBlocks = {
+  player: PlayerBlock,
+  DefenseBlock,
+  DefenseBus,
+  OffenseBlock,
+  OffenseBus
 }

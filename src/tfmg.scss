@@ -191,7 +191,7 @@ main.tfmg {
   border: 2px solid black;
   border-radius: 8px;
 }
-section {
+section, main > compose {
   width: calc(100% - 1rem);
   box-sizing: content-box;
   margin: 0.5rem;

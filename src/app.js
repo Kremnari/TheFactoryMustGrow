@@ -1,11 +1,13 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject, BindingEngine} from 'aurelia-framework'
-import {FactoryBlock, PlayerBlock} from './resources/StateDef/FactoryBlock'
+import {FactoryBlock, NamedBlocks} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
+
+import {ArrayObject} from 'libs/ArrayObject'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
@@ -15,6 +17,14 @@ export class App {
       showingItem: null,
       version: 'beta',
       showSubUp: false,
+    }
+    activeFeatures = ArrayObject()
+    globals = {
+      land: {
+        total: 0,
+        used: 0,
+        complexity: 0
+      }
     }
     viewHelpers =  {
       //HACK no this reference....
@@ -46,15 +56,16 @@ export class App {
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
-        this.player = PlayerBlock.deserialize(this.mgrs, database.save.player)
+        this.player = NamedBlocks.player.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
+        this.facBlocks.player = this.player
         this.showTut = false
         for (let each of database.save.facBlocks) {
           this.facBlocks.push(FactoryBlock.deserialize(each))
         }
       } else {
         this.facBlocks = []
-        this.player =  new PlayerBlock(20)
+        this.player =  new NamedBlocks.player(20)
         //this.jumpStart()
         this.mgrs.signaler.signal("generalUpdate")
       }
@@ -124,6 +135,22 @@ export class App {
       this.showItem = null
       this.viewPane.facBlock = which
       this.viewPlayer = isPlayer
+    }
+    adjustFeature(obj) {
+      switch(obj.feature) {
+        case "defense":
+          this.activeFeatures["defense"] = true
+          this.facBlocks.defenses = new NamedBlocks.DefenseBlock()
+          this.facBlocks.defenseBus = new NamedBlocks.DefenseBus()
+          debugger
+          break;
+        case "offense":
+          this.activeFeatures["offense"] = true
+          this.facBlocks.offenses = new NamedBlocks.OffenseBlock()
+          this.facBlocks.offenseBus = new NamedBlocks.OffenseBus()
+          break;
+      }
+      // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
     when(targ, cb) {
       this.whenTarg = {targ, cb}

@@ -386,15 +386,16 @@ class LabEntity extends Entity {
   }
   tick(tickData) {
     if(!mgrs.tech.researching) return
+    let tickCost = mgrs.tech.researching.cost.time*TICKS_PER_SECOND
     if(Number.isNaN(this.research_timer)) {
       this.nextUnit(mgrs.tech.nextIngredients)
     } else {
-      if (++this.research_timer%(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)==0) {
+      if (++this.research_timer%tickCost==0) {
         mgrs.tech.increment_research()
         this.research_timer = NaN
       }
     }
-    this.progress = (this.research_timer/(mgrs.tech.researching.cost.time*TICKS_PER_SECOND)*100) || NaN
+    this.progress = (this.research_timer/tickCost*100) || NaN
   }
   nextUnit(ings) {
     if(!ings) return
