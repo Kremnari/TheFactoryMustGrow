@@ -107,12 +107,12 @@ export default class TechMgr {
             }
             let reducer = (acc, name) => {
               if(!this.techList[name]) console.log(name)
-              return acc + !this.techList[name].researched
+              return acc + !this.techList[name]?.researched
             }
             if(tech.prerequisites.reduce(reducer, 0)==filterElm.args.count) return true
             return false
           case "byPack":
-            return tech.cost.ingredients.some( ([name, amount]) => { return name==filterElm.args.pack})
+            return tech.cost.ingredients?.some( ([name, amount]) => { return name==filterElm.args.pack})
           case "complete":
             return !tech.researched
         }

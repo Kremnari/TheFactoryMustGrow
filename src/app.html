@@ -24,7 +24,7 @@
       <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
 
 
-      <span click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''}"></span>
+      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
       <span class="fas spacer"></span>
       <span active-when.bind="activeFeatures['defense']" click2.when_active="viewPane.main='defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
@@ -49,7 +49,7 @@
           <div click.delegate="resetDS()">Reset DataSource</div>
           <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
           <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
-          <div click.delegate="jumpStart()">JumpStart</div>
+          <div click.delegate="jumpStart()">JumpStart()</div>
           <div click.delegate="testing()">Testing()</div>
           <a class="notLink" target="_blank" href="https://digitalpsigen.tech/biz_plans/TFMG_welcome.html">Investor Options <span class="fas fa-external-link-alt"></span></a>
           <div class="iconRow">
@@ -105,7 +105,7 @@
         <div click.delegate="mgrs.Ticker.once()">Tick 1</div>
         <div click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</div>
         <div click.delegate="testing()">Testing...</div>
-        <!-- button click.delegate="iconEditor()">Edit Icons</!-->
+        <div click.delegate="nukeCache()">NukeCache</div>
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
       </section>
       <compose if.bind="viewPane.main=='offense'" view="./resources/elements/mainPanes/offensePane.html"></compose>
@@ -252,21 +252,27 @@
           </div>
         </div>
 
-        <div>
-          <span class="button" click.delegate="add_FacBlock('factory')">Add Factory Block</span>
-          <span class="button" click.delegate="add_FacBlock('bus')">Add Bus Block</span>
-          <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
-          <span class="button" click.delegate="add_FacBlock('research')">Add Lab Block</span>
-        </div>
+        <table>
+          <caption>Classify new Factory Block</caption>
+          <tr><th>Block Type</th><th>Land Cost</th></tr>
+          <tr class="button"><td>Factory Block</td> <td>25</td><td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
+          <tr class="button"><td>Bus Block</td>     <td>10</td><td class="btn" click.delegate="add_FacBlock('bus')">Add</td></tr>
+          <tr class="button"><td>Lab Block</td>     <td>25</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
+        </table>
+        <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
+        <span>Available resource patches: ${globals.land.res_patches}</span>
       </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
         <div class="overflow">
-          <icon-base repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'" click.delegate="showItem = {item: tech, cat: 'tech'}"
-                      item.bind="tech" count.bind="tech.prerequisites.length"
-                      class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
+          <icon-base
+            repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'"
+            click.delegate="showItem = {item: tech, cat: 'tech'}"
+            item.bind="tech"
+            count.bind="tech.prerequisites.length"
+            class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
           >
           </icon-base>
         </div>

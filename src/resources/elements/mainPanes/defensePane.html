@@ -1,3 +1,5 @@
 <template>
-  Defense
+  <div repeat.for="machine of facBlocks.defenses.machines | objectValues">
+    ${machine.name}
+  </div>
 </template>

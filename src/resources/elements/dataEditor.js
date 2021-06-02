@@ -57,7 +57,7 @@ export class DataEditor {
     if (this.editType=='technology') {
       this.editing.prerequisites = ['__sometech__']
       this.editing.unlocks = ['__somerecipe__']
-      this.editing.cost = { ingreditents: [['automation-science-pack', 1]]}
+      this.editing.cost = { ingredients: [['automation-science-pack', 1]]}
     }
   }
   saveItem() {

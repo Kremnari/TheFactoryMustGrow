@@ -6,7 +6,7 @@ import TechMgr from 'TechMgr'
 import Ticker from "ticker"
 import {Rounder} from 'Rounder'
 import {EntityMgr} from 'EntityMgr'
-import {set as dbSet, get as dbGet, del as dbDel} from 'idb-keyval'
+import {set as dbSet, get as dbGet, del as dbDel, clear as dbClear} from 'idb-keyval'
 
 export const mgrs =  {
   icon: new IconMgr(),
@@ -20,7 +20,8 @@ export const mgrs =  {
   idb: {
     set: dbSet,
     get: dbGet,
-    del: dbDel
+    del: dbDel,
+    clear: dbClear
   },
   Ticker: new Ticker()
 }

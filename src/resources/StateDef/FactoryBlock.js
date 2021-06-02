@@ -2,6 +2,7 @@ import {EntityStorage} from 'EntityMgr'
 import {Inventory, ItemStack} from 'ItemMgr'
 import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
+import {ChameleonBuilder as ChamBuild} from 'Chameleon/main.js'
 
 const lineUpgrades = () => {
   return {
@@ -141,8 +142,6 @@ export class FactoryBlock {
       && tickData.ticks%30==0
       && this.upgrades.output.loaders.count
       && InvXFer(this.outputLine, this.drains[0].inputLine, {maxXfer: this.upgrades.output.loaders.count*2})
-    //this.drains[0]?.inputLine.absorbFrom(this.outputLine)
-    //console.log('tickEnd')
   }
   useItem(item) {
     if(this.type=="bus") return
@@ -210,7 +209,6 @@ class PlayerBlock {
     let ret = new PlayerBlock()
     ret.inv.deserialize(saveData.inv)
     ret.entityStore.deserialize(saveData.entityStore)
-    //debugger
     return ret
   }
   serialize() {
@@ -239,21 +237,31 @@ class PlayerBlock {
     this.entityStore.tick(tickData)
   }
 }
-class DefenseBlock {
-  name = "defense Block"
-  constructor() {}
+function DefenseBlock() {
+  let ret = {}
+  ret.machines = {}
+  ret.ammo = 0
+  ret.repair = 0
+  return ret
 }
-class DefenseBus {
-  name = "defense bus"
-  constructor()  {}
+
+ChamBuild.AddGameObjectClass("turret", {name: "test", count: 0}, {category: "defenseMachines"})
+
+function DefenseBus() {
+  let ret = {}
+  return ret
 }
-class OffenseBlock {
-  name = "offense Block"
-  constructor()  {}
+function OffenseBlock() {
+  let ret = {}
+  ret.machines = {}
+  ret.supply = 0
+  ret.fuel = 0
+  return ret
 }
-class OffenseBus {
-  name = "offense bus"
-  constructor()  {}
+ChamBuild.AddGameObjectClass("radar", {name: "radar", count: 0}, {category: 'offenseMachines'})
+function OffenseBus() {
+  let ret = {}
+  return ret
 }
 
 export const NamedBlocks = {

@@ -6,6 +6,7 @@ import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
 import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
+import {ChameleonCore as ChamJS} from 'Chameleon/main.js'
 
 import {ArrayObject} from 'libs/ArrayObject'
 
@@ -13,21 +14,20 @@ import {ArrayObject} from 'libs/ArrayObject'
 export class App {
     viewPane = {
       main: "home",
-      entityPane: "mining",
       showingItem: null,
-      version: 'beta',
-      showSubUp: false,
+      version: "beta"
     }
     activeFeatures = ArrayObject()
     globals = {
       land: {
-        total: 0,
+        total: 100,
         used: 0,
-        complexity: 0
+        complexity: 0,
+        res_patches: 1
       }
     }
     viewHelpers =  {
-      //HACK no this reference....
+      //HACK no 'this' reference....
       //using tfmg from window
       PlayerBlock(where) {
         tfmg.select_FacBlock(tfmg.player, true)
@@ -46,6 +46,7 @@ export class App {
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CC = CC
+      this.Cham = ChamJS
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
       BE.expressionObserver(this, "viewPane.entityPane").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "entityPane")})
@@ -58,10 +59,17 @@ export class App {
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
         this.player = NamedBlocks.player.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
+        this.global = database.save.global
         this.facBlocks.player = this.player
         this.showTut = false
-        for (let each of database.save.facBlocks) {
-          this.facBlocks.push(FactoryBlock.deserialize(each))
+        if(database.save.facBlocks) {
+          for (let each of database.save.facBlocks.set) {
+            this.facBlocks.push(FactoryBlock.deserialize(each))
+          }
+          this.facBlocks.defenses = database.save.facBlocks.d
+          this.facBlocks.defenseBus = database.save.facBlocks.dbus
+          this.facBlocks.offenses = database.save.facBlocks.o
+          this.facBlocks.offenseBus = database.save.facBlocks.obus
         }
       } else {
         this.facBlocks = []
@@ -69,7 +77,7 @@ export class App {
         //this.jumpStart()
         this.mgrs.signaler.signal("generalUpdate")
       }
-      this.mgrs.rec.set_player(this.player) //SMELL
+      this.mgrs.rec.set_player(this.player) //SMELL recipe manager shouldn't have to care who the player is
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
       this.showDev = await this.mgrs.idb.get("dev")
@@ -126,6 +134,12 @@ export class App {
     add_FacBlock(type, name) {
       name = name || prompt("Enter Block Name")
       if(!name) return false
+      //++ Need to calculate next block space
+      if(this.globals.land.available - this.globals.land.used < 10) {
+        console.log('not enough land available')
+        return 
+      }
+      this.globals.land.used += 10
 
       let add = new FactoryBlock(type, name)
       this.facBlocks.push(add)
@@ -139,16 +153,22 @@ export class App {
     adjustFeature(obj) {
       switch(obj.feature) {
         case "defense":
-          this.activeFeatures["defense"] = true
-          this.facBlocks.defenses = new NamedBlocks.DefenseBlock()
-          this.facBlocks.defenseBus = new NamedBlocks.DefenseBus()
-          debugger
+          if(!this.activeFeatures["defense"]) {
+            this.activeFeatures["defense"] = true
+            this.facBlocks.defenses = NamedBlocks.DefenseBlock()
+            this.facBlocks.defenseBus = NamedBlocks.DefenseBus()
+          }
+          this.facBlocks.defenses.machines["turret"] = ChamJS.GameObjectFromPointer(obj.go_pointer)
           break;
         case "offense":
-          this.activeFeatures["offense"] = true
-          this.facBlocks.offenses = new NamedBlocks.OffenseBlock()
-          this.facBlocks.offenseBus = new NamedBlocks.OffenseBus()
+          if(!this.activeFeatures["offense"]) {
+            this.activeFeatures["offense"] = true
+            this.facBlocks.offenses = NamedBlocks.OffenseBlock()
+            this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
+          }
           break;
+        case "factoryBlocks":
+          this.activeFeatures["factoyBlocks"] = true
       }
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
@@ -157,12 +177,9 @@ export class App {
       console.log('whenSet')
     }
     whenCheck(newVal, oldVal, prop) {
-      //debugger
-      //console.log('whencheck')
       if(!this.whenTarg) return
       if(this.whenTarg.targ.entityPane && this.viewPane.entityPane != this.whenTarg.targ.entityPane) return
       if(this.whenTarg.targ.main && this.viewPane.main != this.whenTarg.targ.main) return
-      //console.log('still here')
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
@@ -172,10 +189,17 @@ export class App {
       save.version = Config.IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
-      save.facBlocks = []
-      for (let each of this.facBlocks) {
-        save.facBlocks.push(each.serialize())
+      save.facBlocks = {
+        set: [],
+        d: this.facBlocks.defenses.serialize(),
+        dbus: this.facBlocks.defenseBus.serialize(),
+        o: this.facBlocks.offenses.serialize(),
+        obus: this.facBlocks.offenseBus.serialize()
       }
+      for (let each of this.facBlocks) {
+        save.facBlocks.set.push(each.serialize())
+      }
+      save.global = this.global
       this.saveGame(save)
       console.log("...done")
     }
@@ -186,7 +210,7 @@ export class App {
       this.player.inv.add("automation-science-pack", 200)
     }
     testing() {
-      //if(!confirm("Initialize Testing?")) return
+      if(!confirm("Initialize Testing?")) return
       this.player2 = new PlayerBlock(10)
       this.add_FacBlock("resource", "iron-mine") //1
       this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
@@ -212,5 +236,9 @@ export class App {
       this.facBlocks[3].AddBusDrain(this.facBlocks[4])
 
       this.player.inv.add("inserter", 10)
+    }
+    nukeCache() {
+      this.mgrs.idb.clear()
+      window.reload()
     }
 }
