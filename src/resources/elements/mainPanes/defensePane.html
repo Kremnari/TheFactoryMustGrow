@@ -1,5 +1,7 @@
 <template>
-  <div repeat.for="machine of facBlocks.defenses.machines | objectValues">
-    ${machine.name}
+  <div repeat.for="machine of facBlocks.defenses.machines | objectValues"
+    click.delegate="machine.count++"
+  >
+    ${machine.name}: ${machine.count}
   </div>
 </template>
