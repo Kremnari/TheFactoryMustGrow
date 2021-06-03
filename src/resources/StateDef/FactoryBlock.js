@@ -259,6 +259,7 @@ function OffenseBlock() {
   return ret
 }
 ChamBuild.AddGameObjectClass("radar", {name: "radar", count: 0}, {category: 'offenseMachines'})
+
 function OffenseBus() {
   let ret = {}
   return ret

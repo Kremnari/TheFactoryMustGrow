@@ -24,6 +24,15 @@ export class App {
         used: 0,
         complexity: 0,
         res_patches: 1
+      },
+      scanning: {
+        nextCost: 100,
+        currentCost: 0
+      },
+      attackWaves: {
+        nextTimer: 100,
+        nextStrength: 100,
+        currentTimer: 0,
       }
     }
     viewHelpers =  {
@@ -80,6 +89,7 @@ export class App {
       this.mgrs.rec.set_player(this.player) //SMELL recipe manager shouldn't have to care who the player is
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
+      this.mgrs.Ticker.subscribe((td) => { this.tickMine(td) })
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
        this.showTut && Tutorial.start()
@@ -166,11 +176,36 @@ export class App {
             this.facBlocks.offenses = NamedBlocks.OffenseBlock()
             this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
           }
+          this.facBlocks.offenses.machines["radar"] = ChamJS.GameObjectFromPointer(obj.go_pointer)
           break;
         case "factoryBlocks":
           this.activeFeatures["factoyBlocks"] = true
       }
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
+    }
+    tickMine(tickData) {
+      if(tickData.ticks%100) { return }
+      //SMELL
+      //This should be moved to IgorJs
+      if(this.facBlocks?.offenses?.machines.radar?.count) {
+        this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 10
+        if(this.globals.scanning.currentCost>=this.globals.scanning.nextCost) {
+          this.globals.land.total += 10
+          this.globals.scanning.currentCost -= this.globals.scanning.nextCost
+          this.globals.scanning.nextCost += 20
+        }
+      }
+      if(this.facBlocks?.defenses?.machines.turret?.count) {
+        //next wave
+        if(this.globals.attackWaves.currentTimer>this.globals.attackWaves.nextTimer) {
+          this.globals.attackWaves.nextTimer = this.globals.attackWaves.nextTimer ^ 1.2
+          this.globals.attackWaves.currentTime = 0
+          //Process some attack
+        } else {
+          this.globals.attackWaves.currentTimer++
+        }
+      }
+
     }
     when(targ, cb) {
       this.whenTarg = {targ, cb}

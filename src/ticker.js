@@ -54,7 +54,9 @@ export default class Ticker {
     this._cbs.providers.add(cb)
   }
   subscribe(cb, nth = 1) {
-    if(CONFIG.TICKS_MAX_PHASE%nth != 0) { return false; }  // Only factors of TICKS_MAX_PHASE should be used
+    // Only factors of TICKS_MAX_PHASE should be used
+    // Mostly because I don't want to add logic to handle carries
+    if(CONFIG.TICKS_MAX_PHASE%nth != 0) { return false; }
     let obj = {cb: cb, nth: nth, phase: this.ticks%nth}
     Object.freeze(obj) //It's being used as a Set key
     this._cbs.subscribers.add(obj)

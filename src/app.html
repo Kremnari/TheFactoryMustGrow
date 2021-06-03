@@ -11,7 +11,9 @@
     <section class="statusBox"> 
       <div if.bind="!tooltip" click.delegate="viewPane.main='overview'">
         status box<br> 
-        Land, pollution, enemies, oh my!
+        Land, pollution, enemies, oh my!<br>
+        <span>Scan Progress: ${globals.scanning.currentCost}/${globals.scanning.nextCost}</span><br>
+        <span>Attack Timer: ${globals.attackWaves.currentTimer}/${globals.attackWaves.nextTimer}</span><br>
       </div>
       <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
     </section>
