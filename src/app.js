@@ -226,10 +226,10 @@ export class App {
       save.player = this.player.serialize()
       save.facBlocks = {
         set: [],
-        d: this.facBlocks.defenses.serialize(),
-        dbus: this.facBlocks.defenseBus.serialize(),
-        o: this.facBlocks.offenses.serialize(),
-        obus: this.facBlocks.offenseBus.serialize()
+        d: this.facBlocks.defenses,
+        dbus: this.facBlocks.defenseBus,
+        o: this.facBlocks.offenses,
+        obus: this.facBlocks.offenseBus
       }
       for (let each of this.facBlocks) {
         save.facBlocks.set.push(each.serialize())
