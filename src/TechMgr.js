@@ -71,16 +71,19 @@ export default class TechMgr {
       this.complete_research()
     }
   }
-  complete_research() {
-    this.researching.researched = true;
-    this.researching.unlocks.forEach( (item) => {
+  complete_research(tech = this.researching) {
+    if(typeof tech === 'string') tech = this.techList[tech]
+    tech.researched = true;
+    tech.unlocks.forEach( (item) => {
       (typeof item === 'string' && mgrs.rec.recipeList[item] && (mgrs.rec.recipeList[item].enabled=true))
       || (typeof item === 'object' && (
             item.feature && mgrs.baseApp.adjustFeature(item)
       ))
     })
-    this.researching = null
-    this.nextIngredients = null
+    if(tech === this.researching) {
+      this.researching = null
+      this.nextIngredients = null
+    }
     this.updateVisible()
   } 
   applyFilter(type, args) {

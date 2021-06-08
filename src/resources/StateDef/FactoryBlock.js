@@ -245,7 +245,7 @@ function DefenseBlock() {
   return ret
 }
 
-ChamBuild.AddGameObjectClass("turret", {name: "test", count: 0}, {category: "defenseMachines"})
+ChamBuild.AddGameObjectClass("turret", {name: "turret", count: 0}, {category: "defenseMachines"})
 
 function DefenseBus() {
   let ret = {}

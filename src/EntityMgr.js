@@ -4,6 +4,10 @@ import {ItemStack, Inventory} from "./ItemMgr"
 import {FactoryBlock} from './resources/StateDef/FactoryBlock'
 import {mgrs} from 'managers'
 import {TICKS_PER_SECOND} from "./Config"
+import {InvXFer} from './gameCode/Inventory'
+
+const BUFFER_SIZES = [5, 10, 20, 30, 40, 50]
+BUFFER_SIZES.MAX = 50
 
 export class EntityMgr {
   entities_base = {}
@@ -94,7 +98,7 @@ export class EntityMgr {
         //console.log(consumed)
         if(consumed && !Array.isArray(consumed)) {
           at.size++
-          obj.who.buffers["max_"+obj.dir] += 10
+          obj.who.buffers["max_"+obj.dir] = BUFFER_SIZES[at.size] || BUFFER_SIZE.MAX //...Past end of array
         } else {
           //console.log('not enough...awesome')
         }
@@ -128,6 +132,7 @@ class Entity {
     if(type) this.tags.push("type", type);
     
     if(baseItem.type!="mining-drill")
+      //? Why did I do it this way...?
       Object.defineProperty(this.buffers, 'max_in', {
         get() { return this.in.max_stack; },
         set(val) {
@@ -186,11 +191,11 @@ class MiningEntity extends Entity{
   }
   tick_outXfer(tickData) {
     if(++this.buffers.upgrades.out.xferAt>this.buffers.upgrades.out.xferMod) {
-      InvXFer(
-        this.buffers.out
-        ,tickData.fromParent.drain
-        ,{maxXfer: this.buffers.upgrades.out.xfer}
-      )
+      InvXFer({
+        from: this.buffers.out,
+        to: tickData.fromParent.drain,
+        options: {maxXfer: this.buffers.upgrades.out.xfer}
+      })
       this.buffers.upgrades.out.xferAt = 0
     }
     this.buffers.upgrades.out.xferProgress = this.buffers.upgrades.out.xferAt/this.buffers.upgrades.out.xferMod * 100
@@ -244,26 +249,25 @@ class CraftingEntity extends Entity {
   }
   tick_outXfer(tickData) {
     if(++this.buffers.upgrades.out.xferAt>this.buffers.upgrades.out.xferMod) {
-      InvXFer(
-        this.buffers.out
-        ,tickData.fromParent.drain
-        ,{maxXfer: this.buffers.upgrades.out.xfer}
-      )
+      InvXFer({
+        from: this.buffers.out,
+        to: tickData.fromParent.drain,
+        options:{maxXfer: this.buffers.upgrades.out.xfer}
+      })
       this.buffers.upgrades.out.xferAt = 0
     }
     this.buffers.upgrades.out.xferProgress = this.buffers.upgrades.out.xferAt/this.buffers.upgrades.out.xferMod * 100
   }
   tick_inXfer(tickData) {
     if(++this.buffers.upgrades.in.xferAt>this.buffers.upgrades.in.xferMod) {
-      InvXFer(
-        tickData.fromParent.feed
-        ,this.buffers.in
-        ,{
+      InvXFer({
+        from: tickData.fromParent.feed,
+        to: this.buffers.in,
+        options:{
           types: this.recipe.ingredients.map((x)=> x.name)
           ,maxXfer: this.buffers.upgrades.in.xfer
         }
-
-      )
+      })
       this.outputFull = false
       this.buffers.upgrades.in.xferAt = 0
     }
@@ -382,7 +386,7 @@ class LabEntity extends Entity {
   }
   tick_inXfer(tickData) {
     if(tickData.ticks%30!=0) return
-    InvXFer(tickData.fromParent.feed, this.buffers.in, {maxXfer: this.buffers.upgrades.in.xfer})
+    InvXFer({from: tickData.fromParent.feed, to: this.buffers.in, options: {maxXfer: this.buffers.upgrades.in.xfer}})
   }
   tick(tickData) {
     if(!mgrs.tech.researching) return
@@ -560,7 +564,7 @@ export class EntityStorage {
   tick_restricted(tickData) {
     if(tickData.ticks%30==0) {
       this.entities.forEach( (e) => {
-        InvXFer(e.buffers.out, tickData.fromParent.drain, {maxXfer: 1})
+        InvXFer({from: e.buffers.out, to: tickData.fromParent.drain, options: {maxXfer: 1}})
       })      
     }
   }

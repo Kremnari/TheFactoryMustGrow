@@ -53,6 +53,7 @@ export class DataEditor {
       this.editing.ingredients = [{name: "__someitem__", amount: 1}]
       this.editing.category = "crafting"
       this.editing.results = [{name: "__someitem__", amount: 1}]
+      this.editing.enabled = false
     }
     if (this.editType=='technology') {
       this.editing.prerequisites = ['__sometech__']

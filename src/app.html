@@ -49,10 +49,7 @@
       <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
           <div click.delegate="resetSave()">Reset Save</div>
           <div click.delegate="resetDS()">Reset DataSource</div>
-          <div click.delegate="setDev()" if.bind="!showDev">Set Dev</div>
-          <div click.delegate="unsetDev()" if.bind="showDev">Unset Dev</div>
-          <div click.delegate="jumpStart()">JumpStart()</div>
-          <div click.delegate="testing()">Testing()</div>
+          <div click.delegate="toggleDev()" if.bind="!showDev">Dev On</div>
           <a class="notLink" target="_blank" href="https://digitalpsigen.tech/biz_plans/TFMG_welcome.html">Investor Options <span class="fas fa-external-link-alt"></span></a>
           <div class="iconRow">
             <span class="fas fa-external-link-alt"></span>-&gt;
@@ -103,12 +100,13 @@
       </section>
       <section id="devControls" if.bind="viewPane.main=='dev'">
         <div click.delegate="save()">Save</div>
-        <div click.delegate="resetSave()">Start Anew</div>
         <div click.delegate="mgrs.Ticker.once()">Tick 1</div>
         <div click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</div>
-        <div click.delegate="testing()">Testing...</div>
+        <div click.delegate="jumpStart()">JumpStart()</div>
+        <div click.delegate="testing()">Testing()</div>
         <div click.delegate="nukeCache()">NukeCache</div>
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
+        <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>
       </section>
       <compose if.bind="viewPane.main=='offense'" view="./resources/elements/mainPanes/offensePane.html"></compose>
       <compose if.bind="viewPane.main=='defense'" view="./resources/elements/mainPanes/defensePane.html"></compose>
@@ -132,16 +130,6 @@
           <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
                     class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
         </div>
-        <div id="inventoryList">
-          <h3>Inventory</h3>
-          <inventory
-            items.bind="player.inv.items"
-            click-call.call="player.inv.click({
-              where:viewPane.facBlock, which: item
-              ,who: player, what:'use'
-              })"
-            ></inventory>
-        </div>
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'">
         <div show.bind="viewPlayer">
@@ -161,16 +149,6 @@
               class.bind="machina.selectedClass"
             ></icon-base>
           </div>
-          <div id="inventoryList">
-            <h3>Inventory</h3>
-            <inventory
-              items.bind="player.inv.items"
-              click-call.call="player.inv.click({
-                where:viewPane.facBlock, which: item
-                ,who: player, what:'use'
-                })"
-              ></inventory>
-          </div>
         </div>
         <div show.bind="!viewPlayer">
           <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
@@ -185,7 +163,7 @@
             <transport-line
               if.bind="viewPane.facBlock.inputLine"
               line.bind="viewPane.facBlock.inputLine"
-              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              inv-click.call="CCC.issue('invXfer', {from: inv, to: player.inv, options: {stacks: [item]}})"
               type="input"
             ></transport-line>
             <tlu 
@@ -226,7 +204,7 @@
             <transport-line
               if.bind="viewPane.facBlock.outputLine"
               line.bind="viewPane.facBlock.outputLine"
-              inv-click.call="CC.InvXFer(inv, player.inv, {stacks: [item]})"
+              inv-click.call="CCC.issue('invXFer', {from: inv, to: player.inv, options:{stacks: [item]}})"
               type="output"
             ></transport-line>
           </div>
@@ -238,7 +216,7 @@
           <ul>
             <li>Land use: ${globals.land.used}</li>
             <li>Land available: ${globals.land.total-globals.land.used}</li>
-            <li>Complexity Rating: ${globals.land.complexity</li>
+            <li>Complexity Rating: ${globals.land.complexity}</li>
           </ul>
         </div>
         <div>
@@ -273,12 +251,11 @@
             repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
-            count.bind="tech.prerequisites.length"
             class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
           >
           </icon-base>
         </div>
-        <div>
+        <div class="sem_removed">
           <h5>Filters</h5>
           <p>Filter Complete<button click.delegate="mgrs.tech.toggleFilter('complete')">${mgrs.tech.filters.ShowComplete? "Hide":"Show"}</button></p>
           <p>Filter Pack:
@@ -293,6 +270,17 @@
       <section id="overview" show.bind="viewPane.main=='overview'">
         Overview stats
       </section>
+      <div id="inventoryList">
+        <h3>Inventory</h3>
+        <inventory
+          items.bind="player.inv.items"
+          click-call.call="player.inv.click({
+            where:viewPane.facBlock, which: item
+            ,who: player, what:'use'
+            })"
+          ></inventory>
+      </div>
+
     </main>
     <div id="tutorial">
       <div id="tut_pos" class="center">

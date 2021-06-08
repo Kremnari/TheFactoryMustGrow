@@ -1,5 +1,6 @@
 import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
+import {CephlaCommConstructor as CCC} from 'CephlaComm/main.js'
 
 export default class ItemMgr {
   itemList = {}
@@ -272,3 +273,4 @@ export class Inventory {
     }
   }
 }
+

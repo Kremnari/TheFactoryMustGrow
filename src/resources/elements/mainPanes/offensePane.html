@@ -1,7 +1,30 @@
 <template>
-  <div repeat.for="machine of facBlocks.offenses.machines | objectValues"
-    click.delegate="machine.count++"
+  Radar
+  <icon-base item.bind="facBlocks.offenses.radar"
+    click.delegate="CCC.issue('invUse', {
+      how:'sub-n-crement',
+      from: player.inv,
+      what: 'radar', 
+      count: 1,
+      to: facBlocks.offenses.radar,
+      to_prop: 'count'
+    })"
+    count.bind="facBlocks.offenses.radar.count"
   >
-    ${machine.name}: ${machine.count}
-  </div>
+  </icon-base>
+  <br>
+  Offensive bots
+  <icon-base repeat.for="machine of facBlocks.offenses.machines | objectValues"
+    item.bind="machine.name"
+    click.delegate="CCC.issue('invUse', {
+      how:'sub-n-crement',
+      from: player.inv,
+      what: machine.name, 
+      count: 1,
+      to: machine,
+      to_prop: 'count'
+    })"
+    count.bind="machine.count"
+  >
+  </icon-base>
 </template>

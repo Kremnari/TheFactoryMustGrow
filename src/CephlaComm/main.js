@@ -1,23 +1,25 @@
-export class CephlaCommService {
-  constructor(wrapped) {
-    this.CC = wrapped
+//* All three of these the same initials on purpose!
+//* Only one should ever be used in a given environment
+ 
+
+//Provide/Issue should operate like a subscription service
+//that includes a signature validator
+
+const CephlaCommCore = {
+  //* need to improve repo namespacing
+  repo: {}
+}
+
+export const CephlaCommConstructor = {
+  //
+  provide: (who, what) => {
+    CephlaCommCore.repo[who] = what
   }
 }
-export class CephlaComm {
-  constructor() {
 
-  }
-  register(what, sig) {
-
+export const CephlaCommCaller = {
+  issue: (who, obj) => {
+    CephlaCommCore.repo[who](obj)
   }
 }
-
-export function CeplaCommCreate() {
-  return new CeplaComm()
-}
-
-export const CephlaCommInst = new CephlaComm()
-
-export const CephlaCommTemp = {
-  
-}
+window.CCC = CephlaCommCore

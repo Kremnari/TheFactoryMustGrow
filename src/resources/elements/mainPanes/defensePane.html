@@ -1,7 +1,15 @@
 <template>
-  <div repeat.for="machine of facBlocks.defenses.machines | objectValues"
-    click.delegate="machine.count++"
+  <icon-base repeat.for="machine of facBlocks.defenses.machines | objectValues"
+    item.bind="machine.name"
+    click.delegate="CCC.issue('invUse', {
+      how:'sub-n-crement',
+      from: player.inv,
+      what: machine.name, 
+      count: 1,
+      to: machine,
+      to_prop: 'count'
+    })"
+    count.bind="machine.count"
   >
-    ${machine.name}: ${machine.count}
-  </div>
+  </icon-base>
 </template>

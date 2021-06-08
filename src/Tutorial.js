@@ -53,9 +53,9 @@ class tutorial {
         $("#tut_button").text("Just don't condescend me, and we'll be fine").show()
         break;
       case 0.3:
-        __.tutText("This button shows a verbose navligation menu.")
+        __.tutText("This button expands the navigation menu.")
         __.tutStep(".fa-level-up-alt")
-        __.tutButton("In case I forget what the icons mean.")
+        __.tutButton("...In case I forget what the icons mean.")
         break;
       case 0.4:
         __.tutText("This menu has a number of options, including a subscription to my mailing list. ")

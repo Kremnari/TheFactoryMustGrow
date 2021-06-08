@@ -5,7 +5,7 @@ import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
-import {CephlaCommTemp as CC} from 'CephlaComm/main.js'
+import {CephlaCommCaller as CCC} from 'CephlaComm/main.js'
 import {ChameleonCore as ChamJS} from 'Chameleon/main.js'
 
 import {ArrayObject} from 'libs/ArrayObject'
@@ -54,7 +54,7 @@ export class App {
       this.signaler = signaler
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
-      this.CC = CC
+      this.CCC = CCC
       this.Cham = ChamJS
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
@@ -69,6 +69,7 @@ export class App {
         this.player = NamedBlocks.player.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
         this.global = database.save.global
+        this.activeFeatures = database.save.features || ArrayObject()
         this.facBlocks.player = this.player
         this.showTut = false
         if(database.save.facBlocks) {
@@ -113,8 +114,7 @@ export class App {
     }
     hideTutorial() { Tutorial.hide() }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
-    setDev() { this.mgrs.idb.set('dev', true); this.showDev = true}
-    unsetDev() { this.mgrs.idb.set('dev', false); this.showDev = false}
+    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
@@ -176,7 +176,7 @@ export class App {
             this.facBlocks.offenses = NamedBlocks.OffenseBlock()
             this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
           }
-          this.facBlocks.offenses.machines["radar"] = ChamJS.GameObjectFromPointer(obj.go_pointer)
+          this.facBlocks.offenses.radar = ChamJS.GameObjectFromPointer(obj.go_pointer)
           break;
         case "factoryBlocks":
           this.activeFeatures["factoyBlocks"] = true
@@ -184,9 +184,9 @@ export class App {
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
     tickMine(tickData) {
-      if(tickData.ticks%100) { return }
       //SMELL
-      //This should be moved to IgorJs
+      //This should be moved to YgorJs
+      if(tickData.ticks%100) { return }
       if(this.facBlocks?.offenses?.machines.radar?.count) {
         this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 10
         if(this.globals.scanning.currentCost>=this.globals.scanning.nextCost) {
@@ -224,6 +224,7 @@ export class App {
       save.version = Config.IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
+      save.features = this.activeFeatures
       save.facBlocks = {
         set: [],
         d: this.facBlocks.defenses,
@@ -239,10 +240,10 @@ export class App {
       console.log("...done")
     }
     jumpStart() {
-      this.player.inv.add("burner-mining-drill", 2)
-      this.player.inv.add("assembling-machine-1", 2)
-      this.player.inv.add("lab", 2)
+      this.player.inv.add("inserter", 10)
+      this.player.inv.add("lab", 10)
       this.player.inv.add("automation-science-pack", 200)
+      this.mgrs.tech.complete_research("steel-processing")
     }
     testing() {
       if(!confirm("Initialize Testing?")) return
@@ -274,6 +275,6 @@ export class App {
     }
     nukeCache() {
       this.mgrs.idb.clear()
-      window.reload()
+      window.location.reload()
     }
 }

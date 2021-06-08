@@ -32,14 +32,14 @@
       </div>
       <div if.bind="editType=='recipe'">
         Time: <input type="number" value.bind="editing.crafting_speed">
-        Enabled: <input type="checkbox" value.bind="editing.enabled"><br>
+        Enabled: <input type="checkbox" checked.bind="editing.enabled"><br>
         Category: <input type="text" value.bind="editing.category"><br>
         Ingredients: <textarea value.bind="editing.ingredients | jsonString" rows="6"></textarea><br>
         Results: <textarea value.bind="editing.results | jsonString" rows="6"></textarea><br>
       </div>
       <div if.bind="editType=='technology'">
-        Enabled: <input type="checkbox" value.bind="editing.enabled">
-        Hidden: <input type="checkbox" value.bind="editing.hidden"><br>
+        Enabled: <input type="checkbox" checked.bind="editing.enabled">
+        Hidden: <input type="checkbox" checked.bind="editing.hidden"><br>
         Prereqs:<textarea value.bind="editing.prerequisites | jsonString" rows="6"></textarea><br>
         Unlocks:<textarea value.bind="editing.unlocks | jsonString" rows="6"></textarea><br>
         Cost: <input type="number" value.bind="editing.cost.count">

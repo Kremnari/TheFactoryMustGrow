@@ -9,7 +9,8 @@ import {ItemStack} from 'ItemMgr'
   types: array of item types
   stacks: [ItemStacks]
  */
-export function InvXFer(from, to, options) {
+export function InvXFer(obj) {
+  let {from, to, options} = obj
   if(options?.debug) {
     console.log("debug:")
     console.log(from)
@@ -54,6 +55,22 @@ export function InvXFer(from, to, options) {
   }
 }
 
-import {CephlaCommTemp as CC} from "CephlaComm/main"
-CC.InvXFer = InvXFer
-globalThis.InvXFer = InvXFer
+function invUse(obj) {
+  switch(obj.how) {
+    case "sub-n-crement":
+      if(obj.from.consume(obj.what, obj.count)===0) {
+        if(obj.to_prop) {
+          obj.to[obj.to_prop] += obj.count
+        } else {
+          obj.to += obj.count
+
+        }
+      }
+      break;
+  }
+}
+
+import {CephlaCommConstructor as CCC} from "CephlaComm/main"
+CCC.provide("invXfer", InvXFer)
+CCC.provide("invUse", invUse)
+// globalThis.InvXFer = InvXFer
