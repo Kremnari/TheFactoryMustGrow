@@ -45,6 +45,8 @@
   
         <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
         <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
+        <p click.delegate="viewPane.main='defense'"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
+        <p click.delegate="viewPane.main='offense'"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
       <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
           <div click.delegate="resetSave()">Reset Save</div>
@@ -108,8 +110,8 @@
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
         <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>
       </section>
-      <compose if.bind="viewPane.main=='offense'" view="./resources/elements/mainPanes/offensePane.html"></compose>
-      <compose if.bind="viewPane.main=='defense'" view="./resources/elements/mainPanes/defensePane.html"></compose>
+      <compose if.bind="viewPane.main=='offense' && activeFeatures['offense']" view="./resources/elements/mainPanes/offensePane.html"></compose>
+      <compose if.bind="viewPane.main=='defense' && activeFeatures['defense']" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
@@ -210,7 +212,7 @@
           </div>
         </div>
       </section>
-      <section id="facBlocks" show.bind="viewPane.main=='facBlocks'">
+      <section id="facBlocks" show.bind="viewPane.main=='facBlocks' && activeFeatures['facBlocks']">
         <h3>Factory Blocks</h3>
         <div id="facBlocks stats">
           <ul>
@@ -235,12 +237,13 @@
         <table>
           <caption>Classify new Factory Block</caption>
           <tr><th>Block Type</th><th>Land Cost</th></tr>
-          <tr class="button"><td>Factory Block</td> <td>25</td><td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
+          <!--# need to replace the numbers in column 2  -->
+          <tr class="button"><td>Factory Block</td> <td>10</td><td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
           <tr class="button"><td>Bus Block</td>     <td>10</td><td class="btn" click.delegate="add_FacBlock('bus')">Add</td></tr>
-          <tr class="button"><td>Lab Block</td>     <td>25</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
+          <tr class="button"><td>Lab Block</td>     <td>10</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
         </table>
         <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
-        <span>Available resource patches: ${globals.land.res_patches}</span>
+        <span>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</span>
       </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>

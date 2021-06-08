@@ -23,7 +23,8 @@ export class App {
         total: 100,
         used: 0,
         complexity: 0,
-        res_patches: 1
+        res_patches: 1,
+        res_patch_used: 0
       },
       scanning: {
         nextCost: 100,
@@ -41,7 +42,6 @@ export class App {
       PlayerBlock(where) {
         tfmg.select_FacBlock(tfmg.player, true)
         tfmg.viewPane.main = "entities"
-        tfmg.viewPane.entityPane = where
       }
     }
 
@@ -58,7 +58,6 @@ export class App {
       this.Cham = ChamJS
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
-      BE.expressionObserver(this, "viewPane.entityPane").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "entityPane")})
     }
     async init(database, DS) { 
       this.mgrs = database.mgrs
@@ -144,6 +143,12 @@ export class App {
     add_FacBlock(type, name) {
       name = name || prompt("Enter Block Name")
       if(!name) return false
+      if(type=="resource") {
+        if(globals.land.res_patches-globals.land.res_patch_used>0) {
+          this.facBlocks.push(new FactoryBlock('resource', name))
+        }
+        return
+      }
       //++ Need to calculate next block space
       if(this.globals.land.available - this.globals.land.used < 10) {
         console.log('not enough land available')
@@ -188,11 +193,14 @@ export class App {
       //This should be moved to YgorJs
       if(tickData.ticks%100) { return }
       if(this.facBlocks?.offenses?.machines.radar?.count) {
-        this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 10
+        this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 1
         if(this.globals.scanning.currentCost>=this.globals.scanning.nextCost) {
-          this.globals.land.total += 10
           this.globals.scanning.currentCost -= this.globals.scanning.nextCost
           this.globals.scanning.nextCost += 20
+          //NYI generate land /resource patch
+          this.globals.land.total += 10
+          this.globals.land.res_patches = Math.floor(this.globals.land.total/100)
+
         }
       }
       if(this.facBlocks?.defenses?.machines.turret?.count) {

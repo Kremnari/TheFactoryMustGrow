@@ -23,3 +23,5 @@ export const CephlaCommCaller = {
   }
 }
 window.CCC = CephlaCommCore
+
+let test = 4
