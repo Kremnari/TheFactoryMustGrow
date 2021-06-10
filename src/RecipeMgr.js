@@ -100,7 +100,7 @@ export default class RecipeMgr {
     let includeUndefineds = false;
     if (tagList.includes("crafting"))  includeUndefineds = true
     return Object.values(recList).filter( (elm) => {
-      return (elm.enabled == undefined || elm.enabled) && tagList.includes(elm[property]) || (includeUndefineds && !elm[property])
+      return (elm.enabled == undefined || elm.enabled) && (tagList.includes(elm[property]) || (includeUndefineds && !elm[property] ))
     })
   }
 }

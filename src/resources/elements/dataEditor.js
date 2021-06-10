@@ -67,7 +67,7 @@ export class DataEditor {
   }
   deleteItem() {
     delete mgrs.data[this.editType][this.editing.name]
-    this.editList.splice(this.editList.indexOf(this.editing.name), 1)
+    delete this.editList[this.editing.name]
     this.editing = null
 
   }

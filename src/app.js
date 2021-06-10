@@ -24,7 +24,12 @@ export class App {
         used: 0,
         complexity: 0,
         res_patches: 1,
-        res_patch_used: 0
+        res_patch_used: 0,
+        fac_block_costs: {
+          factory: 10,
+          bus: 10,
+          research: 10,
+        }
       },
       scanning: {
         nextCost: 100,
@@ -149,12 +154,15 @@ export class App {
         }
         return
       }
-      //++ Need to calculate next block space
-      if(this.globals.land.available - this.globals.land.used < 10) {
+      if(this.globals.land.available - this.globals.land.used < this.globals.land.fac_block_costs[type]) {
         console.log('not enough land available')
         return 
       }
-      this.globals.land.used += 10
+      this.globals.land.used += this.globals.land.fac_block_costs[type]
+
+      //# Magic number in calculation
+      //++ Better calculation of next factory block
+      this.globals.land.fac_block_costs[type] = Math.floor(this.globals.land.fac_block_costs[type] * 1.2)
 
       let add = new FactoryBlock(type, name)
       this.facBlocks.push(add)
