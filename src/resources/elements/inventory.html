@@ -4,6 +4,8 @@
     item.bind="item"
     if.bind="item.filtered || item.count>0"
     count.bind="item.count"
+    modis.bind="{count: item.count}"
+    metas.bind="{showEntity: true}"
     click.delegate="clickCall({item})"
   ></icon-base>
 </template>

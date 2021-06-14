@@ -5,9 +5,9 @@ import {ItemStack} from 'ItemMgr'
   maxXfer: maximum items transfered
   toAs: 'to' is default as an inventory, but we
     could treat it as an EntityStore by setting "entity"
-  maxPerType: t/f
+  maxPerType: t/f ... if multiple types are provided, do we transfer upto x per type, or x total
   types: array of item types
-  stacks: [ItemStacks]
+  stacks: [ItemStacks]  ... this is only what we transfer in.
  */
 export function InvXFer(obj) {
   let {from, to, options} = obj

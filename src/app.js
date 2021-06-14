@@ -26,9 +26,9 @@ export class App {
         res_patches: 1,
         res_patch_used: 0,
         fac_block_costs: {
-          factory: 10,
-          bus: 10,
-          research: 10,
+          factory: 100,
+          bus: 100,
+          research: 100,
         }
       },
       scanning: {
@@ -192,7 +192,7 @@ export class App {
           this.facBlocks.offenses.radar = ChamJS.GameObjectFromPointer(obj.go_pointer)
           break;
         case "factoryBlocks":
-          this.activeFeatures["factoyBlocks"] = true
+          this.activeFeatures["factoryBlocks"] = true
       }
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
@@ -205,7 +205,7 @@ export class App {
         if(this.globals.scanning.currentCost>=this.globals.scanning.nextCost) {
           this.globals.scanning.currentCost -= this.globals.scanning.nextCost
           this.globals.scanning.nextCost += 20
-          //NYI generate land /resource patch
+          //NYI generate land /resource patch and enemies
           this.globals.land.total += 10
           this.globals.land.res_patches = Math.floor(this.globals.land.total/100)
 

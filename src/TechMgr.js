@@ -12,11 +12,6 @@ export default class TechMgr {
     ShowPack: {
       "automation-science-pack": true,
       "logistic-science-pack": false,
-      "military-science-pack": false,
-      "chemical-science-pack": false,
-      "production-science-pack": false,
-      "utility-science-pack": false,
-      "space-science-pack": false,
     }
   }
   researching = null

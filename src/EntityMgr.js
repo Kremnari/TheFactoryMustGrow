@@ -52,11 +52,14 @@ export class EntityMgr {
     tickerObj.entities.types.push('mining')
   }
   EntityType(name) {
+    return this.entities_base[name].subType
+    /*
     let obj = this.entities_base[name]
     if(obj.resource_categories) return "mining"
     if(obj.crafting_categories) return "crafting"
     if(obj.inputs) return "research"
     return false
+    */
   }
   GenerateEntity(name, facBlock, tagArray) {
     let obj = this.entities_base[name]
@@ -210,7 +213,7 @@ class MiningEntity extends Entity{
       mgrs.signaler.signal("generalUpdate")
     }
     this.progress = this.mining_timer/this.mining_time*100
- }
+  }
   set_mining(resObj, timer) {
     if(resObj==this.mining) return 
     this.mining && this.collectBuffer()
@@ -385,9 +388,25 @@ class LabEntity extends Entity {
     this.buffers.in.add(name, toAdd)
   }
   tick_inXfer(tickData) {
+    if(++this.buffers.upgrades.in.xferAt>this.buffers.upgrades.in.xferMod) {
+      InvXFer({
+        from: tickData.fromParent.feed,
+        to: this.buffers.in,
+        options:{
+          types: this.inputs
+          ,maxXfer: this.buffers.upgrades.in.xfer
+        }
+      })
+      this.outputFull = false
+      this.buffers.upgrades.in.xferAt = 0
+    }
+    this.buffers.upgrades.in.xferProgress = this.buffers.upgrades.in.xferAt/this.buffers.upgrades.in.xferMod * 100
+  }
+
+  /*tick_inXfer(tickData) {
     if(tickData.ticks%30!=0) return
     InvXFer({from: tickData.fromParent.feed, to: this.buffers.in, options: {maxXfer: this.buffers.upgrades.in.xfer}})
-  }
+  }*/
   tick(tickData) {
     if(!mgrs.tech.researching) return
     let tickCost = mgrs.tech.researching.cost.time*TICKS_PER_SECOND
@@ -552,9 +571,7 @@ export class EntityStorage {
         entity => entity.tick_outXfer(tickData)
       )
       this.entityTags.getSetValues("ticking", type).forEach(
-        (entity) => {
-          entity.tick(tickData)
-        }
+        entity => entity.tick(tickData)
       )
       !this.restricted && this.entityTags.getSetValues("inputTicker", true).forEach(
         entity => entity.tick_inXfer(tickData)

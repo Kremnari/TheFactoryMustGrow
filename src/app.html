@@ -24,10 +24,8 @@
       <span class="fas spacer"></span>
       <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
       <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
-
-
-      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
+      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
       <span class="fas spacer"></span>
       <span active-when.bind="activeFeatures['defense']" click.delegate="viewPane.main='defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
       <span active-when.bind="activeFeatures['offense']" click.delegate="viewPane.main='offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
@@ -38,13 +36,11 @@
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
         <p click.delegate="viewPane.main='dev'"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
-
         <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
-        <p class="fas spacer"></p>
-  
-        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
         <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
+        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
+        <p class="fas spacer"></p> 
         <p click.delegate="viewPane.main='defense'"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
         <p click.delegate="viewPane.main='offense'"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
@@ -212,7 +208,7 @@
           </div>
         </div>
       </section>
-      <section id="facBlocks" show.bind="viewPane.main=='facBlocks' && activeFeatures['facBlocks']">
+      <section id="facBlocks" show.bind="viewPane.main=='facBlocks' && activeFeatures['factoryBlocks']">
         <h3>Factory Blocks</h3>
         <div id="facBlocks stats">
           <ul>
@@ -235,12 +231,11 @@
         </div>
 
         <table>
-          <caption>Classify new Factory Block</caption>
           <tr><th>Block Type</th><th>Land Cost</th></tr>
           <!--# need to replace the numbers in column 2  -->
-          <tr class="button"><td>Factory Block</td> <td>10</td><td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
-          <tr class="button"><td>Bus Block</td>     <td>10</td><td class="btn" click.delegate="add_FacBlock('bus')">Add</td></tr>
-          <tr class="button"><td>Lab Block</td>     <td>10</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
+          <tr><td>Factory Block</td> <td>${globals.land.fac_block_costs.factory}</td> <td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
+          <tr><td>Bus Block</td>     <td>${globals.land.fac_block_costs.bus}</td>     <td class="btn" click.delegate="add_FacBlock('bus')">Add</td></tr>
+          <tr><td>Lab Block</td>     <td>${globals.land.fac_block_costs.research}</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
         </table>
         <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
         <span>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</span>
@@ -274,6 +269,7 @@
         Overview stats
       </section>
       <div id="inventoryList">
+        <!-- TODO create a delete mode, but should utilize a command wheel -->
         <h3>Inventory</h3>
         <inventory
           items.bind="player.inv.items"

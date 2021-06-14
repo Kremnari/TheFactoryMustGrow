@@ -62,6 +62,9 @@ export class DataEditor {
     }
   }
   saveItem() {
+    if(this.eTypeSelect=='research' && typeof this.editing.inputs== 'string') {
+      this.editing.inputs = this.editing.inputs.split(",")
+    }
     mgrs.data[this.editType][this.editing.name] = this.editing
     this.editing = null
   }
