@@ -63,13 +63,11 @@ export class App {
       this.signaler = signaler
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
-      this.CCC = CCC
+      this.CCC = CCC  // Need to add so it's available in the view
       this.Cham = ChamJS
+      this.Cham.SetModalBox("#ChameleonModal")
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
-      CC_const.provide("test",  this.test)
-
-
     }
     async init(database, DS) { 
       this.mgrs = database.mgrs
@@ -271,7 +269,6 @@ export class App {
     }
     testing() {
       if(!confirm("Initialize Testing?")) return
-      this.player2 = new PlayerBlock(10)
       this.add_FacBlock("resource", "iron-mine") //1
       this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
       this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
@@ -296,9 +293,6 @@ export class App {
       this.facBlocks[3].AddBusDrain(this.facBlocks[4])
 
       this.player.inv.add("inserter", 10)
-    }
-    test(obj) {
-      debugger
     }
     nukeCache() {
       this.mgrs.idb.clear()

@@ -162,10 +162,6 @@ input:checked + .slider.text_full_part:after {
   content: "part";
 }
 
-.entityList {
-  border: 2px dashed black;
-  border-radius: 8px;
-}
 main.tfmg {
   height: 70vh;
   overflow-y: auto;
@@ -189,6 +185,7 @@ main.tfmg {
 }
 #machines > div {
   border: 2px solid black;
+  min-height: 40px;
   border-radius: 8px;
 }
 section, main > compose {

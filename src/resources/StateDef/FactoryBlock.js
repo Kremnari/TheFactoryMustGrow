@@ -4,11 +4,10 @@ import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
 import {CephlaCommConstructor as CCC} from "CephlaComm/main"
 
-
 //! This should eventually be moved to Igor
 //* Chameleon is a view controller and should be called by Igor to
 //    post updates
-import {ChameleonBuilder as ChamBuild} from 'Chameleon/main.js'
+import {ChameleonBuilder as ChamBuild, ChameleonViewer as ChameJS} from 'Chameleon/main.js'
 
 const lineUpgrades = () => {
   return {
@@ -144,7 +143,7 @@ export class FactoryBlock {
       if(this.upgrades.output.count==0) continue
       InvXFer(this.outputLine, x.inputLine, {maxXfer: this.upgrades.output.loaders.count})
     }
-    InvXFer(this.inputLine, this.outputLine, {maxXfer: this.upgrades.input.loaders.count * 2})    
+    //InvXFer(this.inputLine, this.outputLine, {maxXfer: this.upgrades.input.loaders.count * 2})    
   }
   tick(tickData) {
     this.inputLine
@@ -353,7 +352,14 @@ const AddBuildingSig = {
   from: "inventory"
 }
 function AddBuilding(obj) {
-  if(obj.from.inventory.consumeAll([{name: obj.at.factoryLine.building, count: 1}])!==true) return
+  if(obj.at.factoryLine.counts.prepped<=obj.at.factoryLine.counts.buildings) {
+    ChameJS.error("Need a prepped spot to build")
+    return
+  }
+  if(obj.from.inventory.consumeAll([{name: obj.at.factoryLine.building, count: 1}])!==true) {
+    ChameJS.error("You must have a "+obj.at.factoryLine.building+" to add.")
+    return
+  }
   obj.at.factoryLine.counts.buildings++
 }
 CCC.provide("factoryLine.addBuilding", AddBuilding, AddBuildingSig)

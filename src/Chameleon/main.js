@@ -8,10 +8,11 @@ export const ChameleonCore = {
     } else {
       return ChameleonCore.GameObjects.base[pointer]()
     }
+  },
+  SetModalBox: (selector) => {
+    ChameleonCore.modalSelector = document.querySelector(selector)
   }
 }
-
-
 
 export const ChameleonBuilder = {
   AddGameObjectClass: (name, obj, tags ) => {
@@ -22,5 +23,10 @@ export const ChameleonBuilder = {
     } else {
       ChameleonCore.GameObjects.base[name] = () => { return JSON.parse(jsonObj) }
     }
+  }
+}
+
+export const ChameleonViewer = {
+  error: (what) => {
   }
 }

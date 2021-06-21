@@ -30,3 +30,11 @@ export function configure(aurelia) {
     aurelia.setRoot(PLATFORM.moduleName('app')) 
   });
 }
+
+window.debugIf = function(obj, flag) {
+  if(obj.debug && obj.debug.includes(flag)) debugger
+}
+window.debugCheck = function(obj, flag) {
+  !obj.debug && (obj.debug = [])
+  obj.debug.push(flag)
+}

@@ -39,6 +39,7 @@ export const CephlaCommCaller = {
     if(CephlaCommCore.sigs[who]) {
       let args = {}
       let missed = []
+      debugIf(CephlaCommCore, "caller_start")
       for( let [specifier, typeS] of Object.entries(CephlaCommCore.sigs[who])) {
         !Array.isArray(typeS) && (typeS = [typeS])
         for( let type of typeS) {
@@ -55,7 +56,7 @@ export const CephlaCommCaller = {
               found = await mgrs.DS.open("SelectX", {
                 list: Object.values(mgrs.entity.entity_cats["crafting"]), type
               })
-              found = found?.item?.name
+              found = found?.item
             } else if(type=="factoryBus") {
               found = await mgrs.DS.open("SelectBus", {
                 buses: mgrs.baseApp.facBlocks.filter( (x)=> x.type=="bus")
@@ -63,6 +64,7 @@ export const CephlaCommCaller = {
               found = found?.selected?.name
             }
           }
+          debugIf(CephlaCommCore, "caller_found")
           if(found) {
             !args[specifier] && (args[specifier] = {})
             args[specifier][type] = found
@@ -98,6 +100,7 @@ export const CephlaCommCaller = {
     }
     if(!$evt.CCC[specifier]) $evt.CCC[specifier] = {}
     $evt.CCC[specifier][type] = obj
+    console.log('caught: '+specifier+"_"+type)
   },
   staticProvide: (specifier, type, obj) => {
     CephlaCommCaller.statics[specifier] || (CephlaCommCaller.statics[specifier] = {})

@@ -1,77 +1,92 @@
 {
-  $id: "factoryBlock.json",
-  $schema: "",
-  $description: "This is a definition for the in game representation"
+  $id: "factoryRoot",
   properties: {
-    name: { type: "string" },
-    type: { type: "string" },
-    size: { type: "number" },
-    complexity: { type: "number" },
-    inputLine: {$ref: "#/definitions/xLine" },
-    outputLine: {$ref: "#/definitions/xLine" },
-    processingLines: {
-      type: "array",
-      items: {$ref: "#/definitions/procLine" },
-    }
-  },
-  required: [],
-  $events: [
-    {
-      $triggerName: "createNew",
-      $parameters: [],
-    }
-  ],
-  $controls: [
-
-  ],
-  definitions: {
-    xLine: {
-      type: {$ref: "https://digita"}
+    factoryBlock: {
+      $id: "factoryBlock",
+      $schema: "",
+      $description: "This is a definition for the in game representation",
       properties: {
-        items: {
+        name: { type: "string" },
+        type: { type: "string" },
+        size: { type: "number" },
+        complexity: { type: "number" },
+        inputLine: {$ref: "#/definitions/xLine" },
+        outputLine: {$ref: "#/definitions/xLine" },
+        processingLines: {
           type: "array",
-          items: { type: "string", $comment: "will be game items" }
-        },
-        connection: {
-          type: "string",
-          $comment: "should become a factory block ID"
-        },
-        upgrades: {
-          $comments: "needed?"
+          items: {$ref: "#/definitions/procLine" },
         }
-      }
-    },
-    procLine: {
-      $comment: "This is the production line"
-      properties: {
-        recipe: {
-          type: "string",
-          $comment: "should become a recipeID"
-        },
-        building: {
-          type: "string",
-          $comment: "should be a buildingID"
-        },
-        prepped: {
-          type: "string",
-          $comment: "should be a foundationID (NYI)"
-        },
-        counts: {
-          type: "object",
+      },
+      required: [],
+      $events: [
+        {
+          $triggerName: "createNew",
+          $parameters: [],
+        }
+      ],
+      $controls: [
+
+      ],
+      definitions: {
+        xLine: {
+          type: { "object" },
           properties: {
-            buildings: { type: "number", default: 0 },
-            prepped: { type: "number", default: 0 },
-            producing: { type: "number", default: 0 }
-          },
-          required: ["buildings", "prepped", "producing"]
+            items: {
+              type: "array",
+              items: { type: "string", $comment: "will be game items" }
+            },
+            connection: {
+              type: "string",
+              $comment: "should become a factory block ID"
+            },
+            upgrades: {
+              $comments: "needed?"
+            }
+          }
         },
-        timers: {
-          type: "object",
+        procLine: {
+          $comment: "This is the production line",
           properties: {
-            production: { type: "number", default: 0 }
+            recipe: {
+              type: "string",
+              $comment: "should become a recipeID"
+            },
+            building: {
+              type: "string",
+              $comment: "should be a buildingID"
+            },
+            prepped: {
+              type: "string",
+              $comment: "should be a foundationID (NYI)"
+            },
+            counts: {
+              type: "object",
+              properties: {
+                buildings: { type: "number", default: 0 },
+                prepped: { type: "number", default: 0 },
+                producing: { type: "number", default: 0 }
+              },
+              required: ["buildings", "prepped", "producing"]
+            },
+            timers: {
+              type: "object",
+              properties: {
+                production: { type: "number", default: 0 }
+              }
+            }
           }
         }
       }
-    }
-  },
+    },
+    factoryBus: {
+
+    },
+    defenseBlock: {
+      $id: "defenseBlock",
+      properties: {
+        
+      }
+    },
+
+  }
 }

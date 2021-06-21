@@ -13,18 +13,23 @@
     <div class="connection" click.delegate="CCC.issue('factoryBlock.setConnection', {'dir.string': 'out'}, $event)">${viewPane.facBlock.outputLine.connection.name || "none"}</div>
     <icon-base repeat.for="item of viewPane.facBlock.outputLine.items" item.bind="item"></icon-base>
   </div>
-  <div repeat.for="line of viewPane.facBlock.processingLines" click.capture="CCC.provide($event, 'at', 'factoryLine', line)">
+  <div class="productionLines" repeat.for="line of viewPane.facBlock.processingLines" click.capture="CCC.provide($event, 'at', 'factoryLine', line)">
     <span click.delegate="CCC.issue('factoryLine.setRecipe', null, $event)">Recipe: 
       <icon-base if.bind="line.recipe" item.bind="line.recipe"></icon-base>
       <span if.bind="!line.recipe">None</span>
     </span>
     <br>
-    <span if.bind="!line.building" click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)">Set Building Type</span><br>
-    <span if.bind="line.building" click.delegate="CCC.issue('factoryLine.addBuilding', null, $event)">${line.building}: ${line.counts.buildings}</span><br>
-    <span if.bind="line.prepped" click.delegate="CCC.issue('factoryLine.prepLine', null, $event)">Prepped: ${line.counts.prepped}</span>
+    <span>
+      <span if.bind="!line.building" click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)">Set Building Type...</span>
+      <span if.bind="line.building" click.delegate="CCC.issue('factoryLine.addBuilding', null, $event)">
+        <icon-base item.bind="line.building"></icon-base>
+        : ${line.counts.buildings}
+      </span>
+    </span>
+    <span click.delegate="CCC.issue('factoryLine.prepLine', null, $event)">Prepped spaces: ${line.counts.prepped}</span>
   </div>
   <div note="add new line to factory block">
-    <span click.delegate="CCC.issue('factoryBlock.addProdLine')">Add Line</span>
+    <span click.delegate="CCC.issue('factoryBlock.addProdLine', null, $event)">Add Line</span>
   </div>
 </section>
 </template>
