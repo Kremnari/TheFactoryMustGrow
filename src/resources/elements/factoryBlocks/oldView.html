@@ -1,0 +1,59 @@
+<section id="viewFacBlock_old" show.bind="viewPane.main=='viewFacBlock_old'">
+  <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
+  <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
+  <require from="resources/elements/factoryBlocks/TransportLineUpgrades.html" as="tlu"></require>
+  Block Name: ${viewPane.facBlock.name}
+  <div if.bind="viewPane.facBlock.inputLine">
+    <p>
+      Feed From: ${viewPane.facBlock.feeds[0].name}
+      <span click.delegate="viewPane.facBlock.SelectBusFeed()">(Change)</span>
+    </p>
+    <transport-line
+      if.bind="viewPane.facBlock.inputLine"
+      line.bind="viewPane.facBlock.inputLine"
+      inv-click.call="CCC.issue('invXfer', {from: inv, to: player.inv, options: {stacks: [item]}})"
+      type="input"
+    ></transport-line>
+    <tlu 
+      upgrades.bind="viewPane.facBlock.upgrades.input"
+      apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+        upgrade
+        ,inv: player.inv
+        ,line: viewPane.facBlock.inputLine
+      })"
+    ></tlu>
+    <hr>
+  </div>
+  <div repeat.for="line of viewPane.facBlock.lines">
+    <transport-line
+      if.bind="line.items"
+      line.bind="line"
+      type="internal"
+    ></transport-line>
+    <entity-line
+      if.bind="line.entities"
+      line.bind="line"
+    ></entity-line>
+  </div>
+  <div if.bind="viewPane.facBlock.outputLine">
+    <hr>
+    <p>
+      Drains To: ${viewPane.facBlock.drains[0].name}
+      <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
+    </p>
+    <tlu
+      upgrades.bind="viewPane.facBlock.upgrades.output"
+      apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
+        upgrade
+        ,inv: player.inv
+        ,line: viewPane.facBlock.outputLine
+      })"
+    ></tlu>
+    <transport-line
+      if.bind="viewPane.facBlock.outputLine"
+      line.bind="viewPane.facBlock.outputLine"
+      inv-click.call="CCC.issue('invXFer', {from: inv, to: player.inv, options:{stacks: [item]}})"
+      type="output"
+    ></transport-line>
+  </div>
+</section>

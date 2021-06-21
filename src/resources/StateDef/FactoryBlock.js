@@ -2,6 +2,12 @@ import {EntityStorage} from 'EntityMgr'
 import {Inventory, ItemStack} from 'ItemMgr'
 import {mgrs} from 'managers'
 import {InvXFer} from 'gameCode/Inventory'
+import {CephlaCommConstructor as CCC} from "CephlaComm/main"
+
+
+//! This should eventually be moved to Igor
+//* Chameleon is a view controller and should be called by Igor to
+//    post updates
 import {ChameleonBuilder as ChamBuild} from 'Chameleon/main.js'
 
 const lineUpgrades = () => {
@@ -62,6 +68,23 @@ export class FactoryBlock {
   }
   static #blocks = {}
   static #awaiting = {}
+  static new(type, name) {
+    if(type!="factory") return new FactoryBlock(type, name)
+    //NYI  return IgorJS.construct("FactoryBlock", params...)
+    return {
+      name, type,
+      size: 100,
+      complexity: 1,
+      inputLine: {items: [], connection: null},
+      outputLine: {items: [], connection: null},
+      processingLines: [
+        { recipe: null, building: null, prepped: null,
+          counts: { buildings: 0, prepped: 0, producing: 0},
+          timers: { production: 0 }
+        }
+      ]
+    }
+  }
   static assign(name, facBlock) {
     if(this.#awaiting[name]) {
       this.#awaiting[name].forEach((cb) => {cb(facBlock)})
@@ -237,6 +260,8 @@ class PlayerBlock {
     this.entityStore.tick(tickData)
   }
 }
+//* New Stuff, working towards Chameleon
+
 function DefenseBlock() {
   let ret = {}
   ret.machines = {}
@@ -272,3 +297,81 @@ export const NamedBlocks = {
   OffenseBlock,
   OffenseBus
 }
+
+
+//* New Stuff, working towards CephlaComm
+const SetConnectionSig = {
+  at: "factoryXput",
+  to_which: "factoryBus",
+  dir: "string"
+}
+//Validator should ensure which.facblock can in/out opposing this
+function SetConnection(obj) {
+  obj.at.factoryXput.connection = obj.to_which.factoryBus
+}
+CCC.provide('factoryBlock.setConnection', SetConnection, SetConnectionSig)
+
+const AddProdLineSig = {
+  at: "factoryBlock",
+}
+function AddProdLine(obj) {
+  obj.at.factoryBlock.processingLines.push(
+    { recipe: null, building: null, prepped: null,
+      counts: { buildings: 0, prepped: 0, producing: 0},
+      timers: { production: 0 }
+    }
+  )
+  //NYI something about block size and complexity increases
+}
+CCC.provide("factoryBlock.addProdLine", AddProdLine, AddProdLineSig)
+
+
+//* Begin Factory Lines CCC
+const SetRecipeSig = {
+  at: "factoryLine",
+  which: "recipe"
+}
+function SetRecipe(obj) {
+  obj.at.factoryLine.recipe = obj.which.recipe
+  //return current production
+}
+CCC.provide("factoryLine.setRecipe", SetRecipe, SetRecipeSig)
+
+
+const SetBuildingSig = {
+  at: "factoryLine",
+  which: "building"
+}
+function SetBuilding(obj) {
+  obj.at.factoryLine.building = obj.which.building
+}
+CCC.provide("factoryLine.setBuilding", SetBuilding, SetBuildingSig)
+
+
+const AddBuildingSig = {
+  at: "factoryLine",
+  from: "inventory"
+}
+function AddBuilding(obj) {
+  if(obj.from.inventory.consumeAll([{name: obj.at.factoryLine.building, count: 1}])!==true) return
+  obj.at.factoryLine.counts.buildings++
+}
+CCC.provide("factoryLine.addBuilding", AddBuilding, AddBuildingSig)
+
+
+const PrepLineSig = {
+  at: ["factoryLine", "factoryBlock"],
+  //"which.foundation": "foundationType"
+  from: "inventory",
+}
+function PrepLine(obj) {
+  //NYI 
+  //let foundationCost = lookup(obj.which.foundation, "foundationType").cost
+  //if(!obj.from.inventory.canConsume(foundationCost)) {
+    //NYI ChameJS.error("Not enough items to prep line")
+    //return
+  //}
+  obj.at.factoryLine.counts.prepped++
+  //NYI something about factoryBlock size and complexity increases
+}
+CCC.provide("factoryLine.prepLine", PrepLine, PrepLineSig)

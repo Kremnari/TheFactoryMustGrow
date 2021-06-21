@@ -12,8 +12,6 @@
       <div if.bind="!tooltip" click.delegate="viewPane.main='overview'">
         status box<br> 
         Land, pollution, enemies, oh my!<br>
-        <span>Scan Progress: ${globals.scanning.currentCost}/${globals.scanning.nextCost}</span><br>
-        <span>Attack Timer: ${globals.attackWaves.currentTimer}/${globals.attackWaves.nextTimer}</span><br>
       </div>
       <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
     </section>
@@ -25,10 +23,11 @@
       <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
       <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
-      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main='facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
+      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
+      <span click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'viewFacBlock'" class="fas fa-industry navFacBlocks ${viewPane.main=='viewFacBlock'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
       <span class="fas spacer"></span>
-      <span active-when.bind="activeFeatures['defense']" click.delegate="viewPane.main='defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
-      <span active-when.bind="activeFeatures['offense']" click.delegate="viewPane.main='offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}" class2.when_inactive="NYI"></span>
+      <span active-when.bind="activeFeatures['defense']" click.delegate="viewPane.main= activeFeatures['defense'] && 'defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}"></span>
+      <span active-when.bind="activeFeatures['offense']" click.delegate="viewPane.main= activeFeatures['offense'] && 'offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}"></span>
     </nav>
     <main class="tfmg">
       <section id="nav" if.bind="viewPane.main=='nav'">
@@ -39,10 +38,11 @@
         <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
         <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
-        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks</p>
+        <p click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks List</p>
+        <p click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'viewFacBlock'"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
         <p class="fas spacer"></p> 
-        <p click.delegate="viewPane.main='defense'"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
-        <p click.delegate="viewPane.main='offense'"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
+        <p click.delegate="viewPane.main= activeFeatures['defense'] && 'defense'"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
+        <p click.delegate="viewPane.main= activeFeatures['offense'] && 'offense'"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
       <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
           <div click.delegate="resetSave()">Reset Save</div>
@@ -130,7 +130,6 @@
         </div>
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'">
-        <div show.bind="viewPlayer">
           <h4>Workshop</h4>
           <require from="./resources/elements/byModule/mining-infopane.html"></require>
           <require from="./resources/elements/byModule/lab-infopane.html"></require>
@@ -147,66 +146,6 @@
               class.bind="machina.selectedClass"
             ></icon-base>
           </div>
-        </div>
-        <div show.bind="!viewPlayer">
-          <require from="resources/elements/factoryBlocks/transportLine.html" as="transport-line"></require>
-          <require from="resources/elements/factoryBlocks/entityLine" as="entity-line"></require>
-          <require from="resources/elements/factoryBlocks/TransportLineUpgrades.html" as="tlu"></require>
-          Block Name: ${viewPane.facBlock.name}
-          <div if.bind="viewPane.facBlock.inputLine">
-            <p>
-              Feed From: ${viewPane.facBlock.feeds[0].name}
-              <span click.delegate="viewPane.facBlock.SelectBusFeed()">(Change)</span>
-            </p>
-            <transport-line
-              if.bind="viewPane.facBlock.inputLine"
-              line.bind="viewPane.facBlock.inputLine"
-              inv-click.call="CCC.issue('invXfer', {from: inv, to: player.inv, options: {stacks: [item]}})"
-              type="input"
-            ></transport-line>
-            <tlu 
-              upgrades.bind="viewPane.facBlock.upgrades.input"
-              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
-                upgrade
-                ,inv: player.inv
-                ,line: viewPane.facBlock.inputLine
-              })"
-            ></tlu>
-            <hr>
-          </div>
-          <div repeat.for="line of viewPane.facBlock.lines">
-            <transport-line
-              if.bind="line.items"
-              line.bind="line"
-              type="internal"
-            ></transport-line>
-            <entity-line
-              if.bind="line.entities"
-              line.bind="line"
-            ></entity-line>
-          </div>
-          <div if.bind="viewPane.facBlock.outputLine">
-            <hr>
-            <p>
-              Drains To: ${viewPane.facBlock.drains[0].name}
-              <span click.delegate="viewPane.facBlock.SelectBusDrain()">(Change)</span>
-            </p>
-            <tlu
-              upgrades.bind="viewPane.facBlock.upgrades.output"
-              apply-upgrade.call="viewPane.facBlock.ApplyUpgrade({
-                upgrade
-                ,inv: player.inv
-                ,line: viewPane.facBlock.outputLine
-              })"
-            ></tlu>
-            <transport-line
-              if.bind="viewPane.facBlock.outputLine"
-              line.bind="viewPane.facBlock.outputLine"
-              inv-click.call="CCC.issue('invXFer', {from: inv, to: player.inv, options:{stacks: [item]}})"
-              type="output"
-            ></transport-line>
-          </div>
-        </div>
       </section>
       <section id="facBlocks" show.bind="viewPane.main=='facBlocks' && activeFeatures['factoryBlocks']">
         <h3>Factory Blocks</h3>
@@ -217,19 +156,6 @@
             <li>Complexity Rating: ${globals.land.complexity}</li>
           </ul>
         </div>
-        <div>
-          <span click.delegate="select_FacBlock(player, true)" class='${viewPane.facBlock==player ? "selected":""}'>Player Workshop</span>
-          <span click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</span>
-          <span click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</span>
-          <span click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Defenses</span>
-          <span click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Defenses</span>
-        </div>
-        <div>
-          <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
-            ${facBlock.name}:${facBlock.type}
-          </div>
-        </div>
-
         <table>
           <tr><th>Block Type</th><th>Land Cost</th></tr>
           <!--# need to replace the numbers in column 2  -->
@@ -239,7 +165,21 @@
         </table>
         <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
         <span>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</span>
+        <!-- div>
+          <span click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</span>
+          <span click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</span>
+          <span click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Defenses</span>
+          <span click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Defenses</span>
+        </!-->
+        <div>
+          <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
+            ${facBlock.name}:${facBlock.type}
+          </div>
+        </div>
       </section>
+      <compose id="viewFacBlock" if.bind="viewPane.main=='viewFacBlock'" view="./resources/elements/factoryBlocks/mainView.html" containerless></compose>
+      <compose id="viewBusLine"  if.bind="viewPane.main=='viewBusLine'"  view="./resources/elements/factoryBlocks/busView.html"></compose>
+
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
         <require from="./resources/elements/byModule/tech-infopane.html"></require>
@@ -266,7 +206,11 @@
         </div>
       </section>
       <section id="overview" show.bind="viewPane.main=='overview'">
-        Overview stats
+        <span>Available land: ${globals.land.total-globals.land.used}</span>
+        <span>Pollution:</span>
+        <span>Scan Progress: ${globals.scanning.currentCost}/${globals.scanning.nextCost}</span><br>
+        <span>Attack Timer: ${globals.attackWaves.currentTimer}/${globals.attackWaves.nextTimer}</span><br>
+        <span>Enemy Strength: </span>
       </section>
       <div id="inventoryList">
         <!-- TODO create a delete mode, but should utilize a command wheel -->
@@ -311,4 +255,7 @@
     <require from="resources/elements/dataEditor"></require>
     <data-editor></data-editor>
   </div>
+  <!-- div id="loadingAnim">
+    I'm loading!
+  </!-->
 </template>

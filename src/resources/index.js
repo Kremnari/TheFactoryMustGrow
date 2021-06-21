@@ -9,5 +9,6 @@ export function configure(config) {
     ,PLATFORM.moduleName('resources/value-converters/valueconverters')
     ,PLATFORM.moduleName('resources/value-converters/CanMine')
     ,PLATFORM.moduleName('resources/value-converters/isVisible')
+    ,PLATFORM.moduleName('resources/attributes/loading')
   ]);
 }

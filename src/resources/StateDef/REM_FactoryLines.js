@@ -1,6 +1,6 @@
 import {EntityStorage} from 'EntityMgr'
-import {Inventory} from 'ItemMgr'
-import {mgrs} from 'managers'
+import {CephlaCommConstructor as CCC} from "CephlaComm/main"
+//NYI import {ChameleonJS as ChameJS} from "ChameleonJS/main"
 
 export class EntityLine {
   entityType = undefined
@@ -35,13 +35,3 @@ export class EntityLine {
   }
 }
 
-//Eventually add through CephlaComm
-export function Add2EntityLine(entityLine, entity) {
-  if(entityLine.entityType==entity) {
-
-  } else if (entityLine.entityType=="null") {
-
-  } else { // entity is not in line
-
-  }
-}

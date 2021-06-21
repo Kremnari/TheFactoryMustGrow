@@ -5,17 +5,21 @@ import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
-import {CephlaCommCaller as CCC} from 'CephlaComm/main.js'
+import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main.js'
 import {ChameleonCore as ChamJS} from 'Chameleon/main.js'
 
 import {ArrayObject} from 'libs/ArrayObject'
+
+//import {LoadingAnimCustomAttribute as LACA} from "./resources/attributes/loading.js"
+
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
     viewPane = {
       main: "home",
       showingItem: null,
-      version: "beta"
+      version: "beta",
+      loaded: false
     }
     activeFeatures = ArrayObject()
     globals = {
@@ -63,6 +67,9 @@ export class App {
       this.Cham = ChamJS
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
+      CC_const.provide("test",  this.test)
+
+
     }
     async init(database, DS) { 
       this.mgrs = database.mgrs
@@ -88,7 +95,7 @@ export class App {
       } else {
         this.facBlocks = []
         this.player =  new NamedBlocks.player(20)
-        //this.jumpStart()
+        CCC.staticProvide("from", "inventory", this.player.inv)
         this.mgrs.signaler.signal("generalUpdate")
       }
       this.mgrs.rec.set_player(this.player) //SMELL recipe manager shouldn't have to care who the player is
@@ -101,6 +108,7 @@ export class App {
        !this.showTut && this.autoSave()
        this.mgrs.Ticker.toggle()
       }
+      //LACA.setLoadingElem("#loadingAnim")
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -164,7 +172,7 @@ export class App {
       //++ Better calculation of next factory block
       this.globals.land.fac_block_costs[type] = Math.floor(this.globals.land.fac_block_costs[type] * 1.2)
 
-      let add = new FactoryBlock(type, name)
+      let add = FactoryBlock.new(type, name)
       this.facBlocks.push(add)
       return add
     }
@@ -288,6 +296,9 @@ export class App {
       this.facBlocks[3].AddBusDrain(this.facBlocks[4])
 
       this.player.inv.add("inserter", 10)
+    }
+    test(obj) {
+      debugger
     }
     nukeCache() {
       this.mgrs.idb.clear()

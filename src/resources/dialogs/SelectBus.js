@@ -5,7 +5,7 @@ export class SelectBus {
     this.controller = dc
   }
   activate(model) {
-    this.options =model.base.facBlocks
+    this.options =model.base?.facBlocks  || model.buses
     this.selected = null
   }
   selectedChanged(newVal) {

@@ -1,0 +1,49 @@
+{
+  $id: "https://digitalpsigen.tech/schemas/igorjs.json",
+  $definitions: {
+    events: {
+      $id: "#igor_events",
+      type: "array",
+      items: {
+        type: { $ref: "#/$definitions/event"}
+      }
+    },
+    event: {
+      $id: "#igor_event",
+      type: "object",
+      properties: {
+        $triggerName: {
+          type: "string",
+        },
+        $parameters: {
+          type: "array",
+          items: { $ref: "#/$definitions/parameterTuple" }
+        },
+        $code: {
+          type: { $ref: "#/$definitions/codeBlock" }
+        }
+      },
+      required: []
+    }
+  },
+  functionSignature: {
+    $comment: "....",
+    type: "object",
+    properties: {},
+    required: []
+  },
+  codeBlock: {
+    $id: "#igor_codeBlock",
+    $comment: "This should be valid JS code",
+    type: "string"
+  },
+  parameterTuple: {
+    $id: "#igor_parameterTuple"
+    $comment: "This is a function argument assignment consisting of parameter name and object type",
+    type: "array",
+    items: [
+      { type: "string" },
+      { type: "string" }
+    ]
+  }
+}
