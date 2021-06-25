@@ -38,18 +38,18 @@ a.notLink {
   //? The prior radial gradient may still be possible by varying the
   //? size (width/height) as opposed to varying the gradient positions
   100% {
-    top: 90%;
+    top: 80%;
     height: 10%;
     width: 10%;
     left: 45%;
-    background: rgba(0,0,255, 0.1);
+    background: rgba(0,0,255, 0.7);
   }
   0% {
     top: 0%;
     height: 100%;
     width: 100%;
     left: 0%;
-    background: red;
+    background: rgba(255, 0, 0, 0.3);
   }
 }
 header {

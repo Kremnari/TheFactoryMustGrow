@@ -7,7 +7,7 @@ let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..19
               , 3.7, 3.75, 3.8, 3.81, 3.9, 3.91  // ..25
             ,4, 4.1, 4.2, 4.3, 4.4  // ..30
-              ,4.41, 4.411, 4.42, 4.43, 4.44, 4.45  //  ..35
+              ,4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.451, 4.46  //  ..35
               ,4.5, 4.51, 4.52, 4.53
             //
             ,100]
@@ -235,9 +235,16 @@ class tutorial {
         $("#tutorial").show();
         __.tutText("Now go back to your lab and add the [science-packs]")
         __.tutStep(".navEntities")
+        __.setTutClick();
+        break;
+      case 4.451:
+        __.tutStep(".entityList icon-base[title='lab']")
+        __.setTutClick();
+        break;
+      case 4.46:
         __.tutStep(".labInput icon-base[title='automation-science-pack']")
         //$("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
-        this.setTutClick(6) // +1 because of navEntities in the same step
+        this.setTutClick(5) // +1 because of navEntities in the same step
         break;
       case 4.5:
         __.tutStep(".navTechs")
