@@ -1,7 +1,7 @@
 import {TagMapProxy} from "./resources/types/TagsProxy"
 import KVSMap from "./resources/types/KVSMap"
 import {ItemStack, Inventory} from "./ItemMgr"
-import {FactoryBlock} from './resources/StateDef/FactoryBlock'
+import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
 import {mgrs} from 'managers'
 import {TICKS_PER_SECOND} from "./Config"
 import {InvXFer} from './gameCode/Inventory'

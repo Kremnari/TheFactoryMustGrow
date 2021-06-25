@@ -1,16 +1,16 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject, BindingEngine} from 'aurelia-framework'
-import {FactoryBlock, NamedBlocks} from './resources/StateDef/FactoryBlock'
+import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
+import {NamedBlocks} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
-import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main.js'
-import {ChameleonCore as ChamJS} from 'Chameleon/main.js'
+import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
+import {ChameleonCore as ChamJS, ChameleonViewer as ChameView} from 'Chameleon/main'
+import {IgorJS} from 'IgorJs/main'
 
 import {ArrayObject} from 'libs/ArrayObject'
-
-//import {LoadingAnimCustomAttribute as LACA} from "./resources/attributes/loading.js"
 
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
@@ -64,8 +64,6 @@ export class App {
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
-      this.Cham = ChamJS
-      this.Cham.SetModalBox("#ChameleonModal")
       this.saveGame = DataProv.saveGame
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
@@ -99,6 +97,9 @@ export class App {
       this.mgrs.rec.set_player(this.player) //SMELL recipe manager shouldn't have to care who the player is
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
       this.select_FacBlock(this.player, true)
+      //Setup IgorJs
+      IgorJS.Ticker_temp(this.mgrs.Ticker)
+      IgorJS.addToTicker(this.facBlocks)
       this.mgrs.Ticker.subscribe((td) => { this.tickMine(td) })
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
@@ -106,7 +107,6 @@ export class App {
        !this.showTut && this.autoSave()
        this.mgrs.Ticker.toggle()
       }
-      //LACA.setLoadingElem("#loadingAnim")
     }
     vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
@@ -122,9 +122,6 @@ export class App {
         }, 0)
       }
     }
-    hideTutorial() { Tutorial.hide() }
-    resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
-    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
@@ -134,9 +131,6 @@ export class App {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.sub = null
       }
-    }
-    resetSave() {
-      this.saveGame()
     }
     showing(whatObj, category) {
       if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
@@ -161,7 +155,7 @@ export class App {
         return
       }
       if(this.globals.land.available - this.globals.land.used < this.globals.land.fac_block_costs[type]) {
-        console.log('not enough land available')
+        ChameView.error('not enough land available')
         return 
       }
       this.globals.land.used += this.globals.land.fac_block_costs[type]
@@ -204,7 +198,7 @@ export class App {
     }
     tickMine(tickData) {
       //SMELL
-      //This should be moved to YgorJs
+      //This should be moved to IgorJs
       if(tickData.ticks%100) { return }
       if(this.facBlocks?.offenses?.machines.radar?.count) {
         this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 1
@@ -255,12 +249,14 @@ export class App {
         obus: this.facBlocks.offenseBus
       }
       for (let each of this.facBlocks) {
-        save.facBlocks.set.push(each.serialize())
+        save.facBlocks.set.push(each.serialize && each.serialize  || each)
       }
       save.global = this.global
       this.saveGame(save)
       console.log("...done")
     }
+
+    //* Utility Functions
     jumpStart() {
       this.player.inv.add("inserter", 10)
       this.player.inv.add("lab", 10)
@@ -294,8 +290,9 @@ export class App {
 
       this.player.inv.add("inserter", 10)
     }
-    nukeCache() {
-      this.mgrs.idb.clear()
-      window.location.reload()
-    }
+    nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
+    hideTutorial() { Tutorial.hide() }
+    resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
+    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
+    resetSave() { this.saveGame() }
 }

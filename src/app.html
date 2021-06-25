@@ -118,7 +118,8 @@
             click.delegate="mgrs.rec.startCraft(rec, player.inv, ' ')"
             show.bind="rec.enabled"
             class.bind="rec.classesStr"
-            anim_class.bind="rec.style"
+            anim_style.bind="rec.style"
+            metas.bind="{showEntity: true}"
             mouseenter.trigger="tooltip = rec"
             mouseleave.trigger="tooltip = null"
           ></icon-base>
@@ -234,12 +235,13 @@
     </div>
     <div id="ChameleonModal">
       <div class="center">
-        <span id="ChameleonMessage"></span>
+        <span id="ChameleonMessage"></span><br>
+        <button id="ChameleonButton" class="btn">Close</button>
       </div>
     </div>
     <section class="tabs">
       <require from="resources/components/tabPopout"></require>
-      <tab-popout class="tab_bottom_left" id="numSelectors">
+      <tab-popout class="tab_bottom_left" id="numSelectors" if.bind="activeFeatures['rounder']">
         <div slot="tab">
           Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
         </div>

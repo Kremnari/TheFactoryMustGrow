@@ -25,24 +25,31 @@ a.notLink {
   border-radius: 8px;
 }
 .mining .animTarget {
-  background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 66%, transparent 100%)
+  //background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 66%, transparent 100%)
 }
 .crafting {
-  background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 33%, transparent 100%)
+  //background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 33%, transparent 100%)
 }
 .fillable {
   border: 2px groove lightsteelblue;
 }
 
 @keyframes testXform {
-  from {
-    background: radial-gradient(rgba(165, 42, 42, .9) 0%, rgba(165, 42, 42, 0.9) 10%, transparent 100%);
+  //? The prior radial gradient may still be possible by varying the
+  //? size (width/height) as opposed to varying the gradient positions
+  100% {
+    top: 90%;
+    height: 10%;
+    width: 10%;
+    left: 45%;
+    background: rgba(0,0,255, 0.1);
   }
-  50% {
-    background: radial-gradient(rgba(165, 42, 42, .9) 0%, rgba(165, 42, 42, .1) 100%);
-  }
-  to {
-    background: radial-gradient(rgba(165, 42, 42, .9) 0%, rgba(165, 42, 42, .9) 10%, transparent 100%);
+  0% {
+    top: 0%;
+    height: 100%;
+    width: 100%;
+    left: 0%;
+    background: red;
   }
 }
 header {
@@ -86,6 +93,7 @@ header {
   border-width: 4px;
   border: 4px solid black;
   border-image-slice: 0 0 10 0;
+  display:inline-block;
 }
 crafting-infopane > .showRecipe > * {
   display: inline-block;
@@ -96,10 +104,6 @@ mining-infopane > div {
 lab-infopane {
   display: block;
 }
-.labInput {
-  display:inline;
-}
-
 .switch {
   position: relative;
   display: inline-block;
@@ -279,10 +283,12 @@ span.button {
     top: 0px;
     left:0px;
     background: rgba(0, 0, 0, 0.3);
+    //backdrop-filter: blur(3px);
     z-index: 1000;
     position: fixed;
     & #tut_text {
       display: block;
+      backdrop-filter: blur(3px);
     }
     & > #tut_pos {
       width: 100vw;
@@ -290,9 +296,15 @@ span.button {
       font-size: 2em;
       text-align: center;
       vertical-align: middle;
+      position: absolute;
       &.center {
-        position: absolute;
         top: calc(50%-50px);
+      }
+      &.top {
+        top: calc(25%-50px);
+      }
+      &.bottom {
+        top: calc(75%-50px);
       }
     }
   }

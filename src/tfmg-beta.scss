@@ -59,3 +59,26 @@
   border: 2px dashed black;
   border-radius: 8;
 }
+
+
+#ChameleonModal {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  & #ChameleonMessage {
+    text-align: center;
+    vertical-align: middle;
+  }
+  & #ChameleonButton {
+    background-color: lightgrey;
+  }
+  & > .center {
+    position: absolute;
+    top: calc(50%-50px);
+    left: 30%;
+  }  
+}

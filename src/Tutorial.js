@@ -7,8 +7,8 @@ let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..19
               , 3.7, 3.75, 3.8, 3.81, 3.9, 3.91  // ..25
             ,4, 4.1, 4.2, 4.3, 4.4  // ..30
-              ,4.41, 4.42, 4.43, 4.44, 4.45  //  ..35
-              ,4.5, 4.51, 4.52
+              ,4.41, 4.411, 4.42, 4.43, 4.44, 4.45  //  ..35
+              ,4.5, 4.51, 4.52, 4.53
             //
             ,100]
 window.jq = $
@@ -18,6 +18,7 @@ class tutorial {
   tutClicks = 0
   constructor() {
     __ = this
+    this.stepNum = (i) => {return steps[i || this.atStep]}
   }
   start() {
     $("#tutorial").addClass("Block")
@@ -31,6 +32,7 @@ class tutorial {
   nextStep() {
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
+    $("#tut_pos").removeClass(["top", "bottom"]).addClass('center')
     $("#tut_text").text("")
     setTimeout( ()=> {
       this.setStep(steps[++this.atStep])
@@ -64,6 +66,7 @@ class tutorial {
         break;
       case 0.9: 
         $("#resources").addClass("tutStep")
+        $("#tut_pos").addClass("top")
         $("#tut_text").text("You can mine (click) these by hand")
         $("#tut_button").text("Got it").show()
         break;
@@ -145,7 +148,7 @@ class tutorial {
         mgrs.baseApp.viewPane.main = "home"
         mgrs.baseApp.tooltip = mgrs.rec.recipeList["burner-mining-drill"]
         $("#recipes icon-base[title='burner-mining-drill']").addClass('tutTarget')
-        $("#tut_text").html("A mining drill requires the following:<br>3 gears, a furnace and 3 plates<br>build away")
+        $("#tut_text").html("A mining drill requires the following:<br>1 gear, a furnace and 1 plate<br>build away")
         $("#tut_button").text("Hi ho, it's off to work I go").show()
         break;
       case 3.75:
@@ -205,11 +208,15 @@ class tutorial {
         break;
       case 4.41:
         $(".navEntities").addClass("tutStep")
-        $(".navE_Lab").addClass("tutStep")
-        $("#machines .entityList icon-base[title='lab']:first").addClass("tutStep")
+        __.setTutClick()
+        break;
+      case 4.411:
+        $("#machines .entityList icon-base[title='lab']").addClass("tutStep")
         __.setTutClick()
         break;
       case 4.42:
+        $("#tutorial").show()
+        
         $("#tut_text").text("This is a research lab.  You will need to add [science-packs] for it to consume to process research.")
         __.tutButton("Are these machines or magic?")
         break;
@@ -220,16 +227,21 @@ class tutorial {
       case 4.44:
         mgrs.baseApp.viewPane.main = "home"
         mgrs.baseApp.tooltip = mgrs.rec.recipeList["automation-science-pack"]
+        $("#tutorial").hide();
+        $("#recipes icon-base[title='automation-science-pack']").addClass('tutTarget')
         __.playerInvWait({name:"automation-science-pack", count: 10})
         break;
       case 4.45:
+        $("#tutorial").show();
         __.tutText("Now go back to your lab and add the [science-packs]")
         __.tutStep(".navEntities")
-        __.tutStep(".navE_Lab")
         __.tutStep(".labInput icon-base[title='automation-science-pack']")
+        //$("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
+        this.setTutClick(6) // +1 because of navEntities in the same step
         break;
       case 4.5:
         __.tutStep(".navTechs")
+        __.setTutClick()
         break;
       case 4.51:
         __.tutText("This tab allows you to direct technology research.<br>We should start with automation")
@@ -238,17 +250,21 @@ class tutorial {
       case 4.52:
         __.tutText("More techs will become available with each research")
         __.tutStep("#technologies icon-base[title='automation']")
+        __.setTutClick()
         break;
       case 4.53:
+        $("#tutorial").hide()
+        __.tutStep("#StartResearch")
+        __.setTutClick()
         break;
       case 100:
+        $("#tutorial").show()
         $("#tut_text").text("End of tutorial...so far")
         $("#tut_button").text("But now what...?").show()
         break;
       default:
-        $("#tutorial").hide()
         console.log('default, reset')
-        mgrs.baseApp.autoSave()
+        this.hide();
         break;
     }
   }
@@ -265,11 +281,12 @@ class tutorial {
   hide() {
     $(".tutStep").off("click")
     $("#tutorial").removeClass("Block")
+    mgrs.baseApp.activeFeatures['rounder'] = true
     mgrs.baseApp.autoSave()
   }
   setTutClick(num = 0) {
     this.tutClicks = num
-    $(".tutStep").click( ()=>{
+    $(".tutStep").on('click', ()=>{
       if(--this.tutClicks>0) {
         //console.log("not there yet")
         return

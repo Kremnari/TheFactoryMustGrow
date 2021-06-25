@@ -13,7 +13,7 @@
         <span if.bind="typeof unlock === 'object'">${unlock.feature}</span>
       </div>
     </div>
-    <button click.delegate="techMgr.select_research(tech)" if.bind="!techMgr.researching && !tech.researched">Research</button>
+    <button click.delegate="techMgr.select_research(tech)" if.bind="!techMgr.researching && !tech.researched" id="StartResearch">Research</button>
     <button click.delegate="techMgr.cancel_research()" if.bind="techMgr.researching == tech">Cancel</button>
   </div>
 </template>

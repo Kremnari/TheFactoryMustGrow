@@ -100,7 +100,6 @@ export const CephlaCommCaller = {
     }
     if(!$evt.CCC[specifier]) $evt.CCC[specifier] = {}
     $evt.CCC[specifier][type] = obj
-    console.log('caught: '+specifier+"_"+type)
   },
   staticProvide: (specifier, type, obj) => {
     CephlaCommCaller.statics[specifier] || (CephlaCommCaller.statics[specifier] = {})
