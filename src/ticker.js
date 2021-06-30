@@ -1,5 +1,11 @@
-import * as CONFIG from './Config'
 import {mgrs} from "managers"
+
+//* This two imports should be removed,
+//     the config data should be passed through the constructor
+//     a modifier function should be provided to multiply the speed of the ticker
+//        or change the tick interval at a flat rate
+//     the mgrs object should be removed, and such signals emitted by Igor back into the GUI
+
 
 export default class Ticker {
   _cbs = {
@@ -9,9 +15,10 @@ export default class Ticker {
   debugging = false
   winTerval = null
   ticks = 0
-  constructor() {
+  constructor(TPS, TMP) {
     this.isRunning = false
-    this.mspt = 1000/CONFIG.TICKS_PER_SECOND
+    this.config = { ticks_per_sec: TPS, ticks_max_phase: TMP}
+    this.mspt = 1000/this.config.ticks_per_sec
   }
   pause() {
     this.isRunning = false
@@ -36,7 +43,7 @@ export default class Ticker {
       //console.time(this.ticks)
       if (this.debugging) console.log('tick')
       
-      if(this.ticks >= CONFIG.TICKS_MAX_PHASE) this.ticks = 0
+      if(this.ticks >= this.config.ticks_per_sec) this.ticks = 0
       let tickData = { ticks: this.ticks }
       this._cbs.providers.forEach( (providerCB) => {
         providerCB(tickData)
@@ -56,7 +63,7 @@ export default class Ticker {
   subscribe(cb, nth = 1) {
     // Only factors of TICKS_MAX_PHASE should be used
     // Mostly because I don't want to add logic to handle carries
-    if(CONFIG.TICKS_MAX_PHASE%nth != 0) { return false; }
+    if(this.config.ticks_max_phase%nth != 0) { return false; }
     let obj = {cb: cb, nth: nth, phase: this.ticks%nth}
     Object.freeze(obj) //It's being used as a Set key
     this._cbs.subscribers.add(obj)

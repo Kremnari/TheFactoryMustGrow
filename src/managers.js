@@ -3,7 +3,6 @@ import ItemMgr from 'ItemMgr'
 import ResMgr from  'ResMgr'
 import RecipeMgr from 'RecipeMgr'
 import TechMgr from 'TechMgr'
-import Ticker from "ticker"
 import {Rounder} from 'Rounder'
 import {EntityMgr} from 'EntityMgr'
 import {set as dbSet, get as dbGet, del as dbDel, clear as dbClear} from 'idb-keyval'
@@ -23,5 +22,4 @@ export const mgrs =  {
     del: dbDel,
     clear: dbClear
   },
-  Ticker: new Ticker()
 }

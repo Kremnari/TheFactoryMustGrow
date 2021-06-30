@@ -5,7 +5,7 @@ import {CephlaCommConstructor as CCC} from "CephlaComm/main"
 //* Chameleon is a view controller and should be called by Igor to
 //    post updates
 import {ChameleonBuilder as ChamBuild, ChameleonViewer as ChameJS} from 'Chameleon/main.js'
-
+import {IgorUtils} from 'IgorJs/main'
 
 export const NamedBlocks = {
   player: PlayerBlock,

@@ -4,14 +4,15 @@ import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
 import {NamedBlocks} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
-import {Tutorial} from 'Tutorial'
 import * as Config from 'Config'
 import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
 import {ChameleonCore as ChamJS, ChameleonViewer as ChameView} from 'Chameleon/main'
-import {IgorJS} from 'IgorJs/main'
+import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {ArrayObject} from 'libs/ArrayObject'
 
+import {game} from 'BaseGame'
+import {Tutorial} from 'Tutorial'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
@@ -22,38 +23,7 @@ export class App {
       loaded: false
     }
     activeFeatures = ArrayObject()
-    globals = {
-      land: {
-        total: 100,
-        used: 0,
-        complexity: 0,
-        res_patches: 1,
-        res_patch_used: 0,
-        fac_block_costs: {
-          factory: 100,
-          bus: 100,
-          research: 100,
-        }
-      },
-      scanning: {
-        nextCost: 100,
-        currentCost: 0
-      },
-      attackWaves: {
-        nextTimer: 100,
-        nextStrength: 100,
-        currentTimer: 0,
-      }
-    }
-    viewHelpers =  {
-      //HACK no 'this' reference....
-      //using tfmg from window
-      PlayerBlock(where) {
-        tfmg.select_FacBlock(tfmg.player, true)
-        tfmg.viewPane.main = "entities"
-      }
-    }
-
+    globals = IgorJs.globalObject
     showTut = true
     dataBase = {}
     viewRecCat = false
@@ -72,6 +42,15 @@ export class App {
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
+      if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
+        game.loadGame(database.save)
+      } else {
+        game.newGame()
+      }
+      IgorJs.Ticker_temp(this.mgrs.Ticker)
+      this.mgrs.Ticker = IgorJs.getTicker
+      IgorJs.setState("start")
+      /*
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
         this.player = NamedBlocks.player.deserialize(this.mgrs, database.save.player)
         this.facBlocks = []
@@ -99,16 +78,17 @@ export class App {
       this.select_FacBlock(this.player, true)
       //Setup IgorJs
       IgorJS.Ticker_temp(this.mgrs.Ticker)
-      IgorJS.addToTicker(this.facBlocks)
-      this.mgrs.Ticker.subscribe((td) => { this.tickMine(td) })
+      IgorJS.addToTicker("FactoryBlocksBase", this.facBlocks)
+      IgorJS.addObjectTickFunction("FactoryBlocksBase", (td) => {this.tickMine(td) })
+      //this.mgrs.Ticker.subscribe((td) => { this.tickMine(td) })
       this.showDev = await this.mgrs.idb.get("dev")
+      */
       if(!this.showDev) {
        this.showTut && Tutorial.start()
-       !this.showTut && this.autoSave()
+       !this.showTut && this.toggleAutoSave()
        this.mgrs.Ticker.toggle()
       }
     }
-    vrcToggle(toWhich) { this.viewRecCat = this.viewRecCat == toWhich ?  false : toWhich }
     set showItem(obj) {
       if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
       let old = this.viewPane.showingItem
@@ -122,7 +102,7 @@ export class App {
         }, 0)
       }
     }
-    autoSave() {
+    toggleAutoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
           this.save()
@@ -131,6 +111,28 @@ export class App {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.sub = null
       }
+    }
+    async save() {
+      console.log('saving...')
+      this.saveGame = IgorJs.getSave() //pass through to DataProvider...? pourquoi?
+      let save = { player: {}}
+      save.version = Config.IDB_SAVE_VERSION
+      save.techs = this.mgrs.tech.serialize()
+      save.player = this.player.serialize()
+      save.features = this.activeFeatures
+      save.facBlocks = {
+        set: [],
+        d: this.facBlocks.defenses,
+        dbus: this.facBlocks.defenseBus,
+        o: this.facBlocks.offenses,
+        obus: this.facBlocks.offenseBus
+      }
+      for (let each of this.facBlocks) {
+        save.facBlocks.set.push(each.serialize && each.serialize  || each)
+      }
+      save.global = this.global
+      this.saveGame(save)
+      console.log("...done")
     }
     showing(whatObj, category) {
       if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
@@ -196,33 +198,6 @@ export class App {
       }
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
-    tickMine(tickData) {
-      //SMELL
-      //This should be moved to IgorJs
-      if(tickData.ticks%100) { return }
-      if(this.facBlocks?.offenses?.machines.radar?.count) {
-        this.globals.scanning.currentCost += this.facBlocks.offenses.machines.radar.count * 1
-        if(this.globals.scanning.currentCost>=this.globals.scanning.nextCost) {
-          this.globals.scanning.currentCost -= this.globals.scanning.nextCost
-          this.globals.scanning.nextCost += 20
-          //NYI generate land /resource patch and enemies
-          this.globals.land.total += 10
-          this.globals.land.res_patches = Math.floor(this.globals.land.total/100)
-
-        }
-      }
-      if(this.facBlocks?.defenses?.machines.turret?.count) {
-        //next wave
-        if(this.globals.attackWaves.currentTimer>this.globals.attackWaves.nextTimer) {
-          this.globals.attackWaves.nextTimer = this.globals.attackWaves.nextTimer ^ 1.2
-          this.globals.attackWaves.currentTime = 0
-          //Process some attack
-        } else {
-          this.globals.attackWaves.currentTimer++
-        }
-      }
-
-    }
     when(targ, cb) {
       this.whenTarg = {targ, cb}
       console.log('whenSet')
@@ -234,28 +209,6 @@ export class App {
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
-    async save() {
-      let save = { player: {}}
-      console.log('saving...')
-      save.version = Config.IDB_SAVE_VERSION
-      save.techs = this.mgrs.tech.serialize()
-      save.player = this.player.serialize()
-      save.features = this.activeFeatures
-      save.facBlocks = {
-        set: [],
-        d: this.facBlocks.defenses,
-        dbus: this.facBlocks.defenseBus,
-        o: this.facBlocks.offenses,
-        obus: this.facBlocks.offenseBus
-      }
-      for (let each of this.facBlocks) {
-        save.facBlocks.set.push(each.serialize && each.serialize  || each)
-      }
-      save.global = this.global
-      this.saveGame(save)
-      console.log("...done")
-    }
-
     //* Utility Functions
     jumpStart() {
       this.player.inv.add("inserter", 10)
