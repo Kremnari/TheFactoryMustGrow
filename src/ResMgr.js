@@ -1,6 +1,8 @@
 import ItemMgr from 'ItemMgr'
 import {inject} from 'aurelia-framework'
 
+import {CephlaCommConstructor as CCC} from 'CephlaComm/main'
+
 @inject(ItemMgr)
 export default class ResMgr {
   resList = {}
@@ -38,3 +40,26 @@ export default class ResMgr {
     return list
   }
 }
+
+const ResourceMine = (obj) => {
+  if(ResourceMine.res) {
+    window.clearTimeout(ResourceMine.timeout)
+    ResourceMine.res.miningStyle = ""
+    ResourceMine.res = undefined
+  } else {
+    ResourceMine.timeout = window.setTimeout( () => {
+      obj.to.add(obj.which.mining_results, 1)
+    }, obj.which.mining_time * 1000)
+    ResourceMine.res = obj.which
+    ResourceMine.res.miningStyle = "animation: textxform "+obj.which.mining_time
+  }
+}
+
+
+
+const ResourceMineSig = {
+  which: "resource",
+  player: "inventory"
+}
+
+CCC.provide("resources.mine", ResourceMine, ResourceMineSig)

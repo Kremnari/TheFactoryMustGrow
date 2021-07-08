@@ -38,3 +38,18 @@ window.debugCheck = function(obj, flag) {
   !obj.debug && (obj.debug = [])
   obj.debug.push(flag)
 }
+
+Object.walkPath = function(o, s) {
+  s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+  s = s.replace(/^\./, '');           // strip a leading dot
+  var a = s.split('.');
+  for (var i = 0, n = a.length; i < n; ++i) {
+      var k = a[i];
+      if (isObject(o) && k in o) {
+          o = o[k];
+      } else {
+          Error("Couldn't walk the path completely");
+      }
+  }
+  return o;
+}

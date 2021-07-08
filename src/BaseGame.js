@@ -1,12 +1,15 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
 import * as CONFIG from './Config'
 
+import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
+import {NamedBlocks} from './resources/StateDef/FactoryBlock'
+
 
 //* these two setup the base game data,
 // possibly combine them to a single function
 //
 export const newGame = () => {
-  IgorJs.globalObject = {
+  IgorJs.setGlobal({
     land: {
       total: 100,
       used: 0,
@@ -27,33 +30,47 @@ export const newGame = () => {
       nextTimer: 100,
       nextStrength: 100,
       currentTimer: 0,
-    }
-  }
-  setupIgor()
+    },
+    player: new NamedBlocks.player(20),
+    facBlocks: {
+      defenses: null,
+      defenseBus: null,
+      offense: null,
+      offenseBus: null,
+      buses: [],
+      blocks: []
+    },
+    activeFeatures: []
+  })
 }
 export const loadGame = (saveData) => {
-  IgorJs.globalObject = saveData.global
-  setupIgor()
+  let obj = saveData
+  obj.player = NamedBlocks.player.deserialize(obj.player)  //! Hate this, need to reduce player to pure json with CephlaComm hooks
+  
+  IgorJs.setGlobal(obj)
 }
+
 //* This sets up the references Igor needs to run
 const setupIgor = () => {
+  //TODO rebuild Igor's object list,
+  // but ideally it happens automatically 
+  // when loading game object descriptions
+  IgorJs.defineObj("factoryBlocksBase", "global.facBlocks")
+  IgorJs.defineObj("player", "player")
   IgorJs.addObjectTickFunction("FactoryBlocksBase", (td, obj) => { tickBase(td, obj) })
-  IgorJs.finalize({
-    ticker: {
-      ticks_perSec: CONFIG.TICKS_PER_SECOND,
-      ticks_maxPhase: cONFIG.TICKS_MAX_PHASE
-    }
-  })
 }
 
 //* saves data, should eventually take an object with a save(json) function 
-export const save = () => {
-  return 
+export const saveGame = (idb) => {
+  console.log("constructing save")
+  idb.set("SaveGame_Igor", IgorJs.globalObject)
+  console.log('save complete')
 }
 export const game = {
   new: newGame,
   load: loadGame,
   save: saveGame,
+  setup: setupIgor,
 }
 
 

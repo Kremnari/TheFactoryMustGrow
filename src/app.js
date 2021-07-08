@@ -31,10 +31,16 @@ export class App {
     constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
       this.signaler = signaler
+      IgorJs.initialize({
+        ticker: {
+          ticks_perSec: Config.TICKS_PER_SECOND,
+          ticks_maxPhase: Config.TICKS_MAX_PHASE
+        }
+      })
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
-      this.saveGame = DataProv.saveGame
+      this.save = () => { game.save(mgrs.idb) }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
@@ -42,17 +48,18 @@ export class App {
       this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
+      this.mgrs.Ticker = IgorJs.Ticker
+      game.setup()
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
-        game.loadGame(database.save)
+        game.load(database.save)
       } else {
-        game.newGame()
+        game.new()
       }
-      IgorJs.Ticker_temp(this.mgrs.Ticker)
-      this.mgrs.Ticker = IgorJs.getTicker
-      IgorJs.setState("start")
-      /*
+      CCC.staticProvide("from", "inventory", this.player.inv)  //! Should depreciate use in preference of proper noun reference
+      CCC.staticProvide("player", "inventory", this.player.inv)
+      /* All game data should hide in igor
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
-        this.player = NamedBlocks.player.deserialize(this.mgrs, database.save.player)
+        --this.player = NamedBlocks.player.deserialize(database.save.player)
         this.facBlocks = []
         this.global = database.save.global
         this.activeFeatures = database.save.features || ArrayObject()
@@ -69,13 +76,14 @@ export class App {
         }
       } else {
         this.facBlocks = []
-        this.player =  new NamedBlocks.player(20)
+        --this.player =  new NamedBlocks.player(20)
         CCC.staticProvide("from", "inventory", this.player.inv)
         this.mgrs.signaler.signal("generalUpdate")
       }
-      this.mgrs.rec.set_player(this.player) //SMELL recipe manager shouldn't have to care who the player is
+      SMELL recipe manager shouldn't have to care who the player is
+      This was origionally used to change a classname to provide the border cue
+      this.mgrs.rec.set_player(this.player)
       this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
-      this.select_FacBlock(this.player, true)
       //Setup IgorJs
       IgorJS.Ticker_temp(this.mgrs.Ticker)
       IgorJS.addToTicker("FactoryBlocksBase", this.facBlocks)
@@ -85,8 +93,8 @@ export class App {
       */
       if(!this.showDev) {
        this.showTut && Tutorial.start()
-       !this.showTut && this.toggleAutoSave()
-       this.mgrs.Ticker.toggle()
+       !this.showTut && this.autoSave()
+       IgorJs.setState("start")
       }
     }
     set showItem(obj) {
@@ -102,7 +110,7 @@ export class App {
         }, 0)
       }
     }
-    toggleAutoSave() {
+    autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
           this.save()
@@ -112,10 +120,12 @@ export class App {
         this.autoSave.sub = null
       }
     }
-    async save() {
+    async saveXX() {
       console.log('saving...')
-      this.saveGame = IgorJs.getSave() //pass through to DataProvider...? pourquoi?
-      let save = { player: {}}
+      this.saveGame()
+      //this.saveGame = IgorJs.getSave() //pass through to DataProvider...? pourquoi?
+      
+      /*let save = { player: {}}
       save.version = Config.IDB_SAVE_VERSION
       save.techs = this.mgrs.tech.serialize()
       save.player = this.player.serialize()
@@ -132,6 +142,7 @@ export class App {
       }
       save.global = this.global
       this.saveGame(save)
+      */
       console.log("...done")
     }
     showing(whatObj, category) {
@@ -169,11 +180,6 @@ export class App {
       let add = FactoryBlock.new(type, name)
       this.facBlocks.push(add)
       return add
-    }
-    select_FacBlock(which, isPlayer = false) {
-      this.showItem = null
-      this.viewPane.facBlock = which
-      this.viewPlayer = isPlayer
     }
     adjustFeature(obj) {
       switch(obj.feature) {

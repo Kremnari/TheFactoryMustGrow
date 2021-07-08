@@ -221,7 +221,7 @@ export class PlayerBlock {
     this.entityStore = new EntityStorage(this)
     mgrs.Ticker.subscribe((x)=>{ this.tick(x)})
   }
-  static deserialize(DEPRECIATED, saveData) {
+  static deserialize(saveData) {
     let ret = new PlayerBlock()
     ret.inv.deserialize(saveData.inv)
     ret.entityStore.deserialize(saveData.entityStore)

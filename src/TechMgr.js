@@ -1,6 +1,9 @@
 import {inject} from 'aurelia-framework'
 import {EventAggregator} from 'aurelia-event-aggregator'
 import {mgrs} from "managers"
+import {IgorUtils} from "IgorJs/main"
+
+var IgorJs = IgorUtils
 
 @inject(EventAggregator)
 export default class TechMgr {
@@ -25,7 +28,7 @@ export default class TechMgr {
     this.applyFilter("prereqs", {count: 0})
     this.applyFilter("byPack", {pack: 'automation-science-pack'})
     this.updateVisible() //TODO move this to an importable function
-    mgrs.Ticker.DataProvider((obj) => { this.TickerProvider(obj) } )
+    IgorJs.Ticker.DataProvider((obj) => { this.TickerProvider(obj) } )
   }
   serialize() {
     let ret = {}

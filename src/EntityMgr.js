@@ -6,6 +6,8 @@ import {mgrs} from 'managers'
 import {TICKS_PER_SECOND} from "./Config"
 import {InvXFer} from './gameCode/Inventory'
 
+import {IgorUtils as IgorJs} from 'IgorJs/main'
+
 const BUFFER_SIZES = [5, 10, 20, 30, 40, 50]
 BUFFER_SIZES.MAX = 50
 
@@ -43,7 +45,7 @@ export class EntityMgr {
         return ret
       }
     })
-    mgrs.Ticker.DataProvider((obj) => { this.TickerProvider(obj) })
+    IgorJs.Ticker.DataProvider((obj) => { this.TickerProvider(obj) })
   }
   TickerProvider(tickerObj) {
     if(!tickerObj.entities) tickerObj.entities = {}

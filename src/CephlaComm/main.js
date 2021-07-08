@@ -11,8 +11,12 @@ import {mgrs} from 'managers'
 //   that includes a signature validator
 
 //* During dev, function signatures are optional
-// Signature should be and object of with specifiers as properties and
+// Signature should be an object of with specifiers as properties and
 //   a string or array to indicate valid object types
+
+//* SPECIFIERS - either a proper noun (specific instance of game object)
+//      or a preposition use to indicate a game object with a relation
+//       to the target of said preposition
 
 const CephlaCommCore = {
   //* need to improve repo namespacing

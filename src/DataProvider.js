@@ -1,6 +1,7 @@
-import {mgrs} from 'managers'
+import {mgrs as MGRS} from 'managers'
 import * as Config from 'Config'
 
+var mgrs = MGRS
 export let DataProvider = {
   onLoadComplete(cb) {
     DataProvider.loadCb = cb

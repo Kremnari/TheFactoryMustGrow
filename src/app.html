@@ -126,8 +126,13 @@
         </div>
         <div id="resources">
           <h3>Mineables</h3>
-          <icon-base repeat.for="res of mgrs.res.resList | canMine | objectValues" item.bind="res" click.delegate="mgrs.res.mine(res.name, player.inv)"
-                    class="${res.mining ? 'mining': null}" anim_style.bind="res.miningStyle"></icon-base> 
+          <icon-base
+            repeat.for="res of mgrs.res.resList | canMine | objectValues"
+            item.bind="res"
+            click.delegate="CCC.issue('resources.mine', { which: res })"
+            class="${res.mining ? 'mining': null}"
+            anim_style.bind="res.miningStyle"
+          ></icon-base> 
         </div>
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'">
