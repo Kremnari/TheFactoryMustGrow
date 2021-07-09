@@ -5,7 +5,7 @@ import RecipeMgr from 'RecipeMgr'
 import TechMgr from 'TechMgr'
 import {Rounder} from 'Rounder'
 import {EntityMgr} from 'EntityMgr'
-import {set as dbSet, get as dbGet, del as dbDel, clear as dbClear} from 'idb-keyval'
+import {set as dbSet, get as dbGet, del as dbDel, clear as dbClear, keys as dbKeys} from 'idb-keyval'
 
 export const mgrs =  {
   icon: new IconMgr(),
@@ -20,6 +20,7 @@ export const mgrs =  {
     set: dbSet,
     get: dbGet,
     del: dbDel,
-    clear: dbClear
+    clear: dbClear,
+    list: dbKeys
   },
 }

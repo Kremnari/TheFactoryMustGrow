@@ -22,7 +22,11 @@ export let DataProvider = {
     let icons = await mgrs.idb.get("Icons")
     icons && (ds.icons = icons)
     let save = await mgrs.idb.get("SaveGame") || null
-
+    if(!save) {
+      save = await mgrs.idb.get("SaveGame_Igor") || null
+      if(!save.version) save.version = Config.IDB_SAVE_VERSION
+    }
+    debugger
     DataProvider.init(ds, save)
   },
   async init(data, save) {

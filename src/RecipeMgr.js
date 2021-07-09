@@ -79,13 +79,15 @@ export default class RecipeMgr {
       let craftingTime = recipe.crafting_speed || recipe.crafting_time
       catTO.timer = window.setTimeout(() => {
         this.crafting[recCategory] = null
-        recipe.style = ""
+        recipe.animTime = null
+        recipe.animClass = null
         recipe.classes[CLASSES.crafting] = ""
         this.craft(recipe, inv)
       }, craftingTime* 1000)
       catTO.recipe = recipe
       this.crafting[recCategory] = catTO
-      recipe.style = "animation: testXform "+craftingTime+"s"
+      recipe.animTime = "animation-duration: "+craftingTime+"s"
+      recipe.animClass = "isCrafting"
       recipe.classes[CLASSES.crafting] = "crafting"
     }
   }
@@ -128,5 +130,6 @@ class Recipe {
 
 const CLASSES =  {
   enabled: 0,
-  crafting: 1
+  crafting: 1,
+
 }

@@ -31,7 +31,6 @@ export const newGame = () => {
       nextStrength: 100,
       currentTimer: 0,
     },
-    player: new NamedBlocks.player(20),
     facBlocks: {
       defenses: null,
       defenseBus: null,
@@ -40,7 +39,9 @@ export const newGame = () => {
       buses: [],
       blocks: []
     },
-    activeFeatures: []
+    player: new NamedBlocks.player(20),
+    activeFeatures: [],
+    version: CONFIG.IDB_SAVE_VERSION
   })
 }
 export const loadGame = (saveData) => {
@@ -72,7 +73,6 @@ export const game = {
   save: saveGame,
   setup: setupIgor,
 }
-
 
 //SMELL
 //This should be split among the individual objects,

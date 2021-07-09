@@ -23,7 +23,6 @@ export class App {
       loaded: false
     }
     activeFeatures = ArrayObject()
-    globals = IgorJs.globalObject
     showTut = true
     dataBase = {}
     viewRecCat = false
@@ -40,7 +39,7 @@ export class App {
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
-      this.save = () => { game.save(mgrs.idb) }
+      this.save = () => { game.save(this.mgrs.idb) }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
@@ -49,48 +48,26 @@ export class App {
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
+      ChameView.signaler = this.signaler
       game.setup()
+      debugger
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
+        console.log("loaded")
         game.load(database.save)
       } else {
+        console.log("new")
         game.new()
       }
-      CCC.staticProvide("from", "inventory", this.player.inv)  //! Should depreciate use in preference of proper noun reference
-      CCC.staticProvide("player", "inventory", this.player.inv)
-      /* All game data should hide in igor
-      if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
-        --this.player = NamedBlocks.player.deserialize(database.save.player)
-        this.facBlocks = []
-        this.global = database.save.global
-        this.activeFeatures = database.save.features || ArrayObject()
-        this.facBlocks.player = this.player
-        this.showTut = false
-        if(database.save.facBlocks) {
-          for (let each of database.save.facBlocks.set) {
-            this.facBlocks.push(FactoryBlock.deserialize(each))
-          }
-          this.facBlocks.defenses = database.save.facBlocks.d
-          this.facBlocks.defenseBus = database.save.facBlocks.dbus
-          this.facBlocks.offenses = database.save.facBlocks.o
-          this.facBlocks.offenseBus = database.save.facBlocks.obus
-        }
-      } else {
-        this.facBlocks = []
-        --this.player =  new NamedBlocks.player(20)
-        CCC.staticProvide("from", "inventory", this.player.inv)
-        this.mgrs.signaler.signal("generalUpdate")
-      }
-      SMELL recipe manager shouldn't have to care who the player is
-      This was origionally used to change a classname to provide the border cue
-      this.mgrs.rec.set_player(this.player)
-      this.mgrs.rec.sub_ticker(this.mgrs.Ticker)
-      //Setup IgorJs
-      IgorJS.Ticker_temp(this.mgrs.Ticker)
-      IgorJS.addToTicker("FactoryBlocksBase", this.facBlocks)
-      IgorJS.addObjectTickFunction("FactoryBlocksBase", (td) => {this.tickMine(td) })
-      //this.mgrs.Ticker.subscribe((td) => { this.tickMine(td) })
+      this.globals = IgorJs.globalObject
+      CCC.staticProvide("from", "inventory", this.globals.player.inv)  //! Should depreciate use in preference of proper noun reference
+      CCC.staticProvide("player", "inventory", this.globals.player.inv)
+
+      //SMELL Should get these out at some point,
+      this.mgrs.rec.set_player(this.globals.player)
+      this.mgrs.rec.sub_ticker(IgorJs.Ticker)
+
+      this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")
-      */
       if(!this.showDev) {
        this.showTut && Tutorial.start()
        !this.showTut && this.autoSave()

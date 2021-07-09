@@ -30,11 +30,11 @@ export const IgorUtils = {
     t.subscribe((td) => { IgorCore.Tick(td)})
   },
   defineObj: (what, path) => {
-    let who = IgorCore.game.walkPath(path)
-    IgorCore.metaDefines.push({
+    let who = path.split(".")  //TEMP need to fix
+    IgorCore.metaDefines[path] = {
       obj: who,
       as: what
-    })
+    }
   },
   // tickDataSig would be the required parameters on TickData
   addObjectTickFunction: (what, who, tickDataSig) => {
@@ -70,3 +70,9 @@ export const IgorUtils = {
     }
   }
 }
+
+Object.defineProperty(IgorUtils, "globalObject", {
+  get() {
+    return IgorCore.game
+  }
+})

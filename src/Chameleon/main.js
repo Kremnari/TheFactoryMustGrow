@@ -29,9 +29,13 @@ export const ChameleonBuilder = {
 }
 
 export const ChameleonViewer = {
+  signaler: null,
   error: (what) => {
     $("#ChameleonModal").show()
     $("#ChameleonMessage").removeClass().addClass('error').text(what)
     $("#ChameleonButton").removeClass().addClass(['btn', 'btn-error']).on("click", ()=> { $("#ChameleonModal").hide() })
+  },
+  animsUpdate: () => {
+    ChameleonViewer.signaler.signal("animsUpdate")
   }
 }

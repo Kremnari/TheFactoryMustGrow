@@ -24,33 +24,8 @@ a.notLink {
   border: 2px dashed green;
   border-radius: 8px;
 }
-.mining .animTarget {
-  //background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 66%, transparent 100%)
-}
-.crafting {
-  //background: radial-gradient(cyan 0%, rgba(0, 255, 255, 0.5) 33%, transparent 100%)
-}
 .fillable {
   border: 2px groove lightsteelblue;
-}
-
-@keyframes testXform {
-  //? The prior radial gradient may still be possible by varying the
-  //? size (width/height) as opposed to varying the gradient positions
-  100% {
-    top: 80%;
-    height: 10%;
-    width: 10%;
-    left: 45%;
-    background: rgba(0,0,255, 0.7);
-  }
-  0% {
-    top: 0%;
-    height: 100%;
-    width: 100%;
-    left: 0%;
-    background: rgba(255, 0, 0, 0.3);
-  }
 }
 header {
   &#selector {
@@ -334,53 +309,6 @@ span.button {
   }
 }
 
-/*
- * //NYI
-.drawer {
-  position: fixed;
-  & > input[type='checkbox'] {
-    display: none;
-  }
-  & > label {
-    position: fixed;
-  }
-  & > div.content {
-  }
-  & > input[type='checkbox']:checked {
-    & ~ label {
-      color: red;
-    }
-    & ~ div.content {
-      border: 2px dashed red;
-    }
-  }
-}
-.drawer.bottom {
-  bottom: 0px;
-  & > label {
-    bottom: 0px;
-    //transform: translate(-50%, -50%);
-  }
-  & > div.content {
-    transform: translateY(110%)
-  }
-  & > input[type='checkbox']:checked {
-    & > label {
-      transform: translate(0, 100%)
-    }
-    & ~ div.content {
-      transform: translateY(0);
-    }
-  }
-}
-
-.drawer.center {
-  left: 50%;
-  transform: translateX(50%);
-  & > label {
-  }
-}
-*/
 .cmd_label {
   font-size: 2em;
 }
@@ -388,3 +316,31 @@ span.button {
 #commands .content {
   border: 2px dashed black;
 }
+
+
+.isMining {
+  animation-name: testXform;
+}
+.isCrafting {
+  animation-name: testXform;
+}
+
+@keyframes testXform {
+  //? The prior radial gradient may still be possible by varying the
+  //? size (width/height) as opposed to varying the gradient positions
+  100% {
+    top: 80%;
+    height: 10%;
+    width: 10%;
+    left: 45%;
+    background: rgba(0,0,255, 0.7);
+  }
+  0% {
+    top: 0%;
+    height: 100%;
+    width: 100%;
+    left: 0%;
+    background: rgba(255, 0, 0, 0.3);
+  }
+}
+

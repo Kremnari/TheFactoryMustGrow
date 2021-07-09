@@ -2,6 +2,7 @@ import ItemMgr from 'ItemMgr'
 import {inject} from 'aurelia-framework'
 
 import {CephlaCommConstructor as CCC} from 'CephlaComm/main'
+import {ChameleonViewer as ChameJs} from 'Chameleon/main'
 
 @inject(ItemMgr)
 export default class ResMgr {
@@ -48,11 +49,18 @@ const ResourceMine = (obj) => {
     ResourceMine.res = undefined
   } else {
     ResourceMine.timeout = window.setTimeout( () => {
-      obj.to.add(obj.which.mining_results, 1)
-    }, obj.which.mining_time * 1000)
-    ResourceMine.res = obj.which
-    ResourceMine.res.miningStyle = "animation: textxform "+obj.which.mining_time
+      obj.player.inventory.add(obj.which.resource.mining_results, 1)
+      ResourceMine.res.animClass = null
+      ResourceMine.res.animTime = null
+      ResourceMine.res = undefined
+      ChameJs.animsUpdate()
+    }, obj.which.resource.mining_time * 1000)
+    ResourceMine.res = obj.which.resource
+    obj.which.resource.animTime = "animation-duration: "+obj.which.resource.mining_time+"s"
+    obj.which.resource.animClass = "isMining"
+    ChameJs.animsUpdate()
   }
+  window.ResourceMine = ResourceMine
 }
 
 
