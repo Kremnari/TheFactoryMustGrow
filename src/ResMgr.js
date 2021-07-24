@@ -42,28 +42,22 @@ export default class ResMgr {
   }
 }
 
-const ResourceMine = (obj) => {
-  if(ResourceMine.res) {
-    window.clearTimeout(ResourceMine.timeout)
-    ResourceMine.res.miningStyle = ""
-    ResourceMine.res = undefined
+const ResourceMine = (obj, Igor, fn) => {
+  if(fn.res) {
+    window.clearTimeout(fn.timeout)
+    ChameJs.animsUpdate(fn, res, null, null)
+    fn.res = undefined
   } else {
-    ResourceMine.timeout = window.setTimeout( () => {
-      obj.player.inventory.add(obj.which.resource.mining_results, 1)
-      ResourceMine.res.animClass = null
-      ResourceMine.res.animTime = null
-      ResourceMine.res = undefined
-      ChameJs.animsUpdate()
+    fn.timeout = window.setTimeout( () => {
+      Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: [{name: obj.which.resource.mining_results, count: 1}]})
+      ChameJs.animsUpdate(fn.res, null, null)
+      fn.res = undefined
     }, obj.which.resource.mining_time * 1000)
-    ResourceMine.res = obj.which.resource
-    obj.which.resource.animTime = "animation-duration: "+obj.which.resource.mining_time+"s"
-    obj.which.resource.animClass = "isMining"
-    ChameJs.animsUpdate()
+    fn.res = obj.which.resource
+    ChameJs.animsUpdate(obj.which.resource, "isMining", obj.which.resource.mining_time)
   }
-  window.ResourceMine = ResourceMine
 }
-
-
+window.ResourceMine = ResourceMine
 
 const ResourceMineSig = {
   which: "resource",

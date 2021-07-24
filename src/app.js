@@ -31,6 +31,8 @@ export class App {
       window.tfmg = this
       this.signaler = signaler
       IgorJs.initialize({
+        commandTasks: CC_const,
+        viewTasks: ChamJS,
         ticker: {
           ticks_perSec: Config.TICKS_PER_SECOND,
           ticks_maxPhase: Config.TICKS_MAX_PHASE
@@ -49,29 +51,33 @@ export class App {
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
       ChameView.signaler = this.signaler
-      game.setup()
-      debugger
+      IgorJs.setDatabase(database.mgrs.data) //TODO fix this data transfer
+      game.setup()  //Should have pointer to base game object
       if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
         console.log("loaded")
         game.load(database.save)
+        this.mgrs.save = database.save
+        this.showTut = false
       } else {
         console.log("new")
         game.new()
       }
       this.globals = IgorJs.globalObject
+      this.IgorRunner = IgorJs.getRunner() // DEBUGGER
+      CC_const.setRunner(this.IgorRunner)
       CCC.staticProvide("from", "inventory", this.globals.player.inv)  //! Should depreciate use in preference of proper noun reference
       CCC.staticProvide("player", "inventory", this.globals.player.inv)
 
       //SMELL Should get these out at some point,
-      this.mgrs.rec.set_player(this.globals.player)
-      this.mgrs.rec.sub_ticker(IgorJs.Ticker)
+      //this.mgrs.rec.set_player(this.globals.player)
+      //this.mgrs.rec.sub_ticker(IgorJs.Ticker)
 
       this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
-       this.showTut && Tutorial.start()
-       !this.showTut && this.autoSave()
-       IgorJs.setState("start")
+        IgorJs.setState("start")
+        this.showTut && Tutorial.start()
+        !this.showTut && this.autoSave()
       }
     }
     set showItem(obj) {
@@ -96,31 +102,6 @@ export class App {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.sub = null
       }
-    }
-    async saveXX() {
-      console.log('saving...')
-      this.saveGame()
-      //this.saveGame = IgorJs.getSave() //pass through to DataProvider...? pourquoi?
-      
-      /*let save = { player: {}}
-      save.version = Config.IDB_SAVE_VERSION
-      save.techs = this.mgrs.tech.serialize()
-      save.player = this.player.serialize()
-      save.features = this.activeFeatures
-      save.facBlocks = {
-        set: [],
-        d: this.facBlocks.defenses,
-        dbus: this.facBlocks.defenseBus,
-        o: this.facBlocks.offenses,
-        obus: this.facBlocks.offenseBus
-      }
-      for (let each of this.facBlocks) {
-        save.facBlocks.set.push(each.serialize && each.serialize  || each)
-      }
-      save.global = this.global
-      this.saveGame(save)
-      */
-      console.log("...done")
     }
     showing(whatObj, category) {
       if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
@@ -166,7 +147,7 @@ export class App {
             this.facBlocks.defenses = NamedBlocks.DefenseBlock()
             this.facBlocks.defenseBus = NamedBlocks.DefenseBus()
           }
-          this.facBlocks.defenses.machines["turret"] = ChamJS.GameObjectFromPointer(obj.go_pointer)
+          this.facBlocks.defenses.machines["turret"] = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
           break;
         case "offense":
           if(!this.activeFeatures["offense"]) {
@@ -174,7 +155,7 @@ export class App {
             this.facBlocks.offenses = NamedBlocks.OffenseBlock()
             this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
           }
-          this.facBlocks.offenses.radar = ChamJS.GameObjectFromPointer(obj.go_pointer)
+          this.facBlocks.offenses.radar = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
           break;
         case "factoryBlocks":
           this.activeFeatures["factoryBlocks"] = true
@@ -230,5 +211,5 @@ export class App {
     hideTutorial() { Tutorial.hide() }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
-    resetSave() { this.saveGame() }
+    resetSave() { this.mgrs.idb.del('SaveGame_Igor') }
 }

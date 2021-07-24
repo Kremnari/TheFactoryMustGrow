@@ -4,7 +4,9 @@ const IgorCore = {
   tick_entities: [],
   object_tickers: {},
   game: {}, // Tis the base game json
+  objs: [],
   meta: {}, // Contains all the runtime data
+  ops: {},
   metaDefines: { // As meta, but organized by object types and direct paths
     
   },
@@ -18,6 +20,15 @@ const IgorCore = {
   }
 }
 
+export const IgorBuilder = {
+  get data() { return IgorCore.data },
+  finalizeObj(obj) {
+    obj.$_id = IgorCore.objs.length
+    IgorCore.objs.push(obj)
+
+  },
+}
+
 
 export const IgorUtils = {
   captureEvent: (which, cb) => {
@@ -29,12 +40,14 @@ export const IgorUtils = {
     t.DataProvider((td) => { IgorCore.Tick_Builder(td) })
     t.subscribe((td) => { IgorCore.Tick(td)})
   },
-  defineObj: (what, path) => {
-    let who = path.split(".")  //TEMP need to fix
-    IgorCore.metaDefines[path] = {
-      obj: who,
-      as: what
+  defineObj: (what, fn, actions) => {
+    IgorCore.metaDefines[what] = {
+      new: fn,
+      actions,
     }
+  },
+  addOperation: (op, fn) => {
+    IgorCore.ops[op] = {fn}
   },
   // tickDataSig would be the required parameters on TickData
   addObjectTickFunction: (what, who, tickDataSig) => {
@@ -44,10 +57,22 @@ export const IgorUtils = {
       tickDataSig
     }
   },
+  loadDatabase(dataset) {
+    IgorCore.data = dataset
+    //Iterate through data objects
+    // pass required info into Graphics and Command processors
+  },
+  loadSave(data) {
+    
+    IgorCore.setGlobal(data)
+  },
   initialize(obj) {
     IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase)
     IgorUtils.Ticker = IgorCore.ticker
+    IgorCore.graphics = obj.viewTasker
+    IgorCore.command = obj.commandTasker
   },
+  getRunner() { return IgorRunner },
   get(named, specifiers) {
     return IgorCore.objects_by_name()
   },
@@ -76,3 +101,26 @@ Object.defineProperty(IgorUtils, "globalObject", {
     return IgorCore.game
   }
 })
+
+//The IgorRunner is passed to GameObjectActionFunctions so they may emit events or get data
+export const IgorRunner = {
+  emit: () => {
+    //I emit events into Igor
+  },
+  get data() { return IgorCore.data },
+  processTEMP: (obj, op, args) => {
+    let ret = {}
+    IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)
+    return '_result' in ret ? ret._result : ret
+  },
+  addNewObject: (target, objType, params ) => {
+    if(IgorCore.metaDefines[objType]) {
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder)
+      target.push()
+      return true
+    } else {
+      console.warn("cannot find object type")
+      return false
+    }
+  }
+}

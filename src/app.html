@@ -115,7 +115,7 @@
             repeat.for="rec of mgrs.rec.recipes_by_cats['hand_only']  | objectValues "
             item.bind="rec"
             title = "${rec.name}"
-            click.delegate="mgrs.rec.startCraft(rec, globals.player.inv, ' ')"
+            click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
             show.bind="rec.enabled"
             class.bind="rec.classesStr"
             metas.bind="{showEntity: true}"
@@ -129,8 +129,7 @@
             repeat.for="res of mgrs.res.resList | canMine | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
-            class="${res.mining ? 'mining': null} "
-            anim_style.bind="res.miningStyle"
+            class2="${res.mining ? 'mining': null} "
           ></icon-base> 
         </div>
       </section>
@@ -144,7 +143,7 @@
           <lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
           <div class="entityList">
             <icon-base
-              repeat.for="machina of viewPane.facBlock.getEntities() & signal:'addedEntity'"
+              repeat.for="machina of globals.player.workshop.entities & signal:'addedEntity'"
               item.bind="machina"
               alt-image.bind="machina.recipe.icon || machina.mining.icon"
               click.delegate="showing(machina)"
@@ -222,10 +221,10 @@
         <h3>Inventory</h3>
         <inventory
           items.bind="globals.player.inv.items"
-          click-call.call="globals.player.inv.click({
-            where:viewPane.facBlock, which: item
-            ,who: globals.player, what:'use'
-            })"
+          click-call.call="CCC.issue('player.inventoryPush', {
+            'which.itemStack': item,
+            'to.entities': globals.player.workshop
+          })"
           ></inventory>
       </div>
 

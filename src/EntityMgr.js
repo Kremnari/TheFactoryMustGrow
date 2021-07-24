@@ -534,7 +534,7 @@ export class EntityStorage {
     }
   }
   AddEntity(name) {
-    if(this.restricted && mgrs.entity.EntityType(name)!=this.restricted.type) return
+    if(this.restricted && mgrs.entity.EntityType(name)!=this.restricted.type) return false
 
     let new_e = mgrs.entity.GenerateEntity(name, this.parent.inv, this.entityTags)
     new_e.parent = this.parent

@@ -1,6 +1,6 @@
 import $ from 'jquery'
 
-export const ChameleonCore = {
+const ChameleonCore = {
   GameObjects: {tagged: {}, base: {}},
   GameObjectFromPointer: (pointer) => {
     // Dissect pointer
@@ -35,7 +35,10 @@ export const ChameleonViewer = {
     $("#ChameleonMessage").removeClass().addClass('error').text(what)
     $("#ChameleonButton").removeClass().addClass(['btn', 'btn-error']).on("click", ()=> { $("#ChameleonModal").hide() })
   },
-  animsUpdate: () => {
+  animsUpdate: (who, what, dur) => {
+    who.animClass = what
+    who.animTime = "animation-duration: "+dur+"s"
     ChameleonViewer.signaler.signal("animsUpdate")
-  }
+  },
+  GameObjectFromPointer: ChameleonCore.GameObjectFromPointer
 }

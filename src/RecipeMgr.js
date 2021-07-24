@@ -133,3 +133,48 @@ const CLASSES =  {
   crafting: 1,
 
 }
+
+
+//### Start Igor Magic
+//* Need to start with player crafting
+
+import {CephlaCommConstructor as CCC} from 'CephlaComm/main'
+import {ChameleonViewer as ChameJs} from 'Chameleon/main'
+
+const CraftFromInv = (obj, Igor, fn) => {
+  if(fn.rec) {
+    window.clearTimeout(fn.timeout)
+    //console.log("canceling:")
+    //console.log(fn.rec.ingredients)
+    Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: fn.rec.ingredients})
+    ChameJs.animsUpdate(fn.rec, null, null)
+    fn.rec = undefined
+  } else {
+    //console.log(obj.which.recipe.ingredients)
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.which.recipe.ingredients })) {
+      fn.rec = obj.which.recipe
+      fn.timeout = window.setTimeout( () => {
+        //console.log('crafting complete')
+        //console.log(fn.rec.results)
+        Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: fn.rec.results})
+        ChameJs.animsUpdate(fn.rec, null, null)
+        fn.rec = undefined
+      }, obj.which.recipe.crafting_speed * 1000)
+      fn.rec = obj.which.recipe
+      ChameJs.animsUpdate(fn.rec, "isCrafting", obj.which.recipe.crafting_speed)
+    } else {
+      //Error alert: cannot build
+      console.log('cannot craft')
+    }
+  }
+}
+const CraftFromInvSig = {
+  which: "recipe",
+  player: "inventory"
+}
+
+CCC.provide("player.craft", CraftFromInv, CraftFromInvSig)
+
+//### Start Chameleon Magic
+//* Should contain a function to update borders on 
+//   craftable recipes

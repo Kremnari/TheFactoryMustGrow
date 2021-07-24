@@ -21,7 +21,8 @@ import {mgrs} from 'managers'
 const CephlaCommCore = {
   //* need to improve repo namespacing
   repo: {},
-  sigs: {}
+  sigs: {},
+  runner: null
 }
 
 export const CephlaCommConstructor = {
@@ -30,6 +31,12 @@ export const CephlaCommConstructor = {
     CephlaCommCore.repo[who] = what
     signature && (CephlaCommCore.sigs[who] = signature)
     validator && (CephlaCommCore.valids[who] = validator)
+  },
+  setRunner(who) {
+    //TODO this should be used to link CephlaComm with a compatible engine (IgorJS)
+    // Perhaps it should validate the interface...?
+    CephlaCommCore.runner = who
+
   }
 }
 
@@ -83,11 +90,17 @@ export const CephlaCommCaller = {
         debugger
         return
       }
-      CephlaCommCore.repo[who](args)
+      // args obj, Igor, self_function
+      // self_function: when creating Function s from strings at runtime,
+      //   the function code will not have a name reference,
+      //   so instead will need to be passed a reference to that object
+      //   so it can place/track it's own side effects
+      CephlaCommCore.repo[who](args, CephlaCommCore.runner, CephlaCommCore.repo[who])
     } else {
       CephlaCommCore.repo[who](obj, $evt?.CCC)
     }
   },
+  
   /* 
   $evt - mouseEvent
   specifier - typically a determiner or preposition

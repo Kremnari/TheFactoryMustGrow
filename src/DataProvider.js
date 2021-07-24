@@ -24,9 +24,8 @@ export let DataProvider = {
     let save = await mgrs.idb.get("SaveGame") || null
     if(!save) {
       save = await mgrs.idb.get("SaveGame_Igor") || null
-      if(!save.version) save.version = Config.IDB_SAVE_VERSION
+      if(save && !save.version) save.version = Config.IDB_SAVE_VERSION
     }
-    debugger
     DataProvider.init(ds, save)
   },
   async init(data, save) {

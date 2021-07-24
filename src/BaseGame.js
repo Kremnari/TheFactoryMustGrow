@@ -1,8 +1,7 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
 import * as CONFIG from './Config'
 
-import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
-import {NamedBlocks} from './resources/StateDef/FactoryBlock'
+import * as PlayerWorkshop from './resources/StateDef/PlayerWorkshop'
 
 
 //* these two setup the base game data,
@@ -39,16 +38,13 @@ export const newGame = () => {
       buses: [],
       blocks: []
     },
-    player: new NamedBlocks.player(20),
+    player: PlayerWorkshop.newPlayer,
     activeFeatures: [],
     version: CONFIG.IDB_SAVE_VERSION
   })
 }
 export const loadGame = (saveData) => {
-  let obj = saveData
-  obj.player = NamedBlocks.player.deserialize(obj.player)  //! Hate this, need to reduce player to pure json with CephlaComm hooks
-  
-  IgorJs.setGlobal(obj)
+  IgorJs.setGlobal(saveData)
 }
 
 //* This sets up the references Igor needs to run
@@ -56,14 +52,13 @@ const setupIgor = () => {
   //TODO rebuild Igor's object list,
   // but ideally it happens automatically 
   // when loading game object descriptions
-  IgorJs.defineObj("factoryBlocksBase", "global.facBlocks")
+  IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
   IgorJs.defineObj("player", "player")
   IgorJs.addObjectTickFunction("FactoryBlocksBase", (td, obj) => { tickBase(td, obj) })
 }
 
 //* saves data, should eventually take an object with a save(json) function 
 export const saveGame = (idb) => {
-  console.log("constructing save")
   idb.set("SaveGame_Igor", IgorJs.globalObject)
   console.log('save complete')
 }

@@ -38,7 +38,7 @@
     type: "string"
   },
   parameterTuple: {
-    $id: "#igor_parameterTuple"
+    $id: "#igor_parameterTuple",
     $comment: "This is a function argument assignment consisting of parameter name and object type",
     type: "array",
     items: [
