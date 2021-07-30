@@ -1,22 +1,23 @@
-<template bindable="miner, resMgr, actor">
+<template>
   <require from="./upgrades-infopane"></require>
+  <scope-var var.bind="$scope = {miner: viewPane.showingItem"></scope-var>
   <div>
     <p>Select Resource to Mine</p>
     <icon-base
-      repeat.for="res of resMgr.resListByTag('category', miner.resource_categories)"
+      repeat.for="res of dataSet.reource | filter:{key:'category', value:miner.resource_categories} | objectValues"
       item.bind="res"
       click.delegate="miner.set_mining(res)"
-      class="${res==miner.mining? 'selected': ''}"
+      class="${res==miner.processing? 'selected': ''}"
     ></icon-base>
     <p
       click.delegate="miner.collectBuffer(actor)"
-      if.bind="miner.mining"
+      if.bind="miner.processing"
       class="progressBarBase"
       css="border-image-source: linear-gradient(to right, green ${miner.progress}%, red ${miner.progress}%)"
       title="Click to collect">
       <icon-base
-        item.bind="miner.mining.mining_results"
-        count.bind="miner.buffers.out.total(miner.mining.mining_results) & signal:'generalUpdate'"
+        item.bind="miner.processing.mining_results"
+        count.bind="miner.buffers.out.total(miner.processing.mining_results) & signal:'generalUpdate'"
       ></icon-base>
       /${miner.buffers.max_out} (max)
     </p>

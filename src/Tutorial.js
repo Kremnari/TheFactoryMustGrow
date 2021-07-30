@@ -272,6 +272,7 @@ class tutorial {
       default:
         console.log('default, reset')
         this.hide();
+        mgrs.baseApp.tutprialDone();
         break;
     }
   }

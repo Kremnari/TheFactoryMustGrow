@@ -154,8 +154,6 @@ const CraftFromInv = (obj, Igor, fn) => {
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.which.recipe.ingredients })) {
       fn.rec = obj.which.recipe
       fn.timeout = window.setTimeout( () => {
-        //console.log('crafting complete')
-        //console.log(fn.rec.results)
         Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: fn.rec.results})
         ChameJs.animsUpdate(fn.rec, null, null)
         fn.rec = undefined

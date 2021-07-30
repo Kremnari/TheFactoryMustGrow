@@ -18,6 +18,9 @@ export function TagMapProxy({to, load, entity}) {
       if(!transient.has(tag)) return
       to.removeTuple(tag, transient.get(tag), entity)
       transient.delete(tag)
+    },
+    toJSON: function() {
+      return Array.from(transient)
     }
   }
   if(load) {

@@ -1,5 +1,4 @@
-import {CephlaCommConstructor as CCC} from "CephlaComm/main"
-
+import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 export const newPlayer = {
   inv: {
@@ -13,15 +12,12 @@ export const newPlayer = {
 
 const InventoryPushSig = {
   which: "itemStack",
-  who: "player",
   to: "entities"
 }
 function InventoryPush(obj, Igor) {
-  debugger
   if(obj.which.itemStack.count>0
-    && Igor.addNewObject(obj.to.workshop.entities, "entity", { name: obj.which.itemStack.name})) {
+    && Igor.addNewObject(obj.to.entities, "player.entity", { name: obj.which.itemStack.name})) {
     obj.which.itemStack.count--
   }
 }
-
-CCC.provide("player.inventoryPush", InventoryPush, InventoryPushSig)
+IgorJs.provide_CCC("player.inventoryPush", InventoryPush, InventoryPushSig)

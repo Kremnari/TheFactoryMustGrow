@@ -43,6 +43,9 @@ icon-base > .modis > span {
   position: absolute;
   width: 16px;
   height: 16px;
+  &.required {
+    color: red;
+  }
   &:nth-of-type(1) {
     bottom: 0px;
     right: 0px;
@@ -68,9 +71,6 @@ icon-base > .modis > span {
   height: 100%;
 }
 
-icon-base > .required {
-  color: red;
-}
 .ghosted {
   border: 1px dashed grey;
   border-radius: 4px

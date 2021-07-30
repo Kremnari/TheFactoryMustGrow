@@ -6,12 +6,12 @@ import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import * as Config from 'Config'
 import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
-import {ChameleonCore as ChamJS, ChameleonViewer as ChameView} from 'Chameleon/main'
+import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView} from 'Chameleon/main'
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {ArrayObject} from 'libs/ArrayObject'
 
-import {game} from 'BaseGame'
+import {setupIgor as gameSetup} from 'BaseGame'
 import {Tutorial} from 'Tutorial'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
@@ -30,18 +30,21 @@ export class App {
     constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
       this.signaler = signaler
+      this.IgorJs = IgorJs
       IgorJs.initialize({
-        commandTasks: CC_const,
-        viewTasks: ChamJS,
+        commandTasker: CC_const, //TODO: Probably some kind of initilization function
+        viewTasker: ChameView,  //TODO: Probably some kind of initilization function
         ticker: {
           ticks_perSec: Config.TICKS_PER_SECOND,
           ticks_maxPhase: Config.TICKS_MAX_PHASE
-        }
+        },
+        dbName: "TheFactoryMustGrow",
+        saveName: "SaveGame"
       })
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
-      this.save = () => { game.save(this.mgrs.idb) }
+      this.save = () => { IgorJs.saveGame() }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
@@ -51,33 +54,28 @@ export class App {
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
       ChameView.signaler = this.signaler
-      IgorJs.setDatabase(database.mgrs.data) //TODO fix this data transfer
-      game.setup()  //Should have pointer to base game object
-      if(database.save && database.save.version==Config.IDB_SAVE_VERSION) {
-        console.log("loaded")
-        game.load(database.save)
-        this.mgrs.save = database.save
-        this.showTut = false
-      } else {
-        console.log("new")
-        game.new()
-      }
-      this.globals = IgorJs.globalObject
-      this.IgorRunner = IgorJs.getRunner() // DEBUGGER
-      CC_const.setRunner(this.IgorRunner)
-      CCC.staticProvide("from", "inventory", this.globals.player.inv)  //! Should depreciate use in preference of proper noun reference
-      CCC.staticProvide("player", "inventory", this.globals.player.inv)
+      gameSetup() // This should eventually be included in the IgorJs.loadDatabase data
+                  // This would be coming from reading the JSON game schema
 
-      //SMELL Should get these out at some point,
-      //this.mgrs.rec.set_player(this.globals.player)
-      //this.mgrs.rec.sub_ticker(IgorJs.Ticker)
+      await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
+      this.dataSet = IgorJs.dataSet
+      this.globals = IgorJs.globalObject
+      CC_const.setRunner(IgorJs.getRunner())
+
+      this.IgorRunner = IgorJs.getRunner() //# For debugging
+
+
+      // This should be established from within Igor, not made from here
+      //CCC.staticProvide("from", "inventory", this.globals.player.inv)  //! Should depreciate use in preference of proper noun reference
+      CCC.staticProvide("player", "inventory", this.globals.player.inv)
+      CCC.staticProvide("service", "rounder",  this.mgrs.rounder)
 
       this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")
-        this.showTut && Tutorial.start()
-        !this.showTut && this.autoSave()
+        !this.globals.ranTutorial && Tutorial.start()
+         this.globals.ranTutorial && this.autoSave()
       }
     }
     set showItem(obj) {
@@ -174,6 +172,17 @@ export class App {
       this.whenTarg = undefined
     }
     //* Utility Functions
+    nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
+    hideTutorial() { Tutorial.hide() }
+    tutorialDone() { this.globals.ranTutorial = true }
+    resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
+    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
+    resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
+}
+
+
+/* Testing functions - no longer utilized
+
     jumpStart() {
       this.player.inv.add("inserter", 10)
       this.player.inv.add("lab", 10)
@@ -207,9 +216,5 @@ export class App {
 
       this.player.inv.add("inserter", 10)
     }
-    nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
-    hideTutorial() { Tutorial.hide() }
-    resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
-    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
-    resetSave() { this.mgrs.idb.del('SaveGame_Igor') }
-}
+
+*/

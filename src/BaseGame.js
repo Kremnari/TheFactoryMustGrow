@@ -2,13 +2,13 @@ import {IgorUtils as IgorJs} from "IgorJs/main"
 import * as CONFIG from './Config'
 
 import * as PlayerWorkshop from './resources/StateDef/PlayerWorkshop'
+import * as ObjectsSource from './resources/StateDef/GameObjects'
 
 
 //* these two setup the base game data,
 // possibly combine them to a single function
 //
-export const newGame = () => {
-  IgorJs.setGlobal({
+const newGame = {
     land: {
       total: 100,
       used: 0,
@@ -41,32 +41,19 @@ export const newGame = () => {
     player: PlayerWorkshop.newPlayer,
     activeFeatures: [],
     version: CONFIG.IDB_SAVE_VERSION
-  })
-}
-export const loadGame = (saveData) => {
-  IgorJs.setGlobal(saveData)
 }
 
 //* This sets up the references Igor needs to run
-const setupIgor = () => {
+export const setupIgor = () => {
   //TODO rebuild Igor's object list,
   // but ideally it happens automatically 
   // when loading game object descriptions
+  IgorJs.defineObj("#", newGame)
   IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
   IgorJs.defineObj("player", "player")
-  IgorJs.addObjectTickFunction("FactoryBlocksBase", (td, obj) => { tickBase(td, obj) })
-}
-
-//* saves data, should eventually take an object with a save(json) function 
-export const saveGame = (idb) => {
-  idb.set("SaveGame_Igor", IgorJs.globalObject)
-  console.log('save complete')
-}
-export const game = {
-  new: newGame,
-  load: loadGame,
-  save: saveGame,
-  setup: setupIgor,
+  IgorJs.defineObj()
+  IgorJs.amendObject("FactoryBlocksBase", {tickFn: (td, obj) => { tickBase(td, obj) } })
+  console.log('setup complete')
 }
 
 //SMELL

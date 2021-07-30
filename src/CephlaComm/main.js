@@ -22,7 +22,8 @@ const CephlaCommCore = {
   //* need to improve repo namespacing
   repo: {},
   sigs: {},
-  runner: null
+  runner: null,
+  utilityFns: {}
 }
 
 export const CephlaCommConstructor = {
@@ -36,9 +37,15 @@ export const CephlaCommConstructor = {
     //TODO this should be used to link CephlaComm with a compatible engine (IgorJS)
     // Perhaps it should validate the interface...?
     CephlaCommCore.runner = who
-
+  },
+  utilityFn(named, fn) {
+    CephlaCommCore.utilityFns[named] = fn
   }
 }
+//! Should remove the function call  in `issue`
+// That is really the responsibility of Igor,
+// CCC.issues should just ensure the appropriate objects
+//   and their references
 
 export const CephlaCommCaller = {
   statics: {},
@@ -54,9 +61,13 @@ export const CephlaCommCaller = {
       for( let [specifier, typeS] of Object.entries(CephlaCommCore.sigs[who])) {
         !Array.isArray(typeS) && (typeS = [typeS])
         for( let type of typeS) {
-          args[specifier] || (args[specifier] = {})
-          let found = obj?.[specifier+"."+type] || $evt?.CCC[specifier]?.[type] || CephlaCommCaller.statics[specifier]?.[type]
-          if(!found) {
+          let found
+          if (obj?.[specifier+"."+type]!==undefined) { found = obj?.[specifier+"."+type]}
+          else if($evt?.CCC[specifier]?.[type]) found = $evt?.CCC[specifier]?.[type]
+          else if(CephlaCommCaller.statics[specifier]?.[type]) found = CephlaCommCaller.statics[specifier]?.[type]
+          //! The above used to be condensed, but it negated possible nulls
+          //found = (obj?.[specifier+"."+type]!==undefined && obj?.[specifier+"."+type]) || $evt?.CCC[specifier]?.[type] || CephlaCommCaller.statics[specifier]?.[type]
+          if(found===undefined) {
             if(type=="recipe") {
               found = await mgrs.DS.open("SelectX", {
                 list: Object.values(mgrs.rec.recipeList), type
@@ -76,7 +87,7 @@ export const CephlaCommCaller = {
             }
           }
           debugIf(CephlaCommCore, "caller_found")
-          if(found) {
+          if(found!==undefined) {
             !args[specifier] && (args[specifier] = {})
             args[specifier][type] = found
           } else {
@@ -118,6 +129,11 @@ export const CephlaCommCaller = {
     }
     if(!$evt.CCC[specifier]) $evt.CCC[specifier] = {}
     $evt.CCC[specifier][type] = obj
+  },
+  utilityFn: (which, base, args) => {
+    let ret = {}
+    CephlaCommCore.utilityFns[which](base, args, ret, CephlaCommCore.runner)
+    return '_result' in ret ? ret._result : ret
   },
   staticProvide: (specifier, type, obj) => {
     CephlaCommCaller.statics[specifier] || (CephlaCommCaller.statics[specifier] = {})

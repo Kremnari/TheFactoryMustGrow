@@ -126,24 +126,23 @@
         <div id="resources">
           <h3>Mineables</h3>
           <icon-base
-            repeat.for="res of mgrs.res.resList | canMine | objectValues"
+            repeat.for="res of dataSet.resource | canMine | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
             class2="${res.mining ? 'mining': null} "
           ></icon-base> 
         </div>
       </section>
-      <section id="machines" show.bind="viewPane.main=='entities'">
+      <section id="machines" show.bind="viewPane.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', viewPane.showingItem)">
           <h4>Workshop</h4>
-          <require from="./resources/elements/byModule/mining-infopane.html"></require>
-          <require from="./resources/elements/byModule/lab-infopane.html"></require>
-          <require from="./resources/elements/byModule/crafting-infopane.html"></require>
-          <mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="globals.player" res-mgr.bind="mgrs.res" rounder.bind="rounder"></mining-infopane>
-          <crafting-infopane if.bind="viewPane.showingItem['crafting_speed']" crafter.bind="viewPane.showingItem" rec-mgr.bind="mgrs.rec" item-mgr.bind="mgrs.item" actor.bind="globals.player" inventory.bind="viewPane.facBlock.inv" rounder.bind="rounder"></crafting-infopane>
-          <lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder"></lab-infopane>
+          <compose if.bind="viewPane.showingItem['crafting_speed']" view="./resources/elements/byModule/crafting-infopane.html"></compose>
+          <compose if.bind="viewPane.showingItem['mining_speed']" view="./resources/elements/byModule/mining-infopane.html"></compose>
+          <compose if.bind="viewPane.showingItem['researching_speed']" view="./resources/elements/byModule/lab-infopane.html"></compose>
+          <!-- mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="globals.player" res-mgr.bind="mgrs.res" rounder.bind="rounder" data-set.bind="dataSet"></!-->
+          <!-- lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder" data-set.bind="dataSet"></!-->
           <div class="entityList">
             <icon-base
-              repeat.for="machina of globals.player.workshop.entities & signal:'addedEntity'"
+              repeat.for="machina of IgorJs.arrayFromIds(globals.player.workshop.entities) & signal:'addedEntity'"
               item.bind="machina"
               alt-image.bind="machina.recipe.icon || machina.mining.icon"
               click.delegate="showing(machina)"
@@ -190,7 +189,7 @@
         <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
         <div class="overflow">
           <icon-base
-            repeat.for="tech of mgrs.tech.shownTechs & signal:'techUpdate'"
+            repeat.for="tech of dataSet.technology | objectValues & signal:'techUpdate'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
             class="${mgrs.tech.researching==tech ? 'researching' : ''} ${tech.researched ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
@@ -223,7 +222,7 @@
           items.bind="globals.player.inv.items"
           click-call.call="CCC.issue('player.inventoryPush', {
             'which.itemStack': item,
-            'to.entities': globals.player.workshop
+            'to.entities': globals.player.workshop.entities
           })"
           ></inventory>
       </div>
