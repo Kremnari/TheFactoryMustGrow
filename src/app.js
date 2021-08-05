@@ -11,7 +11,7 @@ import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {ArrayObject} from 'libs/ArrayObject'
 
-import {setupIgor as gameSetup} from 'BaseGame'
+import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
@@ -66,7 +66,8 @@ export class App {
 
 
       // This should be established from within Igor, not made from here
-      //CCC.staticProvide("from", "inventory", this.globals.player.inv)  //! Should depreciate use in preference of proper noun reference
+      //CCC.staticProvide("from", "inventory", this.globals.player.inv)  /
+      IgorJs.setNamed("player.inventory", this.globals.player.inv)
       CCC.staticProvide("player", "inventory", this.globals.player.inv)
       CCC.staticProvide("service", "rounder",  this.mgrs.rounder)
 

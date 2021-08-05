@@ -7,7 +7,8 @@ const IgorCore = {
   tick_entities: [],
   object_tickers: {},
   game: {}, // Tis the base game json
-  objs: [],
+  objs: new Map(),
+  namedObjs: [],
   $_tags: new KVSMap(),
   meta: {}, // Contains all the runtime data
   ops: {},
@@ -15,15 +16,23 @@ const IgorCore = {
     
   },
   Tick: (td) => {
-    for(let each of IgorCore.tick_entities) {
-      IgorCore.object_tickers[each.as].fn(td, each.obj)
+    if(!IgorCore.$_tags.get('ticking')) return
+    for(let each of IgorCore.$_tags.get('ticking').values()) {
+      //generate tick data using Tick_Builder
+      //  per each types tick data signature
+      each.forEach( (x) => {
+        IgorCore.object_tickers[x.$_type].fn(x,td, IgorRunner)
+      })
     }
   },
   Tick_Builder: (td) => {
-
+    let ret  = {}
+    Object.assign(ret, td)
+    // Lookup tick data signature
+    //  execute callbacks to acquire data
+    return ret
   },
   IgorBuilder,
-  IgorRunner,
   config: {}
 }
 
@@ -34,12 +43,13 @@ const IgorBuilder = {
   get data() { return IgorCore.data },
   newObject(type, subType, parent) {
     let obj = {
-      $_id: "id_"+IgorCore.objs.length,
+      $_id: "id_"+IgorCore.objs.size,
       $_type: type,
       $_subType: subType,
-      $_tags: TagMapProxy({to: IgorCore.$_tags, entity: obj})
     }
-    IgorCore.objs[obj.$_id] = obj
+
+    obj.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: obj})
+    IgorCore.objs.set(obj.$_id, obj)
     parent.push(obj.$_id)
     return obj
   },
@@ -51,6 +61,7 @@ export const IgorUtils = {
     IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase)
     IgorCore.config.TICKS_PER_SECOND = obj.ticker.ticks_perSec
     IgorUtils.Ticker = IgorCore.ticker
+    IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
     IgorCore.graphics = obj.viewTasker
     IgorCore.command = obj.commandTasker
     IgorCore.dbName = obj.dbName
@@ -103,7 +114,7 @@ export const IgorUtils = {
   // tickDataSig would be the needed parameters from the passed TickData
   addObjectTickFunction: (who, what, tickDataSig) => {
     IgorCore.object_tickers[who] = {
-      object: who,
+      type: who,
       fn: what,
       tickDataSig
     }
@@ -114,11 +125,14 @@ export const IgorUtils = {
     // pass required info into Graphics and Command processors
     
     //If save loaded,
-    let save = await dbGet(IgorCore.saveName, IgorCore.db)
-    if(save) {
-      IgorCore.game = JSON.parse(save.game)
-      IgorCore.objs = JSON.parse(save.objs)
+    IgorCore.save = await dbGet(IgorCore.saveName, IgorCore.db)
+    if(IgorCore.save) {
+      IgorCore.game = JSON.parse(IgorCore.save.game)
+      IgorCore.objs = new Map(JSON.parse(IgorCore.save.objs))
       //Reconnect tags
+      IgorCore.objs.forEach( (x) => {
+        x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
+      })
       console.log('found save')
     } else {
       //Create new game
@@ -127,13 +141,16 @@ export const IgorUtils = {
     }
     console.log('db loaded')
   },
+  setNamed(as, who) {
+    IgorCore.namedObjs[as] = who
+  },
   getObjId(id) {
     return IgorCore.objs[id]
   },
   arrayFromIds(list) {
     if(!list) return []
     let ret = []
-    list.forEach( (id) => { ret.push(IgorCore.objs[id]) })
+    list.forEach( (id) => { ret.push(IgorCore.objs.get(id)) })
     console.log(ret)
     return ret
   },
@@ -150,7 +167,7 @@ export const IgorUtils = {
   saveGame() {
     let data = {
       game: JSON.stringify(IgorCore.game),
-      objs: JSON.stringify(IgorCore.objs)
+      objs: JSON.stringify(Array.from(IgorCore.objs.entries()))
     }
     dbSet(IgorCore.saveName, data, IgorCore.db)
   },
@@ -196,11 +213,18 @@ export const IgorRunner = {
   processTEMP: (obj, op, args) => {
     let ret = {}
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)
+    //console.log('_result' in ret)
     return '_result' in ret ? ret._result : ret
+  },
+  getNamedObject: (what) => {
+    return IgorCore.namedObjs[what]
   },
   addNewObject: (target, objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
       let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", target), IgorBuilder)
+      if(IgorCore.object_tickers[objType]) {
+        IgorCore.tick_entities.push({as: objType, obj})
+      }
       return true
     } else {
       console.warn("cannot find object type")

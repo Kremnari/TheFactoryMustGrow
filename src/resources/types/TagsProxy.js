@@ -24,7 +24,9 @@ export function TagMapProxy({to, load, entity}) {
     }
   }
   if(load) {
-    // use ret
+    load.forEach( (x) => {
+      ret.push(x[0], x[1])
+    })
   }
   return ret
 }

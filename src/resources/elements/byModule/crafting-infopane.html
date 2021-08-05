@@ -3,17 +3,16 @@
   <require from="../../value-converters/lib/ObjectFilters"></require>
   <require from="./upgrades-infopane"></require>
   <div 
-    class="showRecipe ${$scope.crafter.crafting_timer!=NaN && 'progressBarBase'}"
+    class="showRecipe ${$scope.crafter.process_timer!=NaN && 'progressBarBase'}"
     if.bind="$scope.crafter.processing"
-    css="border-image-source: linear-gradient(to right, green ${$scope.crafter.progress}%, red ${$scope.crafter.progress}%)"> 
+    css="border-image-source: linear-gradient(to left, green ${$scope.crafter.process_timer}%, red ${$scope.crafter.process_timer}%)"> 
       Recipe:
       <icon-base
         repeat.for="ing of $scope.crafter.processing.ingredients | objectValues"
         item.bind="ing.name"
         required.bind="ing.amount"
         count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.in.items, {name: ing.name}) & signal:'generalUpdate'"
-        click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.crafter.buffers.in.items[$index]})"
-        Xclick.delegate="$scope.crafter.consumeFrom(actor.inv, ing)"
+        click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.crafter.buffers.in, 'item.buffer': $scope.crafter.buffers.in.items[$index]}, $event)"
       ></icon-base>
       =&gtcc;
       <icon-base
@@ -21,8 +20,7 @@
         item.bind="res.name"
         required.bind="res.amount"
         count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.out.items, {name: res.name}) & signal:'generalUpdate'"
-        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.crafter.buffers.out.items[$index]})"
-        Xclick.delegate="$scope.crafter.dump(actor, res)"
+        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.crafter.buffers.out.items[$index]}, $event)"
       ></icon-base>
     </p>
     <p click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)">Clear recipe</p>

@@ -3,6 +3,7 @@ export class FilterValueConverter {
     if(!obj) return {}
     let ret = {}
     if(Array.isArray(params.value)) {
+      //debugger
       for (let [key, each] of Object.entries(obj)) {
         if(each[params.key]) {
           if(params.value.indexOf(each[params.key]) >= 0) ret[key] = each

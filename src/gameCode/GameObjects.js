@@ -1,5 +1,4 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
-import { EntityStorage } from "../../EntityMgr"
 import {ChameleonViewer as ChameJs} from "Chameleon/main"
 
 /* *
@@ -11,7 +10,7 @@ const PlayerEntity = (params, newObj, Igor) => {
   //? Copy static data onto entity,
   //? surely there's a better way to do this...
   Object.assign(newObj, Igor.data.entity[params.name])
-  if(newObj.subType=="mining-drill" || newObj.subType=="crafter") {
+  if(newObj.subType=="miner" || newObj.subType=="crafter") {
     newObj.buffers.out = {
       items: [],
       upgrades: {},
@@ -34,8 +33,21 @@ const PlayerEntity = (params, newObj, Igor) => {
 const PlayerEntityTickerSig = {
   
 }
-const PlayerEntityTicker = (entity, tickData) => {
-  console.log("player entity ticker")
+const PlayerEntityTicker = (entity, tickData, Igor) => {
+  if(!entity.processing || entity.buffers.out.items.some( (x) => {return x.count >= entity.buffers.out.stackSize })) { entity.$_tags.delete("ticking"); return }
+  if(entity.process_timer) { --entity.process_timer }
+  if(entity.process_timer===0) {
+    if(Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
+      entity.process_timer = NaN
+    }
+  }
+  if(Number.isNaN(entity.process_timer)) {
+    if(entity.subType=='miner' || Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: entity.processing.ingredients})) {
+      entity.process_timer = entity.process_ticks
+    } else {
+      entity.$_tags.delete("ticking")
+    }
+  }
 }
 IgorJs.defineObj("player.entity", PlayerEntity, {tick: PlayerEntityTicker})
 IgorJs.addObjectTickFunction("player.entity", PlayerEntityTicker, PlayerEntityTickerSig)
@@ -82,19 +94,21 @@ const EntitySetProcess = (obj, Igor) => {
     if(!obj.which.process) return
   }
   obj.at.entity.processing = obj.which.process
-  obj.at.entity.$_tags.push("ticking", obj.type.class)
+  obj.at.entity.$_tags.push("ticking", "processing")
   if(obj.type.class=="mining") {
-    obj.at.entity.process_timer = obj.which.process.mining_time / obj.at.entity.mining_speed * Igor.config.TICKS_PER_SECOND
+    obj.at.entity.process_ticks = obj.which.process.mining_time / obj.at.entity.mining_speed * Igor.config.TICKS_PER_SECOND
+    obj.at.entity.process_timer = NaN
   } else if (obj.type.class=="crafting") {
-    obj.at.entity.process_timer = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.config.TICKS_PER_SECOND
+    obj.at.entity.process_ticks = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.config.TICKS_PER_SECOND
     if(obj.at.entity.buffers.in) {
       if(obj.at.entity.buffers.in.stacks<obj.which.process.ingredients.length) { console.error("cannot fit ingredients"); return }
-      obj.which.process.ingredients.forEach( (item, idx) => {obj.at.entity.buffers.in.items[idx] = {name: item.name, count: 0}; console.log(item)})
+      obj.which.process.ingredients.forEach( (item, idx) => {obj.at.entity.buffers.in.items[idx] = {name: item.name, count: 0}; })
     }
     if(obj.at.entity.buffers.out) {
       if(obj.at.entity.buffers.out.stacks<obj.which.process.results.length) { console.error('cannot fit results'); return }
-      obj.which.process.results.forEach( (item, idx) => {obj.at.entity.buffers.out.items[idx] = {name: item.name, count: 0}; console.log(item)})
+      obj.which.process.results.forEach( (item, idx) => {obj.at.entity.buffers.out.items[idx] = {name: item.name, count: 0};})
     }
+    obj.at.entity.process_timer = NaN
   }
 }
 IgorJs.provide_CCC("entity.setProcess", EntitySetProcess, EntitySetProcessSig)
@@ -116,23 +130,32 @@ IgorJs.addOperation("entity.clearProcess", EntityClearProcess)
 
 const CollectBufferSig = {
   which: 'buffer',
+  at: 'entity',
   player: 'inventory'
 }
 const CollectBuffer = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: obj.which.buffer})
   obj.which.buffer.count = 0
+  obj.at.entity.$_tags.push("ticking", "processing")
 }
 
 IgorJs.provide_CCC("entity.bufferCollect", CollectBuffer, CollectBufferSig)
 
 const FillBufferSig = {
   which: 'buffer',
+  item: 'buffer',
+  at: 'entity', 
   service: 'rounder',
   player: 'inventory'
 }
 const FillBuffer = (obj, Igor) => {
-  //Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.which.buffer.name, count: 5}})
-  obj.which.buffer.count += 5
+  let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: obj.item.buffer.name})
+  if(avail===0) return
+  let toMove = obj.service.rounder.calc(obj.item.buffer.count, obj.which.buffer.stackSize, avail)
+  Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.item.buffer.name, count: toMove}})
+  obj.item.buffer.count += toMove
+  //Set entity to 'ticking'
+  obj.at.entity.$_tags.push("ticking", "processing")
 }
 
 IgorJs.provide_CCC("entity.bufferFill", FillBuffer, FillBufferSig)

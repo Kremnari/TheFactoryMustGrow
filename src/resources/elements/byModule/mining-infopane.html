@@ -1,26 +1,27 @@
 <template>
   <require from="./upgrades-infopane"></require>
-  <scope-var var.bind="$scope = {miner: viewPane.showingItem"></scope-var>
+  <scope-var var.bind="$scope = {miner: viewPane.showingItem}"></scope-var>
   <div>
     <p>Select Resource to Mine</p>
     <icon-base
-      repeat.for="res of dataSet.reource | filter:{key:'category', value:miner.resource_categories} | objectValues"
+      repeat.for="res of dataSet.resource | filter:{key:'category', value:$scope.miner.resource_categories, includeUndefs: true} | objectValues"
       item.bind="res"
-      click.delegate="miner.set_mining(res)"
-      class="${res==miner.processing? 'selected': ''}"
+      click.delegate="CCC.issue('entity.setProcess', {'which.process': res, 'type.class':'mining'}, $event)"
+      class="${res==$scope.miner.processing ? 'selected': ''}"
     ></icon-base>
+    <br>
     <p
-      click.delegate="miner.collectBuffer(actor)"
-      if.bind="miner.processing"
+      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out.items[0]}, $event)"
+      if.bind="$scope.miner.processing"
       class="progressBarBase"
-      css="border-image-source: linear-gradient(to right, green ${miner.progress}%, red ${miner.progress}%)"
+      css="border-image-source: linear-gradient(to left, green ${$scope.miner.process_timer}%, red ${$scope.miner.process_timer}%)"
       title="Click to collect">
       <icon-base
-        item.bind="miner.processing.mining_results"
-        count.bind="miner.buffers.out.total(miner.processing.mining_results) & signal:'generalUpdate'"
+        item.bind="$scope.miner.processing.mining_results"
+        count.bind="$scope.miner.buffers.out.items[0].count"
       ></icon-base>
-      /${miner.buffers.max_out} (max)
+      /${$scope.miner.buffers.out.stackSize} (max)
     </p>
-    <upgrades-infopane entity.bind="miner" parcel.bind="miner.parent"></upgrades-infopane>
+    <upgrades-infopane entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></upgrades-infopane>
   </div>
 </template>

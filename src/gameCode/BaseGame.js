@@ -1,8 +1,9 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
-import * as CONFIG from './Config'
+import * as CONFIG from 'Config'
 
-import * as PlayerWorkshop from './resources/StateDef/PlayerWorkshop'
-import * as ObjectsSource from './resources/StateDef/GameObjects'
+import * as PlayerWorkshop from 'gameCode/PlayerWorkshop'
+import * as ObjectsSource from 'gameCode/GameObjects'
+import * as InventoryIgor from 'gameCode/inventory_Igor'
 
 
 //* these two setup the base game data,
@@ -51,7 +52,6 @@ export const setupIgor = () => {
   IgorJs.defineObj("#", newGame)
   IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
   IgorJs.defineObj("player", "player")
-  IgorJs.defineObj()
   IgorJs.amendObject("FactoryBlocksBase", {tickFn: (td, obj) => { tickBase(td, obj) } })
   console.log('setup complete')
 }

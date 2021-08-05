@@ -129,6 +129,7 @@ export const CephlaCommCaller = {
     }
     if(!$evt.CCC[specifier]) $evt.CCC[specifier] = {}
     $evt.CCC[specifier][type] = obj
+    //console.log("captured: "+specifier+": "+type)
   },
   utilityFn: (which, base, args) => {
     let ret = {}

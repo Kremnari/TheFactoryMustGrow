@@ -16,6 +16,7 @@ const InventoryPushSig = {
 }
 function InventoryPush(obj, Igor) {
   if(obj.which.itemStack.count>0
+    && Igor.data.entity[obj.which.itemStack.name]
     && Igor.addNewObject(obj.to.entities, "player.entity", { name: obj.which.itemStack.name})) {
     obj.which.itemStack.count--
   }

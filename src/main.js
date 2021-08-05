@@ -32,11 +32,11 @@ export function configure(aurelia) {
 }
 
 window.debugIf = function(obj, flag) {
-  if(obj.debug && obj.debug.includes(flag)) debugger
+  if(obj.$$_debug && obj.$$_debug.includes(flag)) debugger
 }
 window.debugCheck = function(obj, flag) {
-  !obj.debug && (obj.debug = [])
-  obj.debug.push(flag)
+  !obj.$$_debug && (obj.$$_debug = [])
+  obj.$$_debug.push(flag)
 }
 
 Object.walkPath = function(o, s) {
