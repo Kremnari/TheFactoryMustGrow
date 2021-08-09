@@ -157,6 +157,7 @@ export const IgorUtils = {
       //Reconnect tags
       IgorCore.objs.forEach( (x) => {
         x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
+        if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
       })
       console.log('found save')
     } else {
