@@ -25,6 +25,9 @@ const PlayerEntity = (params, newObj, Igor) => {
       stacks: 1, stackSize: 5,
       xfer: 0, xferTicks: 120, xferTimer: NaN
     }
+    if(newObj.subType=="research") {
+      newObj.inputs.forEach((x) => newObj.buffers.in.items.push({name: x, count: 0}))
+    }
   }
   //!  This won't work when Igor is in a webworker
   ChameJs.signaler.signal("addedEntity")
