@@ -131,10 +131,10 @@ const EntitySetProcess = (obj, Igor) => {
     if(!obj.which.process) return
   }
   obj.at.entity.processing = obj.which.process
-  obj.at.entity.$_tags.push("ticking", "processing")
+  obj.at.entity.$_tags.push("tick", "processing")
   if(obj.type.class=="mining") {
     obj.at.entity.process_ticks = obj.which.process.mining_time / obj.at.entity.mining_speed * Igor.config.TICKS_PER_SECOND
-    obj.at.entity.process_timer = NaN
+    obj.at.entity.process_timer = obj.at.entity.process_ticks
   } else if (obj.type.class=="crafting") {
     obj.at.entity.process_ticks = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.config.TICKS_PER_SECOND
     if(obj.at.entity.buffers.in) {
