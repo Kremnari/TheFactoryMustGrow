@@ -18,10 +18,11 @@
       title="Click to collect">
       <icon-base
         item.bind="$scope.miner.processing.mining_results"
-        count.bind="$scope.miner.buffers.out.items[0].count"
+        xcount.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out.items, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
+        count.bind="$scope.miner.buffers.out.items[0].count & signal:'generalUpdate'"
       ></icon-base>
       /${$scope.miner.buffers.out.stackSize} (max)
     </p>
-    <upgrades-infopane entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></upgrades-infopane>
+    <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></compose>
   </div>
 </template>

@@ -16,7 +16,13 @@ const IgorCore = {
     
   },
   Tick: (td) => {
-    if(!IgorCore.$_tags.get('ticking')) return
+    for( let each of IgorCore.tick_entities.values()) {
+      let order = IgorCore.object_tickers[each.$_type].$_signalOrders
+      order.forEach( (x) => {
+        if(each.$_tags.has(x)) IgorCore.object_tickers[each.$_type][x].fn(each, td, IgorRunner)
+      })
+    }
+    /*
     for(let each of IgorCore.$_tags.get('ticking').values()) {
       //generate tick data using Tick_Builder
       //  per each types tick data signature
@@ -24,6 +30,7 @@ const IgorCore = {
         IgorCore.object_tickers[x.$_type].fn(x,td, IgorRunner)
       })
     }
+    */
   },
   Tick_Builder: (td) => {
     let ret  = {}
@@ -76,7 +83,7 @@ export const IgorUtils = {
   },
   provide_CCC: (item, fn, sig) => {
     //! Provides temporary passthrough for game commands
-    //    so game action definintions won't reference CephlaComm directly
+    //    so game action definitions won't reference CephlaComm directly
     if(!IgorCore.command) {
       IgorCore._provideTemp || (IgorCore._provideTemp = [])
       IgorCore._provideTemp.push({item, fn, sig})
@@ -93,13 +100,17 @@ export const IgorUtils = {
     }
 
   },
-  defineData: (table ) => {
-
-  },
-  defineObj: (what, fn, actions) => {
-    IgorCore.metaDefines[what] = {
+  defineObj: (who, fn, actions) => {
+    IgorCore.metaDefines[who] = {
       new: fn,
       actions,
+    }
+    if(actions?.tick){
+      !IgorCore.object_tickers[who] && (IgorCore.object_tickers[who] = {})
+      IgorCore.object_tickers[who].tick = {
+        type: who,
+        fn: actions.tick
+      }
     }
   },
   addOperation: (op, fn) => {
@@ -112,12 +123,26 @@ export const IgorUtils = {
   },
   //!
   // tickDataSig would be the needed parameters from the passed TickData
-  addObjectTickFunction: (who, what, tickDataSig) => {
-    IgorCore.object_tickers[who] = {
+  addObjectTickHandler: (who, what, named, priority) => {
+    !IgorCore.object_tickers[who] && (IgorCore.object_tickers[who]  = {})
+
+    let at = IgorCore.object_tickers[who]
+    at[named] = {
       type: who,
       fn: what,
-      tickDataSig
+      priority
     }
+    //Regenerate priorities... add to base object_tickers
+    let order = at.$_signalOrders || ["tick"]
+    let tickIdx = order.findIndex((x)=> x=="tick")
+    if(priority.chain) {
+      //! Lots more needed for this...
+      // need to account for priorities
+      [].splice.apply(order, [tickIdx, 1].concat(priority.chain))
+    } else if(priority.num) {
+      //... also if no chain exists...
+    }
+    at.$_signalOrders = order
   },
   async loadDatabase(dataset) {
     IgorCore.data = dataset
@@ -151,7 +176,6 @@ export const IgorUtils = {
     if(!list) return []
     let ret = []
     list.forEach( (id) => { ret.push(IgorCore.objs.get(id)) })
-    console.log(ret)
     return ret
   },
   getRunner() { return IgorRunner },
@@ -223,7 +247,7 @@ export const IgorRunner = {
     if(IgorCore.metaDefines[objType]) {
       let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", target), IgorBuilder)
       if(IgorCore.object_tickers[objType]) {
-        IgorCore.tick_entities.push({as: objType, obj})
+        IgorCore.tick_entities.push(obj)
       }
       return true
     } else {

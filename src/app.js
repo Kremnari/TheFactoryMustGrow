@@ -75,7 +75,7 @@ export class App {
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")
-        !this.globals.ranTutorial && Tutorial.start()
+        // !this.globals.ranTutorial && Tutorial.start()
          this.globals.ranTutorial && this.autoSave()
       }
     }

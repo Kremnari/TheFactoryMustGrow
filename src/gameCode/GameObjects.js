@@ -33,7 +33,43 @@ const PlayerEntity = (params, newObj, Igor) => {
 const PlayerEntityTickerSig = {
   
 }
-const PlayerEntityTicker = (entity, tickData, Igor) => {
+function EntityInputTicker(entity, tickData, Igor) {
+  //need to reconjigger this to draw from multiple buffer slots
+  if(entity.buffers.in.xferTimer-- == 0) {
+    let toAdd = Math.min(entity.buffers.in.xfer, entity.buffers.in.stackSize-entity.buffers.in.items[0].count)
+    if(Igor.processTEMP(
+       Igor.getNamedObject("player.inventory")
+      ,"inventory.consume"
+      ,{itemStacks: {
+           name: entity.buffers.in.items[0].name
+          ,count: toAdd
+        }
+      })) {
+        entity.buffers.in.items[0].count += toAdd
+        entity.$_tags.push("tick", "processing")
+      }
+    entity.buffers.in.xferTimer = entity.buffers.in.xferTicks
+  }
+}
+function EntityOutputTicker(entity, tickData, Igor) {
+  //need to reconjigger this for drawing from multiple buffer slots
+  if(entity.buffers.out.xferTimer-- == 0) {
+    let toSub = Math.min(entity.buffers.out.xfer, entity.buffers.out.stackSize-entity.buffers.out.items[0].count)
+    console.log(toSub)
+    if(Igor.processTEMP(
+        Igor.getNamedObject("player.inventory")
+        ,"inventory.add"
+        ,{itemStacks: {
+           name: entity.buffers.out.items[0].name
+          ,count: toSub
+        }}
+    )) {
+      entity.buffers.out.items[0].count -= toSub
+    }
+    entity.buffers.out.xferTimer = entity.buffers.in.xferTicks
+  }
+}
+function EntityProcessTicker(entity, tickData, Igor) {
   if(!entity.processing || entity.buffers.out.items.some( (x) => {return x.count >= entity.buffers.out.stackSize })) { entity.$_tags.delete("ticking"); return }
   if(entity.process_timer) { --entity.process_timer }
   if(entity.process_timer===0) {
@@ -41,16 +77,17 @@ const PlayerEntityTicker = (entity, tickData, Igor) => {
       entity.process_timer = NaN
     }
   }
-  if(Number.isNaN(entity.process_timer)) {
+  if(Number.isNaN(entity.process_timer) || entity.process_timer===null) {
     if(entity.subType=='miner' || Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: entity.processing.ingredients})) {
       entity.process_timer = entity.process_ticks
     } else {
-      entity.$_tags.delete("ticking")
+      entity.$_tags.delete("tick")
     }
   }
 }
-IgorJs.defineObj("player.entity", PlayerEntity, {tick: PlayerEntityTicker})
-IgorJs.addObjectTickFunction("player.entity", PlayerEntityTicker, PlayerEntityTickerSig)
+IgorJs.defineObj("player.entity", PlayerEntity, {tick: EntityProcessTicker})
+IgorJs.addObjectTickHandler("player.entity", EntityInputTicker, "inputTicker", {chain: ["inputTicker", "tick"], num: -5})
+IgorJs.addObjectTickHandler("player.entity", EntityOutputTicker, "outputTicker", {chain: ["tick", "outputTicker"],  num: 5})
 
 /* *
  * Resource mining
@@ -136,7 +173,7 @@ const CollectBufferSig = {
 const CollectBuffer = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: obj.which.buffer})
   obj.which.buffer.count = 0
-  obj.at.entity.$_tags.push("ticking", "processing")
+  obj.at.entity.$_tags.push("tick", "processing")
 }
 
 IgorJs.provide_CCC("entity.bufferCollect", CollectBuffer, CollectBufferSig)
@@ -155,7 +192,43 @@ const FillBuffer = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.item.buffer.name, count: toMove}})
   obj.item.buffer.count += toMove
   //Set entity to 'ticking'
-  obj.at.entity.$_tags.push("ticking", "processing")
+  obj.at.entity.$_tags.push("tick", "processing")
 }
 
 IgorJs.provide_CCC("entity.bufferFill", FillBuffer, FillBufferSig)
+
+
+const BufferUpgradeSig = {
+  which: "buffer",
+  type: "string",
+  at: "entity",
+  player: 'inventory',
+}
+
+const BUFFER_SIZE = [5, 10, 20, 30, 40, 50]
+BUFFER_SIZE.MAX = 50
+
+const BufferUpgrade = (obj, Igor) => {
+  if(obj.type.string=="autoload") {
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "inserter", count: 1}})) {
+
+      !obj.which.buffer.upgrades.loader && (obj.which.buffer.upgrades.loader = {count: 0})
+      obj.which.buffer.upgrades.loader.count++
+      obj.which.buffer.xferTimer || (obj.which.buffer.xferTimer = obj.which.buffer.xferTicks)
+      obj.which.buffer.xfer++
+
+      let tag = null
+      tag = (obj.at.entity.buffers.in==obj.which.buffer ? "inputTicker" : "outputTicker")
+      obj.at.entity.$_tags.push(tag, true)
+    }
+  } else if(obj.type.string=="buffer") {
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "iron-chest", count: 1}})) {
+      !obj.which.buffer.upgrades.bufferSize && (obj.which.buffer.upgrades.bufferSize = {count: 0})
+      obj.which.buffer.upgrades.bufferSize.count++
+      obj.which.buffer.stackSize = BUFFER_SIZE[obj.which.buffer.upgrades.bufferSize.count] || BUFFER_SIZE.MAX
+      obj.at.entity.$_tags.push("tick", "processing")
+    }
+  }
+}
+
+IgorJs.provide_CCC("entity.bufferUpgrade", BufferUpgrade, BufferUpgradeSig)

@@ -8,7 +8,7 @@ export function TagMapProxy({to, load, entity}) {
       transient.set(tag, value)
       to.setTuple(tag, value, entity)
     },
-    getValue: function(tag) {
+    has: function(tag) {
       return transient.get(tag)
     },
     list: function() {

@@ -1,36 +1,52 @@
-<template bindable="entity, parcel">
+<template>
+  <scope-var var.bind="$scope.entity = viewPane.showingItem"></scope-var>
   <div>
-    <p if.bind="entity.buffers.in">
+    <p
+        if.bind="$scope.entity.buffers.in"
+        click.capture="CCC.provide($event, 'which', 'buffer', $scope.entity.buffers.in)"
+      >
       Input Upgrades
       <icon-base
         item="iron-chest"
-        count.bind="entity.buffers.upgrades.in.size"
-        click.delegate="EM.upgrade({type:'buffers', dir:'in', who: entity})"
+        count.bind="$scope.entity.buffers.in.upgrades.bufferSize.count"
+        click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'buffer'}, $event)"
       ></icon-base>
       <icon-base
         item="inserter"
         if.bind="!parcel.isPlayer"
-        count.bind="entity.buffers.upgrades.in.xfer"
-        progress.bind="entity.buffers.upgrades.in.xferProgress"
-        click.delegate="EM.upgrade({type:'autoload', dir:'in', who: entity})"
+        count.bind="$scope.entity.buffers.in.upgrades.loader.count"
+        progress.bind="$scope.entity.buffers.in.xferTimer"
+        click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
-      <active-trigger entity.bind="entity" tag="inputTicker" if.bind="entity.buffers.upgrades.in.xfer>0"></active-trigger>
+      <active-trigger
+          entity.bind="$scope.entity"
+          tag="inputTicker"
+          if.bind="$scope.entity.buffers.in.xfer>0"
+        ></active-trigger>
     </p>
-    <p if.bind="entity.buffers.out">
+    <p
+        if.bind="$scope.entity.buffers.out"
+        click.capture="CCC.provide($event, 'which', 'buffer', $scope.entity.buffers.out)"
+      >
       Output Upgrades
       <icon-base
         item="iron-chest"
-        count.bind="entity.buffers.upgrades.out.size"
-        click.delegate="EM.upgrade({type:'buffers', dir:'out', who: entity})"
+        count.bind="$scope.entity.buffers.out.upgrades.bufferSize.count"
+        click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'buffer'}, $event)"
       ></icon-base>
       <icon-base
         item="inserter"
-        count.bind="entity.buffers.upgrades.out.xfer"
         if.bind="!parcel.isPlayer"
-        progress.bind="entity.buffers.upgrades.out.xferProgress"
-        click.delegate="EM.upgrade({type:'autoload', dir:'out', who: entity})"
+        count.bind="$scope.entity.buffers.out.upgrades.loader.count"
+        progress.bind="$scope.entity.buffers.out.xferTimer"
+        click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
-      <active-trigger entity.bind="entity" tag="outputTicker" if.bind="entity.buffers.upgrades.out.xfer>0"></active-trigger>
+      <active-trigger
+          entity.bind="$scope.entity"
+          tag="outputTicker"
+          if.bind="$scope.entity.buffers.out.xfer>0"
+          view-spy
+        ></active-trigger>
     </p>
   </div>
 </template>
