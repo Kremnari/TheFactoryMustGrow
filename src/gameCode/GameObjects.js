@@ -27,14 +27,13 @@ const PlayerEntity = (params, newObj, Igor) => {
     }
     if(newObj.subType=="research") {
       newObj.inputs.forEach((x) => newObj.buffers.in.items.push({name: x, count: 0}))
+      newObj.research_timer = null
+      newObj.$_tags.push("researchTicker", true)
     }
   }
   //!  This won't work when Igor is in a webworker
   ChameJs.signaler.signal("addedEntity")
   return [newObj]
-}
-const PlayerEntityTickerSig = {
-  
 }
 function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots
@@ -72,25 +71,49 @@ function EntityOutputTicker(entity, tickData, Igor) {
     entity.buffers.out.xferTimer = entity.buffers.in.xferTicks
   }
 }
+function EntityResearchTicker(entity, tickData, Igor) {
+  let research = Igor.getNamedObject("research").progressing
+  if(!research) return
+  if(Number.isNaN(entity.research_timer) || entity.research_timer===null) {
+    let canConsume = research.cost.ingredients.every(([name, qty]) => {
+        return Igor.processTEMP(entity.buffers.in.items, "inventory.total", {name})>qty
+      })
+    if(!canConsume) return
+    console.log('consuming')
+    research.cost.ingredients.forEach( ([name, qty]) => {
+      Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: {name, count: qty}})
+    })
+    //Consume next units to reset timer
+    entity.research_timer = 120
+    return
+  }
+  if(entity.research_timer) { --entity.research_timer }
+  if(entity.research_timer===0) {
+    Igor.processTEMP(research, "research.update", {})
+    entity.research_timer = NaN
+  }
+}
 function EntityProcessTicker(entity, tickData, Igor) {
   if(!entity.processing || entity.buffers.out.items.some( (x) => {return x.count >= entity.buffers.out.stackSize })) { entity.$_tags.delete("ticking"); return }
-  if(entity.process_timer) { --entity.process_timer }
-  if(entity.process_timer===0) {
-    if(Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
-      entity.process_timer = NaN
-    }
-  }
   if(Number.isNaN(entity.process_timer) || entity.process_timer===null) {
     if(entity.subType=='miner' || Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: entity.processing.ingredients})) {
       entity.process_timer = entity.process_ticks
     } else {
       entity.$_tags.delete("tick")
     }
+    return
+  }
+  if(entity.process_timer) { --entity.process_timer }
+  if(entity.process_timer===0) {
+    if(Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
+      entity.process_timer = NaN
+    }
   }
 }
 IgorJs.defineObj("player.entity", PlayerEntity, {tick: EntityProcessTicker})
 IgorJs.addObjectTickHandler("player.entity", EntityInputTicker, "inputTicker", {chain: ["inputTicker", "tick"], num: -5})
 IgorJs.addObjectTickHandler("player.entity", EntityOutputTicker, "outputTicker", {chain: ["tick", "outputTicker"],  num: 5})
+IgorJs.addObjectTickHandler("player.entity", EntityResearchTicker, "researchTicker", {chain: ["tick", "researchTicker"], num: 3})
 
 /* *
  * Resource mining
@@ -235,3 +258,56 @@ const BufferUpgrade = (obj, Igor) => {
 }
 
 IgorJs.provide_CCC("entity.bufferUpgrade", BufferUpgrade, BufferUpgradeSig)
+
+
+/*
+ *  Research Related
+ *
+ */
+
+const SetResearchSig = {
+  "which": "tech",
+  "global": "game"
+}
+const SetResearch =  (obj, Igor, self) => {
+  obj.global.game.research.progressing = obj.which.tech
+  obj.global.game.research.progressing.completeUnits = 0
+}
+
+IgorJs.provide_CCC("research.set", SetResearch, SetResearchSig)
+
+const ClearResearchSig = {
+  "global": "game"
+}
+const ClearResearch = (obj, Igor, self) => {
+  obj.global.game.research.progressing = null
+}
+IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
+
+const ResearchUpdate = (obj, args, returnObj, Igor) => {
+  obj.completeUnits++
+  if(obj.completeUnits==obj.cost.count) {
+    console.log("complete tech")
+    Igor.getNamedObject("research").progressing = null
+    obj.researched = true
+    obj.unlocks.forEach( (item) => {
+      typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
+      typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
+      (typeof item=== 'string' && Igor.data.recipe[item] && (Igor.data.recipe[item].enabled = true))
+//      || (typeof item === 'object' && item.feature && Igor.getNamedObject("global").activeFeatures.push(item.feature))
+    })
+  }
+}
+
+IgorJs.addOperation("research.update", ResearchUpdate)
+
+const RecipeUnlock = (obj, args, returnObj, Igor) => {
+  Igor.data.recipe[obj].enabled = true
+}
+
+IgorJs.addOperation("recipe.unlock", RecipeUnlock)
+
+const FeatureUnlock = (obj, args, returnObj, Igor) => {
+  Igor.getNamedObject("global").activeFeatures.push(obj.feature)
+}
+IgorJs.addOperation("feature.unlock")

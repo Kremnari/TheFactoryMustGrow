@@ -5,7 +5,7 @@
   <div 
     class="showRecipe ${$scope.crafter.process_timer!=NaN && 'progressBarBase'}"
     if.bind="$scope.crafter.processing"
-    css="border-image-source: linear-gradient(to left, green ${$scope.crafter.process_timer}%, red ${$scope.crafter.process_timer}%)"> 
+    css="border-image-source: linear-gradient(to left, red ${$scope.crafter.process_timer}%, green ${$scope.crafter.process_timer}%)"> 
       Recipe:
       <icon-base
         repeat.for="ing of $scope.crafter.processing.ingredients | objectValues"

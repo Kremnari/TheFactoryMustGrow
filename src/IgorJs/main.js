@@ -121,7 +121,8 @@ export const IgorUtils = {
   amendObject(who, obj) {
    //?  should I throw an error if the object doesn't exist? 
   },
-  //!
+  //! I don't really like this implementation
+  // I need a way to provide different tick processors for different tags
   // tickDataSig would be the needed parameters from the passed TickData
   addObjectTickHandler: (who, what, named, priority) => {
     !IgorCore.object_tickers[who] && (IgorCore.object_tickers[who]  = {})
@@ -204,6 +205,9 @@ export const IgorUtils = {
       case "stop":
         IgorCore.ticker.pause();
         break;
+      case "tick":
+        IgorCore.ticker.once();
+        break;
       case "toggle":
         IgorCore.ticker.toggle();
         break;
@@ -216,7 +220,6 @@ export const IgorUtils = {
       case "resetSave":
         await dbDel(IgorCore.saveName, IgorCore.db)
         return true;
-        break;
     }
   }
 }
@@ -229,12 +232,9 @@ export const IgorRunner = {
   emit: () => {
     //I emit events into Igor
   },
-  get view() {
-    return IgorCore.graphics
-  },
   get data() { return IgorCore.data },
   get view() { return IgorCore.graphics },
-  get config() { return IgorCore.config },
+  get config() { return IgorCore.config }, 
   processTEMP: (obj, op, args) => {
     let ret = {}
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)

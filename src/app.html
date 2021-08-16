@@ -29,7 +29,7 @@
       <span active-when.bind="activeFeatures['defense']" click.delegate="viewPane.main= activeFeatures['defense'] && 'defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}"></span>
       <span active-when.bind="activeFeatures['offense']" click.delegate="viewPane.main= activeFeatures['offense'] && 'offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}"></span>
     </nav>
-    <main class="tfmg">
+    <main class="tfmg" click.capture="CCC.provide($event, 'global', 'game', globals)">
       <section id="nav" if.bind="viewPane.main=='nav'">
         <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
@@ -98,8 +98,8 @@
         </div>
       </section>
       <section id="devControls" if.bind="viewPane.main=='dev'">
-        <div click.delegate="mgrs.Ticker.once()">Tick 1</div>
-        <div click.delegate="mgrs.Ticker.toggle()">${mgrs.Ticker.isRunning ? "Pause" : "Resume"}</div>
+        <div click.delegate="IgorJs.setState('tick')">Tick 1</div>
+        <div click.delegate="IgorJs.setState('toggle')">${IgorJs.Ticker.isRunning ? "Pause" : "Resume"}</div>
         <div click.delegate="jumpStart()">JumpStart()</div>
         <div click.delegate="testing()">Testing()</div>
         <div click.delegate="nukeCache()">NukeCache</div>
@@ -112,12 +112,12 @@
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
           <icon-base
-            repeat.for="rec of mgrs.rec.recipes_by_cats['hand_only']  | objectValues "
+            repeat.for="rec of ChameView.viewFn.handCraftRecipes() & signal: 'generalUpdate'"
             item.bind="rec"
             title = "${rec.name}"
             click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
             show.bind="rec.enabled"
-            class.bind="rec.classesStr"
+            class.bind="ChameView.classFn.canCraft(rec) & signal:'generalUpdate'"
             metas.bind="{showEntity: true}"
             mouseenter.trigger="tooltip = rec"
             mouseleave.trigger="tooltip = null"
@@ -138,8 +138,6 @@
           <compose if.bind="viewPane.showingItem['crafting_speed']" view="./resources/elements/byModule/crafting-infopane.html"></compose>
           <compose if.bind="viewPane.showingItem['mining_speed']" view="./resources/elements/byModule/mining-infopane.html"></compose>
           <compose if.bind="viewPane.showingItem['researching_speed']" view="./resources/elements/byModule/lab-infopane.html"></compose>
-          <!-- mining-infopane if.bind="viewPane.showingItem['mining_speed']" miner.bind="viewPane.showingItem" actor.bind="globals.player" res-mgr.bind="mgrs.res" rounder.bind="rounder" data-set.bind="dataSet"></!-->
-          <!-- lab-infopane if.bind="viewPane.showingItem['researching_speed']" lab.bind="viewPane.showingItem" item-mgr.bind="mgrs.item" rounder.bind="rounder" data-set.bind="dataSet"></!-->
           <div class="entityList">
             <icon-base
               repeat.for="machina of IgorJs.arrayFromIds(globals.player.workshop.entities) & signal:'addedEntity'"
@@ -185,8 +183,7 @@
 
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
-        <require from="./resources/elements/byModule/tech-infopane.html"></require>
-        <tech-infopane if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></tech-infopane>
+        <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></compose>
         <div class="overflow">
           <icon-base
             repeat.for="tech of dataSet.technology | objectValues & signal:'techUpdate'"

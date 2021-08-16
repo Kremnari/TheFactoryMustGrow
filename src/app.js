@@ -54,9 +54,9 @@ export class App {
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
       ChameView.signaler = this.signaler
+      this.ChameView = ChameView
       gameSetup() // This should eventually be included in the IgorJs.loadDatabase data
                   // This would be coming from reading the JSON game schema
-
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
       this.dataSet = IgorJs.dataSet
       this.globals = IgorJs.globalObject
@@ -68,8 +68,22 @@ export class App {
       // This should be established from within Igor, not made from here
       //CCC.staticProvide("from", "inventory", this.globals.player.inv)  /
       IgorJs.setNamed("player.inventory", this.globals.player.inv)
+      IgorJs.setNamed("research", this.globals.research)
+      IgorJs.setNamed("global", this.globals)
       CCC.staticProvide("player", "inventory", this.globals.player.inv)
       CCC.staticProvide("service", "rounder",  this.mgrs.rounder)
+      ChameJS.setClassFn("canCraft", (rec) => {
+        let res = rec.ingredients.every( (ing) => {
+          return this.IgorRunner.processTEMP(this.globals.player.inv.items, "inventory.total", {name: ing.name}) >= ing.amount
+        })
+        return res ? "recipeEnabled" : "recipeDisabled"
+      })
+      ChameJS.setViewFn("handCraftRecipes", () => {
+        return Object.values(this.IgorRunner.data.recipe).filter( (x) => {
+          return x.enabled === undefined ||
+          x.enabled && ( x.category === undefined || x.category == 'crafting' )
+        })
+      })
 
       this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")

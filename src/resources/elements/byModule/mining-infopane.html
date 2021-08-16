@@ -14,7 +14,7 @@
       click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out.items[0]}, $event)"
       if.bind="$scope.miner.processing"
       class="progressBarBase"
-      css="border-image-source: linear-gradient(to left, green ${$scope.miner.process_timer}%, red ${$scope.miner.process_timer}%)"
+      css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"
       title="Click to collect">
       <icon-base
         item.bind="$scope.miner.processing.mining_results"

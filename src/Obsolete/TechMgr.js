@@ -81,7 +81,7 @@ export default class TechMgr {
     if(tech === this.researching) {
       this.researching = null
       this.nextIngredients = null
-    }
+    }  
     this.updateVisible()
   } 
   applyFilter(type, args) {

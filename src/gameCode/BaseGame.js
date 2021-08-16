@@ -37,10 +37,11 @@ const newGame = {
       offense: null,
       offenseBus: null,
       buses: [],
-      blocks: []
+      blocks: [] 
     },
     player: PlayerWorkshop.newPlayer,
     activeFeatures: [],
+    research: { completed: {}, progressing: null },
     version: CONFIG.IDB_SAVE_VERSION
 }
 

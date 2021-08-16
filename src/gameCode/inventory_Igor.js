@@ -95,7 +95,6 @@ function findIndex(items, name, max) {
         if(each.name==args.name) returnObj.count += each.count
       }
       returnObj._result = returnObj.count
-      return
     } else if(args.names) {
       for(let each of itemStacks) {
         if(args.names.indexOf(each.name)>-1) returnObj[each.name] ? (returnObj[each.name] += each.count) : (returnObj[each.name] = each.count)

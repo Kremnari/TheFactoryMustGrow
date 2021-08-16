@@ -404,11 +404,6 @@ class LabEntity extends Entity {
     }
     this.buffers.upgrades.in.xferProgress = this.buffers.upgrades.in.xferAt/this.buffers.upgrades.in.xferMod * 100
   }
-
-  /*tick_inXfer(tickData) {
-    if(tickData.ticks%30!=0) return
-    InvXFer({from: tickData.fromParent.feed, to: this.buffers.in, options: {maxXfer: this.buffers.upgrades.in.xfer}})
-  }*/
   tick(tickData) {
     if(!mgrs.tech.researching) return
     let tickCost = mgrs.tech.researching.cost.time*TICKS_PER_SECOND

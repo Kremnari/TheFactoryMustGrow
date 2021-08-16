@@ -13,7 +13,9 @@ const ChameleonCore = {
   },
   SetModalBox: (selector) => {
     ChameleonCore.modalSelector = document.querySelector(selector)
-  }
+  },
+  classFns: {},
+  viewFns: {}
 }
 
 export const ChameleonBuilder = {
@@ -25,6 +27,12 @@ export const ChameleonBuilder = {
     } else {
       ChameleonCore.GameObjects.base[name] = () => { return JSON.parse(jsonObj) }
     }
+  },
+  setClassFn: (name, fn) => {
+    ChameleonCore.classFns[name] = fn
+  },
+  setViewFn: (name, fn) => {
+    ChameleonCore.viewFns[name] = fn
   }
 }
 
@@ -40,5 +48,7 @@ export const ChameleonViewer = {
     who.animTime = "animation-duration: "+dur+"s"
     ChameleonViewer.signaler.signal("animsUpdate")
   },
-  GameObjectFromPointer: ChameleonCore.GameObjectFromPointer
+  GameObjectFromPointer: ChameleonCore.GameObjectFromPointer,
+  classFn: ChameleonCore.classFns,
+  viewFn: ChameleonCore.viewFns
 }
