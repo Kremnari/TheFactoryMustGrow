@@ -39,15 +39,16 @@ function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots
   if(entity.buffers.in.xferTimer-- == 0) {
     let toAdd = Math.min(entity.buffers.in.xfer, entity.buffers.in.stackSize-entity.buffers.in.items[0].count)
-    if(Igor.processTEMP(
-       Igor.getNamedObject("player.inventory")
-      ,"inventory.consume"
-      ,{itemStacks: {
-           name: entity.buffers.in.items[0].name
-          ,count: toAdd
-        }
-      })) {
-        entity.buffers.in.items[0].count += toAdd
+    let added = Igor.processTEMP(
+                    Igor.getNamedObject("player.inventory")
+                    ,"inventory.consume"
+                    ,{itemStacks: {
+                          name: entity.buffers.in.items[0].name
+                        ,count: toAdd
+                      }, partial: true
+                    })
+    if(added) {
+        entity.buffers.in.items[0].count += added[0].count
         entity.$_tags.push("tick", "processing")
       }
     entity.buffers.in.xferTimer = entity.buffers.in.xferTicks
@@ -56,8 +57,8 @@ function EntityInputTicker(entity, tickData, Igor) {
 function EntityOutputTicker(entity, tickData, Igor) {
   //need to reconjigger this for drawing from multiple buffer slots
   if(entity.buffers.out.xferTimer-- == 0) {
-    let toSub = Math.min(entity.buffers.out.xfer, entity.buffers.out.stackSize-entity.buffers.out.items[0].count)
-    console.log(toSub)
+    let toSub = Math.min(entity.buffers.out.xfer, entity.buffers.out.items[0].count)
+    //console.log(toSub)
     if(Igor.processTEMP(
         Igor.getNamedObject("player.inventory")
         ,"inventory.add"
@@ -68,7 +69,7 @@ function EntityOutputTicker(entity, tickData, Igor) {
     )) {
       entity.buffers.out.items[0].count -= toSub
     }
-    entity.buffers.out.xferTimer = entity.buffers.in.xferTicks
+    entity.buffers.out.xferTimer = entity.buffers.out.xferTicks
   }
 }
 function EntityResearchTicker(entity, tickData, Igor) {

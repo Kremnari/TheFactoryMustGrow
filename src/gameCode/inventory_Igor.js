@@ -56,8 +56,8 @@ function findIndex(items, name, max) {
     returnObj.part = part
   }
   //args.itemStacks: should be an array of ItemStacks
-  //args.test: should be a bool, indicating whether it's checking totals
   //args.multi: int, used to indicate a multiplier to the itemstacks (easily apply the Rounder)
+  //args.partial: bool, used to consume whatever is available, and return consumed part
   function ConsumeAll(inv, args, returnObj, Igor) {
     //* Incomplete
     let itemStacks = args.itemStacks
@@ -74,7 +74,7 @@ function findIndex(items, name, max) {
         idx = findIndex(inv.items, each.name)
       }
       part.push({name: each.name, count: each.count*(args.multi||1)-consumeTotal})
-      if(consumeTotal) {
+      if(consumeTotal && !args.partial) {
         //! we have failed to consume all
         //console.log("re-adding: ")
         //console.log(part)
@@ -83,7 +83,7 @@ function findIndex(items, name, max) {
         return returnObj
       }
     }
-    returnObj._result = true 
+    returnObj._result = (args.partial && part) || true
   }
   //args.names = array of strings
   // --or-- args.name = string
