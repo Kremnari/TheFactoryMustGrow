@@ -19,6 +19,7 @@ function InventoryPush(obj, Igor) {
     && Igor.data.entity[obj.which.itemStack.name]
     && Igor.addNewObject(obj.to.entities, "player.entity", { name: obj.which.itemStack.name})) {
     obj.which.itemStack.count--
+    Igor.view.signaler.signal("addedEntity")
   }
 }
 IgorJs.provide_CCC("player.inventoryPush", InventoryPush, InventoryPushSig)

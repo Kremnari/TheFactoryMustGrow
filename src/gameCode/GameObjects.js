@@ -11,20 +11,10 @@ const PlayerEntity = (params, newObj, Igor) => {
   //? surely there's a better way to do this...
   Object.assign(newObj, Igor.data.entity[params.name])
   if(newObj.subType=="miner" || newObj.subType=="crafter") {
-    newObj.buffers.out = {
-      items: [],
-      upgrades: {},
-      stacks: 1, stackSize: 5,
-      xfer: 0, xferTicks: 120, xferTimer: NaN
-    }
+    newObj.buffers.out = Igor.newClassObject("entity.buffer", {})
   }
   if(newObj.subType=="crafter" || newObj.subType=="research") {
-    newObj.buffers.in = {
-      items: [],
-      upgrades: {},
-      stacks: 1, stackSize: 5,
-      xfer: 0, xferTicks: 120, xferTimer: NaN
-    }
+    newObj.buffers.in = Igor.newClassObject("entity.buffer", {})
     if(newObj.subType=="research") {
       newObj.inputs.forEach((x) => newObj.buffers.in.items.push({name: x, count: 0}))
       newObj.research_timer = null
@@ -35,6 +25,7 @@ const PlayerEntity = (params, newObj, Igor) => {
   ChameJs.signaler.signal("addedEntity")
   return [newObj]
 }
+//!  These should be combined into the entity.buffer tick()
 function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots
   if(entity.buffers.in.xferTimer-- == 0) {
@@ -136,12 +127,12 @@ const ResourceMine = (obj, Igor, self) => {
 }
 window.ResourceMine = ResourceMine
 
-const ResourceMineSig = {
+ResourceMine.signature = {
   which: "resource",
   player: "inventory"
 }
 
-IgorJs.provide_CCC("resources.mine", ResourceMine, ResourceMineSig)
+IgorJs.provide_CCC("resources.mine", ResourceMine, ResourceMine.signature)
 
 /* *
  *  Entity Set processing
@@ -192,27 +183,36 @@ function EntityClearProcess(entity, args, returnObj, Igor) {
 }
 IgorJs.addOperation("entity.clearProcess", EntityClearProcess)
 
-const CollectBufferSig = {
-  which: 'buffer',
-  at: 'entity',
-  player: 'inventory'
+
+/*
+  Buffers
+ */
+const NewEntityBuffer = (params, newObj, Igor) => {
+  newObj.items = []
+  newObj.upgrades = {}
+  newObj.stacks = 1
+  newObj.stackSize = 5
+  newObj.xfer = 0
+  newObj.xferTicks = 120
+  newObj.xferTimer = NaN
+  return [newObj]
 }
-const CollectBuffer = (obj, Igor) => {
+const EntityBufferActions = {}
+EntityBufferActions.Collect = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: obj.which.buffer})
   obj.which.buffer.count = 0
   obj.at.entity.$_tags.push("tick", "processing")
 }
-
-IgorJs.provide_CCC("entity.bufferCollect", CollectBuffer, CollectBufferSig)
-
-const FillBufferSig = {
+EntityBufferActions.Collect.signature = {
   which: 'buffer',
-  item: 'buffer',
-  at: 'entity', 
-  service: 'rounder',
+  at: 'entity',
   player: 'inventory'
 }
-const FillBuffer = (obj, Igor) => {
+EntityBufferActions.Collect.CC_provide = "entity.bufferCollect"
+//IgorJs.provide_CCC("entity.bufferCollect", CollectBuffer, CollectBufferSig)
+
+
+EntityBufferActions.Fill = (obj, Igor) => {
   let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: obj.item.buffer.name})
   if(avail===0) return
   let toMove = obj.service.rounder.calc(obj.item.buffer.count, obj.which.buffer.stackSize, avail)
@@ -221,21 +221,21 @@ const FillBuffer = (obj, Igor) => {
   //Set entity to 'ticking'
   obj.at.entity.$_tags.push("tick", "processing")
 }
-
-IgorJs.provide_CCC("entity.bufferFill", FillBuffer, FillBufferSig)
-
-
-const BufferUpgradeSig = {
-  which: "buffer",
-  type: "string",
-  at: "entity",
-  player: 'inventory',
+EntityBufferActions.Fill.signature = {
+  which: 'buffer',
+  item: 'buffer',
+  at: 'entity', 
+  service: 'rounder',
+  player: 'inventory'
 }
+EntityBufferActions.Fill.CC_provide = "entity.bufferFill"
+//IgorJs.provide_CCC("entity.bufferFill", FillBuffer, FillBufferSig)
 
-const BUFFER_SIZE = [5, 10, 20, 30, 40, 50]
-BUFFER_SIZE.MAX = 50
 
-const BufferUpgrade = (obj, Igor) => {
+IgorJs.setStatic("entity.buffer.BUFFER_SIZE",  [5, 10, 20, 30, 40, 50])
+IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 50)
+
+EntityBufferActions.Upgrade = (obj, Igor) => {
   if(obj.type.string=="autoload") {
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "inserter", count: 1}})) {
 
@@ -252,13 +252,21 @@ const BufferUpgrade = (obj, Igor) => {
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "iron-chest", count: 1}})) {
       !obj.which.buffer.upgrades.bufferSize && (obj.which.buffer.upgrades.bufferSize = {count: 0})
       obj.which.buffer.upgrades.bufferSize.count++
-      obj.which.buffer.stackSize = BUFFER_SIZE[obj.which.buffer.upgrades.bufferSize.count] || BUFFER_SIZE.MAX
+      obj.which.buffer.stackSize = Igor.getStatic("entity.buffer.BUFFER_SIZE")[obj.which.buffer.upgrades.bufferSize.count] || Igor.getStatic("entity.buffer.BUFFER_SIZE.MAX")
       obj.at.entity.$_tags.push("tick", "processing")
     }
   }
 }
+EntityBufferActions.Upgrade.signature = {
+  which: "buffer",
+  type: "string",
+  at: "entity",
+  player: 'inventory',
+}
+EntityBufferActions.Upgrade.CC_provide = "entity.bufferUpgrade"
+//IgorJs.provide_CCC("entity.bufferUpgrade", BufferUpgrade, BufferUpgradeSig)
+IgorJs.defineObj("entity.buffer", NewEntityBuffer, EntityBufferActions)
 
-IgorJs.provide_CCC("entity.bufferUpgrade", BufferUpgrade, BufferUpgradeSig)
 
 
 /*
@@ -309,6 +317,6 @@ const RecipeUnlock = (obj, args, returnObj, Igor) => {
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (obj, args, returnObj, Igor) => {
-  Igor.getNamedObject("global").activeFeatures.push(obj.feature)
+  Igor.getNamedObject("global").activeFeatures[obj.feature] = obj
 }
 IgorJs.addOperation("feature.unlock")

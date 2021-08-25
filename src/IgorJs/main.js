@@ -12,8 +12,8 @@ const IgorCore = {
   $_tags: new KVSMap(),
   meta: {}, // Contains all the runtime data
   ops: {},
+  statics: {},
   metaDefines: { // As meta, but organized by object types and direct paths
-    
   },
   Tick: (td) => {
     for( let each of IgorCore.tick_entities.values()) {
@@ -44,22 +44,34 @@ const IgorCore = {
 }
 
 //* IgorBuilder should only called/accessed from within
-//  the Igor scope, it's used internally used by the Igor Engine
+//  the Igor scope, it's internally used by the Igor Engine
 //  to manipulate the lifecycle of it's objects
 const IgorBuilder = {
   get data() { return IgorCore.data },
-  newObject(type, subType, parent) {
+  newObject(type, subType) {
     let obj = {
       $_id: "id_"+IgorCore.objs.size,
       $_type: type,
       $_subType: subType,
     }
-
     obj.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: obj})
     IgorCore.objs.set(obj.$_id, obj)
-    parent.push(obj.$_id)
     return obj
   },
+  newClassObject: (objType, params ) => {
+    if(IgorCore.metaDefines[objType]) {
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
+      if(IgorCore.object_tickers[objType]) {
+        IgorCore.tick_entities.push(obj)
+      }
+      return obj
+    } else {
+      console.warn("cannot find object type")
+      debugger
+      return false
+    }
+  }
+
 }
 
 
@@ -112,6 +124,15 @@ export const IgorUtils = {
         fn: actions.tick
       }
     }
+    actions && Object.entries(actions).forEach(([prop, obj]) => {
+      if(obj && obj.CC_provide) IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature)
+    })
+  },
+  setStatic: (name, as) => {
+    Object.defineProperty(IgorCore.statics, name, {
+      value: as,
+      writable: false
+    })
   },
   addOperation: (op, fn) => {
     //* These functions are only accessible from game codes
@@ -244,9 +265,13 @@ export const IgorRunner = {
   getNamedObject: (what) => {
     return IgorCore.namedObjs[what]
   },
+  getStatic: (which) => {
+    return IgorCore.statics[which]
+  },
   addNewObject: (target, objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
-      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", target), IgorBuilder)
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
+      target.push(obj.$_id)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
       }

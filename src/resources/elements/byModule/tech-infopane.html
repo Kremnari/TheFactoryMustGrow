@@ -11,7 +11,7 @@
       <strong>Unlocks</strong>
       <div repeat.for="unlock of $scope.tech.unlocks">
         <icon-base if.bind="typeof unlock === 'string'" item.bind="unlock" mouseenter.trigger="tooltip = unlock" mouseleave.trigger="tooltip = null"></icon-base>
-        <span if.bind="typeof unlock === 'object'">${unlock.feature}</span>
+        <span if.bind="typeof unlock === 'object'">Feature: ${unlock.feature}</span>
       </div>
     </div>
     <button click.delegate="CCC.issue('research.set', {}, $event)" if.bind="!globals.researching && !$scope.tech.researched" id="StartResearch">Research</button>

@@ -1,7 +1,5 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject, BindingEngine} from 'aurelia-framework'
-import {FactoryBlock} from './resources/StateDef/FactoryBlock_old'
-import {NamedBlocks} from './resources/StateDef/FactoryBlock'
 import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import * as Config from 'Config'
@@ -44,7 +42,7 @@ export class App {
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
-      this.save = () => { IgorJs.saveGame() }
+      this.save = () => { IgorJs.saveGame();  }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
@@ -90,7 +88,8 @@ export class App {
       if(!this.showDev) {
         IgorJs.setState("start")
         // !this.globals.ranTutorial && Tutorial.start()
-         this.globals.ranTutorial && this.autoSave()
+        //this.globals.ranTutorial && this.autoSave()
+        this.autoSave()
       }
     }
     set showItem(obj) {
@@ -111,6 +110,7 @@ export class App {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
           this.save()
         }, Config.TICKS_MAX_PHASE)
+        this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE - IgorJs.Ticker.ticks)/Config.TICKS_PER_SECOND) }
       } else {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.sub = null
@@ -152,6 +152,7 @@ export class App {
       this.facBlocks.push(add)
       return add
     }
+    /*
     adjustFeature(obj) {
       switch(obj.feature) {
         case "defense":
@@ -175,6 +176,7 @@ export class App {
       }
       // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
     }
+    */
     when(targ, cb) {
       this.whenTarg = {targ, cb}
       console.log('whenSet')

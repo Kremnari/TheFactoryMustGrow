@@ -7,5 +7,7 @@
 			"path": "static"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"editor.showFoldingControls": "always"
+	}
 }

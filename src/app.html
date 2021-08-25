@@ -12,6 +12,7 @@
       <div if.bind="!tooltip" click.delegate="viewPane.main='overview'">
         status box<br> 
         Land, pollution, enemies, oh my!<br>
+        AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span>
       </div>
       <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
     </section>
