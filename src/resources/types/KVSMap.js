@@ -9,7 +9,7 @@ export default class KVSMap extends Map {
     return Array.from(this.get(key)?.get(value)?.values() || [])
   }
 
-  /*
+  /*  Added to Object.prototype in index.ejs
   ensure(key, value) {
     if(!this.has(key)) {
       this.set(key, new Map())

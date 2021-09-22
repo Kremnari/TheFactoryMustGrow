@@ -22,6 +22,7 @@ const CephlaCommCore = {
   //* need to improve repo namespacing
   repo: {},
   sigs: {},
+  valids: {},
   runner: null,
   utilityFns: {}
 }
@@ -40,6 +41,10 @@ export const CephlaCommConstructor = {
   },
   utilityFn(named, fn) {
     CephlaCommCore.utilityFns[named] = fn
+  },
+  initialize(obj) {
+    CephlaCommCore.dialogSvc = obj.dialogSvc
+    CephlaCommCore.dataSet = obj.dataSet
   }
 }
 //! Should remove the function call  in `issue`
@@ -54,6 +59,7 @@ export const CephlaCommCaller = {
       console.warn('nothing for: '+who)
       return;
     }
+    //console.log(obj)
     if(CephlaCommCore.sigs[who]) {
       let args = {}
       let missed = []
@@ -68,22 +74,34 @@ export const CephlaCommCaller = {
           //! The above used to be condensed, but it negated possible nulls
           //found = (obj?.[specifier+"."+type]!==undefined && obj?.[specifier+"."+type]) || $evt?.CCC[specifier]?.[type] || CephlaCommCaller.statics[specifier]?.[type]
           if(found===undefined) {
-            if(type=="recipe") {
-              found = await mgrs.DS.open("SelectX", {
-                list: Object.values(mgrs.rec.recipeList), type
+            if(obj && obj["$_"+type+"Xlist"]) {
+              console.log(type+" Xlist")
+              found = await CephlaCommCore.dialogSvc.open("SelectX", {
+                list: obj["$_"+type+"Xlist"], type
               })
-              found = found?.item?.name
+              if(!found || !found.item) return
+              found = found.item?.name || found.item
+            } else if(type=="recipe") {
+              found = await CephlaCommCore.dialogSvc.open("SelectX", {
+                list: Object.values(CephlaCommCore.dataSet.recipe), type
+              })
+              if(!found) return 
+              found = found.item?.name
             } else if(type=="building") {
               //# should pull entity_cats from a validator
-              found = await mgrs.DS.open("SelectX", {
-                list: Object.values(mgrs.entity.entity_cats["crafting"]), type
+              found = await CephlaCommCore.dialogSvc.open("SelectX", {
+                list: Object.values(CephlaCommCore.dataSet.entity), type
               })
-              found = found?.item
+              if(!found) return
+              found = found.item
             } else if(type=="factoryBus") {
-              found = await mgrs.DS.open("SelectBus", {
-                buses: mgrs.baseApp.facBlocks.filter( (x)=> x.type=="bus")
+              found = await CephlaCommCore.dialogSvc.open("SelectBus", {
+                bus: ['yikes']
               })
-              found = found?.selected?.name
+              if(!found) return
+              found = found.selected?.name
+            } else if(type=="string") {
+              found = prompt("Enter "+specifier+":")
             }
           }
           debugIf(CephlaCommCore, "caller_found")
@@ -106,7 +124,11 @@ export const CephlaCommCaller = {
       //   the function code will not have a name reference,
       //   so instead will need to be passed a reference to that object
       //   so it can place/track it's own side effects
-      CephlaCommCore.repo[who](args, CephlaCommCore.runner, CephlaCommCore.repo[who])
+      if((CephlaCommCore.valids[who] && CephlaCommCore.valids[who](args, CephlaCommCore.runner)) || true) {
+        CephlaCommCore.repo[who](args, CephlaCommCore.runner, CephlaCommCore.repo[who])
+      } else {
+        console.log(who+" failed validator")
+      }
     } else {
       CephlaCommCore.repo[who](obj, $evt?.CCC)
     }

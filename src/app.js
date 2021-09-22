@@ -7,8 +7,6 @@ import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'Cephla
 import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView} from 'Chameleon/main'
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
-import {ArrayObject} from 'libs/ArrayObject'
-
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
 
@@ -20,7 +18,6 @@ export class App {
       version: "beta",
       loaded: false
     }
-    activeFeatures = ArrayObject()
     showTut = true
     dataBase = {}
     viewRecCat = false
@@ -47,12 +44,15 @@ export class App {
     }
     async init(database, DS) { 
       this.mgrs = database.mgrs
-      this.mgrs.DS = DS
       this.mgrs.baseApp = this
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
       ChameView.signaler = this.signaler
       this.ChameView = ChameView
+      CC_const.initialize({
+        dialogSvc: DS,
+        dataSet: database.mgrs.data
+      })
       gameSetup() // This should eventually be included in the IgorJs.loadDatabase data
                   // This would be coming from reading the JSON game schema
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
@@ -70,16 +70,24 @@ export class App {
       IgorJs.setNamed("global", this.globals)
       CCC.staticProvide("player", "inventory", this.globals.player.inv)
       CCC.staticProvide("service", "rounder",  this.mgrs.rounder)
+
+      //These would appear in the data files, which "list" and "params" objects
       ChameJS.setClassFn("canCraft", (rec) => {
         let res = rec.ingredients.every( (ing) => {
           return this.IgorRunner.processTEMP(this.globals.player.inv.items, "inventory.total", {name: ing.name}) >= ing.amount
         })
         return res ? "recipeEnabled" : "recipeDisabled"
       })
-      ChameJS.setViewFn("handCraftRecipes", () => {
+      ChameJS.setViewFn("recipeFilter", (category, includeNulls) => {
         return Object.values(this.IgorRunner.data.recipe).filter( (x) => {
           return x.enabled === undefined ||
-          x.enabled && ( x.category === undefined || x.category == 'crafting' )
+          x.enabled && (
+            ( includeNulls && x.category === undefined )            
+            || (
+              (Array.isArray(category) && category.includes(x.category))
+              || x.category == category
+            ) )
+
         })
       })
 
@@ -129,54 +137,6 @@ export class App {
         }, 0)
       }
     }
-    add_FacBlock(type, name) {
-      name = name || prompt("Enter Block Name")
-      if(!name) return false
-      if(type=="resource") {
-        if(globals.land.res_patches-globals.land.res_patch_used>0) {
-          this.facBlocks.push(new FactoryBlock('resource', name))
-        }
-        return
-      }
-      if(this.globals.land.available - this.globals.land.used < this.globals.land.fac_block_costs[type]) {
-        ChameView.error('not enough land available')
-        return 
-      }
-      this.globals.land.used += this.globals.land.fac_block_costs[type]
-
-      //# Magic number in calculation
-      //++ Better calculation of next factory block
-      this.globals.land.fac_block_costs[type] = Math.floor(this.globals.land.fac_block_costs[type] * 1.2)
-
-      let add = FactoryBlock.new(type, name)
-      this.facBlocks.push(add)
-      return add
-    }
-    /*
-    adjustFeature(obj) {
-      switch(obj.feature) {
-        case "defense":
-          if(!this.activeFeatures["defense"]) {
-            this.activeFeatures["defense"] = true
-            this.facBlocks.defenses = NamedBlocks.DefenseBlock()
-            this.facBlocks.defenseBus = NamedBlocks.DefenseBus()
-          }
-          this.facBlocks.defenses.machines["turret"] = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
-          break;
-        case "offense":
-          if(!this.activeFeatures["offense"]) {
-            this.activeFeatures["offense"] = true
-            this.facBlocks.offenses = NamedBlocks.OffenseBlock()
-            this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
-          }
-          this.facBlocks.offenses.radar = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
-          break;
-        case "factoryBlocks":
-          this.activeFeatures["factoryBlocks"] = true
-      }
-      // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
-    }
-    */
     when(targ, cb) {
       this.whenTarg = {targ, cb}
       console.log('whenSet')

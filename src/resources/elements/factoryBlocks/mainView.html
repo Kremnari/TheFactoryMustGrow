@@ -1,35 +1,104 @@
 <template>
-<section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', viewPane.facBlock )">
-  Block Name: ${viewPane.facBlock.name}
-  Land Size : ${viewPane.facBlock.size}
-  Complexity: ${viewPane.facBlock.complexity}
-  <div if.bind="viewPane.facBlock.inputLine" click.capture="CCC.provide($event, 'at', 'factoryXput', viewPane.facBlock.inputLine)">
-    Inputs:
-    <div class="connection" click.delegate="CCC.issue('factoryBlock.setConnection', {'dir.string': 'in'}, $event)">${viewPane.facBlock.inputLine.connection.name || "none"}</div>
-    <icon-base repeat.for="item of viewPane.facBlock.inputLine.items" item.bind="item"></icon-base>
+<scope-var var.bind="$scope={facBlock: viewPane.facBlock}"></scope-var>
+<section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', $scope.facBlock )" class="container">
+  <div class='row'>
+    <span class="col-sm">Land Size : ${$scope.facBlock.size}</span>
+    <span class="col-sm">-- ${$scope.facBlock.name} --</span>
+    <span class="col-sm">Complexity: ${$scope.facBlock.complexity}</span>
   </div>
-  <div if.bind="viewPane.facBlock.outputLine" click.capture="CCC.provide($event, 'at', 'factoryXput', viewPane.facBlock.outputLine)">
-    Outputs:
-    <div class="connection" click.delegate="CCC.issue('factoryBlock.setConnection', {'dir.string': 'out'}, $event)">${viewPane.facBlock.outputLine.connection.name || "none"}</div>
-    <icon-base repeat.for="item of viewPane.facBlock.outputLine.items" item.bind="item"></icon-base>
+  <div class="row">
+    <div
+        if.bind="$scope.facBlock.buffers.in"
+        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.connections.source)"
+        class="col-4">
+      Input:
+      <span
+            class="connection"
+            click.delegate="CCC.issue('factoryBlock.setConnection', 
+              {'dir.string': 'source', '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses)}, $event)">
+        ${IgorJs.getObjId($scope.facBlock.connections.source).name || "none"}</span>
+      <div>
+        <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.in).items & signal:'generalUpdate'">
+          <span
+              class="fas fa-level-up-alt fa-rotate-90"
+              if.bind="item.name"
+              click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': IgorJs.getObjId($scope.facBlock.buffers.in), 'item.buffer': item, 'at.entity': 'temp_null'}, $event)"
+            ></span>
+        <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
+        </span>
+      </div>
+    </div>
+    <div
+        if.bind="$scope.facBlock.buffers.internal"
+        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.buffers.internal)"
+        class="col-4">
+      Internal:
+      <div>
+        <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.internal).items & signal:'generalUpdate'">
+          <span
+              class="fas fa-level-up-alt fa-rotate-90"
+              if.bind="item.name"
+              click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': IgorJs.getObjId($scope.facBlock.buffers.internale), 'item.buffer': item, 'at.entity': 'temp_null'}, $event)"
+            ></span>
+          <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
+          <span
+            class="fas fa-level-down-alt"
+            if.bind="item.name"
+            click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': item, 'at.entity': 'temp_null'}, $event)"
+          ></span>
+        </span>
+      </div>
+    </div>
+    <div
+        if.bind="$scope.facBlock.buffers.out"
+        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.buffers.out)"
+        class="col-4">
+      Outputs:
+      <span
+          class="connection"
+          click.delegate="CCC.issue('factoryBlock.setConnection',
+          {'dir.string': 'drain', '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses)}, $event)">
+      ${IgorJs.getObjId($scope.facBlock.connections.drain).name || "none"}</span>
+      <div>
+        <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.out).items & signal:'generalUpdate'">
+          <span
+              class="fas fa-level-down-alt"
+              if.bind="item.name"
+              click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': item, 'at.entity': 'temp_null'}, $event)"
+            ></span>
+          <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
+        </span>
+      </div>
+    </div>
   </div>
-  <div class="productionLines" repeat.for="line of viewPane.facBlock.processingLines" click.capture="CCC.provide($event, 'at', 'factoryLine', line)">
-    <span click.delegate="CCC.issue('factoryLine.setRecipe', null, $event)">Recipe: 
-      <icon-base if.bind="line.recipe" item.bind="line.recipe"></icon-base>
-      <span if.bind="!line.recipe">None</span>
+  <div class="productionLines row" repeat.for="line of IgorJs.arrayFromIds($scope.facBlock.factoryLines) & signal:'generalUpdate'" click.capture="CCC.provide($event, 'at', 'factoryLine', line)">
+    <span
+      if.bind="line.buildingType"
+      click.delegate="CCC.issue('factoryLine.setRecipe', {$_recipeXlist: ChameView.viewFn.recipeFilter(line.crafting_categories, true)}, $event)"
+      >
+      Recipe: 
+        <icon-base
+          if.bind="line.recipe"
+          item.bind="line.recipe"
+          css="border-image-source: linear-gradient(to left, red ${$scope.facBlock.processing_ticks/processing_timer*100}%, green ${$scope.facBlock.processing_ticks/processing_timer*100}%)"
+        ></icon-base>
+        <span if.bind="!line.recipe">None</span>
     </span>
     <br>
     <span>
-      <span if.bind="!line.building" click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)">Set Building Type...</span>
-      <span if.bind="line.building" click.delegate="CCC.issue('factoryLine.addBuilding', null, $event)">
-        <icon-base item.bind="line.building"></icon-base>
-        : ${line.counts.buildings}
+      <span if.bind="!line.buildingType" click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)">Set Building Type...</span>
+      <span if.bind=" line.buildingType" click.delegate="CCC.issue('factoryLine.addBuilding', null, $event)">
+        <icon-base item.bind="line.buildingType"></icon-base>
+        : ${line.built}
       </span>
     </span>
-    <span click.delegate="CCC.issue('factoryLine.prepLine', null, $event)">Prepped spaces: ${line.counts.prepped}</span>
+    <span>
+      Prepped spaces: ${line.prepped}
+      <span click.delegate="CCC.issue('factoryLine.prep', null, $event)">Expand</span>
+    </span>
   </div>
-  <div note="add new line to factory block">
-    <span click.delegate="CCC.issue('factoryBlock.addProdLine', null, $event)">Add Line</span>
+  <div note="add new line to factory block" class="row">
+    <span click.delegate="CCC.issue('factoryBlock.addLine', null, $event)">Add Line</span>
   </div>
 </section>
 </template>

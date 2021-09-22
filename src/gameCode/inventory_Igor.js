@@ -92,12 +92,12 @@ function findIndex(items, name, max) {
     if(args.name) {
       returnObj.count = 0
       for(let each of itemStacks) {
-        if(each.name==args.name) returnObj.count += each.count
+        if(each && each.name==args.name) returnObj.count += each.count
       }
       returnObj._result = returnObj.count
     } else if(args.names) {
       for(let each of itemStacks) {
-        if(args.names.indexOf(each.name)>-1) returnObj[each.name] ? (returnObj[each.name] += each.count) : (returnObj[each.name] = each.count)
+        if(each && args.names.indexOf(each.name)>-1) returnObj[each.name] ? (returnObj[each.name] += each.count) : (returnObj[each.name] = each.count)
       }
     }
   }

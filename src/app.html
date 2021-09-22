@@ -24,11 +24,18 @@
       <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
       <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
-      <span active-when.bind="activeFeatures['factoryBlocks']" click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'facBlocks'" class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
-      <span click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'viewFacBlock'" class="fas fa-industry navFacBlocks ${viewPane.main=='viewFacBlock'?'selected':''} ${activeFeatures['factoryBlocks']? '': 'NYI'}"></span>
+      <span
+        active-when.bind="globals.activeFeatures['factoryBlocks']"
+        click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='facBlocks')"
+        class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
+      ></span>
+      <span
+        click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='viewFacBlock')"
+        class="fas fa-industry navFacBlocks ${viewPane.main=='viewFacBlock'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
+      ></span>
       <span class="fas spacer"></span>
-      <span active-when.bind="activeFeatures['defense']" click.delegate="viewPane.main= activeFeatures['defense'] && 'defense'" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${activeFeatures['defense']? '': 'NYI'}"></span>
-      <span active-when.bind="activeFeatures['offense']" click.delegate="viewPane.main= activeFeatures['offense'] && 'offense'" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${activeFeatures['offense']? '': 'NYI'}"></span>
+      <span active-when.bind="globals.activeFeatures['defense']" click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${globals.activeFeatures['defense']? '': 'NYI'}"></span>
+      <span active-when.bind="globals.activeFeatures['offense']" click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${globals.activeFeatures['offense']? '': 'NYI'}"></span>
     </nav>
     <main class="tfmg" click.capture="CCC.provide($event, 'global', 'game', globals)">
       <section id="nav" if.bind="viewPane.main=='nav'">
@@ -39,11 +46,11 @@
         <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
         <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
-        <p click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks List</p>
-        <p click.delegate="viewPane.main= activeFeatures['factoryBlocks'] && 'viewFacBlock'"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
+        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks List</p>
+        <p click.delegate="viewPane.main='viewFacBlock'"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
         <p class="fas spacer"></p> 
-        <p click.delegate="viewPane.main= activeFeatures['defense'] && 'defense'"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
-        <p click.delegate="viewPane.main= activeFeatures['offense'] && 'offense'"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
+        <p click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
+        <p click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
       <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
         <div click.delegate="save()">Save</div>
@@ -107,13 +114,13 @@
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
         <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>
       </section>
-      <compose if.bind="viewPane.main=='offense' && activeFeatures['offense']" view="./resources/elements/mainPanes/offensePane.html"></compose>
-      <compose if.bind="viewPane.main=='defense' && activeFeatures['defense']" view="./resources/elements/mainPanes/defensePane.html"></compose>
+      <compose if.bind="viewPane.main=='offense' && globals.activeFeatures['offense']" view="./resources/elements/mainPanes/offensePane.html"></compose>
+      <compose if.bind="viewPane.main=='defense' && globals.activeFeatures['defense']" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
           <icon-base
-            repeat.for="rec of ChameView.viewFn.handCraftRecipes() & signal: 'generalUpdate'"
+            repeat.for="rec of ChameView.viewFn.recipeFilter('crafting', true) & signal: 'generalUpdate'"
             item.bind="rec"
             title = "${rec.name}"
             click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
@@ -149,7 +156,7 @@
             ></icon-base>
           </div>
       </section>
-      <section id="facBlocks" show.bind="viewPane.main=='facBlocks' && activeFeatures['factoryBlocks']">
+      <section id="facBlocks" show.bind="viewPane.main=='facBlocks'">
         <h3>Factory Blocks</h3>
         <div id="facBlocks stats">
           <ul>
@@ -160,13 +167,12 @@
         </div>
         <table>
           <tr><th>Block Type</th><th>Land Cost</th></tr>
-          <!--# need to replace the numbers in column 2  -->
-          <tr><td>Factory Block</td> <td>${globals.land.fac_block_costs.factory}</td> <td class="btn" click.delegate="add_FacBlock('factory')">Add</td></tr>
-          <tr><td>Bus Block</td>     <td>${globals.land.fac_block_costs.bus}</td>     <td class="btn" click.delegate="add_FacBlock('bus')">Add</td></tr>
-          <tr><td>Lab Block</td>     <td>${globals.land.fac_block_costs.research}</td><td class="btn" click.delegate="add_FacBlock('research')">Add</td></tr>
+          <tr><td>Factory Block</td> <td>${globals.land.fac_block_costs.factory}</td> <td class="btn" click.delegate="CCC.issue('facBlock.newBlock', {}, $event)">Add</td></tr>
+          <tr><td>Bus Block</td>     <td>${globals.land.fac_block_costs.bus}</td>     <td class="btn" click.delegate="CCC.issue('facBlock.newBus', {}, $event)">Add</td></tr>
+          <tr><td>Lab Block</td>     <td>${globals.land.fac_block_costs.research}</td><td class="btn" click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)">Add</td></tr>
         </table>
-        <span class="button" click.delegate="add_FacBlock('resource')">Add Resource Block</span>
         <span>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</span>
+        <span class="button" click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)">Add Resource Block</span>
         <!-- div>
           <span click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</span>
           <span click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</span>
@@ -174,8 +180,19 @@
           <span click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Defenses</span>
         </!-->
         <div>
-          <div repeat.for="facBlock of facBlocks" click.delegate="select_FacBlock(facBlock)" class='${viewPane.facBlock==facBlock ? "selected":""}'>
-            ${facBlock.name}:${facBlock.type}
+          Blocks:
+          <div
+            repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'addedEntity'"
+            click.delegate="viewPane.facBlock=facBlock"
+            class='${viewPane.facBlock==facBlock ? "selected":""}'>
+            ${facBlock.name}
+          </div>
+          Buses:
+          <div
+            repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'addedEntity'"
+            click.delegate="viewPane.facBus=facBus"
+            class="${viewPane.facBus==facBus ? 'selected':''} ">
+            ${facBus.name}
           </div>
         </div>
       </section>
@@ -198,8 +215,10 @@
           <h5>Filters</h5>
           <p>Filter Complete<button click.delegate="mgrs.tech.toggleFilter('complete')">${mgrs.tech.filters.ShowComplete? "Hide":"Show"}</button></p>
           <p>Filter Pack:
-            <span repeat.for="pack of mgrs.tech.filters.ShowPack | objectEntries & signal:'techUpdate'"
-              class="${pack[1]? 'selected':''}" click.delegate="mgrs.tech.toggleFilter('byPack', pack[0])"
+            <span
+              repeat.for="pack of mgrs.tech.filters.ShowPack | objectEntries & signal:'techUpdate'"
+              class="${pack[1]? 'selected':''}"
+              click.delegate="mgrs.tech.toggleFilter('byPack', pack[0])"
               >
               <img src.bind="mgrs.icon.getSrc('item', pack[0])" height="16px">
             </span>
@@ -241,7 +260,7 @@
     </div>
     <section class="tabs">
       <require from="resources/components/tabPopout"></require>
-      <tab-popout class="tab_bottom_left" id="numSelectors" if.bind="activeFeatures['rounder']">
+      <tab-popout class="tab_bottom_left" id="numSelectors">
         <div slot="tab">
           Rounder&nbsp<span class="tabOnly">${mgrs.rounder.huns}${mgrs.rounder.tens}${mgrs.rounder.ones}</span>
         </div>

@@ -29,7 +29,7 @@
     <p>Select recipe to craft</p>
     <div class="overflow">
       <icon-base
-        repeat.for="rec of dataSet.recipe | filter:{key:'category', value:$scope.crafter.crafting_categories, includeUndefs:false} | objectValues"
+        repeat.for="rec of ChameView.viewFn.recipeFilter($scope.crafter.crafting_categories || 'crafting', true) | objectValues & signal:'generalUpdate'"
         item.bind="rec"
         click.delegate="CCC.issue('entity.setProcess', {'which.process': rec, 'type.class': 'crafting'}, $event)"
         class="${rec==$scope.crafter.processing ? 'selected': ''}"

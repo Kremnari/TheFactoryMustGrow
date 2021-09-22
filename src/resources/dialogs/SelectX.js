@@ -10,6 +10,7 @@ export class SelectX {
   }
   activate(model) {
     this.list = model.list
+    //console.log(this.list)
     this.type = model.type
     this.selected = model.default
   }
@@ -17,6 +18,14 @@ export class SelectX {
     this.selected = (item == this.selected) ? null : item
   }
   complete() {
-    this.controller.ok({item: this.selected})
+    if(!this.selected) {
+      this.controller.ok({})
+      return
+    }
+    if(this.selected.icon) {
+      this.controller.ok({item: this.selected})
+    } else {
+      this.controller.ok({item: this.selected.$_id})
+    }
   }
 }

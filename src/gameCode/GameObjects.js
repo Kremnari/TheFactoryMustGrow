@@ -11,10 +11,10 @@ const PlayerEntity = (params, newObj, Igor) => {
   //? surely there's a better way to do this...
   Object.assign(newObj, Igor.data.entity[params.name])
   if(newObj.subType=="miner" || newObj.subType=="crafter") {
-    newObj.buffers.out = Igor.newClassObject("entity.buffer", {})
+    newObj.buffers.out = Igor.newComponent("entity.buffer", {})
   }
   if(newObj.subType=="crafter" || newObj.subType=="research") {
-    newObj.buffers.in = Igor.newClassObject("entity.buffer", {})
+    newObj.buffers.in = Igor.newComponent("entity.buffer", {})
     if(newObj.subType=="research") {
       newObj.inputs.forEach((x) => newObj.buffers.in.items.push({name: x, count: 0}))
       newObj.research_timer = null
@@ -188,20 +188,21 @@ IgorJs.addOperation("entity.clearProcess", EntityClearProcess)
   Buffers
  */
 const NewEntityBuffer = (params, newObj, Igor) => {
-  newObj.items = []
   newObj.upgrades = {}
-  newObj.stacks = 1
-  newObj.stackSize = 5
+  newObj.stacks = params.stacks || 1
+  newObj.stackSize = params.stackSize || 5
+  newObj.items = Array(newObj.stackSize)
   newObj.xfer = 0
   newObj.xferTicks = 120
   newObj.xferTimer = NaN
+  newObj.restrictable = params.restrictable || false
   return [newObj]
 }
 const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: obj.which.buffer})
   obj.which.buffer.count = 0
-  obj.at.entity.$_tags.push("tick", "processing")
+  obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Collect.signature = {
   which: 'buffer',
@@ -219,7 +220,7 @@ EntityBufferActions.Fill = (obj, Igor) => {
   Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.item.buffer.name, count: toMove}})
   obj.item.buffer.count += toMove
   //Set entity to 'ticking'
-  obj.at.entity.$_tags.push("tick", "processing")
+  obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Fill.signature = {
   which: 'buffer',
@@ -264,7 +265,66 @@ EntityBufferActions.Upgrade.signature = {
   player: 'inventory',
 }
 EntityBufferActions.Upgrade.CC_provide = "entity.bufferUpgrade"
-//IgorJs.provide_CCC("entity.bufferUpgrade", BufferUpgrade, BufferUpgradeSig)
+EntityBufferActions.SetRestrictions = (target, args, returnObj, Igor) => {
+  if(!target.restrictable) returnObj._result = false
+  //check through the list and return things to player buffer
+  let connected = []
+  let emptyIdxs = []
+  for(let idx=0; idx<target.items.length; idx++)  {
+    let x = target.items[idx]
+    if(!x) {emptyIdxs.push(idx); continue}
+    if(!args.list.includes(x.name)) {
+      if(x.count>0) Igor.processTEMP(Igor.getNamedObject("player.inventory"), "inventory.add", {itemStacks: x})
+      target.items.splice(idx, 1, undefined)
+      emptyIdxs.push(idx)
+    } else {
+      connected.push(x.name)
+    }
+  }
+  //console.log(emptyIdxs)
+  args.list.forEach( (x) => {
+    if(!connected.includes(x)) {
+      target.items.splice(emptyIdxs.splice(0,1), 1, {name: x, count: 0})
+    }
+  })
+}
+EntityBufferActions.SetRestrictions.Igor_operation = "buffer.restrictList"
+EntityBufferActions.HasRestriction = (target, args, returnObj, Igor) => {
+  if(!target.restrictable) returnObj._result = false
+  else {
+    target.items.forEach( (x) => {
+      if(x.name == args.itemName) {
+        if(x.restrictedBy.includes(args.lineId)) {
+          returnObj._result = {found: true, restricted: true}
+        } else {
+          returnObj._result = {found: true, restricted: false}
+        }
+      }
+    })
+  }
+  !returnObj._result && (returnObj._result = {found: false, restricted: false})
+}
+EntityBufferActions.HasRestriction.Igor_operation = "buffer.hasRestriction"
+EntityBufferActions.ClearRestriction = (target, args, returnObj, Igor) => {
+  if(!target.restrictable) returnObj._result = false
+  let idx = -1
+  while(!("_result" in returnObj)) {
+    let x = target.items[++idx]
+    if(x.name == args.itemName) {
+      x.restrictedBy.splice(x.restrictedBy.indexOf(args.lineId), 1)
+      if(x.restrictedBy.length==0) {
+        target.items[idx] = null
+        returnObj._result = {found: true, cleared: true}
+      } else {
+        returnObj._result = {found: true, cleared: false}
+      }
+    }
+  }
+  !returnObj._result && (returnObj._result = {found: false, cleared: false})
+}
+
+EntityBufferActions.ClearRestriction.Igor_operation = "buffer.clearRestriction"
+
 IgorJs.defineObj("entity.buffer", NewEntityBuffer, EntityBufferActions)
 
 
@@ -302,9 +362,11 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
     obj.unlocks.forEach( (item) => {
       typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
       typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
-      (typeof item=== 'string' && Igor.data.recipe[item] && (Igor.data.recipe[item].enabled = true))
+      //(typeof item=== 'string' && Igor.data.recipe[item] && (Igor.data.recipe[item].enabled = true))
 //      || (typeof item === 'object' && item.feature && Igor.getNamedObject("global").activeFeatures.push(item.feature))
+
     })
+    ChameJs.signaler.signal("generalUpdate")
   }
 }
 
@@ -318,5 +380,30 @@ IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (obj, args, returnObj, Igor) => {
   Igor.getNamedObject("global").activeFeatures[obj.feature] = obj
+  /*
+  adjustFeature(obj) {
+    switch(obj.feature) {
+      case "defense":
+        if(!this.activeFeatures["defense"]) {
+          this.activeFeatures["defense"] = true
+          this.facBlocks.defenses = NamedBlocks.DefenseBlock()
+          this.facBlocks.defenseBus = NamedBlocks.DefenseBus()
+        }
+        this.facBlocks.defenses.machines["turret"] = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
+        break;
+      case "offense":
+        if(!this.activeFeatures["offense"]) {
+          this.activeFeatures["offense"] = true
+          this.facBlocks.offenses = NamedBlocks.OffenseBlock()
+          this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
+        }
+        this.facBlocks.offenses.radar = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
+        break;
+      case "factoryBlocks":
+        this.activeFeatures["factoryBlocks"] = true
+    }
+    // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
+  }
+  */
 }
-IgorJs.addOperation("feature.unlock")
+IgorJs.addOperation("feature.unlock", FeatureUnlock)

@@ -2,12 +2,21 @@
   <ux-dialog>
     <ux-dialog-header>Select ${type}</ux-dialog-header>
     <ux-dialog-body>
-      <icon-base
-        repeat.for="each of list"
-        item.bind="each"
-        click.delegate="select(each)"
-        class="${each==selected ? 'selected' : ''}"
-      >${each.name}</icon-base>
+      <div if.bind="list[0].icon">
+        <icon-base
+          repeat.for="each of list"
+          item.bind="each"
+          click.delegate="select(each)"
+          class="${each==selected ? 'selected' : ''}"
+        >${each.name}</icon-base>
+      </div>
+      <div if.bind="!list[0].icon">
+        <p  
+          repeat.for="each of list"
+          click.delegate="select(each)"
+          class="${each==selected ? 'selected' : ''}"
+          >${each.name}</p>
+      </div>
     </ux-dialog-body>
     <ux-dialog-footer>
       <button click.trigger="complete()">Close</button>

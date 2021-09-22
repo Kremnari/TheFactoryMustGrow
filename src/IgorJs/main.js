@@ -18,9 +18,13 @@ const IgorCore = {
   Tick: (td) => {
     for( let each of IgorCore.tick_entities.values()) {
       let order = IgorCore.object_tickers[each.$_type].$_signalOrders
-      order.forEach( (x) => {
-        if(each.$_tags.has(x)) IgorCore.object_tickers[each.$_type][x].fn(each, td, IgorRunner)
-      })
+      if(order) {
+        order.forEach( (x) => {
+          if(each.$_tags.has(x)) IgorCore.object_tickers[each.$_type][x].fn(each, td, IgorRunner)
+        })
+      } else {
+        IgorCore.object_tickers[each.$_type].tick.fn(each, td, IgorRunner)
+      }
     }
     /*
     for(let each of IgorCore.$_tags.get('ticking').values()) {
@@ -58,20 +62,19 @@ const IgorBuilder = {
     IgorCore.objs.set(obj.$_id, obj)
     return obj
   },
-  newClassObject: (objType, params ) => {
+  newComponent: (objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
       let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
       }
-      return obj
+      return obj.$_id
     } else {
       console.warn("cannot find object type")
       debugger
       return false
     }
   }
-
 }
 
 
@@ -79,6 +82,7 @@ export const IgorUtils = {
   initialize(obj) {
     IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase)
     IgorCore.config.TICKS_PER_SECOND = obj.ticker.ticks_perSec
+    IgorCore.statics["config.TICKS_PER_SECOND"] = obj.ticker.ticks_perSec
     IgorUtils.Ticker = IgorCore.ticker
     IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
     IgorCore.graphics = obj.viewTasker
@@ -87,20 +91,20 @@ export const IgorUtils = {
     IgorCore.saveName = obj.saveName
     IgorCore.db = new Store(IgorCore.dbName, "store")
     if(IgorCore._provideTemp) {
-      IgorCore._provideTemp.forEach( (elm) => {IgorCore.command.provide(elm.item, elm.fn, elm.sig)})
+      IgorCore._provideTemp.forEach( (elm) => {IgorCore.command.provide(elm.item, elm.fn, elm.sig, elm.valid)})
     }
     if(IgorCore._utilityTemp) {
       IgorCore._utilityTemp.forEach( (elm) => IgorCore.command.utilityFn(elm.named, elm.fn) )
     }
   },
-  provide_CCC: (item, fn, sig) => {
+  provide_CCC: (item, fn, sig, valid) => {
     //! Provides temporary passthrough for game commands
     //    so game action definitions won't reference CephlaComm directly
     if(!IgorCore.command) {
       IgorCore._provideTemp || (IgorCore._provideTemp = [])
-      IgorCore._provideTemp.push({item, fn, sig})
+      IgorCore._provideTemp.push({item, fn, sig, valid})
     } else {
-      IgorCore.command.provide(item, fn, sig)
+      IgorCore.command.provide(item, fn, sig, valid)
     }
   },
   addUtility_CCC: (named, fn) => {
@@ -125,8 +129,10 @@ export const IgorUtils = {
       }
     }
     actions && Object.entries(actions).forEach(([prop, obj]) => {
-      if(obj && obj.CC_provide) IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature)
+      if(obj && obj.CC_provide) IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature, obj.validator)
+      if(obj && obj.Igor_operation) IgorUtils.addOperation(obj.Igor_operation, obj)
     })
+  
   },
   setStatic: (name, as) => {
     Object.defineProperty(IgorCore.statics, name, {
@@ -192,8 +198,8 @@ export const IgorUtils = {
   setNamed(as, who) {
     IgorCore.namedObjs[as] = who
   },
-  getObjId(id) {
-    return IgorCore.objs[id]
+  getObjId(id, debug) {
+    return IgorCore.objs.get(id)
   },
   arrayFromIds(list) {
     if(!list) return []
@@ -255,9 +261,10 @@ export const IgorRunner = {
   },
   get data() { return IgorCore.data },
   get view() { return IgorCore.graphics },
-  get config() { return IgorCore.config }, 
+  get config() { return IgorCore.config },
   processTEMP: (obj, op, args) => {
     let ret = {}
+    if(typeof obj == "string" && obj.includes("id")) obj = IgorCore.objs.get(obj)
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)
     //console.log('_result' in ret)
     return '_result' in ret ? ret._result : ret
@@ -265,8 +272,24 @@ export const IgorRunner = {
   getNamedObject: (what) => {
     return IgorCore.namedObjs[what]
   },
+  getId: (which) => {
+    return IgorCore.objs.get(which)
+  },
   getStatic: (which) => {
     return IgorCore.statics[which]
+  },
+  newComponent: (objType, params ) => {
+    if(IgorCore.metaDefines[objType]) {
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
+      if(IgorCore.object_tickers[objType]) {
+        IgorCore.tick_entities.push(obj)
+      }
+      return obj.$_id
+    } else {
+      console.warn("cannot find object type")
+      debugger
+      return false
+    }
   },
   addNewObject: (target, objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
@@ -275,6 +298,8 @@ export const IgorRunner = {
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
       }
+      IgorCore.graphics.signaler.signal("addedEntity")
+      IgorCore.graphics.signaler.signal("generalUpdate")
       return true
     } else {
       console.warn("cannot find object type")
