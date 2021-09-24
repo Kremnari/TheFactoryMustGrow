@@ -120,7 +120,7 @@
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
           <icon-base
-            repeat.for="rec of ChameView.viewFn.recipeFilter('crafting', true) & signal: 'generalUpdate'"
+            repeat.for="rec of ChameView.viewFn.recipeFilter('crafting') & signal: 'generalUpdate'"
             item.bind="rec"
             title = "${rec.name}"
             click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"

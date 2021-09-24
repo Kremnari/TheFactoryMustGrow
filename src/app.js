@@ -78,16 +78,12 @@ export class App {
         })
         return res ? "recipeEnabled" : "recipeDisabled"
       })
-      ChameJS.setViewFn("recipeFilter", (category, includeNulls) => {
+      ChameJS.setViewFn("recipeFilter", (category) => {
         return Object.values(this.IgorRunner.data.recipe).filter( (x) => {
-          return x.enabled === undefined ||
-          x.enabled && (
-            ( includeNulls && x.category === undefined )            
-            || (
-              (Array.isArray(category) && category.includes(x.category))
-              || x.category == category
-            ) )
-
+          return (x.enabled === undefined || x.enabled )
+                && ((Array.isArray(category) && category.includes(x.category))
+                    || x.category == category
+                )
         })
       })
 

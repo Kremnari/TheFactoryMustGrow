@@ -86,7 +86,7 @@ function EntityResearchTicker(entity, tickData, Igor) {
   }
 }
 function EntityProcessTicker(entity, tickData, Igor) {
-  if(!entity.processing || entity.buffers.out.items.some( (x) => {return x.count >= entity.buffers.out.stackSize })) { entity.$_tags.delete("ticking"); return }
+  if(!entity.processing) { entity.$_tags.delete("ticking"); return }
   if(Number.isNaN(entity.process_timer) || entity.process_timer===null) {
     if(entity.subType=='miner' || Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: entity.processing.ingredients})) {
       entity.process_timer = entity.process_ticks
@@ -99,6 +99,8 @@ function EntityProcessTicker(entity, tickData, Igor) {
   if(entity.process_timer===0) {
     if(Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
       entity.process_timer = NaN
+    } else {
+      // || Igor.getId(entity.buffers.out).items.some( (x) => {return x.count >= entity.buffers.out.stackSize })
     }
   }
 }
@@ -156,12 +158,14 @@ const EntitySetProcess = (obj, Igor) => {
   } else if (obj.type.class=="crafting") {
     obj.at.entity.process_ticks = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.config.TICKS_PER_SECOND
     if(obj.at.entity.buffers.in) {
-      if(obj.at.entity.buffers.in.stacks<obj.which.process.ingredients.length) { console.error("cannot fit ingredients"); return }
-      obj.which.process.ingredients.forEach( (item, idx) => {obj.at.entity.buffers.in.items[idx] = {name: item.name, count: 0}; })
+      let buffer = Igor.getId(obj.at.entity.buffers.in)
+      if(buffer.stacks<obj.which.process.ingredients.length) { console.error("cannot fit ingredients"); return }
+      obj.which.process.ingredients.forEach( (item, idx) => {buffer.items[idx] = {name: item.name, count: 0}; })
     }
     if(obj.at.entity.buffers.out) {
-      if(obj.at.entity.buffers.out.stacks<obj.which.process.results.length) { console.error('cannot fit results'); return }
-      obj.which.process.results.forEach( (item, idx) => {obj.at.entity.buffers.out.items[idx] = {name: item.name, count: 0};})
+      let buffer = Igor.getId(obj.at.entity.buffers.out)
+      if(buffer.stacks<obj.which.process.results.length) { console.error('cannot fit results'); return }
+      obj.which.process.results.forEach( (item, idx) => {buffer.items[idx] = {name: item.name, count: 0};})
     }
     obj.at.entity.process_timer = NaN
   }
@@ -200,12 +204,14 @@ const NewEntityBuffer = (params, newObj, Igor) => {
 }
 const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
-  Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: obj.which.buffer})
-  obj.which.buffer.count = 0
+  let buffer = Igor.getId(obj.which.buffer)
+  Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: buffer.items[obj.item.idx]})
+  buffer.items[obj.item.idx].count = 0
   obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Collect.signature = {
   which: 'buffer',
+  item: 'idx',
   at: 'entity',
   player: 'inventory'
 }
@@ -214,17 +220,18 @@ EntityBufferActions.Collect.CC_provide = "entity.bufferCollect"
 
 
 EntityBufferActions.Fill = (obj, Igor) => {
-  let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: obj.item.buffer.name})
+  let buffer = Igor.getId(obj.which.buffer)
+  let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: buffer.items[obj.item.idx].name})
   if(avail===0) return
-  let toMove = obj.service.rounder.calc(obj.item.buffer.count, obj.which.buffer.stackSize, avail)
-  Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.item.buffer.name, count: toMove}})
-  obj.item.buffer.count += toMove
+  let toMove = obj.service.rounder.calc(buffer.items[obj.item.idx].count, buffer.stackSize, avail)
+  Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: buffer.items[obj.item.idx].name, count: toMove}})
+  buffer.items[obj.item.idx].count += toMove
   //Set entity to 'ticking'
   obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Fill.signature = {
   which: 'buffer',
-  item: 'buffer',
+  item: 'idx',
   at: 'entity', 
   service: 'rounder',
   player: 'inventory'

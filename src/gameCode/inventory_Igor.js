@@ -89,6 +89,11 @@ function findIndex(items, name, max) {
   // --or-- args.name = string
   // 
   function calcTotal(itemStacks, args, returnObj, Igor) {
+    if(typeof itemStacks == 'string' && itemStacks.includes('id')) {
+      itemStacks = Igor.getId(itemStacks).items
+    }
+    if(itemStacks==="undefined") debugger
+
     if(args.name) {
       returnObj.count = 0
       for(let each of itemStacks) {

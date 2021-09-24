@@ -1,5 +1,5 @@
 <template>
-  <scope-var var.bind="$scope = {crafter: viewPane.showingItem}">
+  <scope-var var.bind="$scope = {crafter: viewPane.showingItem}"></scope-var>
   <require from="../../value-converters/lib/ObjectFilters"></require>
   <require from="./upgrades-infopane"></require>
   <div 
@@ -11,16 +11,16 @@
         repeat.for="ing of $scope.crafter.processing.ingredients | objectValues"
         item.bind="ing.name"
         required.bind="ing.amount"
-        count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.in.items, {name: ing.name}) & signal:'generalUpdate'"
-        click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.crafter.buffers.in, 'item.buffer': $scope.crafter.buffers.in.items[$index]}, $event)"
+        count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.in, {name: ing.name}) & signal:'generalUpdate'"
+        click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.crafter.buffers.in, 'item.idx': $index}, $event)"
       ></icon-base>
       =&gtcc;
       <icon-base
         repeat.for="res of $scope.crafter.processing.results | objectValues"
         item.bind="res.name"
         required.bind="res.amount"
-        count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.out.items, {name: res.name}) & signal:'generalUpdate'"
-        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.crafter.buffers.out.items[$index]}, $event)"
+        count.bind="CCC.utilityFn('inventory.total', $scope.crafter.buffers.out, {name: res.name}) & signal:'generalUpdate'"
+        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.crafter.buffers.out, 'item.idx': $index}, $event)"
       ></icon-base>
     </p>
     <p click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)">Clear recipe</p>
@@ -29,7 +29,7 @@
     <p>Select recipe to craft</p>
     <div class="overflow">
       <icon-base
-        repeat.for="rec of ChameView.viewFn.recipeFilter($scope.crafter.crafting_categories || 'crafting', true) | objectValues & signal:'generalUpdate'"
+        repeat.for="rec of ChameView.viewFn.recipeFilter($scope.crafter.crafting_categories) | objectValues & signal:'generalUpdate'"
         item.bind="rec"
         click.delegate="CCC.issue('entity.setProcess', {'which.process': rec, 'type.class': 'crafting'}, $event)"
         class="${rec==$scope.crafter.processing ? 'selected': ''}"
