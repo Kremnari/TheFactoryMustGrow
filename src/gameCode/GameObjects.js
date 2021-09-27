@@ -368,7 +368,7 @@ const ClearResearch = (obj, Igor, self) => {
 IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
 
 const ResearchUpdate = (obj, args, returnObj, Igor) => {
-  let global = Igor.getNamedObject("#")
+  let global = Igor.getNamedObject("global")
   obj.completeUnits++
   if(obj.completeUnits==obj.cost.count) {
     console.log("complete tech")
@@ -387,7 +387,7 @@ IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
   Igor.data.recipe[obj].enabled = true
-  Igor.getNamedObject("#").unlocked_recipes.push(obj)
+  Igor.getNamedObject("global").unlocked_recipes.push(obj)
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
