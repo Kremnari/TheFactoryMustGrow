@@ -32,14 +32,20 @@ function findIndex(items, name, max) {
       if(!each.count && each.amount) each.count = each.amount //TEMP data set is not upto snuff..
       if(each.count==0) continue
       let addTotal = each.count*(args.multi||1) //Aurelia is inf looping the getters and setters without this temp
-      maxStack = Igor.data.item[each.name].stack_size
+      maxStack = inv.stackSize || Igor.data.item[each.name].stack_size
       let idx = findIndex(inv.items, each.name, maxStack)
       while(idx>-1 && addTotal>0) {
         //console.log("toadd: "+addTotal+" of "+each.name)
-        let toAdd = Math.min(maxStack-inv.items[idx].count, addTotal)
-        addTotal -= toAdd
-        inv.items[idx].count += toAdd
-        idx = findIndex(inv.items, each.name, maxStack)
+        if(typeof inv.items[idx]==='undefined') {
+          //console.log('undef')
+          inv.items[idx] = {name: each.name, count: addTotal}
+          addTotal = 0
+        } else {
+          let toAdd = Math.min(maxStack-inv.items[idx].count, addTotal)
+          addTotal -= toAdd
+          inv.items[idx].count += toAdd
+          idx = findIndex(inv.items, each.name, maxStack)
+        }
       }
       if(addTotal>0) {
         //TODO: Need to track inventory size
@@ -48,7 +54,9 @@ function findIndex(items, name, max) {
         if(!inv.maxStacks || inv.items.length<inv.maxStacks) {
           inv.items.push({name: each.name, count: addTotal})
         } else {
-          Igor.graphics.error("Inventory Full")
+          returnObj._result = false
+          return false
+          //Igor.graphics.error("Inventory Full")
         }
       }
     }
@@ -92,6 +100,7 @@ function findIndex(items, name, max) {
     if(typeof itemStacks == 'string' && itemStacks.includes('id')) {
       itemStacks = Igor.getId(itemStacks).items
     }
+    if(itemStacks.items) itemStacks = itemStacks.items
     if(itemStacks==="undefined") debugger
 
     if(args.name) {

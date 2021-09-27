@@ -11,17 +11,16 @@
     ></icon-base>
     <br>
     <p
-      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out.items[0]}, $event)"
+      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.idx': 0}, $event)"
       if.bind="$scope.miner.processing"
       class="progressBarBase"
       css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"
       title="Click to collect">
       <icon-base
         item.bind="$scope.miner.processing.mining_results"
-        xcount.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out.items, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
-        count.bind="$scope.miner.buffers.out.items[0].count & signal:'generalUpdate'"
+        count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
       ></icon-base>
-      /${$scope.miner.buffers.out.stackSize} (max)
+      /${IgorJs.getObjId($scope.miner.buffers.out).stackSize} (max)
     </p>
     <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></compose>
   </div>

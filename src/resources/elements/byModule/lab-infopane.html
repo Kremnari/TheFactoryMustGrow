@@ -2,19 +2,17 @@
   <scope-var var.bind="$scope = {lab: viewPane.showingItem}"
   <require from="./upgrades-infopane"></require>
   <p>
-    Max Buffer: ${$scope.lab.buffers.max_in}
+    Max Buffer: ${IgorJs.getObjId($scope.miner.buffers.out).stackSize}
   </p>
   <div
     class="labInput progressBarBase"
-    css="border-image-source: linear-gradient(to right, green ${$scope.lab.progress}%, red ${$scope.lab.progress}%)"
+    css="border-image-source: linear-gradient(to right, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
   >
     <icon-base
       repeat.for="input of $scope.lab.inputs"
       item.bind="input"
-      count.bind="$scope.lab.buffers.in.items[$index].count"
-      Xclass="${$scope.lab.canAdd(input) ? 'fillable': ''}"
-      click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.lab.buffers.in, 'item.buffer': $scope.lab.buffers.in.items[$index]}, $event)"
-      Xclick.delegate="$scope.lab.addPotion(input, rounder)"
+      count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'generalUpdate'"
+      click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.lab.buffers.in, 'item.idx': $index}, $event)"
       title="Click to add ${input}"
     ></icon-base>
   </div>

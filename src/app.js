@@ -97,13 +97,13 @@ export class App {
       }
     }
     set showItem(obj) {
-      if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
+      //if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
       let old = this.viewPane.showingItem
       this.viewPane.showingItem = null
       this.viewPane.showingCat = ""
       if (obj && old != obj.item) {
         window.setTimeout( ()=> {
-          obj.item.selectedClass = "selected"
+          //obj.item.selectedClass = "selected"
           this.viewPane.showingItem = obj.item
           this.viewPane.showingCat = obj.cat
         }, 0)
@@ -118,19 +118,6 @@ export class App {
       } else {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.sub = null
-      }
-    }
-    showing(whatObj, category) {
-      if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
-      let old = this.viewPane.showingItem
-      this.viewPane.showingItem = null
-      this.viewPane.showingCat = ""
-      if (whatObj && old != whatObj) {
-        window.setTimeout( ()=> {
-          whatObj.selectedClass = "selected"
-          this.viewPane.showingItem = whatObj
-          this.viewPane.showingCat = category
-        }, 0)
       }
     }
     when(targ, cb) {

@@ -151,8 +151,8 @@
               repeat.for="machina of IgorJs.arrayFromIds(globals.player.workshop.entities) & signal:'addedEntity'"
               item.bind="machina"
               alt-image.bind="machina.recipe.icon || machina.mining.icon"
-              click.delegate="showing(machina)"
-              class.bind="machina.selectedClass"
+              click.delegate="showItem = {item: machina}"
+              class="${viewPane.showingItem == machina ? 'selected':''}"
             ></icon-base>
           </div>
       </section>

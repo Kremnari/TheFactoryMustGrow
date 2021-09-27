@@ -5,46 +5,48 @@
         if.bind="$scope.entity.buffers.in"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.entity.buffers.in)"
       >
+      <scope-var var.bind="$scope.inBuffer = IgorJs.getObjId($scope.entity.buffers.in)"></scope-var>
       Input Upgrades
       <icon-base
         item="iron-chest"
-        count.bind="$scope.entity.buffers.in.upgrades.bufferSize.count"
+        count.bind="$scope.inBuffer.upgrades.bufferSize.count"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'buffer'}, $event)"
       ></icon-base>
       <icon-base
         item="inserter"
         if.bind="!parcel.isPlayer"
-        count.bind="$scope.entity.buffers.in.upgrades.loader.count"
-        progress.bind="$scope.entity.buffers.in.xferTimer"
+        count.bind="$scope.inBuffer.upgrades.loader.count"
+        progress.bind="$scope.inBuffer.xferTimer"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
       <active-trigger
           entity.bind="$scope.entity"
           tag="inputTicker"
-          if.bind="$scope.entity.buffers.in.xfer>0"
+          if.bind="$scope.inBuffer.xfer>0"
         ></active-trigger>
     </p>
     <p
         if.bind="$scope.entity.buffers.out"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.entity.buffers.out)"
       >
+      <scope-var var.bind="$scope.outBuffer = IgorJs.getObjId($scope.entity.buffers.out)"></scope-var>
       Output Upgrades
       <icon-base
         item="iron-chest"
-        count.bind="$scope.entity.buffers.out.upgrades.bufferSize.count"
+        count.bind="$scope.outBuffer.upgrades.bufferSize.count"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'buffer'}, $event)"
       ></icon-base>
       <icon-base
         item="inserter"
         if.bind="!parcel.isPlayer"
-        count.bind="$scope.entity.buffers.out.upgrades.loader.count"
-        progress.bind="$scope.entity.buffers.out.xferTimer"
+        count.bind="$scope.outBuffer.upgrades.loader.count"
+        progress.bind="$scope.outBuffer.xferTimer"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
       <active-trigger
           entity.bind="$scope.entity"
           tag="outputTicker"
-          if.bind="$scope.entity.buffers.out.xfer>0"
+          if.bind="$scope.outBuffer.xfer>0"
         ></active-trigger>
     </p>
   </div>

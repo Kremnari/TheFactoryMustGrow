@@ -14,11 +14,12 @@ const PlayerEntity = (params, newObj, Igor) => {
     newObj.buffers.out = Igor.newComponent("entity.buffer", {})
   }
   if(newObj.subType=="crafter" || newObj.subType=="research") {
-    newObj.buffers.in = Igor.newComponent("entity.buffer", {})
     if(newObj.subType=="research") {
-      newObj.inputs.forEach((x) => newObj.buffers.in.items.push({name: x, count: 0}))
+      newObj.buffers.in = Igor.newComponent("entity.buffer", {staticStacks: newObj.inputs})
       newObj.research_timer = null
       newObj.$_tags.push("researchTicker", true)
+    } else {
+      newObj.buffers.in = Igor.newComponent("entity.buffer", {})
     }
   }
   //!  This won't work when Igor is in a webworker
@@ -28,39 +29,41 @@ const PlayerEntity = (params, newObj, Igor) => {
 //!  These should be combined into the entity.buffer tick()
 function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots
-  if(entity.buffers.in.xferTimer-- == 0) {
-    let toAdd = Math.min(entity.buffers.in.xfer, entity.buffers.in.stackSize-entity.buffers.in.items[0].count)
+  let buffer = Igor.getId(entity.buffers.in)
+  if(buffer.xferTimer-- == 0) {
+    let toAdd = Math.min(buffer.xfer, buffer.stackSize-buffer.items[0].count)
     let added = Igor.processTEMP(
                     Igor.getNamedObject("player.inventory")
                     ,"inventory.consume"
                     ,{itemStacks: {
-                          name: entity.buffers.in.items[0].name
+                          name: buffer.items[0].name
                         ,count: toAdd
                       }, partial: true
                     })
     if(added) {
-        entity.buffers.in.items[0].count += added[0].count
+        buffer.items[0].count += added[0].count
         entity.$_tags.push("tick", "processing")
       }
-    entity.buffers.in.xferTimer = entity.buffers.in.xferTicks
+    buffer.xferTimer = buffer.xferTicks
   }
 }
 function EntityOutputTicker(entity, tickData, Igor) {
   //need to reconjigger this for drawing from multiple buffer slots
-  if(entity.buffers.out.xferTimer-- == 0) {
-    let toSub = Math.min(entity.buffers.out.xfer, entity.buffers.out.items[0].count)
+  let buffer = Igor.getId(entity.buffers.out)
+  if(buffer.xferTimer-- == 0) {
+    let toSub = Math.min(buffer.xfer, buffer.items[0].count)
     //console.log(toSub)
     if(Igor.processTEMP(
         Igor.getNamedObject("player.inventory")
         ,"inventory.add"
         ,{itemStacks: {
-           name: entity.buffers.out.items[0].name
+           name: buffer.items[0].name
           ,count: toSub
         }}
     )) {
-      entity.buffers.out.items[0].count -= toSub
+      buffer.items[0].count -= toSub
     }
-    entity.buffers.out.xferTimer = entity.buffers.out.xferTicks
+    buffer.xferTimer = buffer.xferTicks
   }
 }
 function EntityResearchTicker(entity, tickData, Igor) {
@@ -68,15 +71,15 @@ function EntityResearchTicker(entity, tickData, Igor) {
   if(!research) return
   if(Number.isNaN(entity.research_timer) || entity.research_timer===null) {
     let canConsume = research.cost.ingredients.every(([name, qty]) => {
-        return Igor.processTEMP(entity.buffers.in.items, "inventory.total", {name})>qty
+        return Igor.processTEMP(entity.buffers.in, "inventory.total", {name})>=qty
       })
     if(!canConsume) return
-    console.log('consuming')
     research.cost.ingredients.forEach( ([name, qty]) => {
       Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: {name, count: qty}})
     })
     //Consume next units to reset timer
-    entity.research_timer = 120
+    entity.research_time = research.cost.time * Igor.config.TICKS_PER_SECOND * entity.researching_speed
+    entity.research_timer = entity.research_time
     return
   }
   if(entity.research_timer) { --entity.research_timer }
@@ -97,10 +100,11 @@ function EntityProcessTicker(entity, tickData, Igor) {
   }
   if(entity.process_timer) { --entity.process_timer }
   if(entity.process_timer===0) {
-    if(Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
+    let buffer = Igor.getId(entity.buffers.out)
+    if(Igor.processTEMP(buffer, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
       entity.process_timer = NaN
     } else {
-      // || Igor.getId(entity.buffers.out).items.some( (x) => {return x.count >= entity.buffers.out.stackSize })
+      //console.log('buffer full')
     }
   }
 }
@@ -173,15 +177,18 @@ const EntitySetProcess = (obj, Igor) => {
 IgorJs.provide_CCC("entity.setProcess", EntitySetProcess, EntitySetProcessSig)
 
 function EntityClearProcess(entity, args, returnObj, Igor) {
+  let player = Igor.getNamedObject("player.inventory")
   if(entity.buffers.in) {
-    Igor.processTEMP(args.returnTo, "inventory.add", {itemStacks: entity.buffers.in.items})
+    let buffer = Igor.getId(entity.buffers.in)
+    Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
-    entity.buffers.in.items.length = 0
+    buffer.items.length = 0
   }
   if(entity.buffers.out) {
-    Igor.processTEMP(args.returnTo, "inventory.add", {itemStacks: entity.buffers.out.items})
+    let buffer = Igor.getId(entity.buffers.out)
+    Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
-    entity.buffers.out.items.length = 0
+    buffer.items.length = 0
   }
   entity.processing = null
 }
@@ -193,9 +200,9 @@ IgorJs.addOperation("entity.clearProcess", EntityClearProcess)
  */
 const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.upgrades = {}
-  newObj.stacks = params.stacks || 1
+  newObj.maxStacks = params.staticStacks?.length || params.stacks || 1
   newObj.stackSize = params.stackSize || 5
-  newObj.items = Array(newObj.stackSize)
+  newObj.items = (params.staticStacks?.map((x) => {return {name: x, count: 0}})) || Array(newObj.maxStacks)
   newObj.xfer = 0
   newObj.xferTicks = 120
   newObj.xferTimer = NaN
@@ -244,16 +251,16 @@ IgorJs.setStatic("entity.buffer.BUFFER_SIZE",  [5, 10, 20, 30, 40, 50])
 IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 50)
 
 EntityBufferActions.Upgrade = (obj, Igor) => {
+  obj.which.buffer = Igor.getId(obj.which.buffer)
   if(obj.type.string=="autoload") {
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "inserter", count: 1}})) {
-
       !obj.which.buffer.upgrades.loader && (obj.which.buffer.upgrades.loader = {count: 0})
       obj.which.buffer.upgrades.loader.count++
       obj.which.buffer.xferTimer || (obj.which.buffer.xferTimer = obj.which.buffer.xferTicks)
       obj.which.buffer.xfer++
 
       let tag = null
-      tag = (obj.at.entity.buffers.in==obj.which.buffer ? "inputTicker" : "outputTicker")
+      tag = (obj.at.entity.buffers.in==obj.which.buffer.$_id ? "inputTicker" : "outputTicker")
       obj.at.entity.$_tags.push(tag, true)
     }
   } else if(obj.type.string=="buffer") {
@@ -361,17 +368,16 @@ const ClearResearch = (obj, Igor, self) => {
 IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
 
 const ResearchUpdate = (obj, args, returnObj, Igor) => {
+  let global = Igor.getNamedObject("#")
   obj.completeUnits++
   if(obj.completeUnits==obj.cost.count) {
     console.log("complete tech")
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
+    global.research.completed[obj.name] = true
     obj.unlocks.forEach( (item) => {
       typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
       typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
-      //(typeof item=== 'string' && Igor.data.recipe[item] && (Igor.data.recipe[item].enabled = true))
-//      || (typeof item === 'object' && item.feature && Igor.getNamedObject("global").activeFeatures.push(item.feature))
-
     })
     ChameJs.signaler.signal("generalUpdate")
   }
@@ -381,8 +387,8 @@ IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
   Igor.data.recipe[obj].enabled = true
+  Igor.getNamedObject("#").unlocked_recipes.push(obj)
 }
-
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (obj, args, returnObj, Igor) => {

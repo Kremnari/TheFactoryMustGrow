@@ -44,6 +44,7 @@ const newGame = {
     player: PlayerWorkshop.newPlayer,
     activeFeatures: [],
     research: { completed: {}, progressing: null },
+    unlocked_recipes: [],
     version: CONFIG.IDB_SAVE_VERSION
 }
 
