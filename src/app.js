@@ -39,6 +39,7 @@ export class App {
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
+      this.Tutorial = Tutorial  //Needed in view
       this.save = () => { IgorJs.saveGame();  }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
@@ -80,7 +81,7 @@ export class App {
       })
       ChameJS.setViewFn("recipeFilter", (category) => {
         return Object.values(this.IgorRunner.data.recipe).filter( (x) => {
-          return (x.enabled === undefined || x.enabled )
+          return (x.enabled === undefined || x.enabled || this.globals.unlocked_recipes.includes(x.name) )
                 && ((Array.isArray(category) && category.includes(x.category))
                     || x.category == category
                 )
@@ -91,9 +92,7 @@ export class App {
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")
-        // !this.globals.ranTutorial && Tutorial.start()
-        //this.globals.ranTutorial && this.autoSave()
-        this.autoSave()
+        this.globals.activeFeatures["tutorial"] && Tutorial.start(this) || this.autoSave()
       }
     }
     set showItem(obj) {
@@ -134,7 +133,6 @@ export class App {
     //* Utility Functions
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
     hideTutorial() { Tutorial.hide() }
-    tutorialDone() { this.globals.ranTutorial = true }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }

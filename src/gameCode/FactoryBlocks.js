@@ -403,3 +403,78 @@ FactoryBus.ClearDrain = () => {
 }
 
 IgorJs.defineObj("FactoryBus", FactoryBus.New, FactoryBus)
+
+
+
+/*
+ *  Resource Block
+ */
+
+const ResourceBlock = {}
+ResourceBlock.New = (params, newObj, Igor) => {
+    newObj.name = params.name.string
+    newObj.patchProperties = {}
+    newObj.spaceUsed = 50
+    newObj.complexity = 1
+    newObj.prepped = 0
+    newObj.built = 0
+    newObj.minerType = "burner-mining-drill"
+    newObj.mining_ticks = NaN
+    newObj.foundationCost = [{name: "stone", count: 5}]
+    newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 10})
+
+    return [newObj]
+}
+ResourceBlock.SetResource = (obj, Igor) => {
+    obj.at.ResourceBlock.patchProperties.resource = obj.which.resource
+    if(obj.at.ResourceBlock.minerType) {
+        obj.at.ResourceBlock.patchProperties.mining_time = Igor.data.resources[obj.which.resource].mining_time / Igor.data.entity[obj.at.ResourceBlock.minerType] * Igor.getStatic("config.TICKS_PER_SECOND")
+        obj.at.ResourceBlock.mining_ticks =  obj.at.ResourceBlock.patchProperties.mining_time
+    }
+}
+ResourceBlock.SetResource.signature = {
+    at: "ResourceBlock",
+    which: 'resource'
+}
+ResourceBlock.SetResource.CC_provide = "resBlock.setResource"
+ResourceBlock.PrepSpace = (obj, Igor) => {
+    if(!obj.at.foundationCost) return
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.at.ResourceBlock.foundationCost})) {
+        obj.at.ResourceBlock.prepped++
+        obj.at.ResourceBlock.size += 10
+        obj.at.ResourceBlock.complexity += 5
+    } else {
+        console.error("unable to consume foundation costs")
+    }
+
+}
+ResourceBlock.PrepSpace.signature = {
+    at: "ResourceBlock",
+    player: "inventory"
+}
+ResourceBlock.PrepSpace.CC_provide = "resBlock.prepSpace"
+ResourceBlock.BuildMine = (obj, Igor) => {
+    if(obj.at.ResourceBlock.prepped==0) return
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: [{name: newObj.minerType, count: 1}]})) {
+        obj.at.ResourceBlock.prepped--
+        obj.at.ResourceBlock.built++
+    }
+}
+ResourceBlock.BuildMine.signature = {
+    at: "ResourceBlock",
+    player: "inventory"
+}
+ResourceBlock.BuildMine.CC_provide = "resBlock.buildMine"
+ResourceBlock.tick = (entity, tickdata, Igor) => {
+    if(entity.built==0 || !entity.patchProperties.resource) return
+    if(entity.mining_ticks==0) {
+        let stored = Igor.processTEMP(entity.output, "inventory.add", {itemStacks: {name: entity.patchProperties.resource, count: entity.storedResources || entity.built}})
+        debugger
+        entity.mining_ticks = entity.patchProperties.mining_time
+    } else {
+        entity.mining_ticks--
+    }
+}
+
+
+IgorJs.defineObj("ResourceBlock", ResourceBlock.New, ResourceBlock)

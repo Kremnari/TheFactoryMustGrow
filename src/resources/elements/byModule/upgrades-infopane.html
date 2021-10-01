@@ -1,6 +1,6 @@
 <template>
   <scope-var var.bind="$scope.entity = viewPane.showingItem"></scope-var>
-  <div>
+  <div class="upgrades-infopane">
     <p
         if.bind="$scope.entity.buffers.in"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.entity.buffers.in)"
@@ -16,7 +16,7 @@
         item="inserter"
         if.bind="!parcel.isPlayer"
         count.bind="$scope.inBuffer.upgrades.loader.count"
-        progress.bind="$scope.inBuffer.xferTimer"
+        progress.bind="($scope.inBuffer.xferTicks-$scope.inBuffer.xferTimer)/$scope.inBuffer.xferTicks*100"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
       <active-trigger
@@ -40,7 +40,7 @@
         item="inserter"
         if.bind="!parcel.isPlayer"
         count.bind="$scope.outBuffer.upgrades.loader.count"
-        progress.bind="$scope.outBuffer.xferTimer"
+        progress.bind="($scope.outBuffer.xferTicks-$scope.outBuffer.xferTimer)/$scope.outBuffer.xferTicks*100"
         click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
       ></icon-base>
       <active-trigger

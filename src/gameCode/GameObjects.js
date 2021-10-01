@@ -30,40 +30,49 @@ const PlayerEntity = (params, newObj, Igor) => {
 function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots
   let buffer = Igor.getId(entity.buffers.in)
-  if(buffer.xferTimer-- == 0) {
-    let toAdd = Math.min(buffer.xfer, buffer.stackSize-buffer.items[0].count)
+  if(buffer.items.length==0) return
+  if(buffer.xferTimer == 0) {
+    let toAdd = Math.min(buffer.xfer, buffer.stackSize-buffer.items[buffer.xferStack].count)
     let added = Igor.processTEMP(
                     Igor.getNamedObject("player.inventory")
                     ,"inventory.consume"
                     ,{itemStacks: {
-                          name: buffer.items[0].name
+                          name: buffer.items[buffer.xferStack].name
                         ,count: toAdd
                       }, partial: true
                     })
-    if(added) {
-        buffer.items[0].count += added[0].count
+    if(added && added[0].count>0) {
+        buffer.items[buffer.xferStack].count += added[0].count
         entity.$_tags.push("tick", "processing")
       }
     buffer.xferTimer = buffer.xferTicks
+    ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
+  } else {
+    buffer.xferTimer--
   }
 }
 function EntityOutputTicker(entity, tickData, Igor) {
   //need to reconjigger this for drawing from multiple buffer slots
   let buffer = Igor.getId(entity.buffers.out)
-  if(buffer.xferTimer-- == 0) {
-    let toSub = Math.min(buffer.xfer, buffer.items[0].count)
+  if(buffer.items.length==0) return
+  if(buffer.xferTimer == 0) {
+    let toSub = Math.min(buffer.xfer, buffer.items[buffer.xferStack].count)
     //console.log(toSub)
-    if(Igor.processTEMP(
-        Igor.getNamedObject("player.inventory")
-        ,"inventory.add"
-        ,{itemStacks: {
-           name: buffer.items[0].name
-          ,count: toSub
-        }}
-    )) {
-      buffer.items[0].count -= toSub
+    let added = Igor.processTEMP(
+      Igor.getNamedObject("player.inventory")
+      ,"inventory.add"
+      ,{itemStacks: {
+         name: buffer.items[buffer.xferStack].name
+        ,count: toSub
+      }}
+    )
+    if(added.complete) {
+      buffer.items[buffer.xferStack].count -= toSub
     }
     buffer.xferTimer = buffer.xferTicks
+    ++buffer.xferStack==buffer.items.length && (buffer.xferStack =0)
+  } else {
+    buffer.xferTimer--
   }
 }
 function EntityResearchTicker(entity, tickData, Igor) {
@@ -101,10 +110,15 @@ function EntityProcessTicker(entity, tickData, Igor) {
   if(entity.process_timer) { --entity.process_timer }
   if(entity.process_timer===0) {
     let buffer = Igor.getId(entity.buffers.out)
-    if(Igor.processTEMP(buffer, "inventory.add", {itemStacks: entity.processing.results || {name: entity.processing.mining_results, count: 1}})) {
+    let added = Igor.processTEMP(buffer, "inventory.add", {itemStacks: entity.buffers.stalled || entity.processing.results || {name: entity.processing.mining_results, count: 1}})
+    if(added.complete) {
+      entity.buffers.stalled = null
       entity.process_timer = NaN
     } else {
       //console.log('buffer full')
+      //if(entity.name=="assembling-machine-1") debugger
+      entity.buffers.stalled = added.part
+      entity.process_timer = 0
     }
   }
 }
@@ -178,6 +192,9 @@ IgorJs.provide_CCC("entity.setProcess", EntitySetProcess, EntitySetProcessSig)
 
 function EntityClearProcess(entity, args, returnObj, Igor) {
   let player = Igor.getNamedObject("player.inventory")
+  if(entity.process_timer) {
+    Igor.processTEMP(player, "inventory.add", {itemStacks: entity.processing.ingredients})
+  }
   if(entity.buffers.in) {
     let buffer = Igor.getId(entity.buffers.in)
     Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
@@ -189,6 +206,10 @@ function EntityClearProcess(entity, args, returnObj, Igor) {
     Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
     buffer.items.length = 0
+  }
+  if(entity.buffers.stalled) {
+    Igor.processTEMP(player, "inventory.add", {itemStacks: entity.buffers.stalled})
+    entity.buffers.stalled = null
   }
   entity.processing = null
 }
@@ -202,9 +223,10 @@ const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.upgrades = {}
   newObj.maxStacks = params.staticStacks?.length || params.stacks || 1
   newObj.stackSize = params.stackSize || 5
-  newObj.items = (params.staticStacks?.map((x) => {return {name: x, count: 0}})) || Array(newObj.maxStacks)
+  newObj.items = (params.staticStacks?.map((x) => {return {name: x, count: 0}})) || []
   newObj.xfer = 0
   newObj.xferTicks = 120
+  newObj.xferStack = 0
   newObj.xferTimer = NaN
   newObj.restrictable = params.restrictable || false
   return [newObj]
@@ -212,13 +234,14 @@ const NewEntityBuffer = (params, newObj, Igor) => {
 const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
   let buffer = Igor.getId(obj.which.buffer)
-  Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: buffer.items[obj.item.idx]})
-  buffer.items[obj.item.idx].count = 0
+  let idx = buffer.items.findIndex( (x) => { return x.name==obj.item.name })
+  Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: buffer.items[idx]})
+  buffer.items[idx].count = 0
   obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Collect.signature = {
   which: 'buffer',
-  item: 'idx',
+  item: 'name',
   at: 'entity',
   player: 'inventory'
 }
@@ -228,17 +251,18 @@ EntityBufferActions.Collect.CC_provide = "entity.bufferCollect"
 
 EntityBufferActions.Fill = (obj, Igor) => {
   let buffer = Igor.getId(obj.which.buffer)
-  let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: buffer.items[obj.item.idx].name})
+  let idx = buffer.items.findIndex( (x) => { return x.name==obj.item.name})
+  let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: buffer.items[idx].name})
   if(avail===0) return
-  let toMove = obj.service.rounder.calc(buffer.items[obj.item.idx].count, buffer.stackSize, avail)
-  Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: buffer.items[obj.item.idx].name, count: toMove}})
-  buffer.items[obj.item.idx].count += toMove
+  let toMove = obj.service.rounder.calc(buffer.items[idx].count, buffer.stackSize, avail)
+  Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: buffer.items[idx].name, count: toMove}})
+  buffer.items[idx].count += toMove
   //Set entity to 'ticking'
   obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
 }
 EntityBufferActions.Fill.signature = {
   which: 'buffer',
-  item: 'idx',
+  item: 'name',
   at: 'entity', 
   service: 'rounder',
   player: 'inventory'
@@ -386,7 +410,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
 IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
-  Igor.data.recipe[obj].enabled = true
+  //Igor.data.recipe[obj].enabled = true
   Igor.getNamedObject("global").unlocked_recipes.push(obj)
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)

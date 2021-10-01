@@ -1,5 +1,5 @@
 <template>
-<scope-var var.bind="$scope={facBlock: viewPane.facBlock}"></scope-var>
+<scope-var var.bind="$scope={facBlock: viewPane.showingItem}"></scope-var>
 <section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', $scope.facBlock )" class="container">
   <div class='row'>
     <span class="col-sm">Land Size : ${$scope.facBlock.size}</span>

@@ -1,7 +1,7 @@
 <template>
   <require from="./upgrades-infopane"></require>
   <scope-var var.bind="$scope = {miner: viewPane.showingItem}"></scope-var>
-  <div>
+  <div class="minable-resources">
     <p>Select Resource to Mine</p>
     <icon-base
       repeat.for="res of dataSet.resource | filter:{key:'category', value:$scope.miner.resource_categories, includeUndefs: true} | objectValues"
@@ -11,7 +11,7 @@
     ></icon-base>
     <br>
     <p
-      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.idx': 0}, $event)"
+      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.name': $scope.miner.processing.mining_results}, $event)"
       if.bind="$scope.miner.processing"
       class="progressBarBase"
       css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"

@@ -42,7 +42,9 @@ const newGame = {
       blocks: [] 
     },
     player: PlayerWorkshop.newPlayer,
-    activeFeatures: {},
+    activeFeatures: {
+      tutorial: true
+    },
     research: { completed: {}, progressing: null },
     unlocked_recipes: [],
     version: CONFIG.IDB_SAVE_VERSION

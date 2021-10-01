@@ -20,7 +20,12 @@ class tutorial {
     __ = this
     this.stepNum = (i) => {return steps[i || this.atStep]}
   }
-  start() {
+  start(baseApp) {
+    this.baseApp = baseApp
+    if(!this.baseApp.globals.activeFeatures.tutorial.step) {
+      this.baseApp.globals.activeFeatures.tutorial = {step: 0}
+    }
+    this.atStep = this.baseApp.globals.activeFeatures.tutorial.step
     $("#tutorial").addClass("Block")
     $("#tut_button").click( () => { this.nextStep()})
     this.setStep(steps[this.atStep])
@@ -33,26 +38,67 @@ class tutorial {
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
     $("#tut_pos").removeClass(["top", "bottom"]).addClass('center')
-    $("#tut_text").text("")
+    __.tutText("")
     setTimeout( ()=> {
       this.setStep(steps[++this.atStep])
     }, 10)
   }
+  tutStep(selector) {
+    $(selector).addClass("tutStep")
+  }
+  tutText(text) {
+    $("#tut_text").html(text)
+  }
+  tutButton(text) {
+    $("#tut_button").html(text).show()
+    this.setTutClick()
+  }
+  hide() {
+    $(".tutStep").off("click")
+    $("#tutorial").removeClass("Block")
+    this.baseApp.globals.activeFeatures.tutorial = false
+    this.baseApp.autoSave()
+  }
+  setTutClick(num = 0) {
+    this.tutClicks = num
+    $(".tutStep").on('click', ()=>{
+      if(--this.tutClicks>0) {
+        //console.log("not there yet")
+        return
+      }
+      this.nextStep()
+    })
+  }
+  playerInvWait = null
+  signal() {
+    //When aurelia does an update
+    if(!this.playerInvWait) return
+    let total = this.baseApp.globals.player.inv.items.reduce( (acc, x) => {
+      return x.name==this.playerInvWait.name ? acc+x.count : acc
+    }, 0)
+    if(total==this.playerInvWait.count) {
+      this.playerInvWait = null
+      this.nextStep()
+    } else {
+
+    }
+  }
   setStep(num) {
     //console.log("running step: "+num)
+    this.baseApp.globals.activeFeatures.tutorial.step = steps.indexOf(num)
     switch(num) {
       case 0:
         //lego
-        $("#tut_text").text("The Factory Must Grow")
-        $("#tut_button").text("Let's build it").show()
+        __.tutText("The Factory Must Grow")
+        __.tutButton("Let's build it")
         break;
       case 0.1:
-        $("#tut_text").text("This alpha is about the mechanics, most everything else is slated to be improved")
-        $("#tut_button").text("I won't judge!").show()
+        __.tutText("This alpha is about the mechanics, most everything else is slated to be improved")
+        __.tutButton("I won't judge!")
         break;
       case 0.2:
-        $("#tut_text").text("You can cancel the tutorial by clicking the 'X' in the upper right corner")
-        $("#tut_button").text("Just don't condescend me, and we'll be fine").show()
+        __.tutText("You can cancel the tutorial by clicking the 'X' in the upper right corner")
+        __.tutButton("Just don't condescend me, and we'll be fine")
         break;
       case 0.3:
         __.tutText("This button expands the navigation menu.")
@@ -65,159 +111,160 @@ class tutorial {
         __.tutButton("Maybe I'll want to stay updated...")
         break;
       case 0.9: 
-        $("#resources").addClass("tutStep")
+        __.tutStep("#resources")
         $("#tut_pos").addClass("top")
-        $("#tut_text").text("You can mine (click) these by hand")
-        $("#tut_button").text("Got it").show()
+        __.tutText("You can mine (click) these by hand")
+        __.tutButton("Got it")
         break;
       case 1:
         mgrs.Ticker.resume()
-        $("#resources icon-base[title='stone']").addClass("tutStep")
-        $("#tut_text").text("Mine 5 stone")
-        this.playerInvWait({name:"stone", count: 5})
+        __.tutStep("#resources icon-base[title='stone']")
+        __.tutText("Mine 5 stone")
+        __.playerInvWait = {name:"stone", count: 5}
         break;
       case 1.1:
-        $("#tut_text").text("Machines will be used for the bulk of your production.")        
-        $("#tut_button").text("Which are the machines?").show()
+        __.tutText("Machines will be used for the bulk of your production.")        
+        __.tutButton("Which are the machines?")
         break;
       case 1.2:
-        $("#tut_text").text("Machines have a red 'M' at the bottom of their icon")
-        $("#tut_button").text("So many options").show()
+        __.tutText("Machines have a red 'M' at the bottom of their icon")
+        __.tutButton("So many options")
         break;
       case 2:
-        $("#tut_text").text("Now build a furnace to melt metal to plates")
-        $("#recipes icon-base[title='stone-furnace']").addClass("tutStep")
-        this.playerInvWait({name:"stone-furnace", count: 1})
+        __.tutText("Now build a furnace to melt metal to plates")
+        __.tutStep("#recipes icon-base[title='stone-furnace']")
+        this.playerInvWait = {name:"stone-furnace", count: 1}
         break;
       case 2.1:
-        $("#tut_text").text("Clicking on the furnace in your inventory will add it to your production machines")
-        $("#inventoryList icon-base[title='stone-furnace']").addClass("tutStep")
+        __.tutText("Clicking on the furnace in your inventory will add it to your production machines")
+        __.tutStep("#inventoryList icon-base[title='stone-furnace']")
         this.setTutClick()
         break;
       case 2.2:
         //$("#playerControls h4:contains('Workshop')").addClass("tutStep")
         //$("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
-        $(".navEntities").addClass("tutStep");
+        __.tutStep(".navEntities")
         this.setTutClick()
         break;
       case 2.3:
-        $("#machines .entityList icon-base[title='stone-furnace']").addClass("tutStep")
+        __.tutStep("#machines .entityList icon-base[title='stone-furnace']")
         this.setTutClick()
         break;
       case 2.4:
-        $("#tut_text").html("For your machines, you must set a recipe.<br>Lets start with iron plates")
-        $("crafting-infopane icon-base[title='iron-plate']").addClass("tutStep")
+        __.tutText("For your machines, you must set a recipe.<br>Lets start with iron plates")
+        __.tutStep("#recipeSelect icon-base[title='iron-plate']")
         this.setTutClick()
         break;
       case 3:
-        $("#tut_text").text("Now head back and mine 5 iron ore")
-        $(".navHome").addClass("tutStep")
+        __.tutText("Now head back and mine 5 iron ore")
+        __.tutStep(".navHome")
         this.setTutClick()
         break;
       case 3.1:
-        $("#resources icon-base[title='iron-ore']").addClass("tutStep")
-        this.playerInvWait({name:"iron-ore", count: 5})
+        __.tutStep("#resources icon-base[title='iron-ore']")
+        this.playerInvWait = {name:"iron-ore", count: 5}
         break;
       case 3.2:
-        $("#tut_text").text("Good, let's turn that ore into plates!")
-        $("#tut_button").text("Back to my furnace I go").show()
+        __.tutText("Good, let's turn that ore into plates!")
+        __.tutButton("Back to my furnace I go")
         break;
       case 3.21:
         $("#tutorial").hide()
-        $(".navEntities").addClass("tutStep")
+        __.tutStep(".navEntities")
         this.setTutClick()
         break;
       case 3.3:
-        $("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
+        __.tutStep(".showRecipe icon-base[title='iron-ore']")
         this.setTutClick(5)
         break;
       case 3.4:
         $("#tutorial").show()
-        $("#tut_text").text("Now watch your furnace produce the plates")
-        $("#tut_button").text("At least it's faster than paint drying").show()
+        __.tutText("Now watch your furnace produce the plates")
+        __.tutButton("At least it's faster than paint drying")
         break;
       case 3.5:
-        $("crafting-infopane .showRecipe icon-base[title='iron-plate']").addClass('tutStep')
-        this.playerInvWait({name:"iron-plate", count:5})
+        __.tutStep(".showRecipe icon-base[title='iron-plate']")
+        this.playerInvWait = {name:"iron-plate", count:5}
         break;
       case 3.6:
-        $("#tut_text").text("Mining by hand takes a while, lets get a mining-drill set up")
-        $("#tut_button").text("I can dig it").show()
+        __.tutText("Mining by hand takes a while, lets get a mining-drill set up")
+        __.tutButton("I can dig it")
         break;
       case 3.7:
         mgrs.baseApp.viewPane.main = "home"
         mgrs.baseApp.tooltip = mgrs.rec.recipeList["burner-mining-drill"]
         $("#recipes icon-base[title='burner-mining-drill']").addClass('tutTarget')
-        $("#tut_text").html("A mining drill requires the following:<br>1 gear, a furnace and 1 plate<br>build away")
-        $("#tut_button").text("Hi ho, it's off to work I go").show()
+        __.tutText("A mining drill requires the following:<br>1 gear, a furnace and 1 plate<br>build away")
+        __.tutButton("Hi ho, it's off to work I go")
         break;
       case 3.75:
         $("#tutorial").hide()
-        this.playerInvWait({name:"burner-mining-drill", count: 1})
+        this.playerInvWait = {name:"burner-mining-drill", count: 1}
         break;
       case 3.8:
         $(".tutTarget").removeClass("tutTarget")
         $("#tutorial").show()
-        $("#tut_text").text("A mining drill can produce resources automatically.\nAdd it to your machines and lets take a look at it")
-        $("#tut_button").text("I'll see you shortly").show()
+        __.tutText("A mining drill can produce resources automatically.\nAdd it to your machines and lets take a look at it")
+        __.tutButton("I'll see you shortly")
         break;
       case 3.81:
         //DEBUG this doesn't quite show up
         $("#tutorial").hide()
-        $(".navEntities").addClass("tutStep")
-        this.playerInvWait({name:"burner-mining-drill", count:0})
-        //mgrs.baseApp.when({entityPane: 'mining'}, ()=>{this.nextStep()})
+        __.tutStep(".navEntities")
+        __.tutStep("inventory icon-base[title='burner-mining-drill']")
+        __.setTutClick()
+        //this.playerInvWait = {name:"burner-mining-drill", count:0}
         break;
       case 3.9:
-        $("#machines .entityList icon-base[title='burner-mining-drill']").addClass("tutStep")
+        __.tutStep("#machines .entityList icon-base[title='burner-mining-drill']")
         this.setTutClick()
         break;
       case 3.91:
         $("#tutorial").show()
-        $("#tut_text").text("Now select iron to begin automagical mining")
-        $("mining-infopane icon-base[title='iron-ore']").addClass('tutStep')
+        __.tutText("Now select iron to begin automagical mining")
+        __.tutStep(".minable-resources icon-base[title='iron-ore']")
         this.setTutClick()
         break;
       case 4:
-        $("upgrades-infopane icon-base[title='iron-chest']").addClass("tutStep")
-        $("#tut_text").text("Each item buffer can only hold so much.  Add iron chests to increase that capacity")
-        $("#tut_button").text("Useful to not have to babysit").show()
+        __.tutStep(".upgrades-infopane icon-base[title='iron-chest']")
+        __.tutText("Each item buffer can only hold so much.  Add iron chests to increase that capacity")
+        __.tutButton("Useful to not have to babysit")
         this.setTutClick()
         break;
       case 4.1:
-        $("upgrades-infopane icon-base[title='inserter']").addClass('tutStep')
-        $("#tut_text").text("Item buffers can be improved with inserters to create some basic automation")
-        $("#tut_button").text("Too bad I can't watch them move back and forth like some other game I know").show()
+        __.tutStep(".upgrades-infopane icon-base[title='inserter']")
+        __.tutText("Item buffers can be improved with inserters to create some basic automation")
+        __.tutButton("Too bad I can't watch them move back and forth like some other game I know")
         this.setTutClick()
         break;
       case 4.2:
         mgrs.baseApp.viewPane.main = "home"
         mgrs.baseApp.tooltip = mgrs.rec.recipeList["lab"]
-        $("#tut_text").html("These paltry machines are a start, but won't hold you forever.<br>Keep expanding, but you're next goal should be a research lab.")
+        __.tutText("These paltry machines are a start, but won't hold you forever.<br>Keep expanding, but you're next goal should be a research lab.")
         $("#recipes icon-base[title='lab']").addClass('tutTarget')
-        $("#tut_button").text("The Factory...Is Growing...").show()
+        __.tutButton("The Factory...Is Growing...")
         this.setTutClick()
         break;
       case 4.3: 
         $("#tutorial").hide()
-        this.playerInvWait({name:"lab", count: 1})
+        this.playerInvWait = {name:"lab", count: 1}
         break;
       case 4.4:
-        $("#inventoryList icon-base[title='lab']").addClass("tutStep")
+        __.tutStep("#inventoryList icon-base[title='lab']")
         this.setTutClick()
         break;
       case 4.41:
-        $(".navEntities").addClass("tutStep")
+        __.tutStep(".navEntities")
         __.setTutClick()
         break;
       case 4.411:
-        $("#machines .entityList icon-base[title='lab']").addClass("tutStep")
+        __.tutStep("#machines .entityList icon-base[title='lab']")
         __.setTutClick()
         break;
       case 4.42:
         $("#tutorial").show()
         
-        $("#tut_text").text("This is a research lab.  You will need to add [science-packs] for it to consume to process research.")
+        __.tutText("This is a research lab.  You will need to add [science-packs] for it to consume to process research.")
         __.tutButton("Are these machines or magic?")
         break;
       case 4.43:
@@ -229,7 +276,7 @@ class tutorial {
         mgrs.baseApp.tooltip = mgrs.rec.recipeList["automation-science-pack"]
         $("#tutorial").hide();
         $("#recipes icon-base[title='automation-science-pack']").addClass('tutTarget')
-        __.playerInvWait({name:"automation-science-pack", count: 10})
+        __.playerInvWait = {name:"automation-science-pack", count: 10}
         break;
       case 4.45:
         $("#tutorial").show();
@@ -244,7 +291,7 @@ class tutorial {
       case 4.46:
         __.tutStep(".labInput icon-base[title='automation-science-pack']")
         //$("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
-        this.setTutClick(5) // +1 because of navEntities in the same step
+        this.setTutClick(5)
         break;
       case 4.5:
         __.tutStep(".navTechs")
@@ -266,44 +313,17 @@ class tutorial {
         break;
       case 100:
         $("#tutorial").show()
-        $("#tut_text").text("End of tutorial...so far")
-        $("#tut_button").text("But now what...?").show()
+        __.tutText("End of tutorial...so far")
+        __.tutButton("But now what...?")
+        this.baseApp.globals.activeFeatures.tutorial = false
         break;
       default:
         console.log('default, reset')
+        console.log(this.atStep)
         this.hide();
-        mgrs.baseApp.tutprialDone();
+        this.baseApp.globals.activeFeatures.tutorial = false
         break;
     }
-  }
-  tutStep(selector) {
-    $(selector).addClass("tutStep")
-  }
-  tutText(text) {
-    $("#tut_text").html(text)
-  }
-  tutButton(text) {
-    $("#tut_button").html(text).show()
-    this.setTutClick()
-  }
-  hide() {
-    $(".tutStep").off("click")
-    $("#tutorial").removeClass("Block")
-    mgrs.baseApp.activeFeatures['rounder'] = true
-    mgrs.baseApp.autoSave()
-  }
-  setTutClick(num = 0) {
-    this.tutClicks = num
-    $(".tutStep").on('click', ()=>{
-      if(--this.tutClicks>0) {
-        //console.log("not there yet")
-        return
-      }
-      this.nextStep()
-    })
-  }
-  playerInvWait(IS) {
-    mgrs.baseApp.player.inv.when(IS, ()=>this.nextStep())
   }
   //NYI - for running a step using a json object
   runStep(json) {
