@@ -39,7 +39,8 @@ const newGame = {
       offenseBus: null,
       resBlocks: [],
       buses: [],
-      blocks: [] 
+      blocks: [],
+      techBlocks: []
     },
     player: PlayerWorkshop.newPlayer,
     activeFeatures: {

@@ -63,7 +63,7 @@ FactoryBlock.NewResBlock.signature = {
 }
 FactoryBlock.NewResBlock.CC_provide = "facBlock.newResBlock"
 FactoryBlock.NewTechBlock = (params, Igor) => {
-    Igor.addNewObject(Igor.getNamedObject("globals").facBlocks.tech, "FactoryBlockRes", params)
+    Igor.addNewObject(Igor.getNamedObject("globals").facBlocks.techBlocks, "FactoryBlockRes", params)
 }
 FactoryBlock.NewTechBlock.signature = {
     name: "string"
