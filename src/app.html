@@ -166,54 +166,78 @@
               <ul><li class="button" click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)">Add Resource Block</li></ul>
             </ul>
           </div>
-          <table class="col-sm">
-            <tr><th>Block Type</th><th>Land Cost</th></tr>
-            <tr><td>Factory Block</td> <td>${globals.land.fac_block_costs.factory}</td> <td class="btn" click.delegate="CCC.issue('facBlock.newBlock', {}, $event)">Add</td></tr>
-            <tr><td>Bus Block</td>     <td>${globals.land.fac_block_costs.bus}</td>     <td class="btn" click.delegate="CCC.issue('facBlock.newBus', {}, $event)">Add</td></tr>
-            <tr><td>Lab Block</td>     <td>${globals.land.fac_block_costs.research}</td><td class="btn" click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)">Add</td></tr>
-          </table>
-          <!-- div class="col-sm">
-            <span click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</span>
-            <span click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</span>
-            <span click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Defenses</span>
-            <span click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Defenses</span>
-          </!-->
+          <div class="col-sm">
+            <table>
+              <tr><th>Block Type</th><th>Land Cost</th></tr>
+              <tr><td>Factory Block</td> <td>${globals.land.fac_block_costs.factory}</td> <td class="btn" click.delegate="CCC.issue('facBlock.newBlock', {}, $event)">Add</td></tr>
+              <tr><td>Bus Block</td>     <td>${globals.land.fac_block_costs.bus}</td>     <td class="btn" click.delegate="CCC.issue('facBlock.newBus', {}, $event)">Add</td></tr>
+              <tr><td>Lab Block</td>     <td>${globals.land.fac_block_costs.research}</td><td class="btn" click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)">Add</td></tr>
+            </table>
+          </div>
+          <div class="col-sm">
+            <ul>
+              <li click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</li>
+              <li click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</li>
+              <li click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Offenses</li>
+              <li click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Offenses</li>
+            </ul>
+          </div>
         </div>
         <div class="row">
           <div class="col-sm">
-            <h5>Blocks</h5>
+            <h5>Resource Blocks</h5>
             <div
-              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'addedEntity'"
-              click.delegate="viewPane.showingItem=facBlock"
-              class='${viewPane.showingItem==facBlock ? "selected":""}'>
-              ${facBlock.name}
-            </div>
+              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'addedEntity'"
+              click.delegate="showItem={item: resBlock, view: 'viewFacBlock'}"
+              class="${viewPane.showingItem==resBlock ? 'selected':''}"
+            >${resBlock.name}</div>
+            <h5>Tech Blocks</h5>
+            <div
+              repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'addedEntity'"
+              click.delegate="showItem={item: techBlock, view: 'viewFacBlock'}"
+              class="${viewPane.showingItem==techBlock ? 'selected':''}"
+            >${techBlock.name}</div>
           </div>
           <div class="col-sm">
             <h5>Buses</h5>
             <div
               repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'addedEntity'"
-              click.delegate="viewPane.showingItem=facBus"
+              click.delegate="showItem={item: facBus, view: 'viewFacBlock'}"
               class="${viewPane.showingItem==facBus ? 'selected':''} ">
               ${facBus.name}
             </div>
           </div>
           <div class="col-sm">
-            <h5>Resource Blocks</h5>
+            <h5>Blocks</h5>
             <div
-              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'addedEntity'"
-              click.delegate="viewPane.showingItem=resBlock"
-              class="${viewPane.showingItem==resBlock ? 'selected':''}"
-              >
-              ${resBlock.name}
+              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'addedEntity'"
+              click.delegate="showItem={item: facBlock, view: 'viewFacBlock'}"
+              class='${viewPane.showingItem==facBlock ? "selected":""}'>
+              ${facBlock.name}
             </div>
           </div>
         </div>
       </section>
-      <compose id="viewFacBlock" if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBlock'" view="./resources/elements/factoryBlocks/mainView.html" containerless></compose>
-      <compose id="viewBusLine"  if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBus'" view="./resources/elements/factoryBlocks/busView.html" containerless></compose>
-      <compose id="viewResBlock" if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='ResourceBlock'" view="./resources/elements/factoryBlocks/resView.html" containerless></compose>
-
+      <section show.bind="viewPane.main=='viewFacBlock'">
+        <compose
+          id="viewFacBlock"
+          class="container"
+          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBlock'"
+          view="./resources/elements/factoryBlocks/mainView.html"
+        ></compose>
+        <compose
+          id="viewBusLine"
+          class="container"
+          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBus'"
+          view="./resources/elements/factoryBlocks/busView.html"
+        ></compose>
+        <compose
+          id="viewResBlock"
+          class="container"
+          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='ResourceBlock'"
+          view="./resources/elements/factoryBlocks/resView.html"
+        ></compose>
+      </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
         <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></compose>

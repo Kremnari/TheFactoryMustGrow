@@ -198,8 +198,9 @@ export const IgorUtils = {
   setNamed(as, who) {
     IgorCore.namedObjs[as] = who
   },
-  getObjId(id, debug) {
-    return IgorCore.objs.get(id)
+  getObjId(id, doubleProp) {
+    if(!doubleProp) return IgorCore.objs.get(id)
+    return IgorCore.objs.get(IgorCore.objs.get(id)[doubleProp])
   },
   arrayFromIds(list) {
     if(!list) return []

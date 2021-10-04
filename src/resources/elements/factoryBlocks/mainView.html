@@ -3,7 +3,7 @@
 <section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', $scope.facBlock )" class="container">
   <div class='row'>
     <span class="col-sm">Land Size : ${$scope.facBlock.size}</span>
-    <span class="col-sm">-- ${$scope.facBlock.name} --</span>
+    <h3 class="col-sm">-- ${$scope.facBlock.name} --</h3>
     <span class="col-sm">Complexity: ${$scope.facBlock.complexity}</span>
   </div>
   <div class="row">
@@ -14,9 +14,10 @@
       Input:
       <span
             class="connection"
-            click.delegate="CCC.issue('factoryBlock.setConnection', 
-              {'dir.string': 'source', '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses)}, $event)">
-        ${IgorJs.getObjId($scope.facBlock.connections.source).name || "none"}</span>
+            click.delegate="CCC.issue('factoryBus.connectTo', 
+              {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.in,'dir.string': 'input'}, $event)"
+            >
+        ${IgorJs.getObjId($scope.facBlock.buffers.in, "connection").name || "none" & signal:'generalUpdate'}</span>
       <div>
         <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.in).items & signal:'generalUpdate'">
           <span
@@ -56,9 +57,10 @@
       Outputs:
       <span
           class="connection"
-          click.delegate="CCC.issue('factoryBlock.setConnection',
-          {'dir.string': 'drain', '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses)}, $event)">
-      ${IgorJs.getObjId($scope.facBlock.connections.drain).name || "none"}</span>
+          click.delegate="CCC.issue('factoryBus.connectTo',
+          {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.out,'dir.string': 'output'}, $event)"
+        >
+      ${IgorJs.getObjId($scope.facBlock.buffers.out, "connection").name || "none" & signal:'generalUpdate'}</span>
       <div>
         <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.out).items & signal:'generalUpdate'">
           <span
@@ -71,7 +73,11 @@
       </div>
     </div>
   </div>
-  <div class="productionLines row" repeat.for="line of IgorJs.arrayFromIds($scope.facBlock.factoryLines) & signal:'generalUpdate'" click.capture="CCC.provide($event, 'at', 'factoryLine', line)">
+  <div
+    class="productionLines row"
+    repeat.for="line of IgorJs.arrayFromIds($scope.facBlock.factoryLines) & signal:'generalUpdate'"
+    click.capture="CCC.provide($event, 'at', 'factoryLine', line)"
+    >
     <span
       if.bind="line.buildingType"
       click.delegate="CCC.issue('factoryLine.setRecipe', {$_recipeXlist: ChameView.viewFn.recipeFilter(line.crafting_categories, true)}, $event)"
@@ -80,8 +86,9 @@
         <icon-base
           if.bind="line.recipe"
           item.bind="line.recipe"
-          css="border-image-source: linear-gradient(to left, red ${$scope.facBlock.processing_ticks/processing_timer*100}%, green ${$scope.facBlock.processing_ticks/processing_timer*100}%)"
-        ></icon-base>
+          class="progressBarBase"
+          css="border-image-source: linear-gradient(to right, green ${line.processing_ticks/line.processing_time*100-5}%, red ${line.processing_ticks/line.processing_time*100+10}% )"
+          ></icon-base>
         <span if.bind="!line.recipe">None</span>
     </span>
     <br>

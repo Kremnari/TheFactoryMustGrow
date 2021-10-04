@@ -75,7 +75,6 @@ export const CephlaCommCaller = {
           //found = (obj?.[specifier+"."+type]!==undefined && obj?.[specifier+"."+type]) || $evt?.CCC[specifier]?.[type] || CephlaCommCaller.statics[specifier]?.[type]
           if(found===undefined) {
             if(obj && obj["$_"+type+"Xlist"]) {
-              console.log(type+" Xlist")
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list: obj["$_"+type+"Xlist"], type
               })

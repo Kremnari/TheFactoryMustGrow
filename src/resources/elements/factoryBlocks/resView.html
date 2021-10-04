@@ -1,4 +1,47 @@
 <template>
     <scope-var var.bind="$scope={resBlock: viewPane.showingItem}"></scope-var>
-    I'm a resource block
+    <section id="viewResBlock" click.capture="CCC.provide($event, 'at', 'ResourceBlock', viewPane.showingItem)">
+        <div class="row">
+            <span class="col-sm">Space Used: ${$scope.resBlock.spaceUsed}</span>
+            <h3 class="col-sm">${$scope.resBlock.name}</h3>
+            <span class="col-sm">Complexity: ${$scope.resBlock.complexity}</span>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <span
+                    click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
+                >Foundations: ${$scope.resBlock.prepped}</span>
+                <br>
+                <span
+                    click.delegate="CCC.issue('resBlock.buildMine', {}, $event)"
+                >Miners: ${$scope.resBlock.built}</span>
+            </div>
+            <div class="col-sm">
+                <h5
+                    class="progressBarBase" 
+                    css="border-image-source: linear-gradient(to left, red ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%, green ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%"
+                ><icon-base
+                        item.bind="$scope.resBlock.patchProperties.resource"
+                        if.bind="$scope.resBlock.patchProperties.resource"
+                        count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.output, {name: $scope.resBlock.patchProperties.resource}) & signal: 'generalUpdate'"
+                        max_fill.bind="IgorJs.getObjId($scope.resBlock.output).stackSize"
+                        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.output, 'at.entity': 'temp_null', 'item.name':$scope.resBlock.patchProperties.resource}, $event)"
+                    ></icon-base>
+                </h5>
+                <p
+                    click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': ChameView.viewFn.objectValues(dataSet.resource)}, $event )"
+                >Change Resource</p>
+            </div>
+            <div class="col-sm">
+                <span
+                    class="connection"
+                    click.delegate="CCC.issue('factoryBus.connectTo', 
+                    {   'dir.string': 'output',
+                        '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                        'to.buffer': $scope.resBlock.output
+                    }, $event)"
+                >Bus Connection: ${IgorJs.getObjId(IgorJs.getObjId($scope.resBlock.output).connection).name || "none"}</span>
+            </div>
+        </div>
+        </section>
 </template>

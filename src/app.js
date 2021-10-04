@@ -40,7 +40,12 @@ export class App {
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
       this.Tutorial = Tutorial  //Needed in view
-      this.save = () => { IgorJs.saveGame();  }
+      this.save = () => {
+        IgorJs.saveGame();
+        this.autoSave();
+        // Calling twice will reset it
+        this.autoSave();
+      }
       BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
@@ -87,12 +92,16 @@ export class App {
                 )
         })
       })
+      ChameJS.setViewFn("objectValues", (list) => {
+        return Object.values(list)
+      })
 
       this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")
-        this.globals.activeFeatures["tutorial"] && Tutorial.start(this) || this.autoSave()
+        if(this.globals.activeFeatures["tutorial"]) Tutorial.start(this) 
+        else this.autoSave()
       }
     }
     set showItem(obj) {
@@ -105,17 +114,19 @@ export class App {
           //obj.item.selectedClass = "selected"
           this.viewPane.showingItem = obj.item
           this.viewPane.showingCat = obj.cat
+          obj.view && (this.viewPane.main = obj.view)
         }, 0)
       }
     }
     autoSave() {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
-          this.save()
+          IgorJs.saveGame()
         }, Config.TICKS_MAX_PHASE)
-        this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE - IgorJs.Ticker.ticks)/Config.TICKS_PER_SECOND) }
+        this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE - IgorJs.Ticker.ticks+this.autoSave.sub.phase)/Config.TICKS_PER_SECOND) }
       } else {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
+        this.autoSave.secs = () => {return 0 }
         this.autoSave.sub = null
       }
     }
@@ -136,6 +147,14 @@ export class App {
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
+    jumpStart() {
+      this.globals.player.inv.items.push({name: "lab", count: 10})
+      this.globals.player.inv.items.push({name: 'automation-science-pack', count: 200})
+      this.globals.player.inv.items.push({name: 'inserter', count: 50})
+      this.globals.player.inv.items.push({name: 'iron-chest', count: 50})
+      this.globals.player.inv.items.push({name: 'stone', count: 25})
+      this.globals.player.inv.items.push({name: 'burner-mining-drill', count: 5})
+    }
 }
 
 

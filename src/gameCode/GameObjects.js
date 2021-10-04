@@ -192,10 +192,10 @@ IgorJs.provide_CCC("entity.setProcess", EntitySetProcess, EntitySetProcessSig)
 
 function EntityClearProcess(entity, args, returnObj, Igor) {
   let player = Igor.getNamedObject("player.inventory")
-  if(entity.process_timer) {
-    Igor.processTEMP(player, "inventory.add", {itemStacks: entity.processing.ingredients})
-  }
   if(entity.buffers.in) {
+    if(entity.process_timer) {
+      Igor.processTEMP(player, "inventory.add", {itemStacks: entity.processing.ingredients})
+    }
     let buffer = Igor.getId(entity.buffers.in)
     Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
@@ -227,8 +227,11 @@ const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.xfer = 0
   newObj.xferTicks = 120
   newObj.xferStack = 0
+  newObj.busShift = 0
   newObj.xferTimer = NaN
   newObj.restrictable = params.restrictable || false
+  newObj.$_parent = params.$_parent
+  newObj.connection = null
   return [newObj]
 }
 const EntityBufferActions = {}
@@ -362,6 +365,47 @@ EntityBufferActions.ClearRestriction = (target, args, returnObj, Igor) => {
 }
 
 EntityBufferActions.ClearRestriction.Igor_operation = "buffer.clearRestriction"
+EntityBufferActions.BusXfer = (target, args, returnObj, Igor)=> {
+  //TODO need better protections for transfers
+  if(args.toBus) {
+    while(args.xferCount>0) {
+      if(!target.items[target.busShift]) return
+      let added = Igor.processTEMP(args.toBus, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
+      //console.log(added)
+      if(added.complete) {
+        Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
+        args.xferCount=0
+      } else if(added.part[0].count==args.xferCount) {
+        return
+      } else {
+        debugger
+        Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
+        args.xferCount = added.part[0].count
+      }
+      ++target.busShift==target.items.length && (target.busShift=0)
+    }
+    
+  } else if (args.fromBus) {
+    while(args.xferCount>0) {
+      if(!target.items[target.busShift]) return
+      let added = Igor.processTEMP(target, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
+      if(added.complete) {
+        Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
+        args.xferCount=0
+      } else if(added.part[0].count==args.xferCount) {
+        return
+      } else {
+        debugger
+        Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
+        args.xferCount = added.part[0].count
+      }
+      ++target.busShift==target.items.length && (target.busShift=0)
+    }
+  } else {
+    console.warn("BusXfer called __ no bus target")
+  }
+}
+EntityBufferActions.BusXfer.Igor_operation = "buffer.busXfer"
 
 IgorJs.defineObj("entity.buffer", NewEntityBuffer, EntityBufferActions)
 

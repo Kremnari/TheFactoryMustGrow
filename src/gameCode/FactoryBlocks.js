@@ -1,6 +1,10 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
 import {ChameleonViewer as ChameJs} from "Chameleon/main"
 
+IgorJs.setStatic("itemStackCost.busExpansion", [{name: "iron-chest", count: 2}])
+IgorJs.setStatic("itemStackCost.busProcessing", [{name: "inserter", count: 2}])
+
+
 const FactoryBlock = {}
 FactoryBlock.New = (params, newObj, Igor) => {
     newObj.name = params.name.string
@@ -14,6 +18,7 @@ FactoryBlock.New = (params, newObj, Igor) => {
         restrictable: true,
         stacks: 1,
         stackSize: 10,
+        $_parent: newObj.$_id
     }
     newObj.buffers = {}
     newObj.buffers.in = Igor.newComponent("entity.buffer", bufferSettings)
@@ -54,7 +59,7 @@ FactoryBlock.NewResBlock = (params, Igor) => {
     }
 }
 FactoryBlock.NewResBlock.signature = {
-    name: "string"  //WIP should become resource vein
+    name: "string",  //WIP should become resource vein
 }
 FactoryBlock.NewResBlock.CC_provide = "facBlock.newResBlock"
 FactoryBlock.NewTechBlock = (params, Igor) => {
@@ -118,8 +123,7 @@ FactoryBlock.SetConnection =  (obj, Igor) => {
     if(Igor.processTEMP(obj.to_which.factoryBus, "factoryBus.add"+callFn, {who: obj.at.factoryBlock.$_id}) ) {
         obj.at.factoryBlock.connections[obj.dir.string] = obj.to_which.factoryBus
     }
-
-
+    Igor.processTEMP(obj.to_which.factoryBus, "factoryBus.connectTo", {})
 }
 FactoryBlock.SetConnection.signature = {
     at: "factoryBlock",
@@ -287,7 +291,6 @@ FactoryLine.Expand = (obj, Igor) => {
             }
         }
     } else {
-        debugger
         console.error("Building not in inventory")
     }
 }
@@ -338,7 +341,7 @@ FactoryLine.SetRecipe.signature = {
 }
 FactoryLine.SetRecipe.CC_provide = "factoryLine.setRecipe"
 FactoryLine.tick = (entity, tickdata, Igor) => {
-    if(entity.built==0 || !entity.processing_time) return  //TODO turn this into an "anti-tick" tag
+    if(entity.built==0 || !entity.processing_time || !entity.recipe) return  //TODO turn this into an "anti-tick" tag
     //consume from buffers if empty
     if(Number.isNaN(entity.processing_ticks)) {
         let consumed = Igor.processTEMP(entity.$_parent, "factoryBlock.consumeStacks", {itemStacks: entity.recipe.ingredients, multi: entity.built})
@@ -354,7 +357,6 @@ FactoryLine.tick = (entity, tickdata, Igor) => {
     }
 
 }
-FactoryLine.signature = { }
 
 IgorJs.defineObj("FactoryLine", FactoryLine.New, FactoryLine)
 
@@ -375,31 +377,135 @@ FactoryBus.New = (params, newObj, Igor) => {
     newObj.connections = {
         sources: []
         ,drains: []
+        ,maxSources: 0
+        ,maxDrains: 0
     }
+    newObj.processors = {
+        source: {xferTicks: 120, xferTimer: 0, xferTarget: 0, xferQty: 0}
+        ,drain: {xferTicks: 120, xferTimer: 0, xferTarget: 0, xferQty: 0}
+        ,central: Igor.newComponent("entity.buffer", {stacks: 1, stackSize: 10, $_parent: newObj.$_id})
+    }
+   // newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
+FactoryBus.ClearConnection = (target, args, returnObj, Igor) => {
+    console.log("clear connection: ")
+    console.log(args.dir)
+    debugger
+}
+FactoryBus.ClearConnection.Igor_operation = "factoryBus.clearConnection"
+FactoryBus.ConnectTo = (obj, Igor) => {
+    let buffer = Igor.getId(obj.to.buffer)
+    if(buffer.connection==obj.connectTo.factoryBus) return
 
-//! These are called from FactoryBlock's persepective,
-//! that's what the Igor call names are reversed
-FactoryBus.AddSource = (target, args, returnObj, Igor) => {
-    let completed = true
-    target.connections.sources.push(args.who)
-    returnObj._result = completed
+    let connectTo = Igor.getId(obj.connectTo.factoryBus)
+    if(obj.dir.string=="output") {
+        if(buffer.connection) {
+            let connected = Igor.getId(buffer.connection)
+            Igor.processTEMP(connected, "factoryBus.clearConnection", {dir: "drains", id: buffer.$_id})
+        }
+        if(connectTo.connections.sources.length<connectTo.connections.maxSources) {
+            connectTo.connections.sources.push({
+                buffer: obj.to.buffer
+                ,parent: buffer.$_parent
+                ,named: Igor.getId(buffer.$_parent).name
+            })
+            buffer.connection = connectTo.$_id
+        } else {
+            console.warn("No available source connections")
+        }
+    
+    } else if(obj.dir.string=="input") {
+        if(buffer.connection) {
+            let connected = Igor.getId(buffer.connection)
+            Igor.processTEMP(connected, "factoryBus.clearConnection", {dir: "sources"})
+        }
+        if(connectTo.connections.drains.length<connectTo.connections.maxDrains) {
+            connectTo.connections.drains.push({
+                buffer: obj.to.buffer
+                ,parent: buffer.$_parent
+                ,named: Igor.getId(buffer.$_parent).name
+            })
+            buffer.connection = connectTo.$_id
+        } else {
+            console.warn("No available drain connections")
+        }
+    }
 }
-FactoryBus.AddSource.Igor_operation = "factoryBus.addDrain"
-FactoryBus.AddDrain = (target, args, returnObj, Igor) => { 
-    let completed = true
-    target.connections.drains.push(args.who)
-    returnObj._result = completed
+FactoryBus.ConnectTo.signature = {
+    dir: "string",
+    connectTo: "factoryBus",
+    to: "buffer"
 }
-FactoryBus.AddDrain.Igor_operation = "factoryBus.addSource"
-FactoryBus.ClearSource = () => {
-    target.connections.sources.slice(target.connections.sources.indexOf(args.who), 1)
-    returnObj._result = true
+FactoryBus.ConnectTo.CC_provide = "factoryBus.connectTo"
+FactoryBus.ExpandBus = (obj, Igor) => {
+    let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busExpansion")})
+    if(!consumed) return
+    if(obj.dir.string=="source") {
+        obj.at.factoryBus.connections.maxSources += 1
+        obj.at.factoryBus.complexity += 5
+        obj.at.factoryBus.size += 10
+    } else if(obj.dir.string=="drain") {
+        obj.at.factoryBus.connections.maxDrains += 1
+        obj.at.factoryBus.size += 10
+        obj.at.factoryBus.complexity += 5
+    }
+    let central = Igor.getId(obj.at.factoryBus.processors.central)
+    if(obj.at.factoryBus.connections.maxSources>central.maxStacks) {
+        // Didn't like these combined with && 
+        if(obj.at.factoryBus.connections.maxDrains>central.maxStacks) {
+            central.maxStacks++
+        }
+    }
 }
-FactoryBus.ClearDrain = () => {
-    target.connections.drains.slice(target.connections.drains.indexOf(args.who), 1)
-    returnObj._result = true
+FactoryBus.ExpandBus.signature = {
+    at: "factoryBus",
+    dir: "string",
+    player: "inventory"
+} 
+FactoryBus.ExpandBus.CC_provide = "factoryBus.expandBus"
+FactoryBus.ExpandProcessing = (obj, Igor) => {
+    let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busProcessing")})
+    if(!consumed) return
+    if(obj.dir.string=="source") {
+        obj.at.factoryBus.processors.source.xferQty += 2
+        obj.at.factoryBus.size += 10
+        obj.at.factoryBus.complexity += 5
+    } else if(obj.dir.string=="drain") {
+        obj.at.factoryBus.processors.drain.xferQty += 2
+        obj.at.factoryBus.size += 10
+        obj.at.factoryBus.complexity += 5
+    }
+}
+FactoryBus.ExpandProcessing.signature = {
+    at: "factoryBus",
+    dir: "string",
+    player: "inventory"
+}
+FactoryBus.ExpandProcessing.CC_provide = "factoryBus.expandProcessing"
+FactoryBus.tick = (entity, tickdata, Igor) => {
+    if(entity.connections.sources.length>0 && entity.processors.source?.xferQty>0) {
+        if(entity.processors.source.xferTimer>=entity.processors.source.xferTicks) {
+            let busXfer = Igor.processTEMP(entity.connections.sources[entity.processors.source.xferTarget].buffer, "buffer.busXfer", {xferCount: entity.processors.source.xferQty, toBus: entity.processors.central})
+
+            ++entity.processors.source.xferTarget==entity.connections.sources.length && (entity.processors.source.xferTarget=0)
+            entity.processors.source.xferTimer=0
+        } else {
+            entity.processors.source.xferTimer++
+        }
+    }
+    if(entity.connections.drains.length>0  && entity.processors.drain?.xferQty>0) {
+        if(entity.processors.drain.xferTimer>=entity.processors.drain.xferTicks) {
+            let busXfer = Igor.processTEMP(entity.connections.drains[entity.processors.drain.xferTarget].buffer, "buffer.busXfer", {xferCount: entity.processors.drain.xferQty, fromBus: entity.processors.central})
+            //do something
+
+            ++entity.processors.drain.xferTarget==entity.connections.drains.length && (entity.processors.drain.xferTarget=0)
+            entity.processors.drain.xferTimer=0
+        } else {
+            entity.processors.drain.xferTimer++
+        }
+    }
+    
 }
 
 IgorJs.defineObj("FactoryBus", FactoryBus.New, FactoryBus)
@@ -421,14 +527,21 @@ ResourceBlock.New = (params, newObj, Igor) => {
     newObj.minerType = "burner-mining-drill"
     newObj.mining_ticks = NaN
     newObj.foundationCost = [{name: "stone", count: 5}]
-    newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 10})
+    newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 10, $_parent: newObj.$_id})
 
+    newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
 ResourceBlock.SetResource = (obj, Igor) => {
+    let resBlock = obj.at.ResourceBlock
+    if(obj.at.ResourceBlock.patchProperties.resource) {
+        let buffer = Igor.getId(resBlock.output)
+        Igor.processTEMP(Igor.getNamedObject("player.inventory"), "inventory.add", {itemStacks: buffer.items})
+        buffer.items = []
+    }
     obj.at.ResourceBlock.patchProperties.resource = obj.which.resource
     if(obj.at.ResourceBlock.minerType) {
-        obj.at.ResourceBlock.patchProperties.mining_time = Igor.data.resources[obj.which.resource].mining_time / Igor.data.entity[obj.at.ResourceBlock.minerType] * Igor.getStatic("config.TICKS_PER_SECOND")
+        obj.at.ResourceBlock.patchProperties.mining_time = Igor.data.resource[obj.which.resource].mining_time / Igor.data.entity[obj.at.ResourceBlock.minerType].mining_speed * Igor.getStatic("config.TICKS_PER_SECOND")
         obj.at.ResourceBlock.mining_ticks =  obj.at.ResourceBlock.patchProperties.mining_time
     }
 }
@@ -438,10 +551,10 @@ ResourceBlock.SetResource.signature = {
 }
 ResourceBlock.SetResource.CC_provide = "resBlock.setResource"
 ResourceBlock.PrepSpace = (obj, Igor) => {
-    if(!obj.at.foundationCost) return
+    if(!obj.at.ResourceBlock.foundationCost) return
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.at.ResourceBlock.foundationCost})) {
         obj.at.ResourceBlock.prepped++
-        obj.at.ResourceBlock.size += 10
+        obj.at.ResourceBlock.spaceUsed += 10
         obj.at.ResourceBlock.complexity += 5
     } else {
         console.error("unable to consume foundation costs")
@@ -455,9 +568,10 @@ ResourceBlock.PrepSpace.signature = {
 ResourceBlock.PrepSpace.CC_provide = "resBlock.prepSpace"
 ResourceBlock.BuildMine = (obj, Igor) => {
     if(obj.at.ResourceBlock.prepped==0) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: [{name: newObj.minerType, count: 1}]})) {
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: [{name: obj.at.ResourceBlock.minerType, count: 1}]})) {
         obj.at.ResourceBlock.prepped--
         obj.at.ResourceBlock.built++
+        Igor.getId(obj.at.ResourceBlock.output).stackSize += 5
     }
 }
 ResourceBlock.BuildMine.signature = {
@@ -466,15 +580,12 @@ ResourceBlock.BuildMine.signature = {
 }
 ResourceBlock.BuildMine.CC_provide = "resBlock.buildMine"
 ResourceBlock.tick = (entity, tickdata, Igor) => {
-    if(entity.built==0 || !entity.patchProperties.resource) return
+    if(entity.built==0 || !entity.patchProperties.mining_time) return
     if(entity.mining_ticks==0) {
         let stored = Igor.processTEMP(entity.output, "inventory.add", {itemStacks: {name: entity.patchProperties.resource, count: entity.storedResources || entity.built}})
-        debugger
         entity.mining_ticks = entity.patchProperties.mining_time
     } else {
         entity.mining_ticks--
     }
 }
-
-
 IgorJs.defineObj("ResourceBlock", ResourceBlock.New, ResourceBlock)
