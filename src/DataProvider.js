@@ -32,7 +32,6 @@ export let DataProvider = {
     mgrs.icon.import(data.icons)
     mgrs.item.import(data.item)
     mgrs.rec.import(data.recipe, mgrs.item)
-    mgrs.entity.import(data.entity, mgrs)
     mgrs.data = data
     DataProvider.loadCb({mgrs: mgrs, save: save})
   },

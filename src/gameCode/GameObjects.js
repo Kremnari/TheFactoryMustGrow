@@ -238,6 +238,7 @@ const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
   let buffer = Igor.getId(obj.which.buffer)
   let idx = buffer.items.findIndex( (x) => { return x.name==obj.item.name })
+  if(buffer.items[idx].count===0) return
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: buffer.items[idx]})
   buffer.items[idx].count = 0
   obj.at.entity!="temp_null" && obj.at.entity.$_tags.push("tick", "processing")
@@ -378,7 +379,6 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor)=> {
       } else if(added.part[0].count==args.xferCount) {
         return
       } else {
-        debugger
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
         args.xferCount = added.part[0].count
       }
@@ -395,7 +395,6 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor)=> {
       } else if(added.part[0].count==args.xferCount) {
         return
       } else {
-        debugger
         Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
         args.xferCount = added.part[0].count
       }

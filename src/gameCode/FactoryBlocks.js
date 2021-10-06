@@ -343,15 +343,28 @@ FactoryLine.SetRecipe.CC_provide = "factoryLine.setRecipe"
 FactoryLine.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.processing_time || !entity.recipe) return  //TODO turn this into an "anti-tick" tag
     //consume from buffers if empty
+    if(entity.delay) {
+        if(--entity.delay==0) {
+            entity.delay = null
+        }
+        return
+    }
     if(Number.isNaN(entity.processing_ticks)) {
         let consumed = Igor.processTEMP(entity.$_parent, "factoryBlock.consumeStacks", {itemStacks: entity.recipe.ingredients, multi: entity.built})
         if(consumed> 0) {
             entity.processing_ticks = 0
             entity.processing_count = consumed
+        } else {
+            entity.delay = Math.ceil(entity.processing_time * 0.1)
         }
     } else if(entity.processing_ticks>=entity.processing_time) {
-        Igor.processTEMP(entity.$_parent, "factoryBlock.produceStacks", {itemStacks: entity.recipe.results, multi: entity.processing_count})
-        entity.processing_ticks=NaN
+        let added = Igor.processTEMP(entity.$_parent, "factoryBlock.produceStacks", {itemStacks: entity.recipe.results, multi: entity.processing_count})
+        if(added>0) {
+            entity.processing_ticks=NaN
+        } else {
+            // Couldn't deposit all so... try again after a delay
+            entity.delay = Math.ceil(entity.processing_time * 0.1)
+        }
     } else {
         entity.processing_ticks++
     }
@@ -527,7 +540,7 @@ ResourceBlock.New = (params, newObj, Igor) => {
     newObj.minerType = "burner-mining-drill"
     newObj.mining_ticks = NaN
     newObj.foundationCost = [{name: "stone", count: 5}]
-    newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 10, $_parent: newObj.$_id})
+    newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 0, $_parent: newObj.$_id})
 
     newObj.$_tags.push("tick", "processing")
     return [newObj]

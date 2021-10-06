@@ -225,6 +225,23 @@ export const IgorUtils = {
     }
     dbSet(IgorCore.saveName, data, IgorCore.db)
   },
+  backupSave() {
+    let data = {
+      game: JSON.stringify(IgorCore.game),
+      objs: JSON.stringify(Array.from(IgorCore.objs.entries()))
+    }
+    dbSet("SaveGame_bak", data, IgorCore.db)
+  },
+  async loadBackup() {
+    let save = await dbGet("SaveGame_bak", IgorCore.db)
+    IgorCore.game = JSON.parse(save.game)
+    IgorCore.objs = new Map(JSON.parse(save.objs))
+    IgorCore.objs.forEach( (x) => {
+      x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity:x, load: x.$_tags})
+      if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
+    })
+    console.log("backup loaded")
+  },
   setState(which) {
     switch(which) {
       case "start":

@@ -14,19 +14,24 @@
         Land, pollution, enemies, oh my!<br>
         AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span>
       </div>
-      <div if.bind="viewPane.main=='facBlocks'" class="container">
+      <div if.bind="viewPane.main=='facBlocks'" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
+            <div>Land available: ${globals.land.total-globals.land.used}</div>
             <div>Land use: ${globals.land.used}</div>
-            <div>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</div>
           </div>
           <div class="col">
-            <div>Land available: ${globals.land.total-globals.land.used}</div>
             <div>Complexity Total: ${globals.land.complexity}</div>
+            <div>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</div>
           </div>
         </div>
       </div>
-      <tool-tip display.bind="tooltip" item-mgr.bind="mgrs.item" recipe-mgr.bind="mgrs.rec"></tool-tip>
+      <tool-tip
+        display.bind="tooltip"
+        item-mgr.bind="mgrs.item"
+        recipe-mgr.bind="mgrs.rec"
+        if.bind="tooltip"
+      ></tool-tip>
     </section>
     <nav>
       <span click.delegate="viewPane.main='nav'" class="fas fa-level-up-alt fa-rotate-90 ${viewPane.main=='nav'?'selected':''}"></span>
@@ -38,7 +43,7 @@
       <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
       <span
         click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='facBlocks')"
-        class="fas fa-industry navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
+        class="far fa-object-ungroup navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
       ></span>
       <span
         click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='viewFacBlock')"
@@ -57,7 +62,7 @@
         <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
         <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
-        <p click.delegate="viewPane.main='facBlocks'"><span class="fas fa-industry navFacBlocks"></span>Factory Blocks List</p>
+        <p click.delegate="viewPane.main='facBlocks'"><span class="far fa-object-ungroup navFacBlocks"></span>Factory Blocks List</p>
         <p click.delegate="viewPane.main='viewFacBlock'"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
         <p class="fas spacer"></p> 
         <p click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
@@ -179,27 +184,27 @@
         <div class="row">
           <div class="card">
             <div class="card-header">
-              <h5>Resource Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)">Add New...</span>
+              <h5>Resource Patch</h5>
+              <span click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)" class="newFacBlock resBlock">Add New...</span>
             </div>
             <div class="card-body">
               <div
                 repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'addedEntity'"
                 click.delegate="showItem={item: resBlock, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==resBlock ? 'selected':''}"
+                class="${viewPane.showingItem==resBlock ? 'selected':''} resBlockList"
               >${resBlock.name}</div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
               <h5>Buses</h5>
-              <span click.delegate="CCC.issue('facBlock.newBus', {}, $event)">New cost ${globals.land.fac_block_costs.bus}</span>
+              <span click.delegate="CCC.issue('facBlock.newBus', {}, $event)" class="newFacBlock busLine">New cost ${globals.land.fac_block_costs.bus}</span>
             </div>
             <div class="card-body">
               <div
                 repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'addedEntity'"
                 click.delegate="showItem={item: facBus, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==facBus ? 'selected':''} ">
+                class="${viewPane.showingItem==facBus ? 'selected':''} busLineList">
                 ${facBus.name}
               </div>
             </div>
@@ -207,13 +212,13 @@
           <div class="card">
             <div class="card-header">
               <h5>Factory Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newBlock', {}, $event)">New cost ${globals.land.fac_block_costs.factory}</span>
+              <span click.delegate="CCC.issue('facBlock.newBlock', {}, $event)" class="newFacBlock facBlock">New cost ${globals.land.fac_block_costs.factory}</span>
             </div>
             <div class="card-body">
               <div
                 repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'addedEntity'"
                 click.delegate="showItem={item: facBlock, view: 'viewFacBlock'}"
-                class='${viewPane.showingItem==facBlock ? "selected":""}'>
+                class='${viewPane.showingItem==facBlock ? "selected":""} facBlockList'>
                 ${facBlock.name}
               </div>
             </div>
@@ -221,13 +226,13 @@
           <div class="card">
             <div class="card-header">
               <h5>Tech Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)">New cost ${globals.land.fac_block_costs.research}</span>
+              <span click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)" class="newFacBlock techBlock">New cost ${globals.land.fac_block_costs.research}</span>
             </div>
             <div class="card-body">
               <div
                 repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'addedEntity'"
                 click.delegate="showItem={item: techBlock, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==techBlock ? 'selected':''}"
+                class="${viewPane.showingItem==techBlock ? 'selected':''} techBlockList"
               >${techBlock.name}</div>
             </div>
           </div>
@@ -258,7 +263,7 @@
         <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></compose>
         <div class="overflow">
           <icon-base
-            repeat.for="tech of dataSet.technology | objectValues & signal:'techUpdate'"
+            repeat.for="tech of ChameView.viewFn.technologyFilter(globals.research.completed) & signal:'generalUpdate'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research.completed[tech.name] ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
@@ -300,7 +305,7 @@
 
     </main>
     <div id="tutorial">
-      <scope-var var.bind="Tutorial.signal() & signal:'generalUpdate'"></scope-var>
+      <scope-var var.bind="Tutorial.checkConditions() & signal:'generalUpdate'"></scope-var>
       <div id="tut_pos" class="center">
         <span id="tut_text"></span>
         <button id="tut_button" class="center"></button>

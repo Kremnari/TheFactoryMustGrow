@@ -9,29 +9,26 @@
   <div class="row">
     <div
         if.bind="$scope.facBlock.buffers.in"
-        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.connections.source)"
+        click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.in)"
         class="col-4">
       Input:
       <span
-            class="connection"
-            click.delegate="CCC.issue('factoryBus.connectTo', 
-              {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.in,'dir.string': 'input'}, $event)"
-            >
-        ${IgorJs.getObjId($scope.facBlock.buffers.in, "connection").name || "none" & signal:'generalUpdate'}</span>
+        class="connection"
+        click.delegate="CCC.issue('factoryBus.connectTo', 
+          {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.in,'dir.string': 'input'}, $event)"
+      >${IgorJs.getObjId($scope.facBlock.buffers.in, "connection").name || "none" & signal:'generalUpdate'}</span>
       <div>
-        <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.in).items & signal:'generalUpdate'">
-          <span
-              class="fas fa-level-up-alt fa-rotate-90"
-              if.bind="item.name"
-              click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': IgorJs.getObjId($scope.facBlock.buffers.in), 'item.buffer': item, 'at.entity': 'temp_null'}, $event)"
-            ></span>
-        <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
-        </span>
+        <icon-base
+          repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.in).items & signal:'generalUpdate'"
+          item.bind="item"
+          count.bind="item.count"
+          click.delegate="CCC.issue('entity.bufferFill', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
+        ></icon-base>
       </div>
     </div>
     <div
         if.bind="$scope.facBlock.buffers.internal"
-        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.buffers.internal)"
+        click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.internal)"
         class="col-4">
       Internal:
       <div>
@@ -39,37 +36,35 @@
           <span
               class="fas fa-level-up-alt fa-rotate-90"
               if.bind="item.name"
-              click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': IgorJs.getObjId($scope.facBlock.buffers.internale), 'item.buffer': item, 'at.entity': 'temp_null'}, $event)"
+              click.delegate="CCC.issue('entity.bufferFill', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
             ></span>
           <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
           <span
             class="fas fa-level-down-alt"
             if.bind="item.name"
-            click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': item, 'at.entity': 'temp_null'}, $event)"
+            click.delegate="CCC.issue('entity.bufferCollect', {'item.name': item.name, 'at.entity': 'temp_null', }, $event)"
           ></span>
         </span>
       </div>
     </div>
     <div
         if.bind="$scope.facBlock.buffers.out"
-        click.capture="CCC.provide($event, 'at', 'factoryXput', $scope.facBlock.buffers.out)"
+        click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.out)"
         class="col-4">
       Outputs:
       <span
-          class="connection"
-          click.delegate="CCC.issue('factoryBus.connectTo',
-          {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.out,'dir.string': 'output'}, $event)"
-        >
-      ${IgorJs.getObjId($scope.facBlock.buffers.out, "connection").name || "none" & signal:'generalUpdate'}</span>
+        class="connection"
+        click.delegate="CCC.issue('factoryBus.connectTo',
+        {'$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses), 'to.buffer':  $scope.facBlock.buffers.out,'dir.string': 'output'}, $event)"
+      >${IgorJs.getObjId($scope.facBlock.buffers.out, "connection").name || "none" & signal:'generalUpdate'}</span>
       <div>
-        <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.out).items & signal:'generalUpdate'">
-          <span
-              class="fas fa-level-down-alt"
-              if.bind="item.name"
-              click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': item, 'at.entity': 'temp_null'}, $event)"
-            ></span>
-          <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
-        </span>
+        <icon-base 
+          repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.out).items & signal:'generalUpdate'"
+          if.bind="item" 
+          item.bind="item" 
+          count.bind="item.count"
+          click.delegate="CCC.issue('entity.bufferCollect', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
+        ></icon-base>
       </div>
     </div>
   </div>

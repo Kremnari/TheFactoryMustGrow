@@ -14,10 +14,20 @@
     </div>
     <div class="row">
       <div class="col-sm">
-        Max Sources: ${$scope.busLine.connections.maxSources}
+        Max Sources: ${$scope.busLine.connections.maxSources}<br>
         <span
           click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
         >Add Access Point</span>
+        <div>
+          <span
+            class="progressBarBase"
+            css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100-10}%, red ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100+10}%, red )"
+          >Acquisition</span>
+          Qty: ${$scope.busLine.processors.source.xferQty}
+        </div>
+        <div
+          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
+        >Expand Processing</div>
         <ul>
           <li repeat.for="source of $scope.busLine.connections.sources">
             ${source.named}
@@ -33,21 +43,6 @@
       <div class="col-sm">
         <h5>Central Buffer</h5>
         <div class="row">
-          <div>
-            <span
-              class="progressBarBase"
-              css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100-10}%, red ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100+10}%, red )"
-            >Acquisition</span>
-            <!--${$scope.busLine.processors.source.xferTimer}-->
-          </div>
-          <div
-            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
-          >Expand Processing</div>
-          <div>
-            XferQty: ${$scope.busLine.processors.source.xferQty}
-          </div>
-        </div>
-        <div class="row">
           <div>On the belt</div>
           <icon-base
             repeat.for="item of IgorJs.getObjId($scope.busLine.processors.central).items"
@@ -57,26 +52,23 @@
           ></icon-base>
         </div>
         <div class="row">
-          <div>
-            <span
-            class="progressBarBase"
-            css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100-10}%, red ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100+10}%, red )"
-            >Deposition</span>
-            <!--${$scope.busLine.processors.drain.xferTimer}-->
-          </div>
-          <div
-            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
-          >Expand Processing</div>
-          <div>
-            XferQty: ${$scope.busLine.processors.drain.xferQty}
-          </div>
         </div>
       </div>
       <div class="col-sm">
-        Max Drains: ${$scope.busLine.connections.maxDrains}
+        Max Drains: ${$scope.busLine.connections.maxDrains}<br>
         <span
           click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
         >Add Access Point</span>
+        <div>
+          <span
+          class="progressBarBase"
+          css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100-10}%, red ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100+10}%, red )"
+          >Deposition</span>
+          Qty: ${$scope.busLine.processors.drain.xferQty}
+        </div>
+        <div
+          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
+        >Expand Processing</div>
         <ul>
           <li repeat.for="drain of $scope.busLine.connections.drains">
             <span if.bind="$scope.busLine.processors.drain.xferTarget==$index">&gt;--</span>

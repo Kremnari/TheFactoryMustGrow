@@ -1,6 +1,8 @@
 import {PlayerBlock} from 'resources/StateDef/FactoryBlock_old'
 import {CephlaCommConstructor as CCC} from "CephlaComm/main"
 
+console.log('loaded')
+
 //! This should eventually be moved to Igor
 //* Chameleon is a view controller and should be called by Igor to
 //    post updates
@@ -42,45 +44,6 @@ function OffenseBus() {
   let ret = {}
   return ret
 }
-
-//* New Stuff, working towards CephlaComm
-const SetConnectionSig = {
-  at: "factoryXput",
-  to_which: "factoryBus",
-  dir: "string"
-}
-//Validator should ensure which.facblock can in/out opposing this
-function SetConnection(obj) {
-  obj.at.factoryXput.connection = obj.to_which.factoryBus
-}
-CCC.provide('factoryBlock.setConnection', SetConnection, SetConnectionSig)
-
-const AddProdLineSig = {
-  at: "factoryBlock",
-}
-function AddProdLine(obj) {
-  obj.at.factoryBlock.processingLines.push(
-    { recipe: null, building: null, prepped: null,
-      counts: { buildings: 0, prepped: 0, producing: 0},
-      timers: { production: 0 }
-    }
-  )
-  //NYI something about block size and complexity increases
-}
-CCC.provide("factoryBlock.addProdLine", AddProdLine, AddProdLineSig)
-
-
-//* Begin Factory Lines CCC
-const SetRecipeSig = {
-  at: "factoryLine",
-  which: "recipe"
-}
-function SetRecipe(obj) {
-  obj.at.factoryLine.recipe = obj.which.recipe
-  //return current production
-}
-CCC.provide("factoryLine.setRecipe", SetRecipe, SetRecipeSig)
-
 
 const SetBuildingSig = {
   at: "factoryLine",

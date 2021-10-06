@@ -9,10 +9,12 @@
         <div class="row">
             <div class="col-sm">
                 <span
+                    id="resBlock_foundation"
                     click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
                 >Foundations: ${$scope.resBlock.prepped}</span>
                 <br>
                 <span
+                    id="resBlock_miners"
                     click.delegate="CCC.issue('resBlock.buildMine', {}, $event)"
                 >Miners: ${$scope.resBlock.built}</span>
             </div>
@@ -29,12 +31,13 @@
                     ></icon-base>
                 </h5>
                 <p
+                    class="resBlock_setResource"
                     click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': ChameView.viewFn.objectValues(dataSet.resource)}, $event )"
                 >Change Resource</p>
             </div>
             <div class="col-sm">
                 <span
-                    class="connection"
+                    class="resBlock connection"
                     click.delegate="CCC.issue('factoryBus.connectTo', 
                     {   'dir.string': 'output',
                         '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),

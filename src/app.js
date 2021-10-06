@@ -95,6 +95,13 @@ export class App {
       ChameJS.setViewFn("objectValues", (list) => {
         return Object.values(list)
       })
+      ChameJS.setViewFn("technologyFilter", (completed) => {
+        return Object.values(tfmg.dataSet.technology).filter( (tech) => {
+          return !tech.prerequisites || tech.prerequisites.every( (preq) => {
+            return completed[preq]
+          })
+        })
+      })
 
       this.signaler.signal("generalUpdate")
       this.showDev = await this.mgrs.idb.get("dev")
@@ -143,7 +150,7 @@ export class App {
     }
     //* Utility Functions
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
-    hideTutorial() { Tutorial.hide() }
+    hideTutorial() { Tutorial.clearTut() }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
