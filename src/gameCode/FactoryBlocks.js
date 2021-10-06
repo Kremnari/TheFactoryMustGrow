@@ -3,6 +3,8 @@ import {ChameleonViewer as ChameJs} from "Chameleon/main"
 
 IgorJs.setStatic("itemStackCost.busExpansion", [{name: "iron-chest", count: 2}])
 IgorJs.setStatic("itemStackCost.busProcessing", [{name: "inserter", count: 2}])
+IgorJs.setStatic("itemStackCost.resBlock_foundation", [{name: "stone", count: 5}, {name: "transport-belt", count: 4}])
+IgorJs.setStatic("itemStackCost.resBlock_miner", [{name: "burner-mining-drill", count: 1}])
 
 
 const FactoryBlock = {}
@@ -496,6 +498,33 @@ FactoryBus.ExpandProcessing.signature = {
     player: "inventory"
 }
 FactoryBus.ExpandProcessing.CC_provide = "factoryBus.expandProcessing"
+FactoryBus.__tooltips = (obj, args, ret, Igor) => {
+    let who = Igor.getId(obj)
+    let data = []
+    let tip = ""
+    switch(args.which) {
+        case "input_processing":
+            data.push({name: "inserter", count: 2})
+            tip = "Input Processing"
+            break;
+        case "expand_input_sources":
+            data.push({name: "iron-chest", count: 2})
+            who.connections.maxSources && data.push({name: "transport-belt", count: 5*who.connections.maxSources})
+            tip = "Expand Source Points"
+            break;
+        case "output_processing":
+            data.push({name: "inserter", count: 2})
+            tip = "Output Processing"
+            break;
+        case "expand_output_drains":
+            data.push({name: "iron-chest", count: 2})
+            who.connections.maxDrains && data.push({name: "transport-belt", count: 5*who.connections.maxDrains})
+            tip = "Expand Drain Points"
+            break;
+        }
+    ret._result = {tool: "stackArray", tip, data}
+}
+FactoryBus.__tooltips.CC_utility = "busLine_Costs"
 FactoryBus.tick = (entity, tickdata, Igor) => {
     if(entity.connections.sources.length>0 && entity.processors.source?.xferQty>0) {
         if(entity.processors.source.xferTimer>=entity.processors.source.xferTicks) {
@@ -537,9 +566,8 @@ ResourceBlock.New = (params, newObj, Igor) => {
     newObj.complexity = 1
     newObj.prepped = 0
     newObj.built = 0
-    newObj.minerType = "burner-mining-drill"
     newObj.mining_ticks = NaN
-    newObj.foundationCost = [{name: "stone", count: 5}]
+    newObj.mining_drill = "burner-mining-drill"
     newObj.output = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 0, $_parent: newObj.$_id})
 
     newObj.$_tags.push("tick", "processing")
@@ -564,8 +592,7 @@ ResourceBlock.SetResource.signature = {
 }
 ResourceBlock.SetResource.CC_provide = "resBlock.setResource"
 ResourceBlock.PrepSpace = (obj, Igor) => {
-    if(!obj.at.ResourceBlock.foundationCost) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.at.ResourceBlock.foundationCost})) {
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic('itemStackCost.resBlock_foundation')})) {
         obj.at.ResourceBlock.prepped++
         obj.at.ResourceBlock.spaceUsed += 10
         obj.at.ResourceBlock.complexity += 5
@@ -581,7 +608,7 @@ ResourceBlock.PrepSpace.signature = {
 ResourceBlock.PrepSpace.CC_provide = "resBlock.prepSpace"
 ResourceBlock.BuildMine = (obj, Igor) => {
     if(obj.at.ResourceBlock.prepped==0) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: [{name: obj.at.ResourceBlock.minerType, count: 1}]})) {
+    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic('itemStackCost.resBlock_miner')})) {
         obj.at.ResourceBlock.prepped--
         obj.at.ResourceBlock.built++
         Igor.getId(obj.at.ResourceBlock.output).stackSize += 5
@@ -592,6 +619,19 @@ ResourceBlock.BuildMine.signature = {
     player: "inventory"
 }
 ResourceBlock.BuildMine.CC_provide = "resBlock.buildMine"
+ResourceBlock.__foundationCost = (obj, x_null, ret, Igor) => {
+    let who = Igor.getId(obj)
+    let is = [{name: "stone", count: 5}]
+    is.push({name: "transport-belt", count: Math.floor(who.spaceUsed/10)})
+    ret._result = {tool: 'stackArray', tip: 'Foundation Cost', data: is}
+}
+ResourceBlock.__foundationCost.CC_utility = "resBlock.__foundationCost"
+ResourceBlock.__minerCost = (obj, args_null, ret, Igor) => {
+    let who = Igor.getId(obj)
+    let is = [{name: who.mining_drill, count: 1}]
+    ret._result = {tool: 'stackArray', tip: 'Foundation Cost', data: is}
+}
+ResourceBlock.__minerCost.CC_utility = "resBlock.__minerCost"
 ResourceBlock.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.patchProperties.mining_time) return
     if(entity.mining_ticks==0) {

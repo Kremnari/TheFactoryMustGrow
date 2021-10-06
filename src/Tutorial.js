@@ -10,7 +10,8 @@ let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
               , 4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.451, 4.46  //  ..35
               , 4.5, 4.51, 4.52, 4.53, 4.54, 4.55, 4.6
             ,5, 5.05, 5.1, 5.15, 5.20
-              , 5.25, 5.30, 5.35
+              , 5.25, 5.30, 5.35, 5.4, 5.45
+              , 5.5, 5.55
             //
             ,100]
 window.jq = $
@@ -377,6 +378,7 @@ class tutorial {
         __.tutText("The first step is to add a Resource Patch to begin your material exploits.<br>Give it a name to remember it by.")
         __.tutStep(".newFacBlock.resBlock")
         __.setTutClick()
+        break;
       case 5.20:
         __.tutStep(".resBlockList:eq(0)")
         __.setTutClick()
@@ -399,6 +401,28 @@ class tutorial {
         __.tutStep(".resBlock_setResource")
         __.tutText("You can set the resource being mined with this.<br>I'd suggest iron ore to start")
         __.setTutClick()
+        break;
+      case 5.45:
+        __.tutStep(".resBlock.connection")
+        __.tutText("A resource patch is great, but it make use of its materials, we will need to connect a bus from here")
+        __.tutButton("How do we establish a bus line?")
+        break;
+      case 5.5:
+        __.tutStep(".fa-object-ungroup")
+        __.tutText("Let's go establish one of those now.")
+        __.setTutClick()
+        break;
+      case 5.55:
+        __.tutStep(".newFacBlock.busLine")
+        __.tutText("You should know what to do")
+        __.setTutClick()
+        break;
+      case 5.6:
+        __.tutStep(".busLineList:eq(0)")
+        __.setTutClick()
+        break;
+      case 5.65:
+        __.tutStep("")
         break;
       case 100:
         $("#tutorial").show()

@@ -6,7 +6,7 @@
   <require from="resources/elements/tool-tip"></require>
   <!-- from="resources/attributes/activeWhen"></!-->
 
-  <div if.bind="viewPane.version=='beta'" beta>
+  <div if.bind="viewPane.version=='beta'" beta mouseover.trigger="tooltip = null">
     <require from="./tfmg-beta.scss"></require>
     <section class="statusBox"> 
       <div if.bind="!tooltip && viewPane.main!='facBlocks'" click.delegate="viewPane.main='overview'">

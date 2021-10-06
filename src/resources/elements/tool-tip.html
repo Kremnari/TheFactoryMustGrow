@@ -15,6 +15,16 @@
       <p>
         <icon-base repeat.for="unlock of display.unlocks" item.bind="unlock" show-name.bind="true"></icon-base>
       </p>
-    </div> 
+    </div>
+    <div if.bind="display.tool=='stackArray'">
+      <h5>${display.tip}:</h5>
+      <icon-base
+        repeat.for="item of display.data"
+        item.bind="item.name"
+        show-name.bind="true"
+        required.bind="item.count"
+        class="pr-5"
+      ></icon-base>
+    </div>
   </div>
 </template>

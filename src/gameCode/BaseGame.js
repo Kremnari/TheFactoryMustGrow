@@ -60,7 +60,7 @@ export const setupIgor = () => {
   IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
   IgorJs.defineObj("player", "player")
   IgorJs.amendObject("FactoryBlocksBase", {tickFn: (td, obj) => { tickBase(td, obj) } })
-  console.log('setup complete')
+  //console.log('setup complete')
 }
 
 //SMELL

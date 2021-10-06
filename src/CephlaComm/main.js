@@ -132,7 +132,6 @@ export const CephlaCommCaller = {
       CephlaCommCore.repo[who](obj, $evt?.CCC)
     }
   },
-  
   /* 
   $evt - mouseEvent
   specifier - typically a determiner or preposition

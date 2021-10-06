@@ -295,11 +295,13 @@ span.button {
   border: 2px solid red;
   z-index: 2000;
   isolation: isolate;
+  position: relative;
 }
 .tutTarget {
   border: 2px dashed red;
   z-index: 2000;
   isolation: isolate;
+  position: relative;
   &.recipeDisabled {
     filter: saturate(1);
   }

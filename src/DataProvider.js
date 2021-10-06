@@ -9,14 +9,14 @@ export let DataProvider = {
   async beginLoad() {
     let ds
     if(await mgrs.idb.get('last_ds')!=Config.LAST_DS_DB) {
-      console.log("last datasource out of data")
+      //console.log("last datasource out of data")
       let url = location.href.slice(0, location.href.lastIndexOf("/"))
       let resp = await fetch(url+"/data_source.json")
       ds = await resp.json()
       mgrs.idb.set("last_ds", Config.LAST_DS_DB)
       mgrs.idb.set("dataSet", ds)
     } else {
-      console.log('last datasource up to date')
+      //console.log('last datasource up to date')
       ds = await mgrs.idb.get("dataSet")
     }
     let icons = await mgrs.idb.get("Icons")

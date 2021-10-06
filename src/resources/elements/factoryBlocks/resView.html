@@ -11,18 +11,21 @@
                 <span
                     id="resBlock_foundation"
                     click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
+                    mouseenter.trigger="tooltip = CCC.utilityFn('resBlock.__foundationCost', $scope.resBlock.$_id)"
                 >Foundations: ${$scope.resBlock.prepped}</span>
                 <br>
                 <span
                     id="resBlock_miners"
                     click.delegate="CCC.issue('resBlock.buildMine', {}, $event)"
+                    mouseenter.trigger="tooltip = CCC.utilityFn('resBlock.__minerCost', $scope.resBlock.$_id)"
                 >Miners: ${$scope.resBlock.built}</span>
             </div>
             <div class="col-sm">
                 <h5
                     class="progressBarBase" 
                     css="border-image-source: linear-gradient(to left, red ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%, green ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%"
-                ><icon-base
+                >
+                    <icon-base
                         item.bind="$scope.resBlock.patchProperties.resource"
                         if.bind="$scope.resBlock.patchProperties.resource"
                         count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.output, {name: $scope.resBlock.patchProperties.resource}) & signal: 'generalUpdate'"

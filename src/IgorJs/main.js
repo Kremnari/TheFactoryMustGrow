@@ -52,11 +52,12 @@ const IgorCore = {
 //  to manipulate the lifecycle of it's objects
 const IgorBuilder = {
   get data() { return IgorCore.data },
-  newObject(type, subType) {
+  newObject(type, subType, parent) {
     let obj = {
       $_id: "id_"+IgorCore.objs.size,
       $_type: type,
       $_subType: subType,
+      $_parent: parent
     }
     obj.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: obj})
     IgorCore.objs.set(obj.$_id, obj)
@@ -107,14 +108,13 @@ export const IgorUtils = {
       IgorCore.command.provide(item, fn, sig, valid)
     }
   },
-  addUtility_CCC: (named, fn) => {
+  CCC_addUtility: (named, fn) => {
     if(!IgorCore.command) {
       IgorCore._utilityTemp || (IgorCore._utilityTemp = [])
       IgorCore._utilityTemp.push({named, fn})
     } else {
       IgorCore.command.utilityFn(named, fn)
     }
-
   },
   defineObj: (who, fn, actions) => {
     IgorCore.metaDefines[who] = {
@@ -131,6 +131,7 @@ export const IgorUtils = {
     actions && Object.entries(actions).forEach(([prop, obj]) => {
       if(obj && obj.CC_provide) IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature, obj.validator)
       if(obj && obj.Igor_operation) IgorUtils.addOperation(obj.Igor_operation, obj)
+      if(obj && obj.CC_utility) IgorUtils.CCC_addUtility(obj.CC_utility, obj)
     })
   
   },
@@ -187,13 +188,13 @@ export const IgorUtils = {
         x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
         if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
       })
-      console.log('found save')
+      //console.log('found save')
     } else {
       //Create new game
       IgorCore.game = IgorCore.metaDefines['#'].new
-      console.log('new game')
+      //console.log('new game')
     }
-    console.log('db loaded')
+    //console.log('db loaded')
   },
   setNamed(as, who) {
     IgorCore.namedObjs[as] = who
@@ -296,6 +297,9 @@ export const IgorRunner = {
   getStatic: (which) => {
     return IgorCore.statics[which]
   },
+  updateStatic: (which, is) => {
+    IgorCore.statics[which] = is
+  },
   newComponent: (objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
       let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
@@ -311,7 +315,7 @@ export const IgorRunner = {
   },
   addNewObject: (target, objType, params ) => {
     if(IgorCore.metaDefines[objType]) {
-      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", target.$_id), IgorBuilder)
       target.push(obj.$_id)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)

@@ -122,4 +122,4 @@ import {IgorUtils as IgorJs} from "IgorJs/main"
 IgorJs.addOperation("inventory.add", AddAll)
 IgorJs.addOperation("inventory.consume", ConsumeAll)
 IgorJs.addOperation("inventory.total", calcTotal)
-IgorJs.addUtility_CCC("inventory.total", calcTotal)
+IgorJs.CCC_addUtility("inventory.total", calcTotal)
