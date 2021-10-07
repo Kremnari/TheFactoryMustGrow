@@ -2,18 +2,18 @@
   <scope-var var.bind="$scope={busLine: viewPane.showingItem}"></scope-var>
   <section click.capture="CCC.provide($event, 'at', 'factoryBus', viewPane.showingItem)" class="container">
     <div class="row">
-      <div class="col-sm">
+      <div class="col">
         Space: ${$scope.busLine.size}
       </div>
-      <div class="col-sm">
+      <div class="col">
         <h4>${$scope.busLine.name}</h4>
       </div>
-      <div class="col-sm">
+      <div class="col">
         Complexity: ${$scope.busLine.complexity}
       </div>
     </div>
     <div class="row">
-      <div class="col-sm">
+      <div class="col">
         <div>
           <span
             class="progressBarBase"
@@ -44,7 +44,7 @@
           </li>
         </ul>
       </div>
-      <div class="col-sm">
+      <div class="col">
         <h5>Central Buffer</h5>
         <div class="row">
           <div>On the belt</div>
@@ -55,10 +55,8 @@
             count.bind="item.count"
           ></icon-base>
         </div>
-        <div class="row">
-        </div>
       </div>
-      <div class="col-sm">
+      <div class="col">
         <div>
           <span
           class="progressBarBase"

@@ -78,3 +78,8 @@ icon-base > .modis > span {
   border: 1px dashed grey;
   border-radius: 4px
 }
+
+.nameField {
+  overflow: auto;
+  white-space: nowrap;
+}

@@ -38,6 +38,7 @@ class tutorial {
     this.start()    
   }
   nextStep() {
+    $(".tutHighlight").removeClass("tutHighlight")
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
     $("#tut_pos").removeClass(["top", "bottom"]).addClass('center')
@@ -48,6 +49,9 @@ class tutorial {
   }
   tutStep(selector) {
     $(selector).addClass("tutStep")
+  }
+  tutHighlight(selector) {
+    $(selector).addClass("tutHighlight")
   }
   tutText(text) {
     $("#tut_text").html(text)
@@ -256,13 +260,13 @@ class tutorial {
         this.setTutClick()
         break;
       case 4:
-        __.tutStep(".upgrades-infopane icon-base[title='iron-chest']")
+        __.tutHighlight(".upgrades-infopane icon-base[title='iron-chest']")
         __.tutText("Each item buffer can only hold so much.  Add iron chests to increase that capacity")
         __.tutButton("Useful to not have to babysit")
         this.setTutClick()
         break;
       case 4.1:
-        __.tutStep(".upgrades-infopane icon-base[title='inserter']")
+        __.tutHighlight(".upgrades-infopane icon-base[title='inserter']")
         __.tutText("Item buffers can be improved with inserters to create some basic automation")
         __.tutButton("Too bad I can't watch them move back and forth like some other game I know")
         this.setTutClick()

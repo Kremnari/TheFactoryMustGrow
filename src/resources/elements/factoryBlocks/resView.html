@@ -2,12 +2,12 @@
     <scope-var var.bind="$scope={resBlock: viewPane.showingItem}"></scope-var>
     <section id="viewResBlock" click.capture="CCC.provide($event, 'at', 'ResourceBlock', viewPane.showingItem)">
         <div class="row">
-            <span class="col-sm">Space Used: ${$scope.resBlock.spaceUsed}</span>
-            <h3 class="col-sm">${$scope.resBlock.name}</h3>
-            <span class="col-sm">Complexity: ${$scope.resBlock.complexity}</span>
+            <span class="col">Space Used: ${$scope.resBlock.spaceUsed}</span>
+            <h3 class="col">${$scope.resBlock.name}</h3>
+            <span class="col">Complexity: ${$scope.resBlock.complexity}</span>
         </div>
         <div class="row">
-            <div class="col-sm">
+            <div class="col">
                 <span
                     id="resBlock_foundation"
                     click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
@@ -20,7 +20,7 @@
                     mouseenter.trigger="tooltip = CCC.utilityFn('resBlock.__minerCost', $scope.resBlock.$_id)"
                 >Miners: ${$scope.resBlock.built}</span>
             </div>
-            <div class="col-sm">
+            <div class="col">
                 <h5
                     class="progressBarBase" 
                     css="border-image-source: linear-gradient(to left, red ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%, green ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%"
@@ -38,7 +38,7 @@
                     click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': ChameView.viewFn.objectValues(dataSet.resource)}, $event )"
                 >Change Resource</p>
             </div>
-            <div class="col-sm">
+            <div class="col">
                 <span
                     class="resBlock connection"
                     click.delegate="CCC.issue('factoryBus.connectTo', 

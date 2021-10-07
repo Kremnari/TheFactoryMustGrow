@@ -2,7 +2,7 @@
   <require from="./icon-base.scss"> </require>
   <div class="${item.filtered && 'ghosted'}">
     <img src.bind="mgrs.icon.getSrc(item.icon)" height="32px"/>
-    <span if.bind="showName">${item.name}</span>
+    <span if.bind="showName" class="nameField">${item.name}</span>
   </div>
   <div class="modis"> 
     <span if.bind="altImage" class="altImage"><img src="${mgrs.icon.getSrc(altImage)}" /></span>

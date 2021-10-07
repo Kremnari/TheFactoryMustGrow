@@ -2,15 +2,15 @@
 <scope-var var.bind="$scope={facBlock: viewPane.showingItem}"></scope-var>
 <section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', $scope.facBlock )" class="container">
   <div class='row'>
-    <span class="col-sm">Land Size : ${$scope.facBlock.size}</span>
-    <h3 class="col-sm">-- ${$scope.facBlock.name} --</h3>
-    <span class="col-sm">Complexity: ${$scope.facBlock.complexity}</span>
+    <span class="col">Land Size : ${$scope.facBlock.size}</span>
+    <h3 class="col">${$scope.facBlock.name}</h3>
+    <span class="col">Complexity: ${$scope.facBlock.complexity}</span>
   </div>
   <div class="row">
     <div
         if.bind="$scope.facBlock.buffers.in"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.in)"
-        class="col-4">
+        class="col">
       Input:
       <span
         class="connection"
@@ -29,7 +29,7 @@
     <div
         if.bind="$scope.facBlock.buffers.internal"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.internal)"
-        class="col-4">
+        class="col">
       Internal:
       <div>
         <span repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.internal).items & signal:'generalUpdate'">
@@ -50,7 +50,7 @@
     <div
         if.bind="$scope.facBlock.buffers.out"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.out)"
-        class="col-4">
+        class="col">
       Outputs:
       <span
         class="connection"

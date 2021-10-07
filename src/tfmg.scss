@@ -310,6 +310,11 @@ span.button {
     border-right: 2px dashed green;
   }
 }
+.tutHighlight {
+  border: 3px ridge darkred;
+  border-radius: 6px;
+  z-index: 2000;
+}
 
 .cmd_label {
   font-size: 2em;
