@@ -349,7 +349,7 @@ class tutorial {
       case 4.46:
         __.tutStep(".labInput icon-base[title='automation-science-pack']")
         //$("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
-        __.gameWait = {name:"automation-science-pack", count:10, type:"playerInv", buffered: "lab", compare: "min", excludeInv: true}
+        __.gameWait = {name:"automation-science-pack", count:5, type:"playerInv", buffered: "lab", compare: "min", excludeInv: true}
         break;
       case 4.5:
         __.tutText("Good, now lets put those to use.")
