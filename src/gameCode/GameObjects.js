@@ -438,7 +438,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
   obj.completeUnits++
   if(obj.completeUnits==obj.cost.count) {
-    console.log("complete tech")
+    //console.log("complete tech")
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
     global.research.completed[obj.name] = true

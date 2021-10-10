@@ -30,7 +30,7 @@
         display.bind="tooltip"
         item-mgr.bind="mgrs.item"
         recipe-mgr.bind="mgrs.rec"
-        if.bind="tooltip"
+        if.bind="tooltip && viewPane.main!='facBlocks'"
       ></tool-tip>
     </section>
     <nav>
@@ -53,7 +53,7 @@
       <span active-when.bind="globals.activeFeatures['defense']" click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${globals.activeFeatures['defense']? '': 'NYI'}"></span>
       <span active-when.bind="globals.activeFeatures['offense']" click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${globals.activeFeatures['offense']? '': 'NYI'}"></span>
     </nav>
-    <main class="tfmg" click.capture="CCC.provide($event, 'global', 'game', globals)">
+    <main class="tfmg" click.capture="CCC.provide($event, 'global', 'game', globals)" mouseenter.trigger="tooltip = null">
       <section id="nav" if.bind="viewPane.main=='nav'">
         <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
@@ -141,6 +141,7 @@
             title = "${rec.name}"
             click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
             class.bind="ChameView.classFn.canCraft(rec) & signal:'generalUpdate'"
+            class="${rec.animClass}"
             metas.bind="{showEntity: true}"
             mouseenter.trigger="tooltip = rec"
             mouseleave.trigger="tooltip = null"
@@ -152,7 +153,7 @@
             repeat.for="res of dataSet.resource | canMine | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
-            class2="${res.mining ? 'mining': null} "
+            class="${res.animClass} "
           ></icon-base> 
         </div>
       </section>

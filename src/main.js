@@ -45,7 +45,7 @@ Object.walkPath = function(o, s) {
   var a = s.split('.');
   for (var i = 0, n = a.length; i < n; ++i) {
       var k = a[i];
-      if (isObject(o) && k in o) {
+      if (typeof o === "object" && k in o) {
           o = o[k];
       } else {
           Error("Couldn't walk the path completely");

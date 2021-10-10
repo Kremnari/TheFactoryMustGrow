@@ -89,7 +89,7 @@ export const CephlaCommCaller = {
             } else if(type=="building") {
               //# should pull entity_cats from a validator
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
-                list: Object.values(CephlaCommCore.dataSet.entity), type
+                list: Object.values(CephlaCommCore.dataSet.entity).filter((x) => {return x.subType=='crafter'}), type
               })
               if(!found) return
               found = found.item

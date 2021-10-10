@@ -1,53 +1,24 @@
 <template>
   <scope-var var.bind="$scope={busLine: viewPane.showingItem}"></scope-var>
-  <section click.capture="CCC.provide($event, 'at', 'factoryBus', viewPane.showingItem)" class="container">
+  <section
+    click.capture="CCC.provide($event, 'at', 'factoryBus', viewPane.showingItem)"
+    mouseenter.trigger = "tooltip = null"
+    class="container">
     <div class="row">
       <div class="col">
         Space: ${$scope.busLine.size}
       </div>
       <div class="col">
-        <h4>${$scope.busLine.name}</h4>
+        <h4 class="text-center">${$scope.busLine.name}</h4>
       </div>
-      <div class="col">
+      <div class="col text-end">
         Complexity: ${$scope.busLine.complexity}
       </div>
     </div>
     <div class="row">
-      <div class="col">
-        <div>
-          <span
-            class="progressBarBase"
-            css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100-10}%, red ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100+10}%, red )"
-          >Acquisition</span>
-          Qty: ${$scope.busLine.processors.source.xferQty}
-        </div>
-        <div
-          class="busLine_expandProcessing"
-          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
-          mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'input_processing'})"
-        >Expand Processing</div>
-        <span id="busLine_sources">Max Sources: ${$scope.busLine.connections.maxSources}</span><br>
-        <span
-          id="busLine_sources_add"
-          mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_input_sources'})"
-          click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
-        >Add Access Point</span>
-        <ul>
-          <li repeat.for="source of $scope.busLine.connections.sources">
-            ${source.named}
-            <icon-base
-              repeat.for="item of IgorJs.getObjId(source.buffer).items"
-              item.bind="item.name"
-              count.bind="item.count"
-            ></icon-base>
-            <span if.bind="$scope.busLine.processors.source.xferTarget==$index">&lt;--</span>
-          </li>
-        </ul>
-      </div>
-      <div class="col">
-        <h5>Central Buffer</h5>
+      <div class="col busLine_tut_inProgress">
+        <h5 class="text-center">Transport Belt</h5>
         <div class="row">
-          <div>On the belt</div>
           <icon-base
             repeat.for="item of IgorJs.getObjId($scope.busLine.processors.central).items"
             item.bind="item.name"
@@ -56,36 +27,76 @@
           ></icon-base>
         </div>
       </div>
+    </div>
+    <hr class="bus"/>
+    <div class="row">
       <div class="col">
         <div>
+          <h5>Sources</h5>
           <span
-          class="progressBarBase"
+            class="progressBarBase busLine_expandProcessing"
+            css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100-10}%, red ${$scope.busLine.processors.source.xferTimer/$scope.busLine.processors.source.xferTicks*100+10}%, red )"
+          >Acquisition</span>
+          Qty: ${$scope.busLine.processors.source.xferQty}
+          <span
+            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
+            mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'input_processing'})"
+            class="busLine_expandProcessing fas fa-plus-square fa_icon_sm"
+          ></span>
+        </div>
+        <span id="busLine_sources">
+          Max Sources: ${$scope.busLine.connections.maxSources}
+          <span 
+            id="busLine_sources_add"
+            mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_input_sources'})"
+            click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
+            class="fas fa-plus-square fa_icon_sm"
+          ></span>
+        </span><br>
+        <span repeat.for="source of $scope.busLine.connections.sources">
+          <span class="fas fa-sign-in-alt fa_icon_sm"></span>
+          ${source.named}
+          <icon-base
+            repeat.for="item of IgorJs.getObjId(source.buffer).items"
+            item.bind="item.name"
+            count.bind="item.count"
+          ></icon-base>
+          <span if.bind="$scope.busLine.processors.source.xferTarget==$index">&lt;--</span>
+        </span>
+      </div>
+      <div class="col">
+        <div>
+          <h5 class="text-end">Drains</h5>
+          <span
+          class="progressBarBase busLine_expandProcessing"
           css="border-image-source: linear-gradient(to right, green 0%, green ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100-10}%, red ${$scope.busLine.processors.drain.xferTimer/$scope.busLine.processors.drain.xferTicks*100+10}%, red )"
           >Deposition</span>
           Qty: ${$scope.busLine.processors.drain.xferQty}
+          <span
+            class="fas fa-plus-square fa_icon_sm busLine_expandProcessing"
+            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
+            mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'output_processing'})"
+          ></span>
         </div>
-        <div
-          class="busLine_expandProcessing"
-          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
-          mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'output_processing'})"
-        >Expand Processing</div>
-        Max Drains: ${$scope.busLine.connections.maxDrains}<br>
-        <span
-          id="busLine_drains_add"
-          click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
-          mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_output_drains'})"
-        >Add Access Point</span>
-        <ul>
-          <li repeat.for="drain of $scope.busLine.connections.drains">
-            <span if.bind="$scope.busLine.processors.drain.xferTarget==$index">&gt;--</span>
-            <icon-base
-              repeat.for="item of IgorJs.getObjId(drain.buffer).items"
-              item.bind="item.name"
-              count.bind="item.count"
-            ></icon-base>
-            ${drain.named}
-          </li>
-        </ul>
+        <span id="busLine_drains">
+          Max Drains: ${$scope.busLine.connections.maxDrains}
+          <span id="busLine_drains_add"
+            click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
+            mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_output_drains'})"
+            class="fas fa-plus-square fa_icon_sm"
+          ></span>
+        </span>
+        <br>
+        <span repeat.for="drain of $scope.busLine.connections.drains">
+          <span if.bind="$scope.busLine.processors.drain.xferTarget==$index">&gt;--</span>
+          <icon-base
+            repeat.for="item of IgorJs.getObjId(drain.buffer).items"
+            item.bind="item.name"
+            count.bind="item.count"
+          ></icon-base>
+          ${drain.named}
+          <span class="fas fa-sign-out-alt fa_icon_sm"></span>
+        </span>
       </div>
     </div>
   </section>

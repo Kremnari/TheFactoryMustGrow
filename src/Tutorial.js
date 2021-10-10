@@ -7,12 +7,12 @@ let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..19
               , 3.7, 3.75, 3.8, 3.81, 3.82, 3.9, 3.91  // ..25
             ,4, 4.1, 4.2, 4.3, 4.4  // ..30
-              , 4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.451, 4.46  //  ..35
+              , 4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.452, 4.46  //  ..35
               , 4.5, 4.51, 4.52, 4.53, 4.54, 4.55, 4.6
-            ,5, 5.05, 5.1, 5.15, 5.20
-              , 5.25, 5.30, 5.35, 5.4, 5.45
-              , 5.5, 5.55
-            //
+            ,5, 5.05, 5.1, 5.15, 5.20, 5.25, 5.30, 5.35, 5.4, 5.42, 5.45
+              , 5.5, 5.55, 5.6, 5.65, 5.7, 5.75, 5.8, 5.85, 5.9, 5.91
+            ,6, 6.05, 6.055, 6.06, 6.065, 6.07, 6.075, 6.08, 6.085, 6.09, 6.095, 6.096
+              , 6.1, 6.15, 6.16, 6.17, 6.18
             ,100]
 window.jq = $
 let __
@@ -42,20 +42,16 @@ class tutorial {
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
     $("#tut_pos").removeClass(["top", "bottom"]).addClass('center')
+    this.gameWait = null
     __.tutText("")
     setTimeout( ()=> {
       this.setStep(steps[++this.atStep])
     }, 10)
   }
-  tutStep(selector) {
-    $(selector).addClass("tutStep")
-  }
-  tutHighlight(selector) {
-    $(selector).addClass("tutHighlight")
-  }
-  tutText(text) {
-    $("#tut_text").html(text)
-  }
+  tutStep(selector) { $(selector).addClass("tutStep") }
+  tutTarget(selector) { selector ? $(".tutTarget").removeClass("tutTarget") : $(selector).addClass("tutTarget") }
+  tutHighlight(selector) { $(selector).addClass("tutHighlight") }
+  tutText(text) { $("#tut_text").html(text) }
   tutButton(text) {
     $("#tut_button").html(text).show()
     this.setTutClick()
@@ -82,9 +78,12 @@ class tutorial {
     if(!this.gameWait) return
     switch(this.gameWait.type) {
       case "playerInv":
-        let total = this.baseApp.globals.player.inv.items.reduce( (acc, x) => {
-          return x.name==this.gameWait.name ? acc+x.count : acc
-        }, 0)
+        let total = 0
+        if(!this.gameWait.excludeInv) {
+          total = this.baseApp.globals.player.inv.items.reduce( (acc, x) => {
+            return x.name==this.gameWait.name ? acc+x.count : acc
+          }, 0)
+        }
         if(this.gameWait.buffered) {
           total = this.baseApp.globals.player.workshop.entities.reduce((acc, id) => {
             let obj = this.baseApp.IgorJs.getObjId(id)
@@ -99,10 +98,28 @@ class tutorial {
             return acc
           }, total)
         }
-        if(total==this.gameWait.count) this.waitComplete()
+        switch(this.gameWait.compare) {
+          case "min":
+            if(total>=this.gameWait.count) this.waitComplete()
+            break;
+          case "max":
+            if(total<=this.gameWait.count) this.waitComplete()
+            break;
+          default:
+            if(total==this.gameWait.count) this.waitComplete()
+        }
         break;
       case "techComplete":
         if(this.baseApp.globals.research.completed[this.gameWait.name]) this.waitComplete()
+        break;
+      case "gameState":
+        if(this.gameWait.validator(Object.walkPath(this.baseApp, this.gameWait.path))) {
+          this.waitComplete()
+        }
+        /*if(Object.walkPath(this.baseApp, this.gameWait.path)==this.gameWait.target) {
+          console.log('complete')
+          this.waitComplete()
+        }*/
         break;
       default:
         console.warn("type handling undeclared:"+this.gameWait.type)
@@ -114,6 +131,8 @@ class tutorial {
     $("#tutorial").show()
     this.nextStep();
   }
+  hide() {    $("#tutorial").hide()  }
+  show() {    $("#tutorial").show()  }
   setStep(num) {
     //console.log("running step: "+num)
     this.baseApp.globals.activeFeatures.tutorial.step = steps.indexOf(num)
@@ -133,12 +152,12 @@ class tutorial {
         break;
       case 0.3:
         __.tutText("This button expands the navigation menu.")
-        __.tutStep(".fa-level-up-alt")
+        __.tutHighlight(".fa-level-up-alt")
         __.tutButton("...In case I forget what the icons mean.")
         break;
       case 0.4:
         __.tutText("This menu has a number of options, including a subscription to my mailing list. ")
-        __.tutStep(".fa-bars")
+        __.tutHighlight(".fa-bars")
         __.tutButton("Maybe I'll want to stay updated...")
         break;
       case 0.9: 
@@ -246,8 +265,8 @@ class tutorial {
         break;
       case 3.82:
         __.tutStep(".navEntities")
+        __.gameWait = {type:"gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
         __.setTutClick()
-        //this.playerInvWait = {name:"burner-mining-drill", count:0}
         break;
       case 3.9:
         __.tutStep("#machines .entityList icon-base[title='burner-mining-drill']")
@@ -281,7 +300,7 @@ class tutorial {
         break;
       case 4.3: 
         $("#tutorial").hide()
-        __.gameWait = {name:"lab", count: 1, type:"playerInv"}
+        __.gameWait = {name:"lab", count: 1, type:"playerInv", compare: "min"}
         break;
       case 4.4:
         $(".tutTarget").removeClass("tutTarget")
@@ -289,7 +308,9 @@ class tutorial {
         __.setTutClick()
         break;
       case 4.41:
+          //This step could be skippable
         __.tutStep(".navEntities")
+        __.gameWait = {type:"gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
         __.setTutClick()
         break;
       case 4.411:
@@ -298,12 +319,11 @@ class tutorial {
         break;
       case 4.42:
         $("#tutorial").show()
-        
-        __.tutText("This is a research lab.  You will need to add [science-packs] for it to consume to process research.")
+        __.tutText("This is a research lab.  You will need to add 'science packs' for it to consume to process research.")
         __.tutButton("Are these machines or magic?")
         break;
       case 4.43:
-        __.tutText("I was going to tell you to make 5, but for that comment make 10 'automation science packs'")
+        __.tutText("I was going to tell you to make 5, but for that comment make 10  of the 'automation science packs'")
         __.tutButton("*grumble*")
         break;
       case 4.44:
@@ -311,26 +331,28 @@ class tutorial {
         this.baseApp.tooltip = mgrs.rec.recipeList["automation-science-pack"]
         $("#tutorial").hide();
         $("#recipes icon-base[title='automation-science-pack']").addClass('tutTarget')
-        __.gameWait = {name:"automation-science-pack", count: 10, type:"playerInv", buffered:"lab"}
+        __.gameWait = {name:"automation-science-pack", count: 10, type:"playerInv", buffered:"lab", compare:"min"}
         break;
       case 4.45:
         $("#tutorial").show();
         $(".tutTarget").removeClass("tutTarget")
-        __.tutText("Now go back to your lab and add the [science-packs]")
+        __.tutText("Now go back to your lab and add the science packs")
         mgrs.baseApp.viewPane.showingItem = null
         __.tutStep(".navEntities")
-        __.setTutClick();
+        __.gameWait = {type: "gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
         break;
-      case 4.451:
+      case 4.452:
+        __.hide()
         __.tutStep(".entityList icon-base[title='lab']")
         __.setTutClick();
         break;
       case 4.46:
         __.tutStep(".labInput icon-base[title='automation-science-pack']")
         //$("crafting-infopane .showRecipe icon-base[title='iron-ore']").addClass('tutStep')
-        __.gameWait = {name:"automation-science-pack", count:0, type:"playerInv"}
+        __.gameWait = {name:"automation-science-pack", count:10, type:"playerInv", buffered: "lab", compare: "min", excludeInv: true}
         break;
       case 4.5:
+        __.tutText("Good, now lets put those to use.")
         __.tutStep(".navTechs")
         __.setTutClick()
         break;
@@ -360,21 +382,23 @@ class tutorial {
         break;
       case 4.6:
         $("#tutorial").hide()
+        __.tutTarget("#technologies icon-base[title='facBlocks']")
         __.gameWait = {name: "facBlocks", type:"techComplete"}
         break;
       case 5:
+        __.tutTarget(false)
         $("#tutorial").show()
         __.tutText("Factory Blocks are the core of this game, constantly producing the mass of materials you need")
         __.tutStep(".fa-object-ungroup")
         __.setTutClick()
         break;
       case 5.05:
-        __.tutStep(".facBlockStats")
+        __.tutHighlight(".facBlockStats")
         __.tutText("The upper section gives stats about what you can build.<br>At the moment, these are just for show.")
         __.tutButton("continue")
         break;
       case 5.1:
-        __.tutStep(".newFacBlock")
+        __.tutHighlight(".newFacBlock")
         __.tutText("There are four different factory blocks, each with their own focus.")
         __.tutButton("continue")
         break;
@@ -389,6 +413,9 @@ class tutorial {
         break;
       case 5.25:
         __.tutText("This is a resource patch.  It's signifies a secured resource deposit")
+        __.baseApp.globals.player.inv.items.push({name: "stone", count: 20})
+        __.baseApp.globals.player.inv.items.push({name: "transport-belt", count: 5})
+        __.baseApp.globals.player.inv.items.push({name: "burner-mining-drill", count: 1})
         __.tutButton("continue")
         break;
       case 5.30:
@@ -406,9 +433,15 @@ class tutorial {
         __.tutText("You can set the resource being mined with this.<br>I'd suggest iron ore to start")
         __.setTutClick()
         break;
+      case 5.42:
+        __.hide()
+        // Validator just makes sure it exists
+        __.gameWait = {type: "gameState", path:"viewPane.showingItem.patchProperties.resource", validator: (value)=>{return value}}
+        break;
       case 5.45:
-        __.tutStep(".resBlock.connection")
-        __.tutText("A resource patch is great, but it make use of its materials, we will need to connect a bus from here")
+        __.show()
+        __.tutHighlight(".resBlock.connection")
+        __.tutText("A resource patch is great, but to make use of its materials, we will need to connect a bus from here")
         __.tutButton("How do we establish a bus line?")
         break;
       case 5.5:
@@ -426,18 +459,159 @@ class tutorial {
         __.setTutClick()
         break;
       case 5.65:
-        __.tutStep("")
+        __.tutText("Welcome to a bus line.  Its purpose is to transport items between factory blocks.")
+        __.tutButton("continue")
+        break;
+      case 5.7:
+        __.tutHighlight("#busLine_sources_add")
+        __.tutHighlight("#busLine_drains_add")
+        $("#tutorial").addClass("bottom")
+        __.tutText("The bus line needs access points before connections can be made")
+        __.tutButton("continue")
+        break;
+      case 5.75:
+        __.tutHighlight(".busLine_expandProcessing")
+        $("#tutorial").addClass("bottom")
+        __.tutText("To actually process items, the bus line needs inserters")
+        __.tutButton("continue")
+        break;
+      case 5.8:
+        __.tutHighlight(".busLine_tut_inProgress")
+        __.tutText("Items 'on the belt' are shown here, and will be deposited to the 'drains' in time")
+        __.tutButton("continue")
+        break;
+      case 5.85:
+        __.tutText("Here's some free stuff, add an access point and expand the processing for both the source and drain.")
+        __.baseApp.globals.player.inv.items.push({name: "inserter", count: 8})
+        __.baseApp.globals.player.inv.items.push({name: "iron-chest", count: 8})
+        __.baseApp.globals.player.inv.items.push({name: "transport-belt", count: 10})
+        __.tutButton("Ah thanks!")
+        break;
+      case 5.9:
+        $("#tutorial").hide()
+        __.tutHighlight(".busLine_tut_inProgress")
+        __.tutStep(".fa-object-ungroup")
+        __.setTutClick()
+        break;
+      case 5.91:
+        __.tutStep(".resBlockList:eq(0)")
+        __.setTutClick()
+        break;
+      case 6:
+        __.show()
+        __.tutStep(".resBlock.connection")
+        __.tutText("Now that we are back to your resource block, click and select the connection")
+        __.setTutClick()
+        break;
+      case 6.05:
+        __.hide()
+        __.gameWait = {type: "gameState", path: "viewPane.showingItem.output", validator: (val) => {return this.baseApp.IgorJs.getObjId(val)?.connection}}
+        break;
+      case 6.055:
+        __.show()
+        __.tutText("Now that the resource block is connected, your bus line will acquire its output and transfer it")
+        __.tutButton("continue")
+        break;
+      case 6.06:
+        __.tutText("Your bus line doesn't have drains, blocks to send the resources to.<br>So now to build a factory Block!")
+        __.tutStep(".fa-object-ungroup")
+        __.setTutClick()
+        break;
+      case 6.065:
+        __.hide()
+        __.tutStep(".newFacBlock.facBlock")
+        __.setTutClick()
+        break;
+      case 6.07:
+        __.tutStep(".facBlockList:eq(0)")
+        __.setTutClick()
+        break;
+      case 6.075:
+        __.show()
+        __.tutHighlight(".bufferRow")
+        __.tutText("This row provides information on the connections and buffers to bus lines")
+        __.tutButton("continue")
+        break;
+      case 6.08:
+        __.tutHighlight(".bufferRow .fa-creative-commons-sa")
+        __.tutText("The internal buffer shows items that are built and used within this factory block")
+        __.tutButton("continue")
+        break;
+      case 6.085:
+        __.tutHighlight(".productionLines:eq(0)")
+        __.tutText("Factory Blocks are built upon Factory Lines, a set of similar buildings producing the same thing.")
+        __.tutButton("continue")
+        break;
+      case 6.09:
+        __.tutHighlight(".fa-plus-square")
+        __.tutHighlight(".setBuildingType")
+        __.tutText("Before you can add buildings to a factory line, you need to select a building type and prep spaces")
+        __.tutButton("I should start with a furnace to process ores")
+        break;
+      case 6.095:
+        __.hide()
+        __.baseApp.globals.player.inv.items.push({name: "stone-furnace", count: 2})
+        __.gameWait = {
+          type: "gameState"
+          ,path: "viewPane.showingItem.factoryLines[0]"
+          ,validator: (val) => {
+            let obj = this.baseApp.IgorJs.getObjId(val)
+            return obj.buildingType && obj.prepped>0
+          }}
+        break;
+      case 6.096:
+        __.show()
+        __.tutStep(".setRecipe")
+        __.tutText("With a building designated, you can then select the recipe it builds and add the buildings when there are available spaces")
+        __.setTutClick()
+        break;
+      case 6.1:
+        __.hide()
+        __.tutStep(".setRecipe")
+        __.gameWait = {
+          type: "gameState"
+          ,path: "viewPane.showingItem.factoryLines[0]"
+          ,validator: (val) => {
+            let obj = this.baseApp.IgorJs.getObjId(val)
+            return !!obj.recipe
+          }
+        }
+        break;
+      case 6.15:
+        __.show()
+        __.tutStep(".facBlockIn")
+        __.tutText("What's next is to establish an input connection, and watch some magic happen")
+        __.setTutClick()
+        break;
+      case 6.16:
+        __.hide()
+        __.gameWait = {
+          type: "gameState"
+          ,path: "viewPane.showingItem.buffers.in"
+          ,validator: (val) => {
+            let buffer = __.baseApp.IgorJs.getObjId(val)
+            return buffer.connection
+          }
+        }
+        break;
+      case 6.17:
+        __.show()
+        __.tutHighlight(".facBlockOut")
+        __.tutText("The factory block will now produce materials as they available.<br>You can select an output bus, or just click the icon to collect the items")
+        __.tutButton("continue")
+        break;
+      case 6.18:
+        __.baseApp.viewPane.main = "facBlocks"
+        __.tutHighlight(".newFacBlock.techBlock")
+        __.tutText("A tech block is in development so a bus can provide science packs. It shall follow the same principles outlined here")
+        __.tutButton("The Factory Game...Is Growing...")
         break;
       case 100:
         $("#tutorial").show()
         __.tutText("End of tutorial...so far")
         __.tutButton("But now what...?")
-        this.clearTut()
-        this.baseApp.globals.activeFeatures.tutorial = false
         break;
       default:
-        console.log('default, reset')
-        console.log(this.atStep)
         this.clearTut();
         this.baseApp.globals.activeFeatures.tutorial = false
         break;

@@ -7,7 +7,7 @@
   <div
     class="labInput progressBarBase"
     click.capture="CCC.provide($event, 'which', 'buffer', $scope.lab.buffers.in)"
-    css="border-image-source: linear-gradient(to right, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
+    css="border-image-source: linear-gradient(to left, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
   >
     <icon-base
       repeat.for="input of $scope.lab.inputs"

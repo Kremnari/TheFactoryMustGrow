@@ -20,8 +20,8 @@ export class App {
     }
     showTut = true
     dataBase = {}
-    viewRecCat = false
     tooltip = null
+    viewRecCat = false
     constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
       this.signaler = signaler

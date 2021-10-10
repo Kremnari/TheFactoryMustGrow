@@ -39,14 +39,17 @@
                 >Change Resource</p>
             </div>
             <div class="col">
-                <span
+                <div
                     class="resBlock connection"
                     click.delegate="CCC.issue('factoryBus.connectTo', 
                     {   'dir.string': 'output',
                         '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
                         'to.buffer': $scope.resBlock.output
                     }, $event)"
-                >Bus Connection: ${IgorJs.getObjId(IgorJs.getObjId($scope.resBlock.output).connection).name || "none"}</span>
+                >
+                    <span class="fas fa-sign-out-alt fa_icon"></span>
+                    ${IgorJs.getObjId(IgorJs.getObjId($scope.resBlock.output).connection).name || "none"}
+                </div>
             </div>
         </div>
         </section>

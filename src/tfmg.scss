@@ -195,60 +195,6 @@ span.button {
   display: none;
 }
 
-/*
-#drawer {
-  transition: right 300ms;
-  position: fixed;
-  bottom: 0;
-  right: -250px;
-  width: 250px;
-  z-index: 1030;
-  background: #000;
-  overflow-x: hidden;
-  overflow-y: auto;
-  &-toggle {
-    display: none;
-    &:checked {
-      & ~ #drawer {
-        width: calc(100% - 50px);
-        right: 0px;
-        &-toggle-label {
-          background-color: rgba(0, 0, 0, 0.7);
-          width: 100%;
-          height: 100%;
-          &:before {
-            display: none;
-          }
-        }
-      }
-      & ~ header {
-        right: calc(100%-50px);
-      }
-    }
-    &-label {
-      display: block;
-      position: fixed;
-      transform: rotate(-90deg);
-      right: 0px;
-      bottom: 10vh;
-      height: 8vh;
-      width: 2vw;
-      transition: right 300ms;
-    }
-    &:before {
-      content: "";
-      display: block;
-      position: absolute;
-      height: 2px;
-      width: 24px;
-      background: #fff;
-      left: 13px;
-      top: 18px;
-      box-shadow: 0 6px 0 #fff, 0 12px 0 #fff;
-    }
-  }
-}*/
-
 #tutorial {
   display: none;
   &.Block {
@@ -306,14 +252,25 @@ span.button {
     filter: saturate(1);
   }
   &.recipeEnabled {
-    border-left: 2px dashed green;
-    border-right: 2px dashed green;
+    border-image: repeating-linear-gradient(90deg,red 0,red 1px, transparent 1px, transparent 2px, green 2px, green 3px, transparent 3px, transparent 4px);
+    border-image-slice: 16;
+    border-image-width: 2px 0;
+    //border-left: 2px dashed green;
+    //border-right: 2px dashed green;
+    &::after {
+      content: "";
+      top: 0;
+      position: absolute;
+      border-image: repeating-linear-gradient(to bottom,transparent 0,transparent 1px, green transparent 1px, green 2px, transparent 2px, transparent 3px, red 3px, red 4px);
+      border-image-slice: 16;
+      border-image-width: 0 2px;
+      }
   }
 }
-.tutHighlight {
-  border: 3px ridge darkred;
+.tutHighlight.tutHighlight {
+  border: 3px ridge lime;
   border-radius: 6px;
-  z-index: 2000;
+  //z-index: 2000;
 }
 
 .cmd_label {
@@ -325,17 +282,18 @@ span.button {
 }
 
 
-.isMining {
+.isMining .animTarget, .isCrafting .animTarget {
   animation-name: testXform;
 }
-.isCrafting {
-  animation-name: testXform;
+.isMining, .isCrafting {
+  border: 1px dashed blue;
 }
 
 @keyframes testXform {
   //? The prior radial gradient may still be possible by varying the
   //? size (width/height) as opposed to varying the gradient positions
   100% {
+    border-color: blue;
     top: 80%;
     height: 10%;
     width: 10%;
@@ -343,6 +301,7 @@ span.button {
     background: rgba(0,0,255, 0.7);
   }
   0% {
+    border-color: blue;
     top: 0%;
     height: 100%;
     width: 100%;
@@ -351,3 +310,7 @@ span.button {
   }
 }
 
+hr.bus {
+  border-top: 2px dashed goldenrod;
+  border-bottom: 2px dashed #ae841a;
+}

@@ -216,6 +216,18 @@ FactoryBlock.ClearProcessItems = (target, args, returnObj, Igor) => {
     Igor.processTEMP(Igor.getId(target.buffers.out), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at=="out"})})
 }
 FactoryBlock.ClearProcessItems.Igor_operation = "factoryBlock.clearProcessItems"
+FactoryBlock.__tooltips = (obj, args, ret, Igor) => {
+    let who = Igor.getId(obj)
+    let data = []
+    let tip = ""
+    switch(args.which) {
+        case "addLine":
+            tip = "New Factory Line"
+            break;
+    }
+    ret._result = {tool: "stackArray", tip, data}
+}
+FactoryBlock.__tooltips.CC_utility = "factoryBlock.toolTips"
 IgorJs.defineObj("FactoryBlock", FactoryBlock.New, FactoryBlock)
 
 /*
@@ -342,6 +354,19 @@ FactoryLine.SetRecipe.signature = {
     player: "inventory"
 }
 FactoryLine.SetRecipe.CC_provide = "factoryLine.setRecipe"
+FactoryLine.__tooltips = (obj, args, ret, Igor) => {
+    let who = Igor.getId(obj)
+    let data = []
+    let tip = ""
+    switch(args.which) {
+        case "foundation":
+            data.push({name: "stone", count: 5})
+            tip = "Foundation Cost"
+            break;
+    }
+    ret._result = {tool: "stackArray", tip, data}
+}
+FactoryLine.__tooltips.CC_utility = "factoryLine.toolTips"
 FactoryLine.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.processing_time || !entity.recipe) return  //TODO turn this into an "anti-tick" tag
     //consume from buffers if empty
@@ -581,8 +606,8 @@ ResourceBlock.SetResource = (obj, Igor) => {
         buffer.items = []
     }
     obj.at.ResourceBlock.patchProperties.resource = obj.which.resource
-    if(obj.at.ResourceBlock.minerType) {
-        obj.at.ResourceBlock.patchProperties.mining_time = Igor.data.resource[obj.which.resource].mining_time / Igor.data.entity[obj.at.ResourceBlock.minerType].mining_speed * Igor.getStatic("config.TICKS_PER_SECOND")
+    if(obj.at.ResourceBlock.mining_drill) {
+        obj.at.ResourceBlock.patchProperties.mining_time = Igor.data.resource[obj.which.resource].mining_time / Igor.data.entity[obj.at.ResourceBlock.mining_drill].mining_speed * Igor.getStatic("config.TICKS_PER_SECOND")
         obj.at.ResourceBlock.mining_ticks =  obj.at.ResourceBlock.patchProperties.mining_time
     }
 }
