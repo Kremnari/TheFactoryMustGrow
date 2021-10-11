@@ -258,6 +258,12 @@
           if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='ResourceBlock'"
           view="./resources/elements/factoryBlocks/resView.html"
         ></compose>
+        <compose
+          id="viewTechBlock"
+          class="container"
+          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='TechBlock'"
+          view="./resources/elements/factoryBlock/techBlock.html"
+        ></compose>
       </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
