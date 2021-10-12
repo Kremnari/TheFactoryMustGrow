@@ -102,8 +102,16 @@ export class App {
           })
         })
       })
+      ChameJS.setViewFn("workshopEntities", () => {
+        let list = this.IgorJs.arrayFromIds(this.globals.player.workshop.entities)
+        list = list.sort( (first, second) => {
+          return first.order > second.order ? 1 : -1
+        })
+        return list
+      })
 
       this.signaler.signal("generalUpdate")
+      this.signaler.signal("addedEntity")
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")

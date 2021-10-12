@@ -162,6 +162,18 @@ main.tfmg {
   left: 7.5vw;
   box-sizing: border-box;
 }
+#machines {
+  margin: 0px;
+  padding: 0.2rem;
+  & .details {
+    display: block;
+    height: 45vh;
+  }
+  & .entityList {
+    overflow-y: auto;
+    max-height: 100px;
+  }
+}
 #machines > div {
   border: 2px solid black;
   min-height: 40px;
@@ -292,21 +304,21 @@ span.button {
 @keyframes testXform {
   //? The prior radial gradient may still be possible by varying the
   //? size (width/height) as opposed to varying the gradient positions
-  100% {
-    border-color: blue;
-    top: 80%;
-    height: 10%;
-    width: 10%;
-    left: 45%;
-    background: rgba(0,0,255, 0.7);
-  }
   0% {
     border-color: blue;
     top: 0%;
     height: 100%;
     width: 100%;
     left: 0%;
-    background: rgba(255, 0, 0, 0.3);
+    background: rgba(25, 25, 25, 0.3);
+  }
+  100% {
+    border-color: blue;
+    top: 100%;
+    height: 0%;
+    left: 0%;
+    width: 100%;
+    background: rgba(255,255,255, 0.7);
   }
 }
 

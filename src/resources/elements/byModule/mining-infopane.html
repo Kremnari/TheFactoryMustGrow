@@ -1,27 +1,50 @@
 <template>
   <require from="./upgrades-infopane"></require>
   <scope-var var.bind="$scope = {miner: viewPane.showingItem}"></scope-var>
-  <div class="minable-resources">
-    <p>Select Resource to Mine</p>
-    <icon-base
-      repeat.for="res of dataSet.resource | filter:{key:'category', value:$scope.miner.resource_categories, includeUndefs: true} | objectValues"
-      item.bind="res"
-      click.delegate="CCC.issue('entity.setProcess', {'which.process': res, 'type.class':'mining'}, $event)"
-      class="${res==$scope.miner.processing ? 'selected': ''}"
-    ></icon-base>
-    <br>
-    <p
-      click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.name': $scope.miner.processing.mining_results}, $event)"
-      if.bind="$scope.miner.processing"
-      class="progressBarBase"
-      css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"
-      title="Click to collect">
-      <icon-base
-        item.bind="$scope.miner.processing.mining_results"
-        count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
-      ></icon-base>
-      /${IgorJs.getObjId($scope.miner.buffers.out).stackSize} (max)
-    </p>
-    <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></compose>
+  <div class="container">
+    <div class="minable-resources row">
+      <div class="col-7">
+        <div
+          if.bind="!$scope.miner.processing"
+        >
+          <p>Select Resource to Mine</p>
+          <icon-base
+            repeat.for="res of dataSet.resource | filter:{key:'category', value:$scope.miner.resource_categories, includeUndefs: true} | objectValues"
+            item.bind="res"
+            click.delegate="CCC.issue('entity.setProcess', {'which.process': res, 'type.class':'mining'}, $event)"
+            class="${res==$scope.miner.processing ? 'selected': ''}"
+          ></icon-base>
+        </div>
+        <div
+          if.bind="$scope.miner.processing"
+        >
+          <span
+            click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.name': $scope.miner.processing.mining_results}, $event)"
+            class="progressBarBase"
+            css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"
+          >
+            <icon-base
+              item.bind="$scope.miner.processing.mining_results"
+              count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
+              title="Click to collect"
+            ></icon-base>
+            /${IgorJs.getObjId($scope.miner.buffers.out).stackSize} (max)
+          </span>
+          <span
+            click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)"
+          >
+            Change
+          </span>
+        </div>
+      </div>
+      <div class="col-5">
+        <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></compose>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <compose view="resources/elements/byModule/workshop-controls.html"></compose>
+      </div>
+    </div>
   </div>
 </template>

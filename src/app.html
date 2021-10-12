@@ -153,23 +153,27 @@
             repeat.for="res of dataSet.resource | canMine | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
-            class="${res.animClass} "
+            class="${res.animClass}"
           ></icon-base> 
         </div>
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', viewPane.showingItem)">
           <h4>Workshop</h4>
-          <compose if.bind="viewPane.showingItem['crafting_speed']" view="./resources/elements/byModule/crafting-infopane.html"></compose>
-          <compose if.bind="viewPane.showingItem['mining_speed']" view="./resources/elements/byModule/mining-infopane.html"></compose>
-          <compose if.bind="viewPane.showingItem['researching_speed']" view="./resources/elements/byModule/lab-infopane.html"></compose>
-          <div class="entityList">
-            <icon-base
-              repeat.for="machina of IgorJs.arrayFromIds(globals.player.workshop.entities) & signal:'addedEntity'"
-              item.bind="machina"
-              alt-image.bind="machina.recipe.icon || machina.mining.icon"
-              click.delegate="showItem = {item: machina}"
-              class="${viewPane.showingItem == machina ? 'selected':''}"
-            ></icon-base>
+          <span class="details">
+            <compose if.bind="viewPane.showingItem['crafting_speed']" view="./resources/elements/byModule/crafting-infopane.html"></compose>
+            <compose if.bind="viewPane.showingItem['mining_speed']" view="./resources/elements/byModule/mining-infopane.html"></compose>
+            <compose if.bind="viewPane.showingItem['researching_speed']" view="./resources/elements/byModule/lab-infopane.html"></compose>
+          </span>
+          <div class="entityList align-bottom">
+            <div class="d-inline" repeat.for="machina of ChameView.viewFn.workshopEntities() & signal:'addedEntity'">
+              <input type="hidden" value.bind="typeof machina.order=='undefined' ? machina.order=$index : ''">
+              <icon-base
+                item.bind="machina"
+                alt-image.bind="machina.processing.icon || machina.processing.name"
+                click.delegate="showItem = {item: machina}"
+                class="${viewPane.showingItem == machina ? 'selected':''}"
+              ></icon-base>
+            </div>
           </div>
       </section>
       <section id="facBlocks" show.bind="viewPane.main=='facBlocks'" class="container">
@@ -262,7 +266,7 @@
           id="viewTechBlock"
           class="container"
           if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='TechBlock'"
-          view="./resources/elements/factoryBlock/techBlock.html"
+          view="./resources/elements/factoryBlocks/techBlock.html"
         ></compose>
       </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
@@ -274,21 +278,7 @@
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research.completed[tech.name] ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
-          >
-          </icon-base>
-        </div>
-        <div class="sem_removed">
-          <h5>Filters</h5>
-          <p>Filter Complete<button click.delegate="mgrs.tech.toggleFilter('complete')">${mgrs.tech.filters.ShowComplete? "Hide":"Show"}</button></p>
-          <p>Filter Pack:
-            <span
-              repeat.for="pack of mgrs.tech.filters.ShowPack | objectEntries & signal:'techUpdate'"
-              class="${pack[1]? 'selected':''}"
-              click.delegate="mgrs.tech.toggleFilter('byPack', pack[0])"
-              >
-              <img src.bind="mgrs.icon.getSrc('item', pack[0])" height="16px">
-            </span>
-          </p>
+          ></icon-base>
         </div>
       </section>
       <section id="overview" show.bind="viewPane.main=='overview'">

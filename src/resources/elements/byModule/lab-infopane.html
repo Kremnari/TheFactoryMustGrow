@@ -1,21 +1,27 @@
 <template>
-  <scope-var var.bind="$scope = {lab: viewPane.showingItem}"
+  <scope-var var.bind="$scope = {lab: viewPane.showingItem}"></scope-var>
   <require from="./upgrades-infopane"></require>
-  <p>
-    Max Buffer: ${IgorJs.getObjId($scope.lab.buffers.out).stackSize}
-  </p>
-  <div
-    class="labInput progressBarBase"
-    click.capture="CCC.provide($event, 'which', 'buffer', $scope.lab.buffers.in)"
-    css="border-image-source: linear-gradient(to left, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
-  >
-    <icon-base
-      repeat.for="input of $scope.lab.inputs"
-      item.bind="input"
-      count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'generalUpdate'"
-      click.delegate="CCC.issue('entity.bufferFill', {'item.name': input}, $event)"
-      title="Click to add ${input}"
-    ></icon-base>
+  <div class="container">
+    Max Buffer: ${IgorJs.getObjId($scope.lab.buffers.in).stackSize}
+    <div class="row">
+      <div class="col">
+        <div
+          class="labInput progressBarBase"
+          click.capture="CCC.provide($event, 'which', 'buffer', $scope.lab.buffers.in)"
+          css="border-image-source: linear-gradient(to left, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
+        >
+          <icon-base
+            repeat.for="input of $scope.lab.inputs"
+            item.bind="input"
+            count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'generalUpdate'"
+            click.delegate="CCC.issue('entity.bufferFill', {'item.name': input}, $event)"
+            title="Click to add ${input}"
+          ></icon-base>
+        </div>
+      </div>
+      <div class="col">
+        <compose view="resources/elements/byModule/upgrades-infopane.html"></compose>
+      </div>
+    </div>
   </div>
-  <compose view="resources/elements/byModule/upgrades-infopane.html"></compose>
 </template>

@@ -1,0 +1,52 @@
+<template>
+    <scope-var var.bind="$scope.entity = viewPane.showingItem"></scope-var>
+    <style>
+        .wc-input {
+            width: 2.5em
+        }
+        #work_controls {
+            text-align: center;
+        }
+        #work_controls .fas {
+            width: 32px;
+            height: 32px;
+        }
+    </style>
+    <section id="work_controls">
+        <div class="row">
+            <div class="col align-self-center">
+                Move Spaces
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <span
+                    show.bind="$scope.entity.order>0"
+                    class="fas fa-angle-right fa-rotate-180 fa-2x"
+                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: $scope.entity.$_id, to: $scope.entity.order-orderStep})"
+                ></span>
+            </div>
+            <div class="col">
+                <input type="hidden" value.one-time="orderStep = 1">
+                <input  class="wc-input" type="number"
+                min="1" max="10"
+                step="1" value.bind="orderStep">
+            </div>
+            <div class="col">
+                <span
+                    show.bind="$scope.entity.order<IgorRunner.getNamedObject('global').player.workshop.entities.length-1"
+                    class="fas fa-angle-right fa-2x"
+                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: $scope.entity.$_id, to: $scope.entity.order+orderStep})"
+                ></span>
+            </div>
+        </div>
+        <div class="row">
+            <div
+                class="col align-self-center"
+                click.delegate="CCC.issue('workshop.recover', {'which.entity': $scope.entity.$_id}, $event)"
+            >
+                Remove Building
+            </div>
+        </div>
+    </section>
+</template>

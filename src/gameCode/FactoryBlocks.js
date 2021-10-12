@@ -291,14 +291,14 @@ FactoryLine.Expand = (obj, Igor) => {
             if(obj.at.factoryLine.recipe) {
                 if(Number.isInteger(obj.at.factoryLine.processing_ticks)) {
                     //If we're already actively processing something...
-                    console.log('currently processing '+obj.at.factoryLine.processing_count)
-                    console.log('ticks: '+obj.at.factoryLine.processing_ticks)
-                    console.log('timer: '+obj.at.factoryLine.processing_time)
+                    //console.log('currently processing '+obj.at.factoryLine.processing_count)
+                    //console.log('ticks: '+obj.at.factoryLine.processing_ticks)
+                    //console.log('timer: '+obj.at.factoryLine.processing_time)
                     let consumed = Igor.processTEMP(obj.at.factoryBlock, "factoryBlock.consumeStacks", {itemStacks: obj.at.factoryLine.recipe.ingredients, multi: 1})
                     if(consumed) {
                         obj.at.factoryLine.processing_ticks *= (obj.at.factoryLine.built-1)/obj.at.factoryLine.built
                         obj.at.factoryLine.processing_count++
-                        console.log('new ticks: '+obj.at.factoryLine.processing_ticks)
+                        //console.log('new ticks: '+obj.at.factoryLine.processing_ticks)
                     }
                 }
                 obj.at.factoryLine.$_tags.push("tick", "processing")

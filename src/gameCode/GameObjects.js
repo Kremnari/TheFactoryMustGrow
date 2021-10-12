@@ -22,10 +22,16 @@ const PlayerEntity = (params, newObj, Igor) => {
       newObj.buffers.in = Igor.newComponent("entity.buffer", {})
     }
   }
+  newObj.order = params.idx
   //!  This won't work when Igor is in a webworker
   ChameJs.signaler.signal("addedEntity")
   return [newObj]
 }
+PlayerEntity._delete = (target, Igor) => {
+  target.buffers.in  && Igor.deleteObject(target.buffers.in)
+  target.buffers.out && Igor.deleteObject(target.buffers.out)
+}
+
 //!  These should be combined into the entity.buffer tick()
 function EntityInputTicker(entity, tickData, Igor) {
   //need to reconjigger this to draw from multiple buffer slots

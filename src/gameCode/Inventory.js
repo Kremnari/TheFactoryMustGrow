@@ -71,6 +71,6 @@ function invUse(obj) {
 }
 
 import {CephlaCommConstructor as CCC} from "CephlaComm/main"
-CCC.provide("invXfer", InvXFer)
-CCC.provide("invUse", invUse)
+CCC.provide("invXfer2", InvXFer)
+CCC.provide("invUse2", invUse)
 // globalThis.InvXFer = InvXFer

@@ -13,6 +13,9 @@ const IgorCore = {
   meta: {}, // Contains all the runtime data
   ops: {},
   statics: {},
+  control: {
+    obj_counter: 0
+  },
   metaDefines: { // As meta, but organized by object types and direct paths
   },
   Tick: (td) => {
@@ -26,15 +29,6 @@ const IgorCore = {
         IgorCore.object_tickers[each.$_type].tick.fn(each, td, IgorRunner)
       }
     }
-    /*
-    for(let each of IgorCore.$_tags.get('ticking').values()) {
-      //generate tick data using Tick_Builder
-      //  per each types tick data signature
-      each.forEach( (x) => {
-        IgorCore.object_tickers[x.$_type].fn(x,td, IgorRunner)
-      })
-    }
-    */
   },
   Tick_Builder: (td) => {
     let ret  = {}
@@ -54,7 +48,7 @@ const IgorBuilder = {
   get data() { return IgorCore.data },
   newObject(type, subType, parent) {
     let obj = {
-      $_id: "id_"+IgorCore.objs.size,
+      $_id: "id_"+IgorCore.control.obj_counter++,
       $_type: type,
       $_subType: subType,
       $_parent: parent
@@ -119,6 +113,7 @@ export const IgorUtils = {
   defineObj: (who, fn, actions) => {
     IgorCore.metaDefines[who] = {
       new: fn,
+      _delete: fn._delete,
       actions,
     }
     if(actions?.tick){
@@ -183,6 +178,7 @@ export const IgorUtils = {
     if(IgorCore.save) {
       IgorCore.game = JSON.parse(IgorCore.save.game)
       IgorCore.objs = new Map(JSON.parse(IgorCore.save.objs))
+      if(IgorCore.save.control) IgorCore.control = JSON.parse(IgorCore.save.control)
       //Reconnect tags
       IgorCore.objs.forEach( (x) => {
         x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
@@ -222,7 +218,8 @@ export const IgorUtils = {
   saveGame() {
     let data = {
       game: JSON.stringify(IgorCore.game),
-      objs: JSON.stringify(Array.from(IgorCore.objs.entries()))
+      objs: JSON.stringify(Array.from(IgorCore.objs.entries())),
+      control: JSON.stringify(IgorCore.control)
     }
     dbSet(IgorCore.saveName, data, IgorCore.db)
   },
@@ -266,6 +263,12 @@ export const IgorUtils = {
       case "resetSave":
         await dbDel(IgorCore.saveName, IgorCore.db)
         return true;
+      case "copySave":
+        window.tfmg_save = await dbGet(IgorCore.saveName, IgorCore.db)
+        return "done";
+      case "storeSave":
+        await dbSet(IgorCore.saveName, params, IgorCore.db);
+        return "done";
     }
   }
 }
@@ -328,6 +331,13 @@ export const IgorRunner = {
       debugger
       return false
     }
+  },
+  deleteObject: (target) => {
+    if(typeof target=="string" && target.includes("id")) target = IgorCore.objs.get(target)
+    let del = IgorCore.metaDefines[target.$_type]._delete
+    del && del(target, IgorRunner)
+    console.warn("deleting: "+target.$_id)
+    IgorCore.objs.delete(target.$_id)
   }
 }
 
