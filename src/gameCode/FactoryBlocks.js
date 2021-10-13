@@ -65,6 +65,9 @@ FactoryBlock.NewResBlock.signature = {
 }
 FactoryBlock.NewResBlock.CC_provide = "facBlock.newResBlock"
 FactoryBlock.NewTechBlock = (params, Igor) => {
+    //Igor.view.error("Not Yet Implemented")
+    return
+
     Igor.addNewObject(Igor.getNamedObject("globals").facBlocks.techBlocks, "FactoryBlockRes", params)
 }
 FactoryBlock.NewTechBlock.signature = {
@@ -425,6 +428,7 @@ FactoryBus.New = (params, newObj, Igor) => {
         ,drain: {xferTicks: 120, xferTimer: 0, xferTarget: 0, xferQty: 0}
         ,central: Igor.newComponent("entity.buffer", {stacks: 1, stackSize: 10, $_parent: newObj.$_id})
     }
+    newObj.clogged = false
    // newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
@@ -554,7 +558,9 @@ FactoryBus.tick = (entity, tickdata, Igor) => {
     if(entity.connections.sources.length>0 && entity.processors.source?.xferQty>0) {
         if(entity.processors.source.xferTimer>=entity.processors.source.xferTicks) {
             let busXfer = Igor.processTEMP(entity.connections.sources[entity.processors.source.xferTarget].buffer, "buffer.busXfer", {xferCount: entity.processors.source.xferQty, toBus: entity.processors.central})
-
+            if(busXfer?.full) {
+                console.log('bus full')
+            }
             ++entity.processors.source.xferTarget==entity.connections.sources.length && (entity.processors.source.xferTarget=0)
             entity.processors.source.xferTimer=0
         } else {

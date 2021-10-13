@@ -12,7 +12,7 @@
       <div if.bind="!tooltip && viewPane.main!='facBlocks'" click.delegate="viewPane.main='overview'">
         status box<br> 
         Land, pollution, enemies, oh my!<br>
-        AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span>
+        <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
       <div if.bind="viewPane.main=='facBlocks'" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
@@ -203,7 +203,7 @@
           <div class="card">
             <div class="card-header">
               <h5>Buses</h5>
-              <span click.delegate="CCC.issue('facBlock.newBus', {}, $event)" class="newFacBlock busLine">New cost ${globals.land.fac_block_costs.bus}</span>
+              <span click.delegate="CCC.issue('facBlock.newBus', {}, $event)" class="newFacBlock busLine">New...</span>
             </div>
             <div class="card-body">
               <div
@@ -217,7 +217,7 @@
           <div class="card">
             <div class="card-header">
               <h5>Factory Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newBlock', {}, $event)" class="newFacBlock facBlock">New cost ${globals.land.fac_block_costs.factory}</span>
+              <span click.delegate="CCC.issue('facBlock.newBlock', {}, $event)" class="newFacBlock facBlock">New...</span>
             </div>
             <div class="card-body">
               <div
@@ -231,7 +231,7 @@
           <div class="card">
             <div class="card-header">
               <h5>Tech Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)" class="newFacBlock techBlock">New cost ${globals.land.fac_block_costs.research}</span>
+              <span click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)" class="newFacBlock techBlock">New...</span>
             </div>
             <div class="card-body">
               <div

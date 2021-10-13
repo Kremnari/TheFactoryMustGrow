@@ -372,18 +372,18 @@ EntityBufferActions.ClearRestriction = (target, args, returnObj, Igor) => {
 }
 
 EntityBufferActions.ClearRestriction.Igor_operation = "buffer.clearRestriction"
-EntityBufferActions.BusXfer = (target, args, returnObj, Igor)=> {
+EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
   //TODO need better protections for transfers
   if(args.toBus) {
     while(args.xferCount>0) {
-      if(!target.items[target.busShift]) return
+      if(!target.items[target.busShift]) return null
       let added = Igor.processTEMP(args.toBus, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
       //console.log(added)
       if(added.complete) {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
         args.xferCount=0
       } else if(added.part[0].count==args.xferCount) {
-        return
+        return {full:true}
       } else {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
         args.xferCount = added.part[0].count
@@ -393,7 +393,7 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor)=> {
     
   } else if (args.fromBus) {
     while(args.xferCount>0) {
-      if(!target.items[target.busShift]) return
+      if(!target.items[target.busShift]) return null
       let added = Igor.processTEMP(target, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
       if(added.complete) {
         Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})

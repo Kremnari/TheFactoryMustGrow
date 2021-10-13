@@ -43,6 +43,12 @@ export const ChameleonViewer = {
     $("#ChameleonMessage").removeClass().addClass('error').text(what)
     $("#ChameleonButton").removeClass().addClass(['btn', 'btn-error']).on("click", ()=> { $("#ChameleonModal").hide() })
   },
+  warn: (what) => {
+
+  },
+  toast: (what) => {
+
+  },
   animsUpdate: (who, what, dur) => {
     who.animClass = what
     who.animTime = "animation-duration: "+dur+"s"

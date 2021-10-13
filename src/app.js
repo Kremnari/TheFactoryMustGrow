@@ -137,8 +137,8 @@ export class App {
       if(!this.autoSave.sub) {
         this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
           IgorJs.saveGame()
-        }, Config.TICKS_MAX_PHASE)
-        this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE - IgorJs.Ticker.ticks+this.autoSave.sub.phase)/Config.TICKS_PER_SECOND) }
+        }, Config.TICKS_MAX_PHASE/5)
+        this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE/5 - IgorJs.Ticker.ticks+this.autoSave.sub.phase)/Config.TICKS_PER_SECOND) }
       } else {
         this.mgrs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.secs = () => {return 0 }

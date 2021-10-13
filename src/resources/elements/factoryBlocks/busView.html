@@ -18,6 +18,10 @@
     <div class="row">
       <div class="col busLine_tut_inProgress">
         <h5 class="text-center">Transport Belt</h5>
+        <span
+          show.bind="$scope.busLine.clogged"
+          click.delegate="CCC.issue('factoryBus.clearClog', {}, $event)"
+          >Clear Clog</span>
         <div class="row">
           <icon-base
             repeat.for="item of IgorJs.getObjId($scope.busLine.processors.central).items"
