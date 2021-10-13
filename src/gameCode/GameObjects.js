@@ -219,12 +219,14 @@ function EntityClearProcess(entity, args, returnObj, Igor) {
     Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
     buffer.items.length = 0
+    buffer.xferStack = 0
   }
   if(entity.buffers.out) {
     let buffer = Igor.getId(entity.buffers.out)
     Igor.processTEMP(player, "inventory.add", {itemStacks: buffer.items})
     //! If args.returnTo is full, 'inventory.add' will fail silently
     buffer.items.length = 0
+    buffer.xferStack = 0
   }
   if(entity.buffers.stalled) {
     Igor.processTEMP(player, "inventory.add", {itemStacks: entity.buffers.stalled})
