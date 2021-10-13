@@ -259,6 +259,7 @@ const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
   let buffer = Igor.getId(obj.which.buffer)
   let idx = buffer.items.findIndex( (x) => { return x.name==obj.item.name })
+  if(idx==-1) { console.warn("Didnt' find the right index"); debugger }
   if(buffer.items[idx].count===0) return
   Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: buffer.items[idx]})
   buffer.items[idx].count = 0
@@ -277,6 +278,7 @@ EntityBufferActions.Collect.CC_provide = "entity.bufferCollect"
 EntityBufferActions.Fill = (obj, Igor) => {
   let buffer = Igor.getId(obj.which.buffer)
   let idx = buffer.items.findIndex( (x) => { return x.name==obj.item.name})
+  if(idx==-1) { console.warn("Didnt' find the right index"); debugger }
   let avail = Igor.processTEMP(obj.player.inventory.items, "inventory.total", {name: buffer.items[idx].name})
   if(avail===0) return
   let toMove = obj.service.rounder.calc(buffer.items[idx].count, buffer.stackSize, avail)
