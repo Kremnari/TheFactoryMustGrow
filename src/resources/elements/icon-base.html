@@ -14,8 +14,8 @@
   <div class="metas">
     <span if.bind="metas.showEntity && hasEntity" class="entityIcon">M</span>
   </div>
-  <div if.bind="progress" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${progress}%, red ${progress}%)">
-  </div>
+  <div if.bind="stalled" class="progressBarBase stalled"></div>
+  <div if.bind="!stalled && progress" class="progressBarBase" css="border-image-source: linear-gradient(to right, green ${progress}%, red ${progress}%)"></div>
   <div>
     <span class="animTarget ${item.animClass2}" style.bind="item.animTime"></span>
   </div>

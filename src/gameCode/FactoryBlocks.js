@@ -560,6 +560,7 @@ FactoryBus.tick = (entity, tickdata, Igor) => {
             let busXfer = Igor.processTEMP(entity.connections.sources[entity.processors.source.xferTarget].buffer, "buffer.busXfer", {xferCount: entity.processors.source.xferQty, toBus: entity.processors.central})
             if(busXfer?.full) {
                 console.log('bus full')
+                return
             }
             ++entity.processors.source.xferTarget==entity.connections.sources.length && (entity.processors.source.xferTarget=0)
             entity.processors.source.xferTimer=0
@@ -571,6 +572,10 @@ FactoryBus.tick = (entity, tickdata, Igor) => {
         if(entity.processors.drain.xferTimer>=entity.processors.drain.xferTicks) {
             let busXfer = Igor.processTEMP(entity.connections.drains[entity.processors.drain.xferTarget].buffer, "buffer.busXfer", {xferCount: entity.processors.drain.xferQty, fromBus: entity.processors.central})
             //do something
+            if(busXfer?.full) {
+                console.log('bus full')
+                return
+            }
 
             ++entity.processors.drain.xferTarget==entity.connections.drains.length && (entity.processors.drain.xferTarget=0)
             entity.processors.drain.xferTimer=0

@@ -29,6 +29,7 @@
           item="inserter"
           if.bind="!parcel.isPlayer"
           count.bind="$scope.inBuffer.upgrades.loader.count"
+          stalled.bind="$scope.inBuffer.stalled"
           progress.bind="($scope.inBuffer.xferTicks-$scope.inBuffer.xferTimer)/$scope.inBuffer.xferTicks*100"
           click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
         ></icon-base>
@@ -58,7 +59,8 @@
           item="inserter"
           if.bind="!parcel.isPlayer"
           count.bind="$scope.outBuffer.upgrades.loader.count"
-          progress.bind="($scope.outBuffer.xferTicks-$scope.outBuffer.xferTimer)/$scope.outBuffer.xferTicks*100"
+          stalled.bind="$scope.outBuffer.stalled"
+          progress.bind="(($scope.outBuffer.xferTicks-$scope.outBuffer.xferTimer)/$scope.outBuffer.xferTicks*100)"
           click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
         ></icon-base>
         <active-trigger

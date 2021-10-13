@@ -62,10 +62,23 @@ function EntityOutputTicker(entity, tickData, Igor) {
   let buffer = Igor.getId(entity.buffers.out)
   if(buffer.items.length==0) return
   if(buffer.xferTimer == 0) {
+    //Check if player inventory has a full stack, if so, stall
+    let p_inv = Igor.getNamedObject("player.inventory")
+    let fillCount = Igor.processTEMP(p_inv, "inventory.total", {name: buffer.items[buffer.xferStack].name})
+    if(fillCount>=Igor.data.item[buffer.items[buffer.xferStack].name].stack_size) {
+      //I'm stalled
+      buffer.xferTimer += Math.floor(buffer.xferTicks/10)
+      buffer.stalled = true
+      return
+    } else {
+      buffer.stalled = false
+    }
+
+    //procede with push
     let toSub = Math.min(buffer.xfer, buffer.items[buffer.xferStack].count)
     //console.log(toSub)
     let added = Igor.processTEMP(
-      Igor.getNamedObject("player.inventory")
+      p_inv
       ,"inventory.add"
       ,{itemStacks: {
          name: buffer.items[buffer.xferStack].name
@@ -399,7 +412,7 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
         Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
         args.xferCount=0
       } else if(added.part[0].count==args.xferCount) {
-        return
+        return {full:true}
       } else {
         Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
         args.xferCount = added.part[0].count

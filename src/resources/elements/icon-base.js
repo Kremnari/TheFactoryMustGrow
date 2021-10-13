@@ -9,6 +9,7 @@ export class IconBaseCustomElement {
   @bindable count;
   @bindable altImage;
   @bindable progress;
+  @bindable stalled;
   @bindable required;
   @bindable max_fill;
   @bindable metas;

@@ -216,6 +216,7 @@ export const IgorUtils = {
     return IgorCore.objects_by_name()
   },
   saveGame() {
+    console.log("Game saving...")
     let data = {
       game: JSON.stringify(IgorCore.game),
       objs: JSON.stringify(Array.from(IgorCore.objs.entries())),
