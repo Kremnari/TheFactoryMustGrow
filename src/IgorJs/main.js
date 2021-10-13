@@ -338,7 +338,10 @@ export const IgorRunner = {
     let del = IgorCore.metaDefines[target.$_type]._delete
     del && del(target, IgorRunner)
     console.warn("deleting: "+target.$_id)
+    let idx = IgorCore.tick_entities.findIndex( (x) => { x.$_id==target.$_id })
+    IgorCore.tick_entities.splice(idx, 1)
     IgorCore.objs.delete(target.$_id)
+    IgorRunner.view.clearShowing()
   }
 }
 

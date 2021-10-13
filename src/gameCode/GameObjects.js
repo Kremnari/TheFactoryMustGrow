@@ -220,6 +220,7 @@ function EntityClearProcess(entity, args, returnObj, Igor) {
     //! If args.returnTo is full, 'inventory.add' will fail silently
     buffer.items.length = 0
     buffer.xferStack = 0
+    buffer.stalled = false
   }
   if(entity.buffers.out) {
     let buffer = Igor.getId(entity.buffers.out)
@@ -227,6 +228,7 @@ function EntityClearProcess(entity, args, returnObj, Igor) {
     //! If args.returnTo is full, 'inventory.add' will fail silently
     buffer.items.length = 0
     buffer.xferStack = 0
+    buffer.stalled = false
   }
   if(entity.buffers.stalled) {
     Igor.processTEMP(player, "inventory.add", {itemStacks: entity.buffers.stalled})
@@ -240,6 +242,9 @@ IgorJs.addOperation("entity.clearProcess", EntityClearProcess)
 /*
   Buffers
  */
+IgorJs.setStatic("entityBuffer.sizeExpansionCost", [{name: "iron-chest", count: 1}])
+IgorJs.setStatic("entityBuffer.xferExpansionCost", [{name: "inserter",   count: 1}])
+
 const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.upgrades = {}
   newObj.maxStacks = params.staticStacks?.length || params.stacks || 1
@@ -254,6 +259,11 @@ const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.$_parent = params.$_parent
   newObj.connection = null
   return [newObj]
+}
+NewEntityBuffer._delete = (obj, Igor) => {
+  let inv = Igor.getNamedObject("player.inventory")
+  obj.upgrades.bufferSize?.count && Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.sizeExpansionCost"), multi: obj.upgrades.bufferSize.count })
+  obj.upgrades.loader?.count     && Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.xferExpansionCost"), multi: obj.upgrades.loader.count })
 }
 const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {

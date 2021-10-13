@@ -17,7 +17,6 @@ const ChameleonCore = {
   classFns: {},
   viewFns: {}
 }
-
 export const ChameleonBuilder = {
   AddGameObjectClass: (name, obj, tags ) => {
     let jsonObj = JSON.stringify(obj)
@@ -37,6 +36,7 @@ export const ChameleonBuilder = {
 }
 
 export const ChameleonViewer = {
+  app: null,
   signaler: null,
   error: (what) => {
     $("#ChameleonModal").show()
@@ -53,6 +53,9 @@ export const ChameleonViewer = {
     who.animClass = what
     who.animTime = "animation-duration: "+dur+"s"
     ChameleonViewer.signaler.signal("animsUpdate")
+  },
+  clearShowing: () => {
+    ChameleonViewer.app.viewPane.showingItem = null
   },
   GameObjectFromPointer: ChameleonCore.GameObjectFromPointer,
   classFn: ChameleonCore.classFns,

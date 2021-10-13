@@ -54,6 +54,7 @@ export class App {
       this.mgrs.signaler = this.signaler
       this.mgrs.Ticker = IgorJs.Ticker
       ChameView.signaler = this.signaler
+      ChameView.app = this
       this.ChameView = ChameView
       CC_const.initialize({
         dialogSvc: DS,
