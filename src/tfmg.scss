@@ -65,21 +65,12 @@ header {
 }
 
 .progressBarBase {
-  border-bottom: 4px solid black;
+  border-bottom: 2px solid black;
   border-image-slice: 0 0 10 0;
   display:inline-block;
   &.stalled {
     border-image: repeating-linear-gradient(-45deg, yellow 0%, yellow 4px, black 4px 8px) 2;
   }
-}
-crafting-infopane > .showRecipe > * {
-  display: inline-block;
-}
-mining-infopane > div {
-  width: fit-content;
-}
-lab-infopane {
-  display: block;
 }
 .switch {
   position: relative;
@@ -142,50 +133,6 @@ input:checked + .slider.text_abs_mod:after {
 input:checked + .slider.text_full_part:after {
   content: "part";
 }
-
-main.tfmg {
-  height: 70vh;
-  overflow-y: auto;
-  & > * {
-    height: 95%;
-  }
-}
-#recipes > div {
-  height: 40vh;
-}
-#inventoryList {
-  border: 2px solid black;
-  border-radius: 8px;
-  height: 20vh;
-  position: absolute;
-  display: inline-block;
-  bottom: 0px;
-  right: 7.5vw;
-  left: 7.5vw;
-  box-sizing: border-box;
-}
-#machines {
-  margin: 0px;
-  padding: 0.2rem;
-  & .details {
-    display: block;
-    height: 45vh;
-  }
-  & .entityList {
-    overflow-y: auto;
-    max-height: 100px;
-  }
-}
-#machines > div {
-  border: 2px solid black;
-  min-height: 40px;
-  border-radius: 8px;
-}
-section, main > compose {
-  width: calc(100% - 1rem);
-  box-sizing: content-box;
-  margin: 0.5rem;
-}
 div.overflow {
   overflow-y: auto;
 }
@@ -207,48 +154,6 @@ span.button {
 }
 .sem_removed {
   display: none;
-}
-
-#tutorial {
-  display: none;
-  &.Block {
-    width: 100%;
-    height: 100%;
-    display: block;
-    top: 0px;
-    left:0px;
-    background: rgba(0, 0, 0, 0.3);
-    //backdrop-filter: blur(3px);
-    z-index: 1000;
-    position: fixed;
-    & #tut_text {
-      display: block;
-      backdrop-filter: blur(3px);
-    }
-    & > #tut_pos {
-      width: 100vw;
-      height: 100px;
-      font-size: 2em;
-      text-align: center;
-      vertical-align: middle;
-      position: absolute;
-      &.center {
-        top: calc(50%-50px);
-      }
-      &.top {
-        top: calc(25%-50px);
-      }
-      &.bottom {
-        top: calc(75%-50px);
-      }
-    }
-  }
-  & span[note='off'] {
-    position: fixed;
-    top: 2vh;
-    right: 2vw;
-    font-size: 2em;
-  }
 }
 
 .tutStep {
@@ -327,4 +232,11 @@ span.button {
 hr.bus {
   border-top: 2px dashed goldenrod;
   border-bottom: 2px dashed #ae841a;
+}
+
+.inActiveOption {
+  opacity: 0.5;
+}
+.recipeBreak {
+  font-size: 1.5rem;
 }

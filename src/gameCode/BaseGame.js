@@ -50,19 +50,21 @@ const newGame = {
     unlocked_recipes: [],
     version: CONFIG.IDB_SAVE_VERSION
 }
+IgorJs.defineObj("#", newGame)
+
 
 //* This sets up the references Igor needs to run
 export const setupIgor = () => {
   //TODO rebuild Igor's object list,
   // but ideally it happens automatically 
   // when loading game object descriptions
-  IgorJs.defineObj("#", newGame)
-  IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
-  IgorJs.defineObj("player", "player")
-  IgorJs.amendObject("FactoryBlocksBase", {tickFn: (td, obj) => { tickBase(td, obj) } })
+  //IgorJs.defineObj("#.facBlocks", "factoryBlocksBase")
+  //IgorJs.defineObj("player", "player")
+  //IgorJs.amendObject("FactoryBlocksBase", {tickFn: (td, obj) => { tickBase(td, obj) } })
   //console.log('setup complete')
 }
 
+/*
 //SMELL
 //This should be split among the individual objects,
 // and probably moved to Function() calls
@@ -90,3 +92,4 @@ const tickBase = (tickData, facBlocks) => {
       }
     }
 }
+*/

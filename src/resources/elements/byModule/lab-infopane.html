@@ -13,7 +13,7 @@
           <icon-base
             repeat.for="input of $scope.lab.inputs"
             item.bind="input"
-            count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'generalUpdate'"
+            count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'bufferUpdate'"
             click.delegate="CCC.issue('entity.bufferFill', {'item.name': input}, $event)"
             title="Click to add ${input}"
           ></icon-base>

@@ -32,22 +32,96 @@ export const ChameleonBuilder = {
   },
   setViewFn: (name, fn) => {
     ChameleonCore.viewFns[name] = fn
+  },
+  setViewFnGetter: (name, fn) => {
+    Object.defineProperty(ChameleonCore.viewFns, name, {
+      get: fn
+    })
   }
 }
 
 export const ChameleonViewer = {
   app: null,
-  signaler: null,
+  signal: null,
+  toasts: [],
+  toastTimer: NaN,
   error: (what) => {
     $("#ChameleonModal").show()
     $("#ChameleonMessage").removeClass().addClass('error').text(what)
     $("#ChameleonButton").removeClass().addClass(['btn', 'btn-error']).on("click", ()=> { $("#ChameleonModal").hide() })
   },
-  warn: (what) => {
-
+  errorToast: (msg, icon, fa = 'fa-exclamation-triangle') => {
+    let what = {
+      class: "danger-bg",
+      msg,
+      icon,
+      fa,
+      timer: 200,
+      _alert: ChameleonViewer.showAlert
+    }
+    ChameleonViewer.toasts.push(what)
+    ChameleonViewer.toastTimerSet()
   },
-  toast: (what) => {
-
+  warnToast: (msg, icon, fa = 'fa-exclamation') => {
+    let what = {
+      class: "warning-bg",
+      msg,
+      icon,
+      fa,
+      timer: 50,
+      _alert: ChameleonViewer.showAlert
+    }
+    ChameleonViewer.toasts.push(what)
+    ChameleonViewer.toastTimerSet()
+  },
+  goodToast: (msg, icon, fa= 'fa-thumbs-up') => {
+    let what = {
+      class: "primary-bg",
+      msg,
+      icon,
+      fa,
+      timer: 200,
+      _alert: ChameleonViewer.showAlert
+    }
+    ChameleonViewer.toasts.push(what)
+    ChameleonViewer.toastTimerSet()
+  },
+  toast: (msg, icon, fa = 'fa-question') => {
+    let what = {}
+    what.class = "light-bg"
+    what.msg = msg
+    what.icon = icon
+    what.fa = fa
+    what.timer = 100
+    what._alert = ChameleonViewer.showAlert
+    ChameleonViewer.toasts.push(what)
+    ChameleonViewer.toastTimerSet()
+  },
+  showAlert: (toast) => {
+    alert(toast.msg)
+    ChameleonViewer.clearToast(toast)
+  },
+  clearToast: (which) => {
+    let idx = ChameleonViewer.toasts.findIndex((x)=>{return x==which})
+    ChameleonViewer.toasts.splice(idx, 1)
+    window.clearInterval(ChameleonViewer.toastTimer.timeout)
+    ChameleonViewer.toastTimer = null
+    if(ChameleonViewer.toasts.length>0) {
+      ChameleonViewer.toastTimerSet()
+    }
+  },
+  toastTimerSet: () => {
+    if(ChameleonViewer.toastTimer) return
+    ChameleonViewer.toastTimer = {
+      ticks: 0,
+    }
+    ChameleonViewer.toastTimer.timeout = window.setInterval( () => {
+      if(ChameleonViewer.toastTimer.ticks>=100) {
+        ChameleonViewer.clearToast(ChameleonViewer.toasts[0])
+      } else {
+        ChameleonViewer.toastTimer.ticks += 1
+      }
+    }, 50 * ChameleonViewer.toasts[0].timer/100)
   },
   animsUpdate: (who, what, dur) => {
     who.animClass = what

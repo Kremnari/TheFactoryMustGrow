@@ -2,12 +2,74 @@
   & * {
     box-sizing: border-box;
   }
+  & section {
+    margin: auto;
+  }
   & > .statusBox {
+    position: fixed;
     height: 10vh;
     text-align: center;
+    width: 100%;
+    & > .facBlockStats {
+      padding: 0 10vw;
+    }
+    & > #toaster {
+      top: 0px;
+      left: 0px;
+      position: fixed;
+      text-align: left;
+      padding: 0 2vw;
+      height: 10vh;
+      width: max(10vh, 15vw);
+      overflow-y: auto;
+      & > toasted {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        & .fas {
+          font-size: 16px;
+          text-align: center;
+          vertical-align: middle;
+        }
+      }
+      & .toastTicker {
+        display: inline;
+        border-left: 3px solid black;
+        height: 20px;
+        width: 4px;
+        left: 1vw;
+        margin-right: 3px;
+        position: absolute;
+      }
+      & span {
+        width: 100%;
+        height: 100%;
+      }
+      & toasted > span {
+        border-radius: 6px;
+      }
+      & .light-bg {
+        background-color: rgba(97, 98, 98, 0.2);
+        color: rgb(97, 98, 98);
+      }
+      & .warning-bg {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: rgb(255, 193, 7);
+      }
+      & .danger-bg {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: rgb(220, 53, 69);
+      }
+      & .primary-bg {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: rgb(40, 167, 69);
+      }
+    }  
   }
   & > nav {
-    width: 100vw;
+    position:fixed;
+    top: 10vh;
+    width: 100%;
     display: flex;
     justify-content: space-evenly;
     overflow: hidden;
@@ -39,25 +101,142 @@
       left: 2.5%;
     }
   }
-  & #nav {
-    left: 20vw;
-    width: 60vw;
-    position: relative;
-  }
-  & #playerHome {
-    & h3 {
-      text-align: center;
+  & > main {
+    overflow-y: auto;
+    position: fixed;
+    width: calc(100%-5vw);
+    margin: 0 0.5rem;
+    top: calc(10vh + 1.5rem);
+    bottom: calc(20vh + 5px);
+    & > * {
+      position: relative;
+    }
+    & #nav {
+      left: 20vw;
+      width: 60vw;
+      position: relative;
+    }
+    & #playerHome {
+      & h3 {
+        text-align: center;
+      }
+      & #recipes {
+        height: 30vh;
+      }
+    }
+    & #machines {
+      padding: 0.2rem;
+      position: relative;
+      height: 100%;
+      & .details {
+        display: block;
+        height: 50%;
+      }
+      & .entityList {
+        overflow-y: auto;
+        max-height: 100px;
+        min-height: 40px;
+        bottom: 0;
+        position: absolute;
+        left: 0px;
+        right:0px;
+        margin: auto;
+        border-radius: 8px;
+        border: 2px solid black;
+        & div {
+          display: inline;
+        }
+      }
     }
   }
-  & #recipes {
-    height: 30vh;
+  & > #inventoryList {
+    border: 2px solid black;
+    border-radius: 8px;
+    height: 16vh;
+    position: fixed;
+    display: inline-block;
+    bottom: 1vh;
+    right: 7.5vw;
+    left: 7.5vw;
+    box-sizing: border-box;
+    & h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+    & inventory {
+      position: absolute;
+      overflow-y: auto;
+      height: calc(100% - 2rem);
+    }
+  }
+  & > #ChameleonModal {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    & #ChameleonMessage {
+      text-align: center;
+      vertical-align: middle;
+    }
+    & #ChameleonButton {
+      background-color: lightgrey;
+    }
+    & > .center {
+      position: absolute;
+      top: calc(50%-50px);
+      left: 30%;
+    }  
+  }
+  & > #tutorial {
+      display: none;
+      &.Block {
+        width: 100%;
+        height: 100%;
+        display: block;
+        top: 0px;
+        left:0px;
+        background: rgba(0, 0, 0, 0.3);
+        //backdrop-filter: blur(3px);
+        z-index: 1000;
+        position: fixed;
+        & #tut_text {
+          display: block;
+          backdrop-filter: blur(3px);
+        }
+        & > #tut_pos {
+          width: 100vw;
+          height: 100px;
+          font-size: 2em;
+          text-align: center;
+          vertical-align: middle;
+          position: absolute;
+          &.center {
+            top: calc(50%-50px);
+          }
+          &.top {
+            top: calc(25%-50px);
+          }
+          &.bottom {
+            top: calc(75%-50px);
+          }
+        }
+      }
+      & span[note='off'] {
+        position: fixed;
+        top: 2vh;
+        right: 2vw;
+        font-size: 2em;
+      }
   }
 }
 [clickxx\.delegate] {
   border: 2px solid black;
   clip-path: polygon(0 15%, 2% 2%, 15% 0, 85% 0, 98% 2%, 100% 15%, 100% 85%, 98% 98%, 85% 100%, 15% 100%, 2% 98%, 0 85%);
 }
-[click\.delegate] {
+[click\.delegate]:not(button) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -66,36 +245,12 @@
   border-radius: 8;
 }
 
-
-#ChameleonModal {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0,0,0,0.7);
-  & #ChameleonMessage {
-    text-align: center;
-    vertical-align: middle;
-  }
-  & #ChameleonButton {
-    background-color: lightgrey;
-  }
-  & > .center {
-    position: absolute;
-    top: calc(50%-50px);
-    left: 30%;
-  }  
-}
-
 .fa_icon {
   font-size: 24px;
 }
 .fa_icon_sm {
   font-size: 16px;
 }
-
 
 //Bootstrap overrides
 .card {

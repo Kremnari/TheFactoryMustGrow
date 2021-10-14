@@ -28,7 +28,7 @@
                     <icon-base
                         item.bind="$scope.resBlock.patchProperties.resource"
                         if.bind="$scope.resBlock.patchProperties.resource"
-                        count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.output, {name: $scope.resBlock.patchProperties.resource}) & signal: 'generalUpdate'"
+                        count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.output, {name: $scope.resBlock.patchProperties.resource}) & signal: 'bufferUpdate'"
                         max_fill.bind="IgorJs.getObjId($scope.resBlock.output).stackSize"
                         click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.output, 'at.entity': 'temp_null', 'item.name':$scope.resBlock.patchProperties.resource}, $event)"
                     ></icon-base>

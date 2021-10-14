@@ -258,7 +258,7 @@ export class Inventory {
         if(data.which.count>0) {
           if(item.hasEntity) {
             data.where.useItem(data.which.name) && data.which.count--
-            mgrs.signaler.signal('addedEntity')
+            //mgrs.signaler.signal('addedEntity')
             return
           }
         }

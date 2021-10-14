@@ -1,0 +1,9 @@
+<template bindable="toast, c-view">
+    <span
+        class="${toast.class}"
+        click.delegate="toast._alert(toast)"
+    >
+        <image if.bind="toast.icon" src="${toast.icon}"></image>
+        <span if.bind="!toast.icon && toast.fa" class="fas ${toast.fa}"></span>
+    </span>
+</template>

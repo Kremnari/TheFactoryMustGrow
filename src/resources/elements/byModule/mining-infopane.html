@@ -1,4 +1,4 @@
-<template>
+<template bindable="item">
   <require from="./upgrades-infopane"></require>
   <scope-var var.bind="$scope = {miner: viewPane.showingItem}"></scope-var>
   <div class="container">
@@ -25,7 +25,7 @@
           >
             <icon-base
               item.bind="$scope.miner.processing.mining_results"
-              count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'generalUpdate'"
+              count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'bufferUpdate'"
               title="Click to collect"
             ></icon-base>
             /${IgorJs.getObjId($scope.miner.buffers.out).stackSize} (max)

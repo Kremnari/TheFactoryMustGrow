@@ -1,6 +1,6 @@
 <template bindable="items, clickCall">
   <icon-base
-    repeat.for="item of items & signal:'generalUpdate'"
+    repeat.for="item of items"
     item.bind="item"
     if.bind="item.filtered || item.count>0"
     count.bind="item.count"

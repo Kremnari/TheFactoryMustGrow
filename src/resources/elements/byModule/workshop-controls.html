@@ -11,8 +11,16 @@
             width: 32px;
             height: 32px;
         }
+        .editActive {
+            color: green;
+        }
     </style>
-    <section id="work_controls">
+    <span
+        class="${$scope.editPos && 'editActive'}"
+        if.bind="IgorRunner.getNamedObject('global').player.workshop.entities.length-1"
+        click.delegate="$scope.editPos=!$scope.editPos"
+    >Edit Position</span>
+    <section id="work_controls" if.bind="$scope.editPos">
         <div class="row">
             <div class="col align-self-center">
                 Move Spaces

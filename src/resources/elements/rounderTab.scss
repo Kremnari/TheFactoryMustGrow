@@ -1,12 +1,32 @@
 #numSelectors {
-  & input[type="range"] {
-    appearance: slider-vertical;
-    width: 16px;
+  & .row {
+    margin: 0px;
+  }
+  & input.vertical[type="range"] {
+    transform: rotate(-90deg);
+    transform-origin: bottom left;
+    position: absolute;
+    left: 100%;
+    bottom: 0px;
+    width: 14vh;
+  }
+  & .row.sliders {
+    height: 15vh;
+    & .vert-slider {
+      padding: 0;
+      margin-left: 6px;
+      height:15vh;
+      width:16px;
+      bottom: 0px;
+      position: relative;
+    }
   }
   & > .tab_toggle:checked {
     & ~ [slot="content"] > compose {
       width: 70px;
       & > * {
+        height: 20vh;
+        padding: 0px;
         display: inline-block;
       }
       & > span {

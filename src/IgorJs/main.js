@@ -75,13 +75,13 @@ const IgorBuilder = {
 
 export const IgorUtils = {
   initialize(obj) {
-    IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase)
+    IgorCore.graphics = obj.viewTasker
+    IgorCore.command = obj.commandTasker
+    IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase, IgorCore.graphics.signaler)
     IgorCore.config.TICKS_PER_SECOND = obj.ticker.ticks_perSec
     IgorCore.statics["config.TICKS_PER_SECOND"] = obj.ticker.ticks_perSec
     IgorUtils.Ticker = IgorCore.ticker
     IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
-    IgorCore.graphics = obj.viewTasker
-    IgorCore.command = obj.commandTasker
     IgorCore.dbName = obj.dbName
     IgorCore.saveName = obj.saveName
     IgorCore.db = new Store(IgorCore.dbName, "store")
@@ -114,6 +114,7 @@ export const IgorUtils = {
     IgorCore.metaDefines[who] = {
       new: fn,
       _delete: fn._delete,
+      _signal: fn._signal,
       actions,
     }
     if(actions?.tick){
@@ -140,9 +141,6 @@ export const IgorUtils = {
     //* These functions are only accessible from game codes
     // Their signature shouldn't need to be known
     IgorCore.ops[op] = {fn}
-  },
-  amendObject(who, obj) {
-   //?  should I throw an error if the object doesn't exist? 
   },
   //! I don't really like this implementation
   // I need a way to provide different tick processors for different tags
@@ -244,6 +242,8 @@ export const IgorUtils = {
   setState(which) {
     switch(which) {
       case "start":
+        IgorCore.graphics.signaler.signal("generalUpdate")
+        IgorCore.graphics.signaler.signal("entityUpdate")
         IgorCore.ticker.resume();
         break;
       case "stop":
@@ -287,7 +287,14 @@ export const IgorRunner = {
   get config() { return IgorCore.config },
   processTEMP: (obj, op, args) => {
     let ret = {}
-    if(typeof obj == "string" && obj.includes("id")) obj = IgorCore.objs.get(obj)
+    if(typeof obj == "string") {
+      if(obj.includes("id")) {
+        obj = IgorCore.objs.get(obj)
+      } else {
+        obj = IgorCore.namedObjs[obj]
+        if(!obj) debugger
+      }
+    }
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)
     //console.log('_result' in ret)
     return '_result' in ret ? ret._result : ret
@@ -318,14 +325,14 @@ export const IgorRunner = {
     }
   },
   addNewObject: (target, objType, params ) => {
-    if(IgorCore.metaDefines[objType]) {
-      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", target.$_id), IgorBuilder)
+    let def = IgorCore.metaDefines[objType]
+    if(def) {
+      let [obj, cmds] = def.new(params, IgorBuilder.newObject(objType, "", target.$_id), IgorBuilder)
       target.push(obj.$_id)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
       }
-      IgorCore.graphics.signaler.signal("addedEntity")
-      IgorCore.graphics.signaler.signal("generalUpdate")
+      if(def._signal) IgorCore.graphics.signaler.signal(def._signal)
       return true
     } else {
       console.warn("cannot find object type")
@@ -335,13 +342,14 @@ export const IgorRunner = {
   },
   deleteObject: (target) => {
     if(typeof target=="string" && target.includes("id")) target = IgorCore.objs.get(target)
-    let del = IgorCore.metaDefines[target.$_type]._delete
+    let def = IgorCore.metaDefines[target.$_type]
+    let del = def._delete
     del && del(target, IgorRunner)
-    console.warn("deleting: "+target.$_id)
-    let idx = IgorCore.tick_entities.findIndex( (x) => { x.$_id==target.$_id })
+    let idx = IgorCore.tick_entities.findIndex( (x) => { return x.$_id==target.$_id })
     IgorCore.tick_entities.splice(idx, 1)
     IgorCore.objs.delete(target.$_id)
     IgorRunner.view.clearShowing()
+    def._signal && IgorCore.graphics.signaler.signal(def._signal)
   }
 }
 

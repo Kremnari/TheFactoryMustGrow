@@ -41,6 +41,7 @@ FactoryBlock.New = (params, newObj, Igor) => {
     return [newObj]
 }
 FactoryBlock.New.signature = { }
+FactoryBlock.New._signal = "facBlockUpdate"
 FactoryBlock.NewCCC = (params, Igor) => {
     Igor.addNewObject(Igor.getNamedObject("global").facBlocks.blocks, "FactoryBlock", params)
 }
@@ -187,7 +188,6 @@ FactoryBlock.SetProcessItems = (target, args, returnObj, Igor) => {
     Igor.processTEMP(target.buffers.in, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.in})})
     Igor.processTEMP(target.buffers.internal, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.internal})})
     Igor.processTEMP(target.buffers.out, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.out})})
-    //Igor.view.signaler.signal("generalUpdate")
 }
 FactoryBlock.SetProcessItems.Igor_operation = "factoryBlock.setProcessItems"
 FactoryBlock.ClearProcessItems = (target, args, returnObj, Igor) => {
@@ -258,6 +258,7 @@ FactoryLine.New.signature = {
     drain: 'entity.buffer',
     internal: 'entity.buffer'
 }
+FactoryLine.New._signal = "facBlockUpdate"
 FactoryLine.SetType = (obj, Igor) => {
     obj.at.factoryLine.buildingType = obj.which.building.name
     obj.at.factoryLine.crafting_categories = obj.which.building.crafting_categories
@@ -432,6 +433,7 @@ FactoryBus.New = (params, newObj, Igor) => {
    // newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
+FactoryBus.New._signal = "facBlockUpdate"
 FactoryBus.ClearConnection = (target, args, returnObj, Igor) => {
     console.log("clear connection: ")
     console.log(args.dir)
@@ -609,6 +611,7 @@ ResourceBlock.New = (params, newObj, Igor) => {
     newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
+ResourceBlock.New._signal = "facBlockUpdate"
 ResourceBlock.SetResource = (obj, Igor) => {
     let resBlock = obj.at.ResourceBlock
     if(obj.at.ResourceBlock.patchProperties.resource) {

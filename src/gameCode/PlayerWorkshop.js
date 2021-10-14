@@ -23,21 +23,24 @@ function InventoryPush(obj, Igor) {
           idx: entities.length})
   ) {
     obj.which.itemStack.count--
-    Igor.view.signaler.signal("addedEntity")
+    Igor.view.signaler.signal("entityUpdate")
+    Igor.view.signaler.signal("generalUpdate")
   }
 }
 IgorJs.provide_CCC("player.inventoryPush", InventoryPush, InventoryPushSig)
 
 
 IgorJs.CCC_addUtility("workshop.moveEntity", (obj, args, ret, Igor) => {
-    //console.log('captured')
     let workshop = Igor.getNamedObject("global").player.workshop.entities
     let target = Igor.getId(args.which)
+    args.to = target.order < args.to 
+      ? Math.min(args.to, workshop.length-1)
+      : Math.max(args.to, 0)
     let swap = workshop.find( (x) => {return Igor.getId(x).order==args.to})
     swap = Igor.getId(swap)
     swap.order = target.order
     target.order = args.to
-    Igor.view.signaler.signal("addedEntity")
+    Igor.view.signaler.signal("entityUpdate")
 })
 
 const WorkshopRecover = (obj, Igor) => {
@@ -55,7 +58,7 @@ const WorkshopRecover = (obj, Igor) => {
   })
 
   Igor.deleteObject(entity)
-  Igor.view.signaler.signal("addedEntity")
+  Igor.view.signaler.signal("entityUpdate")
 }
 WorkshopRecover.signature = {
   which: 'entity',

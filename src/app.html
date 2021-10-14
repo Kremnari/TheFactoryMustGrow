@@ -17,12 +17,12 @@
       <div if.bind="viewPane.main=='facBlocks'" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
-            <div>Land available: ${globals.land.total-globals.land.used}</div>
             <div>Land use: ${globals.land.used}</div>
+            <div>Available: ${globals.land.total-globals.land.used}</div>
           </div>
           <div class="col">
             <div>Complexity Total: ${globals.land.complexity}</div>
-            <div>Available resource patches: ${globals.land.res_patches-globals.land.res_patch_used}</div>
+            <div>Resource Patches: ${globals.land.res_patches-globals.land.res_patch_used}</div>
           </div>
         </div>
       </div>
@@ -32,6 +32,18 @@
         recipe-mgr.bind="mgrs.rec"
         if.bind="tooltip && viewPane.main!='facBlocks'"
       ></tool-tip>
+      <div id="toaster">
+        <require from="./resources/elements/micro/toasted.html"></require>
+        <div
+          if.bind="ChameView.toastTimer"
+          class="toastTicker"
+          css="border-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) ${ChameView.toastTimer.ticks}%, goldenrod ${ChameView.toastTimer.ticks}%) 0 4"
+        ></div>
+        <toasted
+          repeat.for="toast of ChameView.toasts"
+          toast.bind="toast"
+        ></toasted>
+      </div>
     </section>
     <nav>
       <span click.delegate="viewPane.main='nav'" class="fas fa-level-up-alt fa-rotate-90 ${viewPane.main=='nav'?'selected':''}"></span>
@@ -160,12 +172,12 @@
       <section id="machines" show.bind="viewPane.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', viewPane.showingItem)">
           <h4>Workshop</h4>
           <span class="details">
-            <compose if.bind="viewPane.showingItem['crafting_speed']" view="./resources/elements/byModule/crafting-infopane.html"></compose>
-            <compose if.bind="viewPane.showingItem['mining_speed']" view="./resources/elements/byModule/mining-infopane.html"></compose>
-            <compose if.bind="viewPane.showingItem['researching_speed']" view="./resources/elements/byModule/lab-infopane.html"></compose>
+            <compose if.bind="viewPane.showingItem['mining_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/mining-infopane.html"></compose>
+            <compose if.bind="viewPane.showingItem['crafting_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/crafting-infopane.html"></compose>
+            <compose if.bind="viewPane.showingItem['researching_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/lab-infopane.html"></compose>
           </span>
-          <div class="entityList align-bottom">
-            <div class="d-inline" repeat.for="machina of ChameView.viewFn.workshopEntities() & signal:'addedEntity'">
+          <div class="entityList">
+            <div repeat.for="machina of ChameView.viewFn.workshopEntities() & signal:'entityUpdate'">
               <input type="hidden" value.bind="typeof machina.order=='undefined' ? machina.order=$index : ''">
               <icon-base
                 item.bind="machina"
@@ -194,7 +206,7 @@
             </div>
             <div class="card-body">
               <div
-                repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'addedEntity'"
+                repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'facBlockUpdate'"
                 click.delegate="showItem={item: resBlock, view: 'viewFacBlock'}"
                 class="${viewPane.showingItem==resBlock ? 'selected':''} resBlockList"
               >${resBlock.name}</div>
@@ -207,7 +219,7 @@
             </div>
             <div class="card-body">
               <div
-                repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'addedEntity'"
+                repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'facBlockUpdate'"
                 click.delegate="showItem={item: facBus, view: 'viewFacBlock'}"
                 class="${viewPane.showingItem==facBus ? 'selected':''} busLineList">
                 ${facBus.name}
@@ -221,7 +233,7 @@
             </div>
             <div class="card-body">
               <div
-                repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'addedEntity'"
+                repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'facBlockUpdate'"
                 click.delegate="showItem={item: facBlock, view: 'viewFacBlock'}"
                 class='${viewPane.showingItem==facBlock ? "selected":""} facBlockList'>
                 ${facBlock.name}
@@ -235,7 +247,7 @@
             </div>
             <div class="card-body">
               <div
-                repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'addedEntity'"
+                repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'facBlockUpdate'"
                 click.delegate="showItem={item: techBlock, view: 'viewFacBlock'}"
                 class="${viewPane.showingItem==techBlock ? 'selected':''} techBlockList"
               >${techBlock.name}</div>
@@ -272,9 +284,10 @@
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
         <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></compose>
+        <span class="${!viewPane.options.bDoneTechs && 'inActiveOption'}" click.delegate="viewPane.options.bDoneTechs = !viewPane.options.bDoneTechs">Show Completed</span>
         <div class="overflow">
           <icon-base
-            repeat.for="tech of ChameView.viewFn.technologyFilter(globals.research.completed) & signal:'generalUpdate'"
+            repeat.for="tech of ChameView.viewFn.technologyFilter() & signal:'generalUpdate'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research.completed[tech.name] ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
@@ -288,19 +301,19 @@
         <span>Attack Timer: ${globals.attackWaves.currentTimer}/${globals.attackWaves.nextTimer}</span><br>
         <span>Enemy Strength: </span>
       </section>
-      <div id="inventoryList">
-        <!-- TODO create a delete mode, but should utilize a command wheel -->
-        <h3>Inventory</h3>
-        <inventory
-          items.bind="globals.player.inv.items"
-          click-call.call="CCC.issue('player.inventoryPush', {
-            'which.itemStack': item,
-            'to.entities': globals.player.workshop.entities
-          })"
-          ></inventory>
-      </div>
 
     </main>
+    <div id="inventoryList">
+      <!-- TODO create a delete mode, but should utilize a command wheel -->
+      <h3 class="text-center">Inventory</h3>
+      <inventory
+        items.bind="ChameView.viewFn.playerInventory() & signal:'generalUpdate'"
+        click-call.call="CCC.issue('player.inventoryPush', {
+          'which.itemStack': item,
+          'to.entities': globals.player.workshop.entities
+        })"
+        ></inventory>
+    </div>
     <div id="tutorial">
       <scope-var var.bind="Tutorial.checkConditions() & signal:'generalUpdate'"></scope-var>
       <div id="tut_pos" class="center">
@@ -340,5 +353,5 @@
   </div>
   <!-- div id="loadingAnim">
     I'm loading!
-  </!-->
+  </div -->
 </template>

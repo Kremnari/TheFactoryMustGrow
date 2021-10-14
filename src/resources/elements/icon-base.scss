@@ -41,10 +41,10 @@ icon-base span.animTarget {
 }
 icon-base > .modis > span {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  font-size: smaller;
   &.required {
     color: red;
+    -webkit-text-stroke: #f44;
   }
   &.max_fill {
     color: crimson;
@@ -82,4 +82,8 @@ icon-base > .modis > span {
 .nameField {
   overflow: auto;
   white-space: nowrap;
+}
+icon-base.countFull {
+  color: red;
+  -webkit-text-stroke: #f44;
 }

@@ -9,6 +9,7 @@ import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
+import popper from 'popper.js'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
@@ -16,7 +17,8 @@ export class App {
       main: "home",
       showingItem: null,
       version: "beta",
-      loaded: false
+      loaded: false,
+      options: {}
     }
     showTut = true
     dataBase = {}
@@ -26,6 +28,9 @@ export class App {
       window.tfmg = this
       this.signaler = signaler
       this.IgorJs = IgorJs
+      ChameView.signaler = this.signaler
+      ChameView.app = this
+      this.ChameView = ChameView
       IgorJs.initialize({
         commandTasker: CC_const, //TODO: Probably some kind of initilization function
         viewTasker: ChameView,  //TODO: Probably some kind of initilization function
@@ -51,17 +56,12 @@ export class App {
     async init(database, DS) { 
       this.mgrs = database.mgrs
       this.mgrs.baseApp = this
-      this.mgrs.signaler = this.signaler
-      this.mgrs.Ticker = IgorJs.Ticker
-      ChameView.signaler = this.signaler
-      ChameView.app = this
-      this.ChameView = ChameView
+      //this.mgrs.signaler = this.signaler
+      //this.mgrs.Ticker = IgorJs.Ticker
       CC_const.initialize({
         dialogSvc: DS,
         dataSet: database.mgrs.data
       })
-      gameSetup() // This should eventually be included in the IgorJs.loadDatabase data
-                  // This would be coming from reading the JSON game schema
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
       this.dataSet = IgorJs.dataSet
       this.globals = IgorJs.globalObject
@@ -96,11 +96,10 @@ export class App {
       ChameJS.setViewFn("objectValues", (list) => {
         return Object.values(list)
       })
-      ChameJS.setViewFn("technologyFilter", (completed) => {
+      ChameJS.setViewFn("technologyFilter", () => {
         return Object.values(tfmg.dataSet.technology).filter( (tech) => {
-          return !tech.prerequisites || tech.prerequisites.every( (preq) => {
-            return completed[preq]
-          })
+          return (this.viewPane.options.bDoneTechs && !this.globals.research.completed[tech])
+          && (!tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research.completed[preq] }))
         })
       })
       ChameJS.setViewFn("workshopEntities", () => {
@@ -110,9 +109,19 @@ export class App {
         })
         return list
       })
+      ChameJS.setViewFn("playerInventory", () => {
+        let list = this.globals.player.inv.items
+        list = list.sort( (first, second) => {
+          if(first.name==second.name) {
+            //This seems backwards...
+            return first.count > second.count ? -1 : 1
+          } else {
+            return first.name > second.name ? 1 : -1
+          }
+        })
+        return list
+      })
 
-      this.signaler.signal("generalUpdate")
-      this.signaler.signal("addedEntity")
       this.showDev = await this.mgrs.idb.get("dev")
       if(!this.showDev) {
         IgorJs.setState("start")
@@ -121,13 +130,11 @@ export class App {
       }
     }
     set showItem(obj) {
-      //if (this.viewPane.showingItem) this.viewPane.showingItem.selectedClass = ""
       let old = this.viewPane.showingItem
       this.viewPane.showingItem = null
       this.viewPane.showingCat = ""
       if (obj && old != obj.item) {
         window.setTimeout( ()=> {
-          //obj.item.selectedClass = "selected"
           this.viewPane.showingItem = obj.item
           this.viewPane.showingCat = obj.cat
           obj.view && (this.viewPane.main = obj.view)
@@ -136,7 +143,7 @@ export class App {
     }
     autoSave() {
       if(!this.autoSave.sub) {
-        this.autoSave.sub = this.mgrs.Ticker.subscribe(()=> {
+        this.autoSave.sub = IgorJs.Ticker.subscribe(()=> {
           IgorJs.saveGame()
         }, Config.TICKS_MAX_PHASE/5)
         this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE/5 - IgorJs.Ticker.ticks%(Config.TICKS_MAX_PHASE/5)+this.autoSave.sub.phase)/Config.TICKS_PER_SECOND) }
@@ -157,6 +164,7 @@ export class App {
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
+
     //* Utility Functions
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
     hideTutorial() { Tutorial.clearTut() }
@@ -164,50 +172,15 @@ export class App {
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
     jumpStart() {
-      this.globals.player.inv.items.push({name: "lab", count: 10})
-      this.globals.player.inv.items.push({name: 'automation-science-pack', count: 200})
-      this.globals.player.inv.items.push({name: 'inserter', count: 50})
-      this.globals.player.inv.items.push({name: 'iron-chest', count: 50})
-      this.globals.player.inv.items.push({name: 'stone', count: 25})
-      this.globals.player.inv.items.push({name: 'burner-mining-drill', count: 5})
+      this.IgorRunner.processTEMP("player.inventory", "inventory.add", {
+        itemStacks: [
+          {name: "lab", count: 10},
+          {name: 'automation-science-pack', count: 200},
+          {name: 'inserter', count: 50},
+          {name: 'iron-chest', count: 50},
+          {name: 'stone', count: 25},
+          {name: 'burner-mining-drill', count: 5}
+        ]
+      })
     }
 }
-
-
-/* Testing functions - no longer utilized
-
-    jumpStart() {
-      this.player.inv.add("inserter", 10)
-      this.player.inv.add("lab", 10)
-      this.player.inv.add("automation-science-pack", 200)
-      this.mgrs.tech.complete_research("steel-processing")
-    }
-    testing() {
-      if(!confirm("Initialize Testing?")) return
-      this.add_FacBlock("resource", "iron-mine") //1
-      this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[0].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[0].lines[0].SetEntityFn(this.mgrs.res.resList["iron-ore"])
-      this.add_FacBlock("factory", "iron-plates") //3
-      this.facBlocks[1].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[1].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[1].lines[0].SetEntityFn(this.mgrs.rec.recipeList["iron-plate"])
-
-      this.add_FacBlock("resource", "copper-mine") //1
-      this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[2].lines[0].AddEntity("burner-mining-drill")
-      this.facBlocks[2].lines[0].SetEntityFn(this.mgrs.res.resList["copper-ore"])
-      this.add_FacBlock("factory", "copper-plates") //3
-      this.facBlocks[3].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[3].lines[0].AddEntity("stone-furnace")
-      this.facBlocks[3].lines[0].SetEntityFn(this.mgrs.rec.recipeList["copper-plate"])
-      this.add_FacBlock("bus", "plates")
-      this.facBlocks[0].AddBusDrain(this.facBlocks[1])
-      this.facBlocks[1].AddBusDrain(this.facBlocks[4])
-      this.facBlocks[2].AddBusDrain(this.facBlocks[3])
-      this.facBlocks[3].AddBusDrain(this.facBlocks[4])
-
-      this.player.inv.add("inserter", 10)
-    }
-
-*/

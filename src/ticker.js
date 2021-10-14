@@ -15,10 +15,11 @@ export default class Ticker {
   debugging = false
   winTerval = null
   ticks = 0
-  constructor(TPS, TMP) {
+  constructor(TPS, TMP, signaler) {
     this.isRunning = false
     this.config = { ticks_per_sec: TPS, ticks_max_phase: TMP}
     this.mspt = 1000/this.config.ticks_per_sec
+    this.signaler = signaler
   }
   pause() {
     this.isRunning = false
@@ -53,8 +54,7 @@ export default class Ticker {
       this._cbs.subscribers.forEach( (cbObj) => {
         if (this.ticks % cbObj.nth == cbObj.phase) cbObj.cb(tickData)
       })
-      mgrs.signaler.signal("tickUpdate")
-      mgrs.signaler.signal("generalUpdate")
+      this.signaler.signal("generalUpdate")
       //console.timeEnd(this.ticks)
     }
     return true;
