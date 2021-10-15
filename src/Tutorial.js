@@ -48,8 +48,14 @@ class tutorial {
       this.setStep(steps[++this.atStep])
     }, 10)
   }
-  tutStep(selector) { $(selector).addClass("tutStep") }
-  tutTarget(selector) { selector ? $(".tutTarget").removeClass("tutTarget") : $(selector).addClass("tutTarget") }
+  tutStep(selector) { $(selector).addClass("tutStep");}
+  tutTarget(selector) {
+    if(selector) {
+      $(selector).addClass("tutTarget")
+    } else {
+      $(".tutTarget").removeClass("tutTarget")
+    }
+  }
   tutHighlight(selector) { $(selector).addClass("tutHighlight") }
   tutText(text) { $("#tut_text").html(text) }
   tutButton(text) {
@@ -167,7 +173,6 @@ class tutorial {
         __.tutButton("Got it")
         break;
       case 1:
-        mgrs.Ticker.resume()
         __.tutStep("#resources icon-base[title='stone']")
         __.tutText("Mine 5 stone")
         __.gameWait = {name:"stone", count: 5, type:"playerInv"}

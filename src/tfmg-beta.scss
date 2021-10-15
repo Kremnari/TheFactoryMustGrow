@@ -6,7 +6,7 @@
     margin: auto;
   }
   & > .statusBox {
-    position: fixed;
+    position: absolute;
     height: 10vh;
     text-align: center;
     width: 100%;
@@ -16,7 +16,7 @@
     & > #toaster {
       top: 0px;
       left: 0px;
-      position: fixed;
+      position: absolute;
       text-align: left;
       padding: 0 2vw;
       height: 10vh;
@@ -67,7 +67,7 @@
     }  
   }
   & > nav {
-    position:fixed;
+    position:absolute;
     top: 10vh;
     width: 100%;
     display: flex;
@@ -103,7 +103,7 @@
   }
   & > main {
     overflow-y: auto;
-    position: fixed;
+    position: absolute;
     width: calc(100%-5vw);
     margin: 0 0.5rem;
     top: calc(10vh + 1.5rem);
@@ -153,7 +153,7 @@
     border: 2px solid black;
     border-radius: 8px;
     height: 16vh;
-    position: fixed;
+    position: absolute;
     display: inline-block;
     bottom: 1vh;
     right: 7.5vw;
@@ -199,7 +199,6 @@
         top: 0px;
         left:0px;
         background: rgba(0, 0, 0, 0.3);
-        //backdrop-filter: blur(3px);
         z-index: 1000;
         position: fixed;
         & #tut_text {
@@ -207,7 +206,7 @@
           backdrop-filter: blur(3px);
         }
         & > #tut_pos {
-          width: 100vw;
+          width: 100%;
           height: 100px;
           font-size: 2em;
           text-align: center;

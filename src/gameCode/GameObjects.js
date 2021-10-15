@@ -141,12 +141,11 @@ function EntityProcessTicker(entity, tickData, Igor) {
       entity.buffers.stalled = null
       entity.process_timer = NaN
     } else {
-      //console.log('buffer full')
-      //if(entity.name=="assembling-machine-1") debugger
       entity.buffers.stalled = added.part
       entity.process_timer = 0
     }
   }
+  Igor.view.signaler.signal("bufferUpdate")
 }
 IgorJs.defineObj("player.entity", PlayerEntity, {tick: EntityProcessTicker})
 IgorJs.addObjectTickHandler("player.entity", EntityInputTicker, "inputTicker", {chain: ["inputTicker", "tick"], num: -5})

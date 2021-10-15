@@ -270,6 +270,13 @@ export const IgorUtils = {
       case "storeSave":
         await dbSet(IgorCore.saveName, params, IgorCore.db);
         return "done";
+      case "backupSave":
+        IgorUtils.backupSave()
+        return "done"
+      case "restoreBackupSave":
+        let save = await dbGet("SaveGame_bak", IgorCore.db)
+        dbSet(IgorCore.saveName, save, IgorCore.db)
+        return "done"
     }
   }
 }
@@ -346,6 +353,7 @@ export const IgorRunner = {
     let del = def._delete
     del && del(target, IgorRunner)
     let idx = IgorCore.tick_entities.findIndex( (x) => { return x.$_id==target.$_id })
+    console.log('deleting idx: '+idx)
     IgorCore.tick_entities.splice(idx, 1)
     IgorCore.objs.delete(target.$_id)
     IgorRunner.view.clearShowing()
