@@ -98,8 +98,10 @@ export class App {
       })
       ChameJS.setViewFn("technologyFilter", () => {
         return Object.values(tfmg.dataSet.technology).filter( (tech) => {
-          return (this.viewPane.options.bDoneTechs && !this.globals.research.completed[tech])
-          && (!tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research.completed[preq] }))
+          if(this.globals.research.completed[tech.name]) return tfmg.viewPane.options.bDoneTechs
+          return !tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research.completed[preq] })
+        }).sort( (first, second) => {
+          return first.name > second.name ? 1 : -1
         })
       })
       ChameJS.setViewFn("workshopEntities", () => {
@@ -178,7 +180,7 @@ export class App {
           {name: 'automation-science-pack', count: 200},
           {name: 'inserter', count: 50},
           {name: 'iron-chest', count: 50},
-          {name: 'stone', count: 25},
+          {name: 'stone', count: 100},
           {name: 'burner-mining-drill', count: 5}
         ]
       })

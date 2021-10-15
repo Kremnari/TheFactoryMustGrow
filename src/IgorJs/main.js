@@ -244,6 +244,7 @@ export const IgorUtils = {
       case "start":
         IgorCore.graphics.signaler.signal("generalUpdate")
         IgorCore.graphics.signaler.signal("entityUpdate")
+        IgorCore.graphics.signaler.signal("techResearched")
         IgorCore.ticker.resume();
         break;
       case "stop":
@@ -298,8 +299,8 @@ export const IgorRunner = {
       if(obj.includes("id")) {
         obj = IgorCore.objs.get(obj)
       } else {
-        obj = IgorCore.namedObjs[obj]
-        if(!obj) debugger
+        let temp = IgorCore.namedObjs[obj]
+        if(temp) obj = temp
       }
     }
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)

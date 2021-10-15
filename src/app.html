@@ -287,7 +287,7 @@
         <span class="${!viewPane.options.bDoneTechs && 'inActiveOption'}" click.delegate="viewPane.options.bDoneTechs = !viewPane.options.bDoneTechs">Show Completed</span>
         <div class="overflow">
           <icon-base
-            repeat.for="tech of ChameView.viewFn.technologyFilter() & signal:'generalUpdate'"
+            repeat.for="tech of ChameView.viewFn.technologyFilter(viewPane.options.bDoneTechs) & signal:'techResearched'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research.completed[tech.name] ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
