@@ -1,10 +1,10 @@
 <template bindable="entity, tag">
   <span
-    if.bind="entity.$_tags.has(tag) & signal:'generalUpdate'"
+    if.bind="entity._tags[tag]"
     click.delegate="entity.$_tags.delete(tag)"
   >On</span>
   <span
-    if.bind="!entity.$_tags.has(tag) & signal:'generalUpdate'"
+    if.bind="!entity._tags[tag]"
     click.delegate="entity.$_tags.push(tag, true)"
   >Off</span>
 </template>

@@ -20,10 +20,11 @@ const IgorCore = {
   },
   Tick: (td) => {
     for( let each of IgorCore.tick_entities.values()) {
+      if(!each._tags.tick) continue
       let order = IgorCore.object_tickers[each.$_type].$_signalOrders
       if(order) {
         order.forEach( (x) => {
-          if(each.$_tags.has(x)) IgorCore.object_tickers[each.$_type][x].fn(each, td, IgorRunner)
+          if(each._tags[x]) IgorCore.object_tickers[each.$_type][x].fn(each, td, IgorRunner)
         })
       } else {
         IgorCore.object_tickers[each.$_type].tick.fn(each, td, IgorRunner)
@@ -51,15 +52,15 @@ const IgorBuilder = {
       $_id: "id_"+IgorCore.control.obj_counter++,
       $_type: type,
       $_subType: subType,
-      $_parent: parent
+      $_parent: parent?.$_id || parent
     }
     obj.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: obj})
     IgorCore.objs.set(obj.$_id, obj)
     return obj
   },
-  newComponent: (objType, params ) => {
+  newComponent: (objType, params, parent ) => {
     if(IgorCore.metaDefines[objType]) {
-      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, ""), IgorBuilder)
+      let [obj, cmds] = IgorCore.metaDefines[objType].new(params, IgorBuilder.newObject(objType, "", parent), IgorBuilder)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
       }

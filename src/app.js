@@ -150,7 +150,7 @@ export class App {
         }, Config.TICKS_MAX_PHASE/5)
         this.autoSave.secs = () => { return Math.floor((Config.TICKS_MAX_PHASE/5 - IgorJs.Ticker.ticks%(Config.TICKS_MAX_PHASE/5)+this.autoSave.sub.phase)/Config.TICKS_PER_SECOND) }
       } else {
-        this.mgrs.Ticker.dispose(this.autoSave.sub)
+        this.IgorJs.Ticker.dispose(this.autoSave.sub)
         this.autoSave.secs = () => {return 0 }
         this.autoSave.sub = null
       }
@@ -181,8 +181,12 @@ export class App {
           {name: 'inserter', count: 50},
           {name: 'iron-chest', count: 50},
           {name: 'stone', count: 100},
-          {name: 'burner-mining-drill', count: 5}
+          {name: 'burner-mining-drill', count: 5},
+          {name: 'stone-furnace', count: 5},
+          {name: 'assembling-machine-1', count: 5},
+          {name: 'transport-belt', count: 100}
         ]
       })
+      this.signaler.signal("generalUpdate")
     }
 }

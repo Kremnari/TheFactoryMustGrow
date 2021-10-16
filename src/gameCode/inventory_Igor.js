@@ -6,14 +6,16 @@
 
 //* max contains the max stack size for the item
 // if it's falsy, then we'll assume we are consuming
-function findIndex(items, name, max) {
+function findIndex(items, name, max, start) {
   if(max) {
     let idx = -1
     let mode = 4
-    for (let [curr, item] of items.entries()) {
-      if(mode>3 && !item) { mode = 3; idx = curr; }
-      if(mode>2 && item && item.count == 0) { mode = 2; idx = curr; }
-      if(mode>1 && item && item.name == name && item.count < max) { mode = 1; idx = curr; }
+    let item
+    for( let i = start || 0; i< items.length; i++ ) {
+      item = items[i]
+      if(mode>3 && !item) { mode = 3; idx = i; }
+      if(mode>2 && item && item.count == 0) { mode = 2; idx = i; }
+      if(mode>1 && item && item.name == name) { mode = 1; idx = i; }
     }
     if(mode==2) { items[idx].icon = null; }
     return idx
@@ -22,39 +24,51 @@ function findIndex(items, name, max) {
     return idx==-1 ? -1 : items.length-1-idx
   }
 }
+//args.stackLimit - basically how many times we can search for a stack
 function AddAll(inv, args, returnObj, Igor) {
   //! needs to handle a multiplier from args
   let itemStacks = args.itemStacks
   if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
   let part = []
   let maxStack = 0
+
   for (let each of itemStacks) {
     if(!each.count && each.amount) each.count = each.amount //TEMP data set is not upto snuff..
     if(each.count==0) continue
     let addTotal = each.count*(args.multi||1) //Aurelia is inf looping the getters and setters without this temp
     maxStack = inv.stackSize || Igor.data.item[each.name].stack_size
     let idx = findIndex(inv.items, each.name, maxStack)
-    while(idx>-1 && addTotal>0) {
+    let found = 0
+    let toAdd
+    while(!(args.stackLimit && found>=args.stackLimit) && idx>-1 && addTotal>0) {
       //console.log("toadd: "+addTotal+" of "+each.name)
       if(typeof inv.items[idx]==='undefined') {
         //console.log('undef')
-        let toAdd = Math.min(maxStack, addTotal)
+        toAdd = Math.min(maxStack, addTotal)
         inv.items[idx] = {name: each.name, count: toAdd}
         addTotal -= toAdd
       } else {
-        let toAdd = Math.min(maxStack-inv.items[idx].count, addTotal)
+        toAdd = Math.min(maxStack-inv.items[idx].count, addTotal)
         addTotal -= toAdd
         inv.items[idx].name = each.name
         inv.items[idx].count += toAdd
+        if(toAdd===0) found++
       }
-      if(addTotal) idx = findIndex(inv.items, each.name, maxStack)
+      if(addTotal) idx = findIndex(inv.items, each.name, maxStack, idx+1)
     }
+    if(idx==-1
+      && (!inv.maxStacks || inv.items.length<inv.maxStacks)
+      && !(args.stackLimit && found>=args.stackLimit)
+    ) {
+      inv.items.push({name: each.name, count: addTotal})
+      addTotal = 0
+    } 
     if(addTotal>0) {
       //TODO: Need to track inventory size
       //! Theoretically, this would be the case of all existing inventory
       //!   is different than the item or full
-      if(!inv.maxStacks || inv.items.length<inv.maxStacks) {
-        inv.items.push({name: each.name, count: addTotal})
+      if(args.stackLimit) {
+        part.push({name: each.name, count: each.count-addTotal})
       } else {
         part.push({name: each.name, count: addTotal})
         //Igor.graphics.error("Inventory Full")

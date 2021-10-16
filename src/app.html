@@ -183,6 +183,7 @@
                 item.bind="machina"
                 alt-image.bind="machina.processing.icon || machina.processing.name"
                 click.delegate="showItem = {item: machina}"
+                metas.bind="{stalled: !machina._tags['tick']}"
                 class="${viewPane.showingItem == machina ? 'selected':''}"
               ></icon-base>
             </div>

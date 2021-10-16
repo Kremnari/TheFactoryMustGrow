@@ -22,6 +22,14 @@ icon-base {
       position: absolute;
       text-align: center;
     }
+    & span.stalled {
+      color: red;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -5px;
+      font-size: 0.5rem;
+    }
   }
 }
 icon-base > div {
