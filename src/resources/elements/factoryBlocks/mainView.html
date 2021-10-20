@@ -5,10 +5,12 @@
     <span class="col">Land Size : ${$scope.facBlock.size}</span>
     <span class="col">
       <h4>${$scope.facBlock.name}</h4>
+      -(
       <icon-base
         click.delegate="CCC.issue('factoryBlock.selectSubIcon', {}, $event)"
         item.bind="$scope.facBlock.subIcon"
       ></icon-base>
+      )
     </span>
 
     <span class="col">Complexity: ${$scope.facBlock.complexity}</span>
@@ -36,7 +38,10 @@
                     'connectTo.block': $scope.facBlock.$_id,
                     'current.bus': $scope.facBlock.connections.sources[sourceIdx] || -1
                 }, $event)"
-          >${IgorJs.getObjId($scope.facBlock.connections.sources[sourceIdx]).name || "none" & signal:"generalUpdate"}</span>
+          >
+            ${IgorJs.getObjId($scope.facBlock.connections.sources[sourceIdx]).name || "none" & signal:"generalUpdate"}
+            <span class="fas fa-edit fa_icon_sm"></span>
+          </span>
         </div>
       </div>
       <div class="row">
@@ -91,7 +96,10 @@
                       'connectTo.block': $scope.facBlock.$_id,
                       'current.bus': $scope.facBlock.connections.drains[drainIdx] || -1
                     }, $event)"
-          >${IgorJs.getObjId($scope.facBlock.connections.drains[drainIdx]).name || "none" & signal:'generalUpdate'}</span>
+          >
+            ${IgorJs.getObjId($scope.facBlock.connections.drains[drainIdx]).name || "none" & signal:'generalUpdate'}
+            <span class="fas fa-edit fa_icon_sm"></span>
+          </span>
         </div>
       </div>
       <div class="row">

@@ -14,8 +14,8 @@
             <div class="col">
                 <div class="techBlock connection">
                     <span
-                        class="fas fa-sign-in-alt fa_icon "
-                        click.delegate="showItem = {item: IgorJs.getObjId($scope.techBlock.buffers.in, 'connection'), view:'viewFacBlock'}"
+                        class="fas fa-sign-in-alt fa_icon_sm "
+                        click.delegate="showItem = {item: IgorJs.getObjId($scope.techBlock.connections.sources[0]), view:'viewFacBlock'}"
                     ></span>
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo',
@@ -24,7 +24,10 @@
                         'connectTo.block': $scope.techBlock.$_id,
                         'current.bus': $scope.techBlock.connections.sources[0] || -1
                         })"
-                    >${IgorJs.getObjId($scope.techBlock.connections.sources[0]).name || "none" & signal:'generalUpdate'}</span>
+                    >
+                        ${IgorJs.getObjId($scope.techBlock.connections.sources[0]).name || "none" & signal:'generalUpdate'}
+                        <span class="fas fa-edit fa_icon_sm"></span>
+                    </span>
                 </div>
             </div>
             <div class="col">

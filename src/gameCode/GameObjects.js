@@ -415,6 +415,7 @@ EntityBufferActions.tick = (buffer, tickData, Igor) => {
   if(buffer.items.length==0 || !buffer.active) return
   if(buffer.xferTimer) return buffer.xferTimer--
   //Surely a more elegant way to run this...
+  //TODO need to alter stacks if not completely xferd
   if(buffer.dir=='in') {
     let toAdd = Math.min(buffer.xfer, buffer.stackSize-buffer.items[buffer.xferStack].count)
     if(toAdd==0) return Igor.processTEMP(buffer, "buffer.setStall")

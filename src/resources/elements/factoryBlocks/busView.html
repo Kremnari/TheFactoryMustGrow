@@ -11,10 +11,12 @@
       </div>
       <div class="col">
         <h4 class="text-center">${$scope.busLine.name}</h4>
-        <icon-base
+        -(
+          <icon-base
           click.delegate="CCC.issue('factoryBus.selectSubIcon', {}, $event)"
           item.bind="$scope.busLine.subIcon"
         ></icon-base>
+        )
       </div>
       <div class="col text-end">
         Complexity: ${$scope.busLine.complexity}
@@ -67,7 +69,7 @@
         <div repeat.for="source of $scope.busLine.connections.sources">
           <span
             class="fas fa-sign-in-alt fa_icon_sm"
-            click.delegate="showItem = {item: source.parent, view:'viewFacBlock'}"
+            click.delegate="showItem = {item: source, view:'viewFacBlock'}"
           ></span>
           ${IgorJs.getObjId(source).name}
           <icon-base
@@ -112,7 +114,7 @@
           ${IgorJs.getObjId(drain).name}
           <span
             class="fas fa-sign-out-alt fa_icon_sm"
-            click.delegate="showItem = {item: drain.parent, view:'viewFacBlock'}"
+            click.delegate="showItem = {item: drain, view:'viewFacBlock'}"
           ></span>
         </div>
       </div>

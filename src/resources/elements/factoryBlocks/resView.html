@@ -45,8 +45,8 @@
             <div class="col">
                 <div class="resBlock connection">
                     <span
-                        class="fas fa-sign-out-alt fa_icon"
-                        click.delegate="showItem = {item: IgorJs.getObjId($scope.resBlock.buffers.out, 'connection'), view:'viewFacBlock'}"
+                        class="fas fa-sign-out-alt fa_icon_sm"
+                        click.delegate="showItem = {item: IgorJs.getObjId($scope.resBlock.connections.drains[0]), view:'viewFacBlock'}"
                     ></span>
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo', 
@@ -57,6 +57,7 @@
                             }, $event)"
                     >
                         ${IgorJs.getObjId($scope.resBlock.connections.drains[0]).name || "none" & signal:'generalUpdate'}
+                        <span class="fas fa-edit fa_icon_sm"></span>
                     </span>
                 </div>
             </div>
