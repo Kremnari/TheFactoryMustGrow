@@ -28,11 +28,11 @@
               count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'bufferUpdate'"
               title="Click to collect"
             ></icon-base>
-            /${IgorJs.getObjId($scope.miner.buffers.out).stackSize} (max)
+            /${IgorJs.getObjId($scope.miner.buffers.out).stackSize}
+            <!-- # magic number -->
+            [${$scope.miner.process_ticks/30 }s]
           </span>
-          <span
-            click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)"
-          >
+          <span click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)">
             Change
           </span>
         </div>

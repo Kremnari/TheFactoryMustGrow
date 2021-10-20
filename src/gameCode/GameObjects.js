@@ -29,79 +29,6 @@ PlayerEntity._delete = (target, Igor) => {
   target.buffers.in  && Igor.deleteObject(target.buffers.in)
   target.buffers.out && Igor.deleteObject(target.buffers.out)
 }
-
-//!  These should be combined into the entity.buffer tick()
-function EntityInputTicker(entity, tickData, Igor) {
-  //need to reconjigger this to draw from multiple buffer slots
-  console.log("input called")
-  let buffer = Igor.getId(entity.buffers.in)
-  if(buffer.items.length==0) return
-  if(buffer.xferTimer == 0) {
-    //TODO Setup this to allow moving multiple types of items per tick
-    let toAdd = Math.min(buffer.xfer, buffer.stackSize-buffer.items[buffer.xferStack].count)
-    let added = Igor.processTEMP(
-                    Igor.getNamedObject("player.inventory")
-                    ,"inventory.consume"
-                    ,{itemStacks: {
-                          name: buffer.items[buffer.xferStack].name
-                        ,count: toAdd
-                      }, partial: true
-                    })
-    if(added && added[0].count>0) {
-      buffer.items[buffer.xferStack].count += added[0].count
-      Igor.view.signaler.signal("bufferUpdate")
-      buffer.stalled = false
-      entity.$_tags.push("tick", "processing")
-    } else if(buffer.items[buffer.xferStack].count==buffer.stackSize) {
-      buffer.stalled = true
-      buffer.xferTimer = Math.floor(buffer.xferTicks/10)
-      return
-    }
-    buffer.xferTimer = buffer.xferTicks
-    ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
-  } else {
-    buffer.xferTimer--
-  }
-}
-function EntityOutputTicker(entity, tickData, Igor) {
-  //need to reconjigger this for drawing from multiple buffer slots
-  console.log('output called')
-  let buffer = Igor.getId(entity.buffers.out)
-  if(buffer.items.length==0) return
-  if(buffer.xferTimer == 0) {
-    //TODO Setup this to allow moving multiple types of items per tick
-    //Check if player inventory has a full stack, if so, stall
-    let p_inv = Igor.getNamedObject("player.inventory")
-    let fillCount = Igor.processTEMP(p_inv, "inventory.total", {name: buffer.items[buffer.xferStack].name})
-    if(fillCount>=Igor.data.item[buffer.items[buffer.xferStack].name].stack_size) {
-      //I'm stalled
-      buffer.xferTimer += Math.floor(buffer.xferTicks/10)
-      buffer.stalled = true
-      return
-    } else {
-      buffer.stalled = false
-    }
-    //procede with push
-    let toSub = Math.min(buffer.xfer, buffer.items[buffer.xferStack].count)
-    //console.log(toSub)
-    let added = Igor.processTEMP(
-      p_inv
-      ,"inventory.add"
-      ,{itemStacks: {
-         name: buffer.items[buffer.xferStack].name
-        ,count: toSub
-      }}
-    )
-    if(added.complete) {
-      buffer.items[buffer.xferStack].count -= toSub
-      Igor.view.signaler.signal("bufferUpdate")
-    }
-    buffer.xferTimer = buffer.xferTicks
-    ++buffer.xferStack==buffer.items.length && (buffer.xferStack =0)
-  } else {
-    buffer.xferTimer--
-  }
-}
 function EntityResearchTicker(entity, tickData, Igor) {
   let research = Igor.getNamedObject("research").progressing
   if(!research) return
@@ -125,6 +52,7 @@ function EntityResearchTicker(entity, tickData, Igor) {
     Igor.processTEMP(research, "research.update", {})
     entity.research_timer = NaN
   }
+  Igor.view.signaler.signal("bufferUpdate")
 }
 function EntityProcessTicker(entity, tickData, Igor) {
   if(!entity.processing) { entity.$_tags.delete("ticking"); return }
@@ -155,8 +83,6 @@ function EntityProcessTicker(entity, tickData, Igor) {
   Igor.view.signaler.signal("bufferUpdate")
 }
 IgorJs.defineObj("player.entity", PlayerEntity, {tick: EntityProcessTicker})
-//IgorJs.addObjectTickHandler("player.entity", EntityInputTicker, "inputTicker", {chain: ["inputTicker", "tick"], num: -5})
-//IgorJs.addObjectTickHandler("player.entity", EntityOutputTicker, "outputTicker", {chain: ["tick", "outputTicker"],  num: 5})
 IgorJs.addObjectTickHandler("player.entity", EntityResearchTicker, "researchTicker", {chain: ["tick", "researchTicker"], num: 3})
 
 /* *
