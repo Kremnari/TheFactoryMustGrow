@@ -56,7 +56,7 @@ export const ChameleonViewer = {
       msg,
       icon,
       fa,
-      timer: 200,
+      timer: 400,
       _alert: ChameleonViewer.showAlert
     }
     ChameleonViewer.toasts.push(what)
@@ -68,7 +68,7 @@ export const ChameleonViewer = {
       msg,
       icon,
       fa,
-      timer: 50,
+      timer: 100,
       _alert: ChameleonViewer.showAlert
     }
     ChameleonViewer.toasts.push(what)
@@ -80,7 +80,7 @@ export const ChameleonViewer = {
       msg,
       icon,
       fa,
-      timer: 200,
+      timer: 400,
       _alert: ChameleonViewer.showAlert
     }
     ChameleonViewer.toasts.push(what)
@@ -92,7 +92,7 @@ export const ChameleonViewer = {
     what.msg = msg
     what.icon = icon
     what.fa = fa
-    what.timer = 100
+    what.timer = 200
     what._alert = ChameleonViewer.showAlert
     ChameleonViewer.toasts.push(what)
     ChameleonViewer.toastTimerSet()
