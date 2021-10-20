@@ -331,7 +331,7 @@
             repeat.for="tech of ChameView.viewFn.technologyFilter(viewPane.options.bDoneTechs) & signal:'techResearched'"
             click.delegate="showItem = {item: tech, cat: 'tech'}"
             item.bind="tech"
-            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research.completed[tech.name] ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
+            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
           ></icon-base>
         </div>
       </section>

@@ -98,8 +98,8 @@ export class App {
       })
       ChameJS.setViewFn("technologyFilter", () => {
         return Object.values(tfmg.dataSet.technology).filter( (tech) => {
-          if(this.globals.research.completed[tech.name]) return tfmg.viewPane.options.bDoneTechs
-          return !tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research.completed[preq] })
+          if(this.globals.research[tech.name]?.complete) return tfmg.viewPane.options.bDoneTechs
+          return !tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research[preq]?.complete })
         }).sort( (first, second) => {
           return first.name > second.name ? 1 : -1
         })
@@ -214,7 +214,7 @@ export class App {
           {name: 'transport-belt', count: 100}
         ]
       })
-      this.globals.activeFeatures["factoryBlocks"] = {}
+      this.globals.activeFeatures.factoryBlocks = {}
       this.signaler.signal("generalUpdate")
     }
 }

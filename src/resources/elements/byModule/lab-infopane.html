@@ -23,7 +23,7 @@
         <span if.bind="globals.research.progressing">
           ${globals.research.progressing.name}<br>
           [${$scope.lab.research_time/30}s]<br>
-          ${globals.research.progressing.completeUnits}/
+          ${globals.research[globals.research.progressing.name].completeUnits}/
           ${globals.research.progressing.cost.count}
         </span>
       </div>

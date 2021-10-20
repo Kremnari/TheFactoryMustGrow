@@ -301,7 +301,7 @@ EntityBufferActions.SetRestrictions = (target, args, returnObj, Igor) => {
     if(!x) {emptyIdxs.push(idx); continue}
     if(!args.list.includes(x.name)) {
       if(x.count>0) Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: x})
-      target.items.splice(idx, 1, undefined)
+      target.items.splice(idx, 1)
       emptyIdxs.push(idx)
     } else {
       connected.push(x.name)
@@ -346,7 +346,7 @@ EntityBufferActions.ClearRestriction = (target, args, returnObj, Igor) => {
     if(x.name == args.itemName) {
       x.restrictedBy.splice(x.restrictedBy.indexOf(args.lineId), 1)
       if(x.restrictedBy.length==0) {
-        target.items[idx] = null
+        target.items.splice(idx, 1)
         returnObj._result = {found: true, cleared: true}
       } else {
         returnObj._result = {found: true, cleared: false}
@@ -362,13 +362,20 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
   //TODO need to handle different item stacks
   // setup filter priorities for output 
   if(args.toBus) {
-    while(args.xferCount>0) {
-      if(!target.items[target.busShift]) return null
-      let added = Igor.processTEMP(args.toBus, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
+    let loops = 0
+    while(args.xferCount>0 && loops<target.items.length) {
+      if(!target.items[target.busShift]) {
+        ++target.busShift>=target.items.length && (target.busShift=0)
+        continue
+      }
+      let toAdd = Igor.processTEMP(target, "inventory.total", {name: target.items[target.busShift].name})
+      let added = Igor.processTEMP(args.toBus, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: Math.min(args.xferCount, toAdd)}]})
       if(added.complete) {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
         args.xferCount=0
       } else if(added.part[0].count==args.xferCount) {
+        //! This point breaks the loop
+        ++target.busShift==target.items.length && (target.busShift=0)
         returnObj.full = true
         return
       } else {
@@ -381,7 +388,11 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
   } else if (args.fromBus) {
     let loops = 0
     while(args.xferCount>0) {
-      if(!target.items[target.busShift]) return null
+      if(!target.items[target.busShift]) {
+        ++target.busShift>=target.items.length && (target.busShift=0)
+        console.warn("this shouldn't be happening still!")
+        continue
+      }
       let space = target.stackSize -  target.items[target.busShift].count
       if(space) {
         let consumed = Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: Math.min(args.xferCount, space)}], partial: true})
@@ -414,7 +425,7 @@ EntityBufferActions.BufferStalled.Igor_operation = "buffer.setStall"
 
 EntityBufferActions.tick = (buffer, tickData, Igor) => {
   if(buffer.items.length==0 || !buffer.active) return
-  if(buffer.xferTimer) return buffer.xferTimer--
+  if(buffer.xferTimer>0) return buffer.xferTimer--
   //Surely a more elegant way to run this...
   //TODO need to alter stacks if not completely xferd
   if(buffer.dir=='in') {
@@ -465,7 +476,12 @@ const SetResearchSig = {
 }
 const SetResearch =  (obj, Igor, self) => {
   obj.global.game.research.progressing = obj.which.tech
-  obj.global.game.research.progressing.completeUnits = 0
+
+  if(!obj.global.game.research[obj.which.tech.name]) {
+    obj.global.game.research[obj.which.tech.name] = {
+      completeUnits: 0
+    }
+  }
 }
 
 IgorJs.provide_CCC("research.set", SetResearch, SetResearchSig)
@@ -475,6 +491,7 @@ const ClearResearchSig = {
 }
 const ClearResearch = (obj, Igor, self) => {
   obj.global.game.research.progressing = null
+  Igor.view.signaler.signal("techResearched")
 }
 IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
 
@@ -482,13 +499,13 @@ IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
 //To adding it back to the factoryBlock
 const ResearchUpdate = (obj, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
-  obj.completeUnits += args.count || 1
-  if(obj.completeUnits>=obj.cost.count) {
+  global.research[obj.name].completeUnits += args.count || 1
+  if(global.research[obj.name].completeUnits>=obj.cost.count) {
     Igor.view.goodToast("Research Complete: "+obj.name)
-    returnObj._result = obj.completeUnits-obj.cost.count
+    returnObj._result = global.research[obj.name].completeUnits-obj.cost.count
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
-    global.research.completed[obj.name] = true
+    global.research[obj.name].complete = true
     obj.unlocks.forEach( (item) => {
       typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
       typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
@@ -525,7 +542,7 @@ IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (obj, args, returnObj, Igor) => {
   let features = Igor.getNamedObject("global").activeFeatures
-  if(features[obj.feature]) {
+  if(!features[obj.feature]) {
     features[obj.feature] = obj
   } else {
     //! needs something more elegant...
@@ -542,7 +559,6 @@ const FeatureUnlock = (obj, args, returnObj, Igor) => {
         })
       }
     }
-    debugger
     Object.assign(features[obj.feature], obj)
   }
 

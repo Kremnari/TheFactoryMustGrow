@@ -59,7 +59,7 @@
                 <span>Tech Branch: ${$scope.techBlock.techTreeClass}</span><br>
                 <span>${globals.research.progressing.name || "No Research" & signal:'generalUpdate'}</span><br>
                 <span show.bind="globals.research.progressing">
-                     ${globals.research.progressing.completeUnits}
+                     ${globals.research[globals.research.progressing.name].completeUnits}
                     /${globals.research.progressing.cost.count}
                 </span>
             </div>

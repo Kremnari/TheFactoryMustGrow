@@ -116,7 +116,7 @@ class tutorial {
         }
         break;
       case "techComplete":
-        if(this.baseApp.globals.research.completed[this.gameWait.name]) this.waitComplete()
+        if(this.baseApp.globals.research[this.gameWait.name].complete) this.waitComplete()
         break;
       case "gameState":
         if(this.gameWait.validator(Object.walkPath(this.baseApp, this.gameWait.path))) {

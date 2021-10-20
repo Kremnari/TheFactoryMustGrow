@@ -256,9 +256,9 @@ FactoryBlock.ClearProcessItems = (target, args, returnObj, Igor) => {
             }
         }
     })
-    Igor.processTEMP(Igor.getId(target.buffers.in), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at=="in"})})
-    Igor.processTEMP(Igor.getId(target.buffers.internal), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at=="internal"})})
-    Igor.processTEMP(Igor.getId(target.buffers.out), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at=="out"})})
+    Igor.processTEMP(Igor.getId(target.buffers.in), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.in})})
+    Igor.processTEMP(Igor.getId(target.buffers.internal), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.internal})})
+    Igor.processTEMP(Igor.getId(target.buffers.out), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.out})})
 }
 FactoryBlock.ClearProcessItems.Igor_operation = "factoryBlock.clearProcessItems"
 IgorJs.defineObj("FactoryBlock", FactoryBlock.New, FactoryBlock)
@@ -291,15 +291,27 @@ FactoryLine.New.signature = {
 FactoryLine.New._signal = "generalUpdate"
 FactoryLine.__delete = (obj, Igor) => {
     obj.$_tags.delete("tick")
+    Igor.processTEMP(
+        obj.$_parent
+        ,"factoryBlock.clearProcessItems"
+        ,{lists: obj.processList})
+
     Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
     let foundation = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation"}).data
     Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: foundation, multi: obj.built+obj.prepped})
     if(obj.processing_count) {
         Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: obj.rescipe.ingredients, multi: obj.processing_count})
     }
+
     let parent = Igor.getId(obj.$_parent)
     let idx = parent.factoryLines.indexOf(obj.$_id)
     parent.factoryLines.splice(idx, 1)
+    debugger
+    parent.factoryLines.forEach((x, i) => {
+        if(Igor.getId(x).order<idx) return
+        debugger
+        Igor.getId(x).order--
+    })
     //TODO adjust land use and complexity
     Igor.view.signaler.signal("generalUpdate")
 }
@@ -361,12 +373,11 @@ FactoryLine.Expand.CC_provide = "factoryLine.addBuilding"
 */
 FactoryLine.SetRecipe = (obj, Igor) => {
     if(obj.at.factoryLine.recipe) {
-        if(obj.at.factoryLine.recipe!==obj.which.recipe) {
         Igor.processTEMP(
             obj.at.factoryBlock
             ,"factoryBlock.clearProcessItems"
             ,{lists: obj.at.factoryLine.processList})
-        } else {
+        if(obj.at.factoryLine.recipe==obj.which.recipe) {
             obj.at.factoryLine.recipe = null
             obj.at.factoryLine.$_tags.delete("tick")
             return
@@ -676,7 +687,7 @@ ResourceBlock.New = (params, newObj, Igor) => {
     newObj.mining_ticks = NaN
     newObj.mining_drill = "burner-mining-drill"
     newObj.buffers = {}
-    newObj.buffers.out = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 0}, newObj)
+    newObj.buffers.out = Igor.newComponent("entity.buffer", {restrictable: true, stacks: 1, stackSize: 0, dir: 'out'}, newObj)
 
     return [newObj]
 }
@@ -764,7 +775,7 @@ TechBlock.New = (params, newObj, Igor) => {
     newObj.built = 0
     newObj.connections = { sources: [], maxSources: 1}
     newObj.buffers = {}
-    newObj.buffers.in = Igor.newComponent("entity.buffer", {restrictable: true, stackSize: 10, maxStack: 2}, newObj.$_id)
+    newObj.buffers.in = Igor.newComponent("entity.buffer", {restrictable: true, stackSize: 10, maxStack: 2, dir:'in'}, newObj.$_id)
     newObj.techTreeClass = "main"
     newObj.subIcon = "automation-science-pack"
     newObj.research_speed = 1

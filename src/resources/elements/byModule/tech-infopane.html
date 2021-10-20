@@ -2,12 +2,12 @@
   <scope-var var.bind="$scope = {tech: viewPane.showingItem}"></scope-var>
   <div click.capture="CCC.provide($event, 'which', 'tech', $scope.tech)">
     <h5><icon-base item.bind="$scope.tech"></icon-base>${$scope.tech.name}</h5>
-    <button click.delegate="CCC.issue('research.set', {}, $event)" if.bind="!globals.research.progressing && !globals.research.completed[$scope.tech.name]" id="StartResearch">Research</button>
+    <button click.delegate="CCC.issue('research.set', {}, $event)" if.bind="!globals.research.progressing && !globals.research[$scope.tech.name].complete" id="StartResearch">Research</button>
     <button click.delegate="CCC.issue('research.clear', {}, $event)" if.bind="globals.research.progressing.name == $scope.tech.name">Cancel</button>
-    <div if.bind="!globals.research.completed[$scope.tech.name]">
+    <div if.bind="!globals.research[$scope.tech.name].complete & signal:'techResearched'">
       <strong>Cost</strong>
       <icon-base repeat.for="unit of $scope.tech.cost.ingredients" item.bind="unit[0]"></icon-base>
-      x${$scope.tech.cost.count - $scope.tech.completeUnits}
+      x${$scope.tech.cost.count - globals.research[$scope.tech.name].completeUnits}
       <br>
       <strong>Unlocks</strong>
       <div repeat.for="unlock of $scope.tech.unlocks">
@@ -18,7 +18,7 @@
         </span>
       </div>
     </div>
-    <div if.bind="globals.research.completed[$scope.tech.name]">
+    <div if.bind="globals.research[$scope.tech.name].complete & signal:'techResearched'">
       <strong>Unlocked</strong>
       <div repeat.for="unlock of $scope.tech.unlocks">
         <icon-base if.bind="typeof unlock === 'string'" item.bind="unlock" mouseenter.trigger="tooltip = unlock" mouseleave.trigger="tooltip = null"></icon-base>

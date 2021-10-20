@@ -11,7 +11,7 @@
     <div if.bind="display.type=='technology'">
       <h5>${display.name}</h5>
       <icon-base repeat.for="unit of display.cost.ingredients" item.bind="unit[0]"></icon-base>
-      x${display.cost.count - display.completeUnits}
+      x${display.cost.count - global.research[display.name].completeUnits}
       <p>
         <icon-base repeat.for="unlock of display.unlocks" item.bind="unlock" show-name.bind="true"></icon-base>
       </p>

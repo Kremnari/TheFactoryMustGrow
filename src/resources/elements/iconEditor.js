@@ -60,6 +60,10 @@ export class IconEditor {
     this.IE.select.Icon = null
     this.signaler.signal("update")
   }
+  copyIcon() {
+    navigator.clipboard.writeText(this.IE.showNew)
+    debugger
+  }
   IEStore() {
     this.IE.ds.new[this.IE.select.Cat][this.IE.select.Icon] = this.IE.fileBlob
     this.IE.fileBlob = null

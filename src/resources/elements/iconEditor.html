@@ -17,6 +17,7 @@
   <figcaption class="inline">New</figcaption><br>
   <input type="file" files.bind="IE.file" accept="image/*" change.delegate="IEfiled()">Select replacement</input>
   <img src.bind="IE.fileBlob & signal:'update'"></img><br>
+  <button click.delegate="copyIcon()">Copy</button>
   <button click.delegate="IEStore()">Store</button>
   <button click.delegate="saveIconEditor()">SaveDB</button><br>
   <button click.delegate="dlIconEditor()">Download Json</button>
