@@ -114,7 +114,8 @@ function EntityResearchTicker(entity, tickData, Igor) {
       Igor.processTEMP(entity.buffers.in, "inventory.consume", {itemStacks: {name, count: qty}})
     })
     //Consume next units to reset timer
-    Igor.getId(entity.buffers.in).$_tags.push("tick", "processing")
+    let buffer = Igor.getId(entity.buffers.in)
+    buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
     entity.research_time = research.cost.time * Igor.config.TICKS_PER_SECOND * entity.researching_speed
     entity.research_timer = entity.research_time
     return
