@@ -144,11 +144,13 @@
         : ${line.built}
       </span>
     </span>
-    <span class="col">
+    <span
+      class="col"
+      click.delegate="CCC.issue('factoryLine.prep', null, $event)"
+      mouseenter.trigger="tooltip=CCC.utilityFn('factoryLine.toolTips', line.$_id, {which: 'foundation'})"
+    >
       Prepped spaces: ${line.prepped}
       <span
-        click.delegate="CCC.issue('factoryLine.prep', null, $event)"
-        mouseenter.trigger="tooltip=CCC.utilityFn('factoryLine.toolTips', line.$_id, {which: 'foundation'})"
         class="fas fa-plus-square fa_icon_sm"
       ></span>
     </span>
