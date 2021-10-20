@@ -314,6 +314,9 @@ export const IgorRunner = {
         if(temp) obj = temp
       }
     }
+    if(!IgorCore.ops[op]) {
+      console.error("operation not found: "+op)
+    }
     IgorCore.ops[op].fn(obj, args, ret, IgorRunner, IgorCore.ops[op].fn)
     //console.log('_result' in ret)
     return '_result' in ret ? ret._result : ret
@@ -366,6 +369,7 @@ export const IgorRunner = {
     if(typeof target=="string" && target.includes("id")) target = IgorCore.objs.get(target)
     let def = IgorCore.metaDefines[target.$_type]
     let del = def._delete
+    debugger
     del && del(target, IgorRunner)
     let idx = IgorCore.tick_entities.findIndex( (x) => { return x.$_id==target.$_id })
     IgorCore.tick_entities.splice(idx, 1)

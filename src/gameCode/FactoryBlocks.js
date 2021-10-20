@@ -46,7 +46,7 @@ FactoryBlock.New = (params, newObj, Igor) => {
     return [newObj]
 }
 FactoryBlock.New.signature = { }
-FactoryBlock.New._signal = "facBlockUpdate"
+FactoryBlock.New._signal = "generalUpdate"
 FactoryBlock.NewCCC = (params, Igor) => {
     Igor.addNewObject(Igor.getNamedObject("global").facBlocks.blocks, "FactoryBlock", params)
 }
@@ -288,9 +288,20 @@ FactoryLine.New.signature = {
     drain: 'entity.buffer',
     internal: 'entity.buffer'
 }
-FactoryLine.New._signal = "facBlockUpdate"
+FactoryLine.New._signal = "generalUpdate"
 FactoryLine.__delete = (obj, Igor) => {
-    console.log('got it!')
+    obj.$_tags.delete("tick")
+    Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
+    let foundation = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation"}).data
+    Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: foundation, multi: obj.built+obj.prepped})
+    if(obj.processing_count) {
+        Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: obj.rescipe.ingredients, multi: obj.processing_count})
+    }
+    let parent = Igor.getId(obj.$_parent)
+    let idx = parent.factoryLines.indexOf(obj.$_id)
+    parent.factoryLines.splice(idx, 1)
+    //TODO adjust land use and complexity
+    Igor.view.signaler.signal("generalUpdate")
 }
 FactoryLine.__delete.Igor_operation = "FactoryLine.delete"
 FactoryLine.SetType = (obj, Igor) => {
@@ -398,6 +409,7 @@ FactoryLine.__tooltips = (obj, args, ret, Igor) => {
     }
     ret._result = {tool: "stackArray", tip, data}
 }
+FactoryLine.__tooltips.Igor_operation = "factoryLine.toolTips"
 FactoryLine.__tooltips.CC_utility = "factoryLine.toolTips"
 FactoryLine.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.processing_time || !entity.recipe) return  //TODO turn this into an "anti-tick" tag
@@ -463,7 +475,7 @@ FactoryBus.New = (params, newObj, Igor) => {
    // newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
-FactoryBus.New._signal = "facBlockUpdate"
+FactoryBus.New._signal = "generalUpdate"
 FactoryBus.SelectSubIcon = (obj, params, Igor) => {
     obj.at.factoryBus.subIcon = obj.which.icon
 }
@@ -675,7 +687,7 @@ ResourceBlock.New = (params, newObj, Igor) => {
 
     return [newObj]
 }
-ResourceBlock.New._signal = "facBlockUpdate"
+ResourceBlock.New._signal = "generalUpdate"
 ResourceBlock.SetResource = (obj, Igor) => {
     let resBlock = obj.at.ResourceBlock
     if(obj.at.ResourceBlock.patchProperties.resource) {
@@ -769,7 +781,7 @@ TechBlock.New = (params, newObj, Igor) => {
     newObj.foundationType = ""
     return [newObj]
 }
-TechBlock.New._signal = "facBlockUpdate"
+TechBlock.New._signal = "generalUpdate"
 TechBlock.prepSpace = (obj, Igor) => {
     if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: Igor.processTEMP(obj.at.techBlock, "techBlock.toolTips", {which: "foundation"}).data })) {
         obj.at.techBlock.prepped++

@@ -200,7 +200,7 @@
               class="newFacBlock resBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
-              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'facBlockUpdate'"
+              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'generalUpdate'"
               click.delegate="showItem={item: resBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
               class="blockItem resBlockItem
                     ${viewPane.showingItem==resBlock ? 'selected':''}
@@ -238,7 +238,7 @@
               class="newFacBlock techBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
-              repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'facBlockUpdate'"
+              repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'generalUpdate'"
               click.delegate="showItem={item: techBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
               class="blockItem techBlockItem
                     ${viewPane.showingItem==techBlock ? 'selected':''}
@@ -260,7 +260,7 @@
               class="newFacBlock busLine fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
-              repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'facBlockUpdate'"
+              repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'generalUpdate'"
               click.delegate="showItem={item: facBus, double: {view: 'viewFacBlock'}, setConnected:true}"
               class="blockItem busLineItem
                     ${viewPane.showingItem==facBus ? 'selected':''}
@@ -282,7 +282,7 @@
               class="newFacBlock facBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
-              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'facBlockUpdate'"
+              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'generalUpdate'"
               click.delegate="showItem={item: facBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
               class='blockItem facBlockItem
                     ${viewPane.showingItem==facBlock ? "selected":""}

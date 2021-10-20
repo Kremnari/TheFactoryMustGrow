@@ -147,6 +147,9 @@
           display: inline;
         }
       }
+      & .cycleTime {
+        position: absolute
+      }
     }
     & #facBlocks {
       & .col.facBlockList {

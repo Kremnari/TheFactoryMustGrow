@@ -94,8 +94,7 @@ ChangeOrder.signature = {
 IgorJs.provide_CCC("object.move", ChangeOrder, ChangeOrder.signature)
 
 const DeleteObject = (obj, Igor) => {
-  Igor.processTEMP(obj.which.obj, obj.which.obj.$_type+".delete", {})
-  debugger
+  Igor.processTEMP(obj.which.obj, obj.which.obj.$_type+".delete", Igor)
 }
 DeleteObject.signature = {
   which: "obj",
