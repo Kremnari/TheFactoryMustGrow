@@ -8,7 +8,6 @@ export function configure(config) {
     ,PLATFORM.moduleName('resources/elements/micro/scopeVar.html')
     ,PLATFORM.moduleName('resources/value-converters/lib/ObjectFilters')
     ,PLATFORM.moduleName('resources/value-converters/valueconverters')
-    ,PLATFORM.moduleName('resources/value-converters/CanMine')
     ,PLATFORM.moduleName('resources/value-converters/isVisible')
     ,PLATFORM.moduleName('resources/value-converters/filter')
     ,PLATFORM.moduleName('resources/attributes/loading')

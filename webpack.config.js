@@ -20,7 +20,7 @@ const title = 'The Factory Must Grow';
 const outDir = path.resolve(__dirname, project.platform.output);
 const srcDir = path.resolve(__dirname, 'src');
 const nodeModulesDir = path.resolve(__dirname, 'node_modules');
-const baseUrl = '/TheFactoryMustGrow/';
+const baseUrl = '/tfmg_alpha/';
 
 const cssRules = [
   { loader: 'css-loader' },
@@ -70,7 +70,7 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
   mode: production ? 'production' : 'development',
   output: {
     path: outDir,
-    publicPath: baseUrl,
+    publicPath: production ? baseUrl : "tfmg_alpha",
     filename: production ? '[name].[chunkhash].bundle.js' : '[name].[hash].bundle.js',
     sourceMapFilename: production ? '[name].[chunkhash].bundle.map' : '[name].[hash].bundle.map',
     chunkFilename: production ? '[name].[chunkhash].chunk.js' : '[name].[hash].chunk.js'

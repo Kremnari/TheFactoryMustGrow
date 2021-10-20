@@ -19,20 +19,27 @@ export class IconBaseCustomElement {
   bind(bindContext, overContext) {
     if(!this.item) return
     if(typeof this.item === 'string') {
-      this.altTip = this.item
-      try {
-        this.item = mgrs.item.get(this.item)
-        this.hasEntity = mgrs.data.entity[this.item.name]
-      } catch(e) {
-        console.warn(this.item)
+      if(this.item.indexOf("@")>-1) {
+        this.item = {icon:this.item}
+      } else {
+        this.altTip = this.item
+        try {
+          this.item = mgrs.item.get(this.item)
+          this.hasEntity = mgrs.data.entity[this.item.name]
+        } catch(e) {
+          console.warn(this.item)
+        }
+        if(!this.item) return
       }
-      if(!this.item) return
     } else if(typeof this.item === 'object') {
       this.altTip = this.item.name
       this.hasEntity = this.item.hasEntity || mgrs.data.entity[this.item.name]
     }
     if(!this.item.icon) {
       this.item.icon = mgrs.item.get(this.item.name).icon
+    }
+    if(this.altImage && this.altImage.indexOf("@")==-1) {
+      this.altImage = "item@"+this.altImage
     }
   }
   itemChanged(newVal) {

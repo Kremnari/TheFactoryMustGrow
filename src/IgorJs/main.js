@@ -47,6 +47,9 @@ const IgorCore = {
 //  to manipulate the lifecycle of it's objects
 const IgorBuilder = {
   get data() { return IgorCore.data },
+  getNamedObject(what) {
+    return IgorCore.namedObjs[what]
+  },
   newObject(type, subType, parent) {
     let obj = {
       $_id: "id_"+IgorCore.control.obj_counter++,
@@ -196,7 +199,9 @@ export const IgorUtils = {
   },
   getObjId(id, doubleProp) {
     if(!doubleProp) return IgorCore.objs.get(id)
-    return IgorCore.objs.get(IgorCore.objs.get(id)[doubleProp])
+    let obj = IgorCore.objs.get(id)
+    obj = Object.walkPath(obj, doubleProp)
+    return IgorCore.objs.get(obj)
   },
   arrayFromIds(list) {
     if(!list) return []
@@ -256,6 +261,11 @@ export const IgorUtils = {
         break;
       case "toggle":
         IgorCore.ticker.toggle();
+        if(IgorCore.ticker.isRunning) {
+          IgorCore.graphics.signaler.signal("generalUpdate")
+          IgorCore.graphics.signaler.signal("entityUpdate")
+          IgorCore.graphics.signaler.signal("techResearched")
+        }
         break;
       default:
         console.warn("IGOR: setting unknown state")
@@ -311,8 +321,11 @@ export const IgorRunner = {
   getNamedObject: (what) => {
     return IgorCore.namedObjs[what]
   },
-  getId: (which) => {
-    return IgorCore.objs.get(which)
+  getId: (which, doubleProp) => {
+    if(!doubleProp) return IgorCore.objs.get(which)
+    let obj = IgorCore.objs.get(which)
+    obj = Object.walkPath(obj, doubleProp)
+    return IgorCore.objs.get(obj)
   },
   getStatic: (which) => {
     return IgorCore.statics[which]
@@ -355,7 +368,6 @@ export const IgorRunner = {
     let del = def._delete
     del && del(target, IgorRunner)
     let idx = IgorCore.tick_entities.findIndex( (x) => { return x.$_id==target.$_id })
-    console.log('deleting idx: '+idx)
     IgorCore.tick_entities.splice(idx, 1)
     IgorCore.objs.delete(target.$_id)
     IgorRunner.view.clearShowing()

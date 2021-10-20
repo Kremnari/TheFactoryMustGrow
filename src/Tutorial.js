@@ -413,7 +413,7 @@ class tutorial {
         __.setTutClick()
         break;
       case 5.20:
-        __.tutStep(".resBlockList:eq(0)")
+        __.tutStep(".resBlockItem:eq(0)")
         __.setTutClick()
         break;
       case 5.25:
@@ -460,7 +460,7 @@ class tutorial {
         __.setTutClick()
         break;
       case 5.6:
-        __.tutStep(".busLineList:eq(0)")
+        __.tutStep(".busLineItem:eq(0)")
         __.setTutClick()
         break;
       case 5.65:
@@ -499,7 +499,7 @@ class tutorial {
         __.setTutClick()
         break;
       case 5.91:
-        __.tutStep(".resBlockList:eq(0)")
+        __.tutStep(".resBlockItem:eq(0)")
         __.setTutClick()
         break;
       case 6:
@@ -528,7 +528,7 @@ class tutorial {
         __.setTutClick()
         break;
       case 6.07:
-        __.tutStep(".facBlockList:eq(0)")
+        __.tutStep(".facBlockItem:eq(0)")
         __.setTutClick()
         break;
       case 6.075:

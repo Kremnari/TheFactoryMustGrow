@@ -1,5 +1,4 @@
 import {mgrs} from 'managers'
-import {InvXFer} from 'gameCode/Inventory'
 import {CephlaCommConstructor as CCC} from 'CephlaComm/main'
 
 

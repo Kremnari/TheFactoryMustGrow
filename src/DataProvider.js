@@ -31,7 +31,7 @@ export let DataProvider = {
   async init(data, save) {
     mgrs.icon.import(data.icons)
     mgrs.item.import(data.item)
-    mgrs.rec.import(data.recipe, mgrs.item)
+    //mgrs.rec.import(data.recipe, mgrs.item)
     mgrs.data = data
     DataProvider.loadCb({mgrs: mgrs, save: save})
   },

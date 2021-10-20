@@ -101,6 +101,14 @@ export const CephlaCommCaller = {
               found = found.selected?.name
             } else if(type=="string") {
               found = prompt("Enter "+specifier+":")
+              if(!found) return
+            } else if(type=="icon") {
+              let list = Object.keys(CephlaCommCore.dataSet.item)
+              found = await CephlaCommCore.dialogSvc.open("SelectX", {
+                list, type: 'icon'
+              })
+              if(!found) return
+              found = found.item
             }
           }
           debugIf(CephlaCommCore, "caller_found")

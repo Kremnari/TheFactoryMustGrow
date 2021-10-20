@@ -37,6 +37,7 @@ function AddAll(inv, args, returnObj, Igor) {
     if(each.count==0) continue
     let addTotal = each.count*(args.multi||1) //Aurelia is inf looping the getters and setters without this temp
     maxStack = inv.stackSize || Igor.data.item[each.name].stack_size
+    args.force && (maxStack*=2)
     let idx = findIndex(inv.items, each.name, maxStack)
     let found = 0
     let toAdd
@@ -47,6 +48,9 @@ function AddAll(inv, args, returnObj, Igor) {
         toAdd = Math.min(maxStack, addTotal)
         inv.items[idx] = {name: each.name, count: toAdd}
         addTotal -= toAdd
+      } else if(inv.items[idx].restricted && inv.items[idx].name!=each.name) {
+        //Skip
+        //console.log('restricted')
       } else {
         toAdd = Math.min(maxStack-inv.items[idx].count, addTotal)
         addTotal -= toAdd
@@ -82,22 +86,39 @@ function AddAll(inv, args, returnObj, Igor) {
 //args.itemStacks: should be an array of ItemStacks
 //args.multi: int, used to indicate a multiplier to the itemstacks (easily apply the Rounder)
 //args.partial: bool, used to consume whatever is available, and return consumed part
+//! This performs multiple loops, could be optimized later
 function ConsumeAll(inv, args, returnObj, Igor) {
   //* Incomplete
   let itemStacks = args.itemStacks
   if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
   let part = []
+  let atMulti = args.multi || 1
+  //Reduce multi by available items
+  if(atMulti>1) {
+    //console.log('multi: '+atMulti)
+    atMulti = itemStacks.reduce((accum_multi, x) => {
+      if(accum_multi==-1) return -1
+      let avail = Igor.processTEMP(inv, "inventory.total", {name:x.name})
+      return avail<x.count ? -1 : Math.min(accum_multi, Math.floor(avail/x.count))
+    }, atMulti)
+    //console.log('atMulti: '+atMulti)
+    if(atMulti<1 && !args.partial) {
+      returnObj._result = false
+      return
+    }
+  }
+  //Perform consumes
   for (let each of itemStacks) {
     if(!each.count && each.amount) each.count = each.amount //TEMP data set is not upto snuff..
     let idx = findIndex(inv.items, each.name)
-    let consumeTotal = each.count*(args.multi || 1)
+    let consumeTotal = each.count*atMulti
     while(idx>-1 && consumeTotal) {
       let toSub = Math.min(inv.items[idx].count, consumeTotal)
       inv.items[idx].count -= toSub
       consumeTotal -= toSub
       idx = findIndex(inv.items, each.name)
     }
-    part.push({name: each.name, count: each.count*(args.multi||1)-consumeTotal})
+    part.push({name: each.name, count: each.count*atMulti-consumeTotal})
     if(consumeTotal && !args.partial) {
       //! we have failed to consume all
       //console.log("re-adding: ")
@@ -107,7 +128,7 @@ function ConsumeAll(inv, args, returnObj, Igor) {
       return returnObj
     }
   }
-  returnObj._result = (args.partial && part) || true
+  returnObj._result = (args.partial && part) || atMulti || true
 }
 //args.names = array of strings
 // --or-- args.name = string

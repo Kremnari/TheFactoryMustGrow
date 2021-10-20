@@ -2,7 +2,7 @@
   <ux-dialog>
     <ux-dialog-header>Select ${type}</ux-dialog-header>
     <ux-dialog-body>
-      <div if.bind="list[0].icon">
+      <div if.bind="list[0].icon || type=='icon'">
         <icon-base
           repeat.for="each of list"
           item.bind="each"
@@ -10,7 +10,7 @@
           class="${each==selected ? 'selected' : ''}"
         >${each.name}</icon-base>
       </div>
-      <div if.bind="!list[0].icon">
+      <div if.bind="!list[0].icon && type!='icon'">
         <p  
           repeat.for="each of list"
           click.delegate="select(each)"

@@ -318,6 +318,19 @@ EntityBufferActions.Fill.signature = {
 }
 EntityBufferActions.Fill.CC_provide = "entity.bufferFill"
 
+EntityBufferActions.ClickCycle = (obj, Igor) => {
+  // The purpose is to cycle between buffer_fill and buffer_collect
+  let buffer = Igor.getId(obj.which.buffer)
+  let itemElm = buffer.items.find((x)=> {return x.name==obj.item.name})
+  debugger
+}
+EntityBufferActions.ClickCycle.signature = {
+  which: 'buffer',
+  item: 'name',
+  service: 'rounder'
+}
+EntityBufferActions.ClickCycle.CC_provide = "entity.bufferCycle"
+
 
 IgorJs.setStatic("entity.buffer.BUFFER_SIZE",  [5, 10, 20, 30, 40, 50])
 IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 50)
@@ -352,21 +365,29 @@ EntityBufferActions.SetRestrictions = (target, args, returnObj, Igor) => {
   //check through the list and return things to player buffer
   let connected = []
   let emptyIdxs = []
+  target.maxStacks = args.list.length
   for(let idx=0; idx<target.items.length; idx++)  {
     let x = target.items[idx]
     if(!x) {emptyIdxs.push(idx); continue}
     if(!args.list.includes(x.name)) {
-      if(x.count>0) Igor.processTEMP(Igor.getNamedObject("player.inventory"), "inventory.add", {itemStacks: x})
+      if(x.count>0) Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: x})
       target.items.splice(idx, 1, undefined)
       emptyIdxs.push(idx)
     } else {
       connected.push(x.name)
+      x.restricted = true
     }
   }
   //console.log(emptyIdxs)
   args.list.forEach( (x) => {
     if(!connected.includes(x)) {
-      target.items.splice(emptyIdxs.splice(0,1), 1, {name: x, count: 0})
+      if(emptyIdxs.length>0) {
+        target.items.splice(emptyIdxs.splice(0,1), 1, {name: x, count: 0, restricted:true})
+        //console.log("restricted splice "+x)
+      } else {
+        target.items.push({name: x, count: 0, restricted: true})
+        //console.log('push restricted:'+x)
+      }
     }
   })
 }
@@ -408,38 +429,44 @@ EntityBufferActions.ClearRestriction = (target, args, returnObj, Igor) => {
 EntityBufferActions.ClearRestriction.Igor_operation = "buffer.clearRestriction"
 EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
   //TODO need better protections for transfers
+  //TODO need to handle different item stacks
+  // setup filter priorities for output 
   if(args.toBus) {
     while(args.xferCount>0) {
       if(!target.items[target.busShift]) return null
       let added = Igor.processTEMP(args.toBus, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
-      //console.log(added)
       if(added.complete) {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
         args.xferCount=0
       } else if(added.part[0].count==args.xferCount) {
-        return {full:true}
+        returnObj.full = true
+        return
       } else {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
         args.xferCount = added.part[0].count
       }
       ++target.busShift==target.items.length && (target.busShift=0)
     }
-    
+    returnObj.complete = true
   } else if (args.fromBus) {
+    let loops = 0
     while(args.xferCount>0) {
       if(!target.items[target.busShift]) return null
-      let added = Igor.processTEMP(target, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
-      if(added.complete) {
-        Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
-        args.xferCount=0
-      } else if(added.part[0].count==args.xferCount) {
-        return {full:true}
-      } else {
-        Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
-        args.xferCount = added.part[0].count
+      let space = target.stackSize -  target.items[target.busShift].count
+      if(space) {
+        let consumed = Igor.processTEMP(args.fromBus, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: Math.min(args.xferCount, space)}], partial: true})
+        if(consumed[0].count>0) {
+          Igor.processTEMP(target, "inventory.add", {itemStacks: [{name: target.items[target.busShift].name, count: consumed[0].count}]})
+          args.xferCount-=consumed[0].count
+        }
+      }
+      if(++loops==target.items.length) {
+        returnObj.full = true
+        return
       }
       ++target.busShift==target.items.length && (target.busShift=0)
     }
+    returnObj.complete = true
   } else {
     console.warn("BusXfer called __ no bus target")
   }
@@ -449,10 +476,11 @@ EntityBufferActions.BusXfer.Igor_operation = "buffer.busXfer"
 EntityBufferActions.BufferStalled = (buffer, args, returnObj, Igor) => {
   /* more advanced stall handling, then return*/
   buffer.stalled++
-  if (buffer.stalled==buffer.items.length) {
+  if (buffer.stalled>=buffer.items.length) {
     buffer.$_tags.delete("tick")
+    buffer.stalled = false
   }
-  buffer.xferTimer = Math.floor(buffer.xferTicks/25)
+  buffer.xferTimer = Math.floor(buffer.xferTicks/6)
   ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
 }
 EntityBufferActions.BufferStalled.Igor_operation = "buffer.setStall"
@@ -525,17 +553,38 @@ const ClearResearch = (obj, Igor, self) => {
 }
 IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
 
+//Returns extra portion, but I don't have a good solution
+//To adding it back to the factoryBlock
 const ResearchUpdate = (obj, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
-  obj.completeUnits++
-  if(obj.completeUnits==obj.cost.count) {
+  obj.completeUnits += args.count || 1
+  if(obj.completeUnits>=obj.cost.count) {
     Igor.view.goodToast("Research Complete: "+obj.name)
+    returnObj._result = obj.completeUnits-obj.cost.count
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
     global.research.completed[obj.name] = true
     obj.unlocks.forEach( (item) => {
       typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
       typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
+    })
+    let cost = obj.cost.ingredients.map(([name, qty]) => {return {name, count:qty}})
+    //TODO! need to update this to respond to different tech trees
+    global.player.workshop.entities.forEach( (x) => {
+      let ent = Igor.getId(x)
+      if(ent.name=="lab") {
+        Igor.processTEMP(ent.buffers.in, "inventory.add", {itemStacks: cost, force: true})
+        ent.research_timer = NaN
+      }
+    })
+    global.facBlocks.techBlocks.forEach( (x) => {
+      if(args.me==x) return
+      let block = Igor.getId(x)
+      if(block.research_consumed) {
+        Igor.processTEMP(block.buffers.in, "inventory.add", {itemStacks: cost, force: true, multi: research_consumed})
+        block.research_consumed = 0 
+        block.research_ticks = NaN
+      }
     })
     ChameJs.signaler.signal("techResearched")
   }
@@ -550,7 +599,28 @@ const RecipeUnlock = (obj, args, returnObj, Igor) => {
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (obj, args, returnObj, Igor) => {
-  Igor.getNamedObject("global").activeFeatures[obj.feature] = obj
+  let features = Igor.getNamedObject("global").activeFeatures
+  if(features[obj.feature]) {
+    features[obj.feature] = obj
+  } else {
+    //! needs something more elegant...
+    if(obj.feature=="factoryBlocks") {
+      let blocks = Igor.getNamedObject("global").facBlocks.blocks
+      if(obj.blocksMaxSources) {
+        blocks.forEach( (id) => {
+          Igor.getId(id).connections.maxSources = obj.blocksMaxSources
+        })
+      }
+      if(obj.blocksMaxDrains) {
+        blocks.forEach( (id) => {
+          Igor.getId(id).connections.maxDrains = obj.blocksMaxDrains
+        })
+      }
+    }
+    debugger
+    Object.assign(features[obj.feature], obj)
+  }
+
   /*
   adjustFeature(obj) {
     switch(obj.feature) {

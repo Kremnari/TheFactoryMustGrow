@@ -1,15 +1,20 @@
 <template>
   <scope-var var.bind="$scope={busLine: viewPane.showingItem}"></scope-var>
   <section
+    id="viewBusLine"
     click.capture="CCC.provide($event, 'at', 'factoryBus', viewPane.showingItem)"
     mouseenter.trigger = "tooltip = null"
     class="container">
     <div class="row">
       <div class="col">
-        Space: ${$scope.busLine.size}
+        Size: ${$scope.busLine.size}
       </div>
       <div class="col">
         <h4 class="text-center">${$scope.busLine.name}</h4>
+        <icon-base
+          click.delegate="CCC.issue('factoryBus.selectSubIcon', {}, $event)"
+          item.bind="$scope.busLine.subIcon"
+        ></icon-base>
       </div>
       <div class="col text-end">
         Complexity: ${$scope.busLine.complexity}
@@ -17,7 +22,6 @@
     </div>
     <div class="row">
       <div class="col busLine_tut_inProgress">
-        <h5 class="text-center">Transport Belt</h5>
         <span
           show.bind="$scope.busLine.clogged"
           click.delegate="CCC.issue('factoryBus.clearClog', {}, $event)"
@@ -25,10 +29,13 @@
         <div class="row">
           <icon-base
             repeat.for="item of IgorJs.getObjId($scope.busLine.processors.central).items"
+            if.bind="item.count"
             item.bind="item.name"
-            if.bind="item.count>0"
             count.bind="item.count"
           ></icon-base>
+          <span>
+            Next stack at: ${Math.ceil($scope.busLine.size/50)*50}
+          </span>
         </div>
       </div>
     </div>
@@ -57,16 +64,19 @@
             class="fas fa-plus-square fa_icon_sm"
           ></span>
         </span><br>
-        <span repeat.for="source of $scope.busLine.connections.sources">
-          <span class="fas fa-sign-in-alt fa_icon_sm"></span>
-          ${source.named}
+        <div repeat.for="source of $scope.busLine.connections.sources">
+          <span
+            class="fas fa-sign-in-alt fa_icon_sm"
+            click.delegate="showItem = {item: source.parent, view:'viewFacBlock'}"
+          ></span>
+          ${IgorJs.getObjId(source).name}
           <icon-base
-            repeat.for="item of IgorJs.getObjId(source.buffer).items"
+            repeat.for="item of IgorJs.getObjId(source, 'buffers.out').items & signal:'generalUpdate'"
             item.bind="item.name"
             count.bind="item.count"
           ></icon-base>
           <span if.bind="$scope.busLine.processors.source.xferTarget==$index">&lt;--</span>
-        </span>
+        </div>
       </div>
       <div class="col">
         <div>
@@ -91,16 +101,20 @@
           ></span>
         </span>
         <br>
-        <span repeat.for="drain of $scope.busLine.connections.drains">
+        <div repeat.for="drain of $scope.busLine.connections.drains">
           <span if.bind="$scope.busLine.processors.drain.xferTarget==$index">&gt;--</span>
+          <span if.bind="$scope.busLine.processors.drain.xferTarget!=$index">&nbsp;&nbsp;&nbsp;</span>
           <icon-base
-            repeat.for="item of IgorJs.getObjId(drain.buffer).items"
+            repeat.for="item of IgorJs.getObjId(drain, 'buffers.in').items & signal:'generalUpdate'"
             item.bind="item.name"
             count.bind="item.count"
           ></icon-base>
-          ${drain.named}
-          <span class="fas fa-sign-out-alt fa_icon_sm"></span>
-        </span>
+          ${IgorJs.getObjId(drain).name}
+          <span
+            class="fas fa-sign-out-alt fa_icon_sm"
+            click.delegate="showItem = {item: drain.parent, view:'viewFacBlock'}"
+          ></span>
+        </div>
       </div>
     </div>
   </section>

@@ -14,7 +14,7 @@
         Land, pollution, enemies, oh my!<br>
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
-      <div if.bind="viewPane.main=='facBlocks'" class="container facBlockStats">
+      <div if.bind="viewPane.main=='facBlocks' && !tooltip" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
             <div>Land use: ${globals.land.used}</div>
@@ -30,7 +30,7 @@
         display.bind="tooltip"
         item-mgr.bind="mgrs.item"
         recipe-mgr.bind="mgrs.rec"
-        if.bind="tooltip && viewPane.main!='facBlocks'"
+        if.bind="tooltip"
       ></tool-tip>
       <div id="toaster">
         <require from="./resources/elements/micro/toasted.html"></require>
@@ -142,8 +142,8 @@
         <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
         <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>
       </section>
-      <compose if.bind="viewPane.main=='offense' && globals.activeFeatures['offense']" view="./resources/elements/mainPanes/offensePane.html"></compose>
-      <compose if.bind="viewPane.main=='defense' && globals.activeFeatures['defense']" view="./resources/elements/mainPanes/defensePane.html"></compose>
+      <compose if.bind="viewPane.main=='offense' && globals.activeFeatures.offenseBlocks" view="./resources/elements/mainPanes/offensePane.html"></compose>
+      <compose if.bind="viewPane.main=='defense' && globals.activeFeatures.defenseBlocks" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="viewPane.main=='home'">
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
@@ -162,7 +162,7 @@
         <div id="resources">
           <h3>Mineables</h3>
           <icon-base
-            repeat.for="res of dataSet.resource | canMine | objectValues"
+            repeat.for="res of dataSet.resource | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
             class="${res.animClass}"
@@ -192,71 +192,111 @@
       <section id="facBlocks" show.bind="viewPane.main=='facBlocks'" class="container">
         <h3>Factory Blocks</h3>
         <div class="row">
-          <div click.delegate="select_FacBlock(facBlocks.defenses)" class="${viewPane.facBlock==facBlocks.defenses ? 'selected': ''}" if.bind="facBlocks.defenses">Defenses</div>
-          <div click.delegate="select_FacBlock(facBlocks.offenses)" class="${viewPane.facBlock==facBlocks.offenses ? 'selected': ''}" if.bind="facBlocks.offenses">Offenses</div>
+          <div class="col facBlockList resBlocks">
+            <span>Resources</span>
+            <span
+              click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
+              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'})"
+              class="newFacBlock resBlock fas fa-plus-square fa_icon_sm"
+            ></span><br>
+            <div
+              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'facBlockUpdate'"
+              click.delegate="showItem={item: resBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              class="blockItem resBlockItem
+                    ${viewPane.showingItem==resBlock ? 'selected':''}
+                    ${viewPane.connectedItems[resBlock.$_id]}"
+            >
+              <icon-base
+                item="technology@facBlocks"
+                alt-image.bind="resBlock.subIcon"
+              ></icon-base>
+            </div>
+          </div>
+          <div class="col specBuses">
+            <span>Special</span>
+            <div
+              click.delegate="select_FacBlock(facBlocks.defenseBus)"
+              class="${viewPane.showingItem==facBlocks.defenseBus ? 'selected': ''} blockItem defBus"
+              if.bind="globals.activeFeatures.factoryBlocks.defenseBus"
+            >Defense Bus</div>
+            <div
+              click.delegate="select_FacBlock(facBlocks.marketBus)"
+              class="${viewPane.showingItem==facBlocks.marketBus ? 'selected': ''} blockItem marBus"
+              if.bind="globals.activeFeatures.factoryBlocks.marketBus"
+            >Market Bus</div>
+            <div
+              click.delegate="select_FacBlock(facBlocks.offenseBus)"
+              class="${viewPane.showingItem==facBlocks.offenseBus ? 'selected': ''} blockItem offBus"
+              if.bind="globals.activeFeatures.factoryBlocks.offenseBus"
+            >Offenses Bus</div>
+          </div>
+          <div class="col facBlockList techBlocks">
+            <span>Research</span>
+            <span
+              click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)"
+              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'})"
+              class="newFacBlock techBlock fas fa-plus-square fa_icon_sm"
+            ></span><br>
+            <div
+              repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'facBlockUpdate'"
+              click.delegate="showItem={item: techBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              class="blockItem techBlockItem
+                    ${viewPane.showingItem==techBlock ? 'selected':''}
+                    ${viewPane.connectedItems[techBlock.$_id]}"
+            >
+              <icon-base
+                item="technology@facBlocks"
+                alt-image.bind="techBlock.subIcon"
+              ></icon-base>
+            </div>
+          </div>
         </div>
         <div class="row">
-          <div click.delegate="select_FacBlock(facBlocks.defenseBus)" class="${viewPane.facBlock==facBlocks.defenseBus ? 'selected': ''}" if.bind="facBlocks.defenseBus">Defense Bus</div>
-          <div click.delegate="select_FacBlock(facBlocks.offenseBus)" class="${viewPane.facBlock==facBlocks.offenseBus ? 'selected': ''}" if.bind="facBlocks.offenseBus">Offenses Bus</div>
+          <div class="col facBlockList busLines">
+            <span>Factory Buses</span>
+            <span
+              click.delegate="CCC.issue('facBlock.newBus', {}, $event)"
+              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'})"
+              class="newFacBlock busLine fas fa-plus-square fa_icon_sm"
+            ></span><br>
+            <div
+              repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'facBlockUpdate'"
+              click.delegate="showItem={item: facBus, double: {view: 'viewFacBlock'}, setConnected:true}"
+              class="blockItem busLineItem
+                    ${viewPane.showingItem==facBus ? 'selected':''}
+                    ${viewPane.connectedItems[facBus.$_id]}"
+            >
+              <icon-base
+                item="technology@facBlocks"
+                alt-image.bind="facBus.subIcon"
+              ></icon-base>
+            </div>
+          </div>
         </div>
         <div class="row">
-          <div class="card">
-            <div class="card-header">
-              <h5>Resource Patch</h5>
-              <span click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)" class="newFacBlock resBlock">Add New...</span>
-            </div>
-            <div class="card-body">
-              <div
-                repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'facBlockUpdate'"
-                click.delegate="showItem={item: resBlock, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==resBlock ? 'selected':''} resBlockList"
-              >${resBlock.name}</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Buses</h5>
-              <span click.delegate="CCC.issue('facBlock.newBus', {}, $event)" class="newFacBlock busLine">New...</span>
-            </div>
-            <div class="card-body">
-              <div
-                repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'facBlockUpdate'"
-                click.delegate="showItem={item: facBus, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==facBus ? 'selected':''} busLineList">
-                ${facBus.name}
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Factory Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newBlock', {}, $event)" class="newFacBlock facBlock">New...</span>
-            </div>
-            <div class="card-body">
-              <div
-                repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'facBlockUpdate'"
-                click.delegate="showItem={item: facBlock, view: 'viewFacBlock'}"
-                class='${viewPane.showingItem==facBlock ? "selected":""} facBlockList'>
-                ${facBlock.name}
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Tech Blocks</h5>
-              <span click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)" class="newFacBlock techBlock">New...</span>
-            </div>
-            <div class="card-body">
-              <div
-                repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'facBlockUpdate'"
-                click.delegate="showItem={item: techBlock, view: 'viewFacBlock'}"
-                class="${viewPane.showingItem==techBlock ? 'selected':''} techBlockList"
-              >${techBlock.name}</div>
+          <div class="col facBlockList facBlocks">
+            <span>FactoryBlock</span>
+            <span
+              click.delegate="CCC.issue('facBlock.newBlock', {}, $event)"
+              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'})"
+              class="newFacBlock facBlock fas fa-plus-square fa_icon_sm"
+            ></span><br>
+            <div
+              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'facBlockUpdate'"
+              click.delegate="showItem={item: facBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              class='blockItem facBlockItem
+                    ${viewPane.showingItem==facBlock ? "selected":""}
+                    ${viewPane.connectedItems[facBlock.$_id]}'
+            >
+              <icon-base
+                item="technology@facBlocks"
+                alt-image.bind="facBlock.subIcon"
+              ></icon-base>
             </div>
           </div>
         </div>
       </section>
-      <section show.bind="viewPane.main=='viewFacBlock'">
+      <section id="viewBlocks" show.bind="viewPane.main=='viewFacBlock'">
         <compose
           id="viewFacBlock"
           class="container"

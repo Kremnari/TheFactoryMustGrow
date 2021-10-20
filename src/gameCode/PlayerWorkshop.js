@@ -66,3 +66,39 @@ WorkshopRecover.signature = {
 }
 
 IgorJs.provide_CCC("workshop.recover", WorkshopRecover, WorkshopRecover.signature)
+
+const ChangeOrder = (obj, Igor) => {
+  let swapOrder = obj.which.obj.order + obj.dir.number
+  if(swapOrder<0 || swapOrder> obj.list.objs.length) return Igor.view.warnToast("Cannot move")
+  if(typeof obj.list.objs[0]=="string") {
+    let swapId = obj.list.objs.find((x) => {
+      return Igor.getId(x).order==swapOrder
+    })
+    Igor.getId(swapId).order -= obj.dir.number
+    obj.which.obj.order += obj.dir.number
+  } else {
+    let swap = obj.list.objs.find((x) => {
+      return x.order==swapOrder
+    })
+    swap.order -= obj.dir.number
+    obj.which.obj.order += obj.dir.number
+  }
+  Igor.view.signaler.signal("generalUpdate")
+}
+ChangeOrder.signature = {
+  which: "obj",
+  list: "objs",
+  dir: "number"
+}
+
+IgorJs.provide_CCC("object.move", ChangeOrder, ChangeOrder.signature)
+
+const DeleteObject = (obj, Igor) => {
+  Igor.processTEMP(obj.which.obj, obj.which.obj.$_type+".delete", {})
+  debugger
+}
+DeleteObject.signature = {
+  which: "obj",
+  list: "objs"
+}
+IgorJs.provide_CCC("object.delete", DeleteObject, DeleteObject.signature)

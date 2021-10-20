@@ -1,6 +1,10 @@
 <template>
     <scope-var var.bind="$scope={resBlock: viewPane.showingItem}"></scope-var>
-    <section id="viewResBlock" click.capture="CCC.provide($event, 'at', 'ResourceBlock', viewPane.showingItem)">
+    <section
+        id="viewResBlock"
+        click.capture="CCC.provide($event, 'at', 'ResourceBlock', viewPane.showingItem)"
+        class="container"
+    >
         <div class="row">
             <span class="col">Space Used: ${$scope.resBlock.spaceUsed}</span>
             <h3 class="col">${$scope.resBlock.name}</h3>
@@ -28,8 +32,8 @@
                     <icon-base
                         item.bind="$scope.resBlock.patchProperties.resource"
                         if.bind="$scope.resBlock.patchProperties.resource"
-                        count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.output, {name: $scope.resBlock.patchProperties.resource}) & signal: 'bufferUpdate'"
-                        max_fill.bind="IgorJs.getObjId($scope.resBlock.output).stackSize"
+                        count.bind="CCC.utilityFn('inventory.total', $scope.resBlock.buffers.out, {name: $scope.resBlock.patchProperties.resource}) & signal: 'bufferUpdate'"
+                        max_fill.bind="IgorJs.getObjId($scope.resBlock.buffers.out).stackSize"
                         click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.output, 'at.entity': 'temp_null', 'item.name':$scope.resBlock.patchProperties.resource}, $event)"
                     ></icon-base>
                 </h5>
@@ -39,16 +43,21 @@
                 >Change Resource</p>
             </div>
             <div class="col">
-                <div
-                    class="resBlock connection"
-                    click.delegate="CCC.issue('factoryBus.connectTo', 
-                    {   'dir.string': 'output',
-                        '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
-                        'to.buffer': $scope.resBlock.output
-                    }, $event)"
-                >
-                    <span class="fas fa-sign-out-alt fa_icon"></span>
-                    ${IgorJs.getObjId(IgorJs.getObjId($scope.resBlock.output).connection).name || "none"}
+                <div class="resBlock connection">
+                    <span
+                        class="fas fa-sign-out-alt fa_icon"
+                        click.delegate="showItem = {item: IgorJs.getObjId($scope.resBlock.buffers.out, 'connection'), view:'viewFacBlock'}"
+                    ></span>
+                    <span
+                        click.delegate="CCC.issue('factoryBus.connectTo', 
+                            {   'dir.string': 'output',
+                                '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                                'connectTo.block' : $scope.resBlock.$_id,
+                                'current.bus': $scope.resBlock.connections.drains[0] || -1
+                            }, $event)"
+                    >
+                        ${IgorJs.getObjId($scope.resBlock.connections.drains[0]).name || "none" & signal:'generalUpdate'}
+                    </span>
                 </div>
             </div>
         </div>

@@ -22,7 +22,7 @@ export class SelectX {
       this.controller.ok({})
       return
     }
-    if(this.selected.icon) {
+    if(this.selected.icon || this.type=="icon") {
       this.controller.ok({item: this.selected})
     } else {
       this.controller.ok({item: this.selected.$_id})

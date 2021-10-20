@@ -9,7 +9,6 @@ import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
-import popper from 'popper.js'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
@@ -26,6 +25,7 @@ export class App {
     viewRecCat = false
     constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
+      this.Math = Math
       this.signaler = signaler
       this.IgorJs = IgorJs
       ChameView.signaler = this.signaler
@@ -130,18 +130,45 @@ export class App {
         if(this.globals.activeFeatures["tutorial"]) Tutorial.start(this) 
         else this.autoSave()
       }
+      ChameJS.setViewFn("sort", (list) => {
+        list = list.sort( (first, second) => {
+          return first.order > second.order ? 1 : -1
+        })
+        return list
+      })
+    }
+    hoverTest () {
+      alert("test")
     }
     set showItem(obj) {
+      if(!obj.item) return
+      if(typeof obj.item == "string" && obj.item.includes("id")) {
+        obj.item = this.IgorJs.getObjId(obj.item)
+      }
+      if(this.viewPane.showingItem==obj.item && obj.double) {
+        this.viewPane.main=obj.double.view
+        return
+      }
       let old = this.viewPane.showingItem
       this.viewPane.showingItem = null
       this.viewPane.showingCat = ""
+      this.viewPane.connectedItems = null
       if (obj && old != obj.item) {
         window.setTimeout( ()=> {
           this.viewPane.showingItem = obj.item
           this.viewPane.showingCat = obj.cat
           obj.view && (this.viewPane.main = obj.view)
+          obj.setConnected && (this.setConnectedItems = obj)
         }, 0)
       }
+    }
+    set setConnectedItems(obj) {
+      this.viewPane.connectedItems = {}
+      obj.item.connections.drains?.forEach((x) => {this.viewPane.connectedItems[x.parent || x] = 'drain'})
+      obj.item.connections.sources?.forEach((x) => {this.viewPane.connectedItems[x.parent || x] += ' source'})            
+    }
+    set clearConnectedItems(obj) {
+      this.viewPane.connectedItems = {}
     }
     autoSave() {
       if(!this.autoSave.sub) {
@@ -181,12 +208,13 @@ export class App {
           {name: 'inserter', count: 50},
           {name: 'iron-chest', count: 50},
           {name: 'stone', count: 100},
-          {name: 'burner-mining-drill', count: 5},
-          {name: 'stone-furnace', count: 5},
-          {name: 'assembling-machine-1', count: 5},
+          {name: 'burner-mining-drill', count: 10},
+          {name: 'stone-furnace', count: 10},
+          {name: 'assembling-machine-1', count: 10},
           {name: 'transport-belt', count: 100}
         ]
       })
+      this.globals.activeFeatures["factoryBlocks"] = {}
       this.signaler.signal("generalUpdate")
     }
 }

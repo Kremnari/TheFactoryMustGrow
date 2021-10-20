@@ -1,16 +1,65 @@
 <template>
-    <scope-var var.bind="$scope={techBlock: viwePane.showingItem"></scope-var>
+    <scope-var var.bind="$scope={techBlock: viewPane.showingItem}"></scope-var>
     <section
-        click.capture="CCC.provide($event, 'at', 'techBlock', viewPane.showingItem"
+        click.capture="CCC.provide($event, 'at', 'techBlock', viewPane.showingItem)"
         mouseenter.trigger = "tooltip = null"
         class="container"
     >
         <div class="row">
-
+            <span class="col">Space Used: ${$scope.techBlock.spaceUsed}</span>
+            <h5 class="col">${$scope.techBlock.name}</h5>
+            <span class="col">Complexity: ${$scope.techBlock.complexity}</span>
         </div>
-
-        <div class="d-none toolbox">
-
+        <div class="row">
+            <div class="col">
+                <div class="techBlock connection">
+                    <span
+                        class="fas fa-sign-in-alt fa_icon "
+                        click.delegate="showItem = {item: IgorJs.getObjId($scope.techBlock.buffers.in, 'connection'), view:'viewFacBlock'}"
+                    ></span>
+                    <span
+                        click.delegate="CCC.issue('factoryBus.connectTo',
+                        { 'dir.string': 'input',
+                        '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                        'connectTo.block': $scope.techBlock.$_id,
+                        'current.bus': $scope.techBlock.connections.sources[0] || -1
+                        })"
+                    >${IgorJs.getObjId($scope.techBlock.connections.sources[0]).name || "none" & signal:'generalUpdate'}</span>
+                </div>
+            </div>
+            <div class="col">
+                <icon-base
+                    repeat.for="each of IgorJs.getObjId($scope.techBlock.buffers.in).items"
+                    item.bind="each.name"
+                    count.bind="each.count"
+                    click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': $scope.techBlock.buffers.in, 'item.name': each.name}, $event)"
+                ></icon-base>
+            </div>
+        </div>
+        <div class="row">
+            <div
+                class="col ${$scope.techBlock.research_time && 'progressBarBase'} ${$scope.techBlock.stalled && 'stalled'}"
+                css="border-image: linear-gradient(to left, red ${$scope.techBlock.research_ticks/$scope.techBlock.research_time*100-5}%, green ${$scope.techBlock.research_ticks/$scope.techBlock.research_time*100+10}%)"
+            >
+                <span
+                    id="techBlock_foundation"
+                    click.delegate="CCC.issue('techBlock.prepSpace', {}, $event)"
+                    mouseenter.trigger="tooltip = CCC.utilityFn('techBlock.toolTips', $scope.techBlock.$_id, {which: 'foundation'})"
+                >Foundations: ${$scope.techBlock.prepped}</span><br>
+                <span
+                    id="techBlock_labs"
+                    click.delegate="CCC.issue('techBlock.buildLab', {}, $event)"
+                    mouseenter.trigger="tooltip = CCC.utilityFn('techBlock.toolTips', $scope.techBlock.$_id, {which: 'buildLab'})"
+                >Labs: ${$scope.techBlock.built}</span><br>
+            </div>
+            <div class="col">
+                <span>Tech Branch: ${$scope.techBlock.techTreeClass}</span><br>
+                <span>${globals.research.progressing.name || "No Research" & signal:'generalUpdate'}</span><br>
+                <span show.bind="globals.research.progressing">
+                     ${globals.research.progressing.completeUnits}
+                    /${globals.research.progressing.cost.count}
+                </span>
+            </div>
         </div>
     </section>
 </template>
