@@ -103,6 +103,8 @@ FactoryBlock.__tooltips = (obj, args, retObj, Igor) => {
             tip = "Next Factory Block"
             break;
         case "addLine":
+            data.landCost = "??"
+            data.complexity = "??"
             tip = "New Factory Line"
             break;
     }
@@ -311,7 +313,7 @@ FactoryLine.Prep = (obj, Igor) => {
         obj.at.factoryBlock.size +=10  //# magic number
         obj.at.factoryBlock.complexity += 5  //# magic number
     } else {
-        console.error("Cannot consume foundation costs")
+        Igor.view.warnToast("Cannot consume foundation costs")
     }
 }
 FactoryLine.Prep.signature = {
@@ -322,27 +324,20 @@ FactoryLine.Prep.CC_provide = "factoryLine.prep"
 FactoryLine.Expand = (obj, Igor) => {
     if(obj.at.factoryLine.prepped==0) return
     if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.at.factoryLine.buildingType, count: 1}})) {
-        if(obj.at.factoryLine.prepped>0 /* && inventory.consume */) {
-            obj.at.factoryLine.built++
-            obj.at.factoryLine.prepped--
-            if(obj.at.factoryLine.recipe) {
-                if(Number.isInteger(obj.at.factoryLine.processing_ticks)) {
-                    //If we're already actively processing something...
-                    //console.log('currently processing '+obj.at.factoryLine.processing_count)
-                    //console.log('ticks: '+obj.at.factoryLine.processing_ticks)
-                    //console.log('timer: '+obj.at.factoryLine.processing_time)
-                    let consumed = Igor.processTEMP(obj.at.factoryBlock, "factoryBlock.consumeStacks", {itemStacks: obj.at.factoryLine.recipe.ingredients, multi: 1})
-                    if(consumed) {
-                        obj.at.factoryLine.processing_ticks *= (obj.at.factoryLine.built-1)/obj.at.factoryLine.built
-                        obj.at.factoryLine.processing_count++
-                        //console.log('new ticks: '+obj.at.factoryLine.processing_ticks)
-                    }
+        obj.at.factoryLine.built++
+        obj.at.factoryLine.prepped--
+        if(obj.at.factoryLine.recipe) {
+            if(Number.isInteger(obj.at.factoryLine.processing_ticks)) {
+                let consumed = Igor.processTEMP(obj.at.factoryBlock, "factoryBlock.consumeStacks", {itemStacks: obj.at.factoryLine.recipe.ingredients, multi: 1})
+                if(consumed) {
+                    obj.at.factoryLine.processing_ticks *= (obj.at.factoryLine.built-1)/obj.at.factoryLine.built
+                    obj.at.factoryLine.processing_count++
                 }
-                obj.at.factoryLine.$_tags.push("tick", "processing")
             }
+            obj.at.factoryLine.$_tags.push("tick", "processing")
         }
     } else {
-        console.error("Building not in inventory")
+        Igor.view.warnToast("Building not in inventory")
     }
 }
 FactoryLine.Expand.signature = {
@@ -536,7 +531,7 @@ FactoryBus.ConnectTo.signature = {
 FactoryBus.ConnectTo.CC_provide = "factoryBus.connectTo"
 FactoryBus.ExpandBus = (obj, Igor) => {
     let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busExpansion")})
-    if(!consumed) return
+    if(!consumed) return Igor.view.warnToast("Unable to consume costs to expand bus")
     if(obj.dir.string=="source") {
         obj.at.factoryBus.connections.maxSources += 1
         obj.at.factoryBus.complexity += 5
@@ -560,7 +555,7 @@ FactoryBus.ExpandBus.signature = {
 FactoryBus.ExpandBus.CC_provide = "factoryBus.expandBus"
 FactoryBus.ExpandProcessing = (obj, Igor) => {
     let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busProcessing")})
-    if(!consumed) return
+    if(!consumed) return Igor.view.warnToast("Unable to consume costs to expand bus")
     if(obj.dir.string=="source") {
         obj.at.factoryBus.processors.source.xferQty += 2
         obj.at.factoryBus.size += 10
@@ -707,7 +702,7 @@ ResourceBlock.PrepSpace = (obj, Igor) => {
         obj.at.ResourceBlock.spaceUsed += 10
         obj.at.ResourceBlock.complexity += 5
     } else {
-        console.error("unable to consume foundation costs")
+        Igor.view.warnToast("Unable to consume foundation costs")
     }
 
 }
@@ -722,6 +717,8 @@ ResourceBlock.BuildMine = (obj, Igor) => {
         obj.at.ResourceBlock.prepped--
         obj.at.ResourceBlock.built++
         Igor.getId(obj.at.ResourceBlock.buffers.out).stackSize += 5
+    } else {
+        return Igor.view.warnToast("Mining drill not available")
     }
 }
 ResourceBlock.BuildMine.signature = {
