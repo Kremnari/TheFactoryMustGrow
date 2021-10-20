@@ -200,25 +200,29 @@
     }
     & #viewBlocks {
       & #viewBusLine {
-        & h4 {
+        & h5.bus_header {
           display: inline;
-          & + icon-base {
-            zoom: 75%;
+          & icon-base {
+            zoom: 60%;
             bottom: -20%;
+            padding: 0px;
+            display:inline-block;
           }
         }
       }
       & #viewFacBlock {
-        & h4 {
+        & h5 {
           display: inline;
-          & + icon-base {
-            zoom: 75%;
+          & icon-base {
+            zoom: 60%;
             bottom: -20%;
+            padding: 0px;
+            display: inline-block;
           }
         }
         & .interItem {
-          position: absolute;
-          padding-left: 16px;
+//          position: absolute;
+          padding: 0px;
           & span.fa-level-up-alt {
             position: absolute;
             left: 0;
@@ -229,6 +233,10 @@
             left: 0px;
             bottom: 8px;
           }
+        }
+        & .fa-creative-commons-sa {
+          text-align: center;
+          border-bottom: 1px dashed orange;
         }
       }
       & .fa-sign-in-alt, & .fa-sign-out-alt {

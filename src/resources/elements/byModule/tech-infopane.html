@@ -12,7 +12,10 @@
       <strong>Unlocks</strong>
       <div repeat.for="unlock of $scope.tech.unlocks">
         <icon-base if.bind="typeof unlock === 'string'" item.bind="unlock" mouseenter.trigger="tooltip = unlock" mouseleave.trigger="tooltip = null"></icon-base>
-        <span if.bind="typeof unlock === 'object'">Feature: ${unlock.feature}</span>
+        <span if.bind="typeof unlock === 'object'">
+          Feature: ${unlock.feature}<br>
+          ${unlock.text}
+        </span>
       </div>
     </div>
     <div if.bind="globals.research.completed[$scope.tech.name]">

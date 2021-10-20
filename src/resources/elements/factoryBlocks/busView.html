@@ -10,13 +10,13 @@
         Size: ${$scope.busLine.size}
       </div>
       <div class="col">
-        <h4 class="text-center">${$scope.busLine.name}</h4>
-        -(
+        <h5 class="bus_header">
+          ${$scope.busLine.name}-
           <icon-base
-          click.delegate="CCC.issue('factoryBus.selectSubIcon', {}, $event)"
-          item.bind="$scope.busLine.subIcon"
-        ></icon-base>
-        )
+            click.delegate="CCC.issue('factoryBus.selectSubIcon', {}, $event)"
+            item.bind="$scope.busLine.subIcon"
+          ></icon-base>
+        )</h5>
       </div>
       <div class="col text-end">
         Complexity: ${$scope.busLine.complexity}

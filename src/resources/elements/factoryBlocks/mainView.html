@@ -4,13 +4,14 @@
   <div class='row'>
     <span class="col">Land Size : ${$scope.facBlock.size}</span>
     <span class="col">
-      <h4>${$scope.facBlock.name}</h4>
-      -(
-      <icon-base
-        click.delegate="CCC.issue('factoryBlock.selectSubIcon', {}, $event)"
-        item.bind="$scope.facBlock.subIcon"
-      ></icon-base>
-      )
+      <h5>
+        ${$scope.facBlock.name}-
+        <icon-base
+          class="row ib_sm"
+          click.delegate="CCC.issue('factoryBlock.selectSubIcon', {}, $event)"
+          item.bind="$scope.facBlock.subIcon"
+        ></icon-base>
+      )</h5>
     </span>
 
     <span class="col">Complexity: ${$scope.facBlock.complexity}</span>
@@ -54,23 +55,25 @@
       </div>
     </div>
     <div
-        if.bind="$scope.facBlock.buffers.internal"
+        show.bind="IgorJs.getObjId($scope.facBlock.buffers.internal).items"
         click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.internal)"
         class="col">
         <div class="row">
-          <span class="col fab fa-creative-commons-sa fa_icon_sm"></span>:
+          <span class="col fab fa-creative-commons-sa fa_icon_sm"></span>
+        </div>
+        <div class="row">
           <div repeat.for="item of IgorJs.getObjId($scope.facBlock.buffers.internal).items & signal:'generalUpdate'" class="col interItem">
-            <span
-                class="fas fa-level-up-alt fa-rotate-90"
-                if.bind="item.name"
-                click.delegate="CCC.issue('entity.bufferFill', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
-              ></span>
-              <span
-                class="fas fa-level-down-alt"
-                if.bind="item.name"
-                click.delegate="CCC.issue('entity.bufferCollect', {'item.name': item.name, 'at.entity': 'temp_null', }, $event)"
-              ></span>
             <icon-base if.bind="item" item.bind="item" count.bind="item.count"></icon-base>
+            <span
+              class="fas fa-level-up-alt fa-rotate-90"
+              if.bind="item.name"
+              click.delegate="CCC.issue('entity.bufferFill', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
+            ></span>
+            <span
+              class="fas fa-level-down-alt"
+              if.bind="item.name"
+              click.delegate="CCC.issue('entity.bufferCollect', {'item.name': item.name, 'at.entity': 'temp_null', }, $event)"
+            ></span>
           </div>
         </div>
       </div>
@@ -164,16 +167,19 @@
     </span>
     <span class="col">
       <span
+        class="fas fa-sort-up"
         click.delegate="CCC.issue('object.move', {'which.obj': line, 'list.objs': $scope.facBlock.factoryLines, 'dir.number':-1}, $event)"
-        if.bind="!$first"
-      >Move Up</span><br>
+        show.bind="!$first"
+      ></span>
       <span
+        class="fas fa-trash-alt"
         click.delegate="CCC.issue('object.delete', {'which.obj': line, 'list.objs': $scope.facBlock.factoryLines}, $event)"
-      >Delete</span><br>
+      ></span>
       <span
+        class="fas fa-sort-down"
         click.delegate="CCC.issue('object.move', {'which.obj': line, 'list.objs': $scope.facBlock.factoryLines, 'dir.number':1}, $event)"
-        if.bind="!$last"
-      >Move Down</span>
+        show.bind="!$last"
+      ></span>
     </span>
   </div>
   <div note="add new line to factory block" class="row">
