@@ -271,6 +271,7 @@ const NewEntityBuffer = (params, newObj, Igor) => {
   newObj.restrictable = params.restrictable || false
   newObj.connection = null
   newObj.dir = params.dir
+  newObj.active = false
   return [newObj]
 }
 NewEntityBuffer._delete = (obj, Igor) => {
@@ -345,6 +346,7 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
     buffer.upgrades.loader.count++
     buffer.xferTimer || (buffer.xferTimer = buffer.xferTicks)
     buffer.xfer++
+    buffer.active = true
     buffer.$_tags.push("tick", "processing")
   } else if(obj.type.string=="buffer") {
     if(buffer.upgrades.bufferSize?.count>=6) return Igor.view.warnToast("Chests full")
@@ -476,18 +478,15 @@ EntityBufferActions.BusXfer.Igor_operation = "buffer.busXfer"
 
 EntityBufferActions.BufferStalled = (buffer, args, returnObj, Igor) => {
   /* more advanced stall handling, then return*/
-  buffer.stalled++
-  if (buffer.stalled>=buffer.items.length) {
-    buffer.$_tags.delete("tick")
-    buffer.stalled = false
-  }
+  //console.log('stalled start'+buffer.items.length)
+  buffer.stalled = true
   buffer.xferTimer = Math.floor(buffer.xferTicks/6)
   ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
 }
 EntityBufferActions.BufferStalled.Igor_operation = "buffer.setStall"
 
 EntityBufferActions.tick = (buffer, tickData, Igor) => {
-  if(buffer.items.length==0) return
+  if(buffer.items.length==0 || !buffer.active) return
   if(buffer.xferTimer) return buffer.xferTimer--
   //Surely a more elegant way to run this...
   if(buffer.dir=='in') {
@@ -502,14 +501,8 @@ EntityBufferActions.tick = (buffer, tickData, Igor) => {
                      }, partial: true})
     if(acquired[0].count==0) return Igor.processTEMP(buffer, "buffer.setStall")
     buffer.items[buffer.xferStack].count += acquired[0].count
-    Igor.view.signaler.signal('bufferUpdate')
-    Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
-    buffer.stalled = false
-    buffer.xferTimer = buffer.xferTicks
-    ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
   } else {
     let xfer = buffer.items[buffer.xferStack]
-    
     let added = Igor.processTEMP(
                    "player.inventory"
                    ,"inventory.add"
@@ -519,11 +512,14 @@ EntityBufferActions.tick = (buffer, tickData, Igor) => {
                    }, stackLimit: 1})
     //console.log(added)
     if(!added.complete) return Igor.processTEMP(buffer, "buffer.setStall")
-    buffer.xferTimer = buffer.xferTicks
     xfer.count -= Math.min(xfer.count, buffer.xfer)
-    Igor.view.signaler.signal("bufferUpdate")
-    Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
+    //
   }
+  ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
+  buffer.xferTimer = buffer.xferTicks
+  buffer.stalled = false
+  Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
+  Igor.view.signaler.signal("bufferUpdate")
 }
 
 IgorJs.defineObj("entity.buffer", NewEntityBuffer, EntityBufferActions)

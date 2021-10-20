@@ -30,14 +30,14 @@
           item="inserter"
           if.bind="!parcel.isPlayer"
           count.bind="$scope.inBuffer.upgrades.loader.count"
-          stalled.bind="$scope.inBuffer.upgrades.loader.count>0 && !$scope.inBuffer._tags['tick']"
+          stalled.bind="$scope.inBuffer.upgrades.loader.count>0 && $scope.inBuffer.stalled"
           progress.bind="($scope.inBuffer.xferTicks-$scope.inBuffer.xferTimer)/$scope.inBuffer.xferTicks*100"
           click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
           class="${$scope.inBuffer.upgrades.loader.count>=10 && 'countFull'}"
         ></icon-base>
         <active-trigger
           entity.bind="$scope.inBuffer"
-          tag="tick"
+          tag="active"
           if.bind="$scope.inBuffer.xfer>0"
         ></active-trigger>
       </div>
@@ -62,14 +62,14 @@
           item="inserter"
           if.bind="!parcel.isPlayer"
           count.bind="$scope.outBuffer.upgrades.loader.count"
-          stalled.bind="$scope.outBuffer.upgrades.loader.count>0 && !$scope.outBuffer._tags['tick']"
+          stalled.bind="$scope.outBuffer.upgrades.loader.count>0 && $scope.outBuffer.stalled"
           progress.bind="(($scope.outBuffer.xferTicks-$scope.outBuffer.xferTimer)/$scope.outBuffer.xferTicks*100)"
           click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'autoload'}, $event)"
           class="${$scope.outBuffer.upgrades.loader.count>=10 && 'countFull'}"
         ></icon-base>
         <active-trigger
           entity.bind="$scope.outBuffer"
-          tag="tick"
+          tag="active"
           if.bind="$scope.outBuffer.xfer>0"
         ></active-trigger>
       </div>
