@@ -369,7 +369,6 @@ export const IgorRunner = {
     if(typeof target=="string" && target.includes("id")) target = IgorCore.objs.get(target)
     let def = IgorCore.metaDefines[target.$_type]
     let del = def._delete
-    debugger
     del && del(target, IgorRunner)
     let idx = IgorCore.tick_entities.findIndex( (x) => { return x.$_id==target.$_id })
     IgorCore.tick_entities.splice(idx, 1)

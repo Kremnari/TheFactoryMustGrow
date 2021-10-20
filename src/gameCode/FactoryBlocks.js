@@ -499,6 +499,8 @@ FactoryBus.ConnectTo = (obj, Igor) => {
     let bus = Igor.getId(obj.connectTo.factoryBus)
     let block = Igor.getId(obj.connectTo.block)
     if(obj.dir.string=="output") {
+        //clear out prior connection
+        if(bus.connections.sources.length==bus.connections.maxSources) return Igor.view.warnToast("No available drains at target bus")
         //target drain, bus source
         if(obj.current.bus!=-1 && block.connections.drains.includes(obj.current.bus)) {
             let idx = block.connections.drains.indexOf(obj.current.bus)
@@ -508,14 +510,10 @@ FactoryBus.ConnectTo = (obj, Igor) => {
             curr.connections.sources.splice(idx, 1)
             curr.processors.source.xferTarget = 0
         }
-        if(block.connections.drains.length<block.connections.maxDrains &&
-            bus.connections.sources.length<bus.connections.maxSources) {
-            block.connections.drains.push(obj.connectTo.factoryBus)
-            bus.connections.sources.push(obj.connectTo.block)
-        } else {
-            Igor.view.warnToast("No available source connections")
-        }
+        block.connections.drains.push(obj.connectTo.factoryBus)
+        bus.connections.sources.push(obj.connectTo.block)
     } else {
+        if(bus.connections.drains.length==bus.connections.maxDrains) return Igor.view.warnToast("No available drains at target bus")
         //target source, bus drain
         if(obj.current.bus!=-1 && block.connections.sources.includes(obj.current.bus)) {
             let idx = block.connections.sources.indexOf(obj.current.bus)
@@ -525,13 +523,8 @@ FactoryBus.ConnectTo = (obj, Igor) => {
             curr.connections.drains.splice(idx, 1)
             curr.processors.drain.xferTarget = 0
         }
-        if(block.connections.sources.length<block.connections.maxSources &&
-            bus.connections.drains.length<bus.connections.maxDrains) {
-            block.connections.sources.push(obj.connectTo.factoryBus)
-            bus.connections.drains.push(obj.connectTo.block)
-        } else {
-            Igor.view.warnToast("No available drain connections")
-        }
+        block.connections.sources.push(obj.connectTo.factoryBus)
+        bus.connections.drains.push(obj.connectTo.block)
     }
     Igor.view.signaler.signal("generalUpdate")
 }

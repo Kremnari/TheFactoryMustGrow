@@ -281,6 +281,7 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
     !buffer.upgrades.bufferSize && (buffer.upgrades.bufferSize = {count: 0})
     buffer.upgrades.bufferSize.count++
     buffer.stackSize = Igor.getStatic("entity.buffer.BUFFER_SIZE")[buffer.upgrades.bufferSize.count] || Igor.getStatic("entity.buffer.BUFFER_SIZE.MAX")
+    Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
   }
 }
 EntityBufferActions.Upgrade.signature = {
@@ -428,6 +429,7 @@ EntityBufferActions.tick = (buffer, tickData, Igor) => {
                      }, partial: true})
     if(acquired[0].count==0) return Igor.processTEMP(buffer, "buffer.setStall")
     buffer.items[buffer.xferStack].count += acquired[0].count
+    buffer.xferTimer = (buffer.xferTicks * acquired[0].count /buffer.xfer)
   } else {
     let xfer = buffer.items[buffer.xferStack]
     let added = Igor.processTEMP(
@@ -440,10 +442,9 @@ EntityBufferActions.tick = (buffer, tickData, Igor) => {
     //console.log(added)
     if(!added.complete) return Igor.processTEMP(buffer, "buffer.setStall")
     xfer.count -= Math.min(xfer.count, buffer.xfer)
-    //
+    buffer.xferTimer = buffer.xferTicks
   }
   ++buffer.xferStack==buffer.items.length && (buffer.xferStack=0)
-  buffer.xferTimer = buffer.xferTicks
   buffer.stalled = false
   Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
   Igor.view.signaler.signal("bufferUpdate")

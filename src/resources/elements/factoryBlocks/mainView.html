@@ -10,8 +10,7 @@
           class="row ib_sm"
           click.delegate="CCC.issue('factoryBlock.selectSubIcon', {}, $event)"
           item.bind="$scope.facBlock.subIcon"
-        ></icon-base>
-      )</h5>
+        ></icon-base>)</h5>
     </span>
 
     <span class="col">Complexity: ${$scope.facBlock.complexity}</span>
@@ -142,7 +141,7 @@
     </span>
     <span class="col">
       <span
-        if.bind="!line.buildingType"
+        if.bind="line.buildingType"
         todo="building selection dialog needs to be more restricted"
         click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)"
         class="setBuildingType"
@@ -159,6 +158,7 @@
       class="col"
       click.delegate="CCC.issue('factoryLine.prep', null, $event)"
       mouseenter.trigger="tooltip=CCC.utilityFn('factoryLine.toolTips', line.$_id, {which: 'foundation'})"
+      if.bind="!line.buildingType"
     >
       Prepped spaces: ${line.prepped}
       <span
