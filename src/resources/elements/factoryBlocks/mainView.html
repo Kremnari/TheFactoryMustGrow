@@ -33,7 +33,7 @@
             class="facBlockIn connection"
             click.delegate="CCC.issue('factoryBus.connectTo', 
                 {
-                    '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                    'factoryBus.dialog': {showSpecials: false},
                     'dir.string': 'input',
                     'connectTo.block': $scope.facBlock.$_id,
                     'current.bus': $scope.facBlock.connections.sources[sourceIdx] || -1
@@ -93,7 +93,7 @@
             class="facBlockOut connection"
             click.delegate="CCC.issue('factoryBus.connectTo',
                     {
-                      '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                      'factoryBus.dialog': {showSpecials: true},
                       'dir.string': 'output',
                       'connectTo.block': $scope.facBlock.$_id,
                       'current.bus': $scope.facBlock.connections.drains[drainIdx] || -1

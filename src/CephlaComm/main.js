@@ -74,7 +74,13 @@ export const CephlaCommCaller = {
           //! The above used to be condensed, but it negated possible nulls
           //found = (obj?.[specifier+"."+type]!==undefined && obj?.[specifier+"."+type]) || $evt?.CCC[specifier]?.[type] || CephlaCommCaller.statics[specifier]?.[type]
           if(found===undefined) {
-            if(obj && obj["$_"+type+"Xlist"]) {
+            if(obj && obj[type+".dialog"]) {
+              found = await CephlaCommCore.dialogSvc.open("SelectX",
+                CephlaCommCore.utilityFns[type](obj[type+".dialog"], CephlaCommCore.runner), type
+              )
+              if(!found || !found.item) return
+              found = found.item?.name || found.item
+            } else if(obj && obj["$_"+type+"Xlist"]) {
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list: obj["$_"+type+"Xlist"], type
               })
@@ -93,12 +99,6 @@ export const CephlaCommCaller = {
               })
               if(!found) return
               found = found.item
-            } else if(type=="factoryBus") {
-              found = await CephlaCommCore.dialogSvc.open("SelectBus", {
-                bus: ['yikes']
-              })
-              if(!found) return
-              found = found.selected?.name
             } else if(type=="string") {
               found = prompt("Enter "+specifier+":")
               if(!found) return

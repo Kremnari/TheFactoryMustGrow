@@ -12,6 +12,7 @@ export class SelectX {
     this.list = model.list
     //console.log(this.list)
     this.type = model.type
+    this.custom  = model.custom
     this.selected = model.default
   }
   select(item) {

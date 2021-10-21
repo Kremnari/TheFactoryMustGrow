@@ -130,6 +130,7 @@ FactoryBlock.ConsumeStacks = (target, args, returnObj, Igor) => {
     //WIP
     let consumable = args.itemStacks.reduce( (accum_multi, x) => {
         if(accum_multi==-1) return -1
+        if(!target.processingList[x.name]) debugger
         let avail = Igor.processTEMP(Igor.getId(target.processingList[x.name].at).items, "inventory.total", {name: x.name})
         return avail<x.amount ? -1 : Math.min(accum_multi, Math.floor(avail/x.amount))
     }, args.multi)
@@ -203,29 +204,23 @@ FactoryBlock.SetProcessItems = (target, args, returnObj, Igor) => {
     console.log('set process')
     args.lists.consume.forEach( (x) => {
         if(!target.processingList[x]) {
-            target.processingList[x] = {at: target.buffers.in, consume: [args.listId]}
-        } else if(target.processingList[x].at == target.buffers.internal) {
-            target.processingList[x].consume.push(args.listId)
+            target.processingList[x] = {at: target.buffers.in, consume: []}
         } else if(target.processingList[x].at == target.buffers.out) {
             // Move to internal
             target.processingList[x].at = target.buffers.internal
             target.processingList[x].consume = []
-            target.processingList[x].consume.push(args.listId)
-        } else {
-            //x is found and at input already
         }
+        target.processingList[x].consume.push(args.listId)
     })
     args.lists.produce.forEach( (x) => {
         if(!target.processingList[x]) {
-            target.processingList[x] = {at: target.buffers.out, produce: [args.listId]}
-        } else if(target.processingList[x].at==target.buffers.internal) {
-            target.processingList[x].produce.push(args.listId)
+            target.processingList[x] = {at: target.buffers.out, produce: []}
         } else if(target.processingList[x].at==target.buffers.in) {
             //move it
             target.processingList[x].at = target.buffers.internal
             target.processingList[x].produce = []
-            target.processingList[x].produce.push(args.listId)
         }
+        target.processingList[x].produce.push(args.listId)
     })
     //TODO this doesn't respect stack limits on the buffers
     Igor.processTEMP(target.buffers.in, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.in})})
@@ -256,9 +251,9 @@ FactoryBlock.ClearProcessItems = (target, args, returnObj, Igor) => {
             }
         }
     })
-    Igor.processTEMP(Igor.getId(target.buffers.in), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.in})})
-    Igor.processTEMP(Igor.getId(target.buffers.internal), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.internal})})
-    Igor.processTEMP(Igor.getId(target.buffers.out), "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.out})})
+    Igor.processTEMP(target.buffers.in, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.in})})
+    Igor.processTEMP(target.buffers.internal, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.internal})})
+    Igor.processTEMP(target.buffers.out, "buffer.restrictList", {list: Object.keys(target.processingList).filter((x)=> {return target.processingList[x].at==target.buffers.out})})
 }
 FactoryBlock.ClearProcessItems.Igor_operation = "factoryBlock.clearProcessItems"
 IgorJs.defineObj("FactoryBlock", FactoryBlock.New, FactoryBlock)
@@ -495,6 +490,20 @@ FactoryBus.SelectSubIcon.signature = {
     which: "icon"
 }
 FactoryBus.SelectSubIcon.CC_provide = "factoryBus.selectSubIcon"
+FactoryBus.DialogSelect = (options, Igor) => {
+    let global = Igor.getNamedObject("global")
+    let list = []
+    global.facBlocks.buses.forEach((id) => {
+        let item = Igor.getId(id)
+        list.push({name: item.name, icon: item.subIcon})
+    })
+    let ret = {list, type: "bus", custom: {}}
+    if(options.showSpecials && global.facBlocks.defenseBus) ret.custom.showDefense = true
+    if(options.showSpecials && global.facBlocks.offenseBus) ret.custom.showOffense = true
+    if(options.showSpecials && global.facBlocks.market) ret.custom.showMarket = true
+    return ret
+}
+FactoryBus.DialogSelect.CC_dialogList = "factoryBus"
 FactoryBus.ClearConnection = (target, args, returnObj, Igor) => {
     let conn = args.dir=="sources" ? "drains": "sources"
     let idx = target.connections[conn].findIndex( (x) => { return x.buffer==args.id })

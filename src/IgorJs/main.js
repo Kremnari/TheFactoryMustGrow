@@ -132,6 +132,7 @@ export const IgorUtils = {
       if(obj && obj.CC_provide) IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature, obj.validator)
       if(obj && obj.Igor_operation) IgorUtils.addOperation(obj.Igor_operation, obj)
       if(obj && obj.CC_utility) IgorUtils.CCC_addUtility(obj.CC_utility, obj)
+      if(obj && obj.CC_dialogList) IgorUtils.CCC_addUtility(obj.CC_dialogList, obj)
     })
   
   },

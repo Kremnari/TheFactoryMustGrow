@@ -2,7 +2,43 @@
   <ux-dialog>
     <ux-dialog-header>Select ${type}</ux-dialog-header>
     <ux-dialog-body>
-      <div if.bind="list[0].icon || type=='icon'">
+      <div if.bind="custom && type=='bus'" class="container">
+        <div class="row">
+          <div
+            repeat.for="each of list"
+            click.delegate="select(each.name)"
+            class="${each.name==selected && 'selected'} col"
+          >
+              ${each.name}
+              <icon-base item.bind="each" class="half"></icon-base>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col">
+            <p
+              if.bind="custom.showDefense"
+              click.delegate="select({custom: 'defense'})"
+              class="${selected.custom=='defense' && 'selected'}"
+            >Defense</p>
+          </div>
+          <div class="col">
+            <p
+              if.bind="custom.showMarket"
+              click.delegate="select({custom: 'market'})"
+              class="${selected.custom=='market' && 'selected'}"
+            >Market</p>
+          </div>
+          <div class="col">
+            <p
+              if.bind="custom.showOffense"
+              click.delegate="select({custom: 'offense'})"
+              class="${selected.custom=='offense' && 'selected'}"
+            >Offense</p>
+          </div>
+        </div>
+      </div>
+      <div if.bind="!custom && (list[0].icon || type=='icon')">
         <icon-base
           repeat.for="each of list"
           item.bind="each"
@@ -10,7 +46,7 @@
           class="${each==selected ? 'selected' : ''}"
         >${each.name}</icon-base>
       </div>
-      <div if.bind="!list[0].icon && type!='icon'">
+      <div if.bind="!custom && !list[0].icon && type!='icon'">
         <p  
           repeat.for="each of list"
           click.delegate="select(each)"

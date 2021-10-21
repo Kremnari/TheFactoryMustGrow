@@ -107,7 +107,7 @@ export class App {
       ChameJS.setViewFn("workshopEntities", () => {
         let list = this.IgorJs.arrayFromIds(this.globals.player.workshop.entities)
         list = list.sort( (first, second) => {
-          return first.order > second.order ? 1 : -1
+          return first.order > second.order ? -1 : 1
         })
         return list
       })

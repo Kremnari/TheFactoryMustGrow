@@ -320,6 +320,7 @@ EntityBufferActions.SetRestrictions = (target, args, returnObj, Igor) => {
       }
     }
   })
+  if(target.busShift>target.items.length) target.busShift = 0
 }
 EntityBufferActions.SetRestrictions.Igor_operation = "buffer.restrictList"
 EntityBufferActions.HasRestriction = (target, args, returnObj, Igor) => {

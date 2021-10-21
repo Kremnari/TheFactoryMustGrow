@@ -61,10 +61,14 @@ export class DataEditor {
       this.editing.cost = { ingredients: [['automation-science-pack', 1]]}
     }
   }
+  copyItem() {
+    this.editing = Object.assign({}, this.editing)
+  }
   saveItem() {
     if(this.eTypeSelect=='research' && typeof this.editing.inputs== 'string') {
       this.editing.inputs = this.editing.inputs.split(",")
     }
+    //This shouldn't really be needed, right?
     mgrs.data[this.editType][this.editing.name] = this.editing
     this.editing = null
   }
