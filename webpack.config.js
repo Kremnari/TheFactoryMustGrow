@@ -20,7 +20,7 @@ const title = 'The Factory Must Grow';
 const outDir = path.resolve(__dirname, project.platform.output);
 const srcDir = path.resolve(__dirname, 'src');
 const nodeModulesDir = path.resolve(__dirname, 'node_modules');
-const baseUrl = '/tfmg_alpha/';
+const baseUrl = '/TheFactoryMustGrow/';
 
 const cssRules = [
   { loader: 'css-loader' },
