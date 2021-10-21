@@ -290,25 +290,23 @@ FactoryLine.New.signature = {
 FactoryLine.New._signal = "generalUpdate"
 FactoryLine.__delete = (obj, Igor) => {
     obj.$_tags.delete("tick")
-    Igor.processTEMP(
+    obj.recipe && Igor.processTEMP(
         obj.$_parent
         ,"factoryBlock.clearProcessItems"
         ,{lists: obj.processList})
 
-    Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
-    let foundation = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation"}).data
-    Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: foundation, multi: obj.built+obj.prepped})
+    obj.buildingType && Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
+    let foundation = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation"})
+    if(obj.built+obj.prepped) { Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: foundation.data, multi: obj.built+obj.prepped})}
     if(obj.processing_count) {
-        Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: obj.rescipe.ingredients, multi: obj.processing_count})
+        Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: obj.recipe.ingredients, multi: obj.processing_count})
     }
 
     let parent = Igor.getId(obj.$_parent)
     let idx = parent.factoryLines.indexOf(obj.$_id)
     parent.factoryLines.splice(idx, 1)
-    debugger
     parent.factoryLines.forEach((x, i) => {
         if(Igor.getId(x).order<idx) return
-        debugger
         Igor.getId(x).order--
     })
     //TODO adjust land use and complexity
@@ -415,6 +413,7 @@ FactoryLine.__tooltips = (obj, args, ret, Igor) => {
         case "foundation":
             data.push({name: "stone", count: 5})
             tip = "Foundation Cost"
+            console.log('here')
             break;
     }
     ret._result = {tool: "stackArray", tip, data}
@@ -725,6 +724,7 @@ ResourceBlock.SetResource = (obj, Igor) => {
         obj.at.ResourceBlock.mining_ticks =  obj.at.ResourceBlock.patchProperties.mining_time
         obj.at.ResourceBlock.subIcon = obj.at.ResourceBlock.patchProperties.resource
     }
+    Igor.processTEMP(obj.at.ResourceBlock.buffers.out, "buffer.restrictList", {list:[obj.at.ResourceBlock.patchProperties.resource]})
 }
 ResourceBlock.SetResource.signature = {
     at: "ResourceBlock",

@@ -139,7 +139,7 @@
         >
           <icon-base
             item="iron-chest"
-            count.bind="IgorJs.getObjId($scope.facBlock.buffers.out).upgrades.bufferSize.count & signal:'generalUpdate'"
+            count.bind="$scope.outBuffer.upgrades.bufferSize.count & signal:'generalUpdate'"
             click.delegate="CCC.issue(
                           'entity.bufferUpgrade',
                           {'type.string': 'buffer'
@@ -147,7 +147,7 @@
                           }, $event)"
             mouseenter.trigger="tooltip=CCC.utilityFn('facBlock.__tooltips', $scope.facBlocks, {which: 'bufferUpgrade', buffer: $scope.facBlocks.buffers.out})"
           ></icon-base>
-          Max Size: ${IgorJs.getObjId($scope.facBlock.buffers.in).stackSize & signal:'generalUpdate'}
+          Max Size: ${$scope.outBuffer.stackSize & signal:'generalUpdate'}
         </span>
       </div>
     </div>
@@ -211,6 +211,7 @@
       <span
         class="fas fa-trash-alt"
         click.delegate="CCC.issue('object.delete', {'which.obj': line, 'list.objs': $scope.facBlock.factoryLines}, $event)"
+        show.bind="!($first && $last)"
       ></span>
       <span
         class="fas fa-sort-down"
