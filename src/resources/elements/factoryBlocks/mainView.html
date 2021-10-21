@@ -1,5 +1,7 @@
 <template>
 <scope-var var.bind="$scope={facBlock: viewPane.showingItem}"></scope-var>
+<scope-var var.bind="$scope.inBuffer  = IgorJs.getObjId($scope.facBlock.buffers.in )"></scope-var>
+<scope-var var.bind="$scope.outBuffer = IgorJs.getObjId($scope.facBlock.buffers.out)"></scope-var>
 <section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', $scope.facBlock )" class="container">
   <div class='row'>
     <span class="col">Land Size : ${$scope.facBlock.size}</span>
@@ -10,7 +12,7 @@
           class="row ib_sm"
           click.delegate="CCC.issue('factoryBlock.selectSubIcon', {}, $event)"
           item.bind="$scope.facBlock.subIcon"
-        ></icon-base>)</h5>
+        ></icon-base></h5>
     </span>
 
     <span class="col">Complexity: ${$scope.facBlock.complexity}</span>
@@ -51,6 +53,24 @@
           count.bind="item.count"
           click.delegate="CCC.issue('entity.bufferFill', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
         ></icon-base>
+      </div>
+      <div class="row">
+        <span
+          click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.in)"
+        >
+          <icon-base
+            item="iron-chest"
+            count.bind="IgorJs.getObjId($scope.facBlock.buffers.in).upgrades.bufferSize.count & signal:'generalUpdate'"
+            class="${$scope.inBuffer.upgrades.bufferSize.count>$scope.inBuffer.upgrades.maxBuffers && 'countFull'}"
+            click.delegate="CCC.issue(
+                          'entity.bufferUpgrade',
+                          {'type.string': 'buffer'
+                          ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', $scope.facBlocks, {which: 'bufferUpgrade', buffer: $scope.facBlocks.buffers.in}).data
+                          }, $event)"
+            mouseenter.trigger="tooltip=CCC.utilityFn('facBlock.__tooltips', $scope.facBlocks, {which: 'bufferUpgrade', buffer: $scope.facBlocks.buffers.in})"
+          ></icon-base>
+          Max Size: ${IgorJs.getObjId($scope.facBlock.buffers.in).stackSize & signal:'generalUpdate'}
+        </span>
       </div>
     </div>
     <div
@@ -112,6 +132,23 @@
           count.bind="item.count"
           click.delegate="CCC.issue('entity.bufferCollect', {'item.name': item.name, 'at.entity': 'temp_null'}, $event)"
         ></icon-base>
+      </div>
+      <div class="row">
+        <span
+          click.capture="CCC.provide($event, 'which', 'buffer', $scope.facBlock.buffers.out)"
+        >
+          <icon-base
+            item="iron-chest"
+            count.bind="IgorJs.getObjId($scope.facBlock.buffers.out).upgrades.bufferSize.count & signal:'generalUpdate'"
+            click.delegate="CCC.issue(
+                          'entity.bufferUpgrade',
+                          {'type.string': 'buffer'
+                          ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', $scope.facBlocks, {which: 'bufferUpgrade', buffer: $scope.facBlocks.buffers.out}).data
+                          }, $event)"
+            mouseenter.trigger="tooltip=CCC.utilityFn('facBlock.__tooltips', $scope.facBlocks, {which: 'bufferUpgrade', buffer: $scope.facBlocks.buffers.out})"
+          ></icon-base>
+          Max Size: ${IgorJs.getObjId($scope.facBlock.buffers.in).stackSize & signal:'generalUpdate'}
+        </span>
       </div>
     </div>
   </div>

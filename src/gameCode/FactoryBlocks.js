@@ -1,6 +1,4 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
-import {ChameleonViewer as ChameJs} from "Chameleon/main"
-import M from "minimatch"
 
 IgorJs.setStatic("itemStackCost.busExpansion", [{name: "iron-chest", count: 2}])
 IgorJs.setStatic("itemStackCost.busProcessing", [{name: "inserter", count: 2}])
@@ -23,7 +21,7 @@ FactoryBlock.New = (params, newObj, Igor) => {
     let bufferSettings = {
         restrictable: true,
         stacks: 1,
-        stackSize: 10,
+        stackSize: 5,
     }
     newObj.buffers = {}
     newObj.buffers.in = Igor.newComponent("entity.buffer", bufferSettings, newObj)
@@ -81,6 +79,7 @@ FactoryBlock.__tooltips = (obj, args, retObj, Igor) => {
     let who = Igor.getId(obj) || null
     let data = []
     let tip = ""
+    let tool = "blockCosts"
     switch(args.which) {
         case "resBlock":
             data.landCost = "resource"
@@ -107,8 +106,13 @@ FactoryBlock.__tooltips = (obj, args, retObj, Igor) => {
             data.complexity = "??"
             tip = "New Factory Line"
             break;
+        case 'bufferUpgrade':
+            data = [{name: "iron-chest", count: 1}]
+            tip = "Buffer Upgrade"
+            tool = "stackArray"
+            break;
     }
-    retObj._result = {tool: "blockCosts", tip, data}
+    retObj._result = {tool, tip, data}
 }
 FactoryBlock.__tooltips.CC_utility = "facBlock.__tooltips"
 FactoryBlock.tick = (obj, tickData, Igor) => {
@@ -474,7 +478,7 @@ FactoryBus.New = (params, newObj, Igor) => {
     newObj.processors = {
         source: {xferTicks: 120, xferTimer: 0, xferTarget: 0, xferQty: 0}
         ,drain: {xferTicks: 120, xferTimer: 0, xferTarget: 0, xferQty: 0}
-        ,central: Igor.newComponent("entity.buffer", {stacks: 1, stackSize: 10 }, newObj.$_id)
+        ,central: Igor.newComponent("entity.buffer", {stacks: 1, stackSize: 5 }, newObj.$_id)
     }
     newObj.clogged = false
     newObj.subIcon = "stone"
@@ -495,7 +499,7 @@ FactoryBus.DialogSelect = (options, Igor) => {
     let list = []
     global.facBlocks.buses.forEach((id) => {
         let item = Igor.getId(id)
-        list.push({name: item.name, icon: item.subIcon})
+        list.push({name: item.name, icon: item.subIcon, id})
     })
     let ret = {list, type: "bus", custom: {}}
     if(options.showSpecials && global.facBlocks.defenseBus) ret.custom.showDefense = true
@@ -516,6 +520,12 @@ FactoryBus.ClearConnection = (target, args, returnObj, Igor) => {
 }
 FactoryBus.ClearConnection.Igor_operation = "factoryBus.clearConnection"
 FactoryBus.ConnectTo = (obj, Igor) => {
+    /*
+    TODO
+    if(obj.connectTo.factoryBus.indexOf("@")>-1) {
+        we need to lookup the special bus type
+    }
+    */
     let bus = Igor.getId(obj.connectTo.factoryBus)
     let block = Igor.getId(obj.connectTo.block)
     if(obj.dir.string=="output") {

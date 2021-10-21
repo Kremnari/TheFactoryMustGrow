@@ -20,9 +20,9 @@
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo',
                         { 'dir.string': 'input',
-                        '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
-                        'connectTo.block': $scope.techBlock.$_id,
-                        'current.bus': $scope.techBlock.connections.sources[0] || -1
+                            'factoryBus.dialog': {showSpecials: false},
+                            'connectTo.block': $scope.techBlock.$_id,
+                            'current.bus': $scope.techBlock.connections.sources[0] || -1
                         })"
                     >
                         ${IgorJs.getObjId($scope.techBlock.connections.sources[0]).name || "none" & signal:'generalUpdate'}

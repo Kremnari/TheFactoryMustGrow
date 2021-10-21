@@ -185,7 +185,10 @@ IgorJs.setStatic("entityBuffer.sizeExpansionCost", [{name: "iron-chest", count: 
 IgorJs.setStatic("entityBuffer.xferExpansionCost", [{name: "inserter",   count: 1}])
 
 const NewEntityBuffer = (params, newObj, Igor) => {
-  newObj.upgrades = {}
+  newObj.upgrades = {
+    maxBuffers: 6 || params.maxBuffers
+    ,maxInserters: 10 || params.maxInserters
+  }
   newObj.maxStacks = params.staticStacks?.length || params.stacks || 1
   newObj.stackSize = params.stackSize || 5
   newObj.items = (params.staticStacks?.map((x) => {return {name: x, count: 0}})) || []
@@ -260,14 +263,15 @@ EntityBufferActions.ClickCycle.signature = {
 EntityBufferActions.ClickCycle.CC_provide = "entity.bufferCycle"
 
 
-IgorJs.setStatic("entity.buffer.BUFFER_SIZE",  [5, 10, 20, 30, 40, 50])
-IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 50)
+IgorJs.setStatic("entity.buffer.BUFFER_SIZE",  [5, 10, 10, 10, 20, 20, 20])
+IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 25)
 
 EntityBufferActions.Upgrade = (obj, Igor) => {
   let buffer =  Igor.getId(obj.which.buffer)
   if(obj.type.string=="autoload") {
+    let cost = obj.cost?.stacks || {name: "inserter", count: 1}
     if(buffer.upgrades.loader?.count>=10) return Igor.view.warnToast("Loaders full")
-    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "inserter", count: 1}})) return Igor.view.warnToast("Inserter required")
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Inserter required")
     !buffer.upgrades.loader && (buffer.upgrades.loader = {count: 0})
     buffer.upgrades.loader.count++
     buffer.xferTimer || (buffer.xferTimer = buffer.xferTicks)
@@ -275,12 +279,13 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
     buffer.active = true
     buffer.$_tags.push("tick", "processing")
   } else if(obj.type.string=="buffer") {
-    if(buffer.upgrades.bufferSize?.count>=6) return Igor.view.warnToast("Chests full")
-    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: "iron-chest", count: 1}})) return Igor.view.warnToast("Iron chest required")
+    let cost = obj.cost?.stacks || {name: "iron-chest", count: 1}
+    if(buffer.upgrades.bufferSize?.count>=buffer.upgrades.maxBuffers) return Igor.view.warnToast("Chests full")
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Cannot consume upgrade costs")
 
     !buffer.upgrades.bufferSize && (buffer.upgrades.bufferSize = {count: 0})
     buffer.upgrades.bufferSize.count++
-    buffer.stackSize = Igor.getStatic("entity.buffer.BUFFER_SIZE")[buffer.upgrades.bufferSize.count] || Igor.getStatic("entity.buffer.BUFFER_SIZE.MAX")
+    buffer.stackSize += Igor.getStatic("entity.buffer.BUFFER_SIZE")[buffer.upgrades.bufferSize.count-1] || Igor.getStatic("entity.buffer.BUFFER_SIZE.MAX")
     Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
   }
 }
@@ -288,6 +293,7 @@ EntityBufferActions.Upgrade.signature = {
   which: "buffer",
   type: "string",
   player: 'inventory',
+  "cost.stacks": {optional: true}
 }
 EntityBufferActions.Upgrade.CC_provide = "entity.bufferUpgrade"
 EntityBufferActions.SetRestrictions = (target, args, returnObj, Igor) => {

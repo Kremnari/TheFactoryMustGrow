@@ -1,5 +1,6 @@
 <template>
   <scope-var var.bind="$scope={busLine: viewPane.showingItem}"></scope-var>
+  <scope-var var.bind="$scope.buffer = IgorJs.getObjId($scope.busLine.processors.central)"></scope-var>
   <section
     id="viewBusLine"
     click.capture="CCC.provide($event, 'at', 'factoryBus', viewPane.showingItem)"
@@ -15,7 +16,7 @@
           <icon-base
             click.delegate="CCC.issue('factoryBus.selectSubIcon', {}, $event)"
             item.bind="$scope.busLine.subIcon"
-          ></icon-base>)</h5>
+          ></icon-base></h5>
       </div>
       <div class="col text-end">
         Complexity: ${$scope.busLine.complexity}
@@ -23,13 +24,32 @@
     </div>
     <div class="row">
       <div class="col busLine_tut_inProgress">
-        <span
+        <div class="row">
+          <div
+            class="col"
+            click.capture="CCC.provide($event, 'which', 'buffer', $scope.busLine.processors.central)"
+          >
+            <icon-base
+              item="iron-chest"
+              count.bind="$scope.buffer.upgrades.bufferSize.count & signal:'generalUpdate'"
+              mouseenter.trigger="tooltip=CCC.utilityFn('facBlock.__tooltips', $scope.busLine, {which: 'bufferUpgrade', buffer: $scope.buffer})"
+              click.delegate="CCC.issue(
+                'entity.bufferUpgrade',
+                {'type.string': 'buffer'
+                ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', $scope.busLine, {which: 'bufferUpgrade', buffer: $scope.buffer}).data
+                }, $event)"
+            ></icon-base>
+            Max stackSize: ${$scope.buffer.stackSize & signal:'generalUpdate'}
+          </div>
+          <span
+          class="col"
           show.bind="$scope.busLine.clogged"
           click.delegate="CCC.issue('factoryBus.clearClog', {}, $event)"
           >Clear Clog</span>
+        </div>
         <div class="row">
           <icon-base
-            repeat.for="item of IgorJs.getObjId($scope.busLine.processors.central).items"
+            repeat.for="item of $scope.buffer.items"
             if.bind="item.count"
             item.bind="item.name"
             count.bind="item.count"

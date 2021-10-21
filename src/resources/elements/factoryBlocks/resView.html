@@ -51,7 +51,7 @@
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo', 
                             {   'dir.string': 'output',
-                                '$_factoryBusXlist': IgorJs.arrayFromIds(globals.facBlocks.buses),
+                                'factoryBus.dialog': {showSpecials: false},
                                 'connectTo.block' : $scope.resBlock.$_id,
                                 'current.bus': $scope.resBlock.connections.drains[0] || -1
                             }, $event)"

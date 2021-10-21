@@ -6,8 +6,8 @@
         <div class="row">
           <div
             repeat.for="each of list"
-            click.delegate="select(each.name)"
-            class="${each.name==selected && 'selected'} col"
+            click.delegate="select(each)"
+            class="${each.name==selected.name && 'selected'} col"
           >
               ${each.name}
               <icon-base item.bind="each" class="half"></icon-base>
@@ -18,21 +18,21 @@
           <div class="col">
             <p
               if.bind="custom.showDefense"
-              click.delegate="select({custom: 'defense'})"
+              click.delegate="select({custom: 'defense', id: '@defense'})"
               class="${selected.custom=='defense' && 'selected'}"
             >Defense</p>
           </div>
           <div class="col">
             <p
               if.bind="custom.showMarket"
-              click.delegate="select({custom: 'market'})"
+              click.delegate="select({custom: 'market', id: '@market'})"
               class="${selected.custom=='market' && 'selected'}"
             >Market</p>
           </div>
           <div class="col">
             <p
               if.bind="custom.showOffense"
-              click.delegate="select({custom: 'offense'})"
+              click.delegate="select({custom: 'offense', id: '@offense'})"
               class="${selected.custom=='offense' && 'selected'}"
             >Offense</p>
           </div>

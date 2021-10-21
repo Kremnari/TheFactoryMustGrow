@@ -65,6 +65,14 @@ export const CephlaCommCaller = {
       let missed = []
       debugIf(CephlaCommCore, "caller_start")
       for( let [specifier, typeS] of Object.entries(CephlaCommCore.sigs[who])) {
+        let options = {}
+        if(specifier.indexOf(".")>-1) {
+          //! For some bizarre reason, destructuring wasn't working here
+          let temp = specifier.split(".")
+          options = typeS
+          typeS = temp[1]
+          specifier = temp[0]
+        }
         !Array.isArray(typeS) && (typeS = [typeS])
         for( let type of typeS) {
           let found
@@ -78,36 +86,36 @@ export const CephlaCommCaller = {
               found = await CephlaCommCore.dialogSvc.open("SelectX",
                 CephlaCommCore.utilityFns[type](obj[type+".dialog"], CephlaCommCore.runner), type
               )
-              if(!found || !found.item) return
-              found = found.item?.name || found.item
+              if(!found || !found.item && !options?.optional) return
+              found = found.item
             } else if(obj && obj["$_"+type+"Xlist"]) {
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list: obj["$_"+type+"Xlist"], type
               })
-              if(!found || !found.item) return
+              if(!found || !found.item && !options?.optional) return
               found = found.item?.name || found.item
             } else if(type=="recipe") {
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list: Object.values(CephlaCommCore.dataSet.recipe), type
               })
-              if(!found) return 
+              if(!found && !options?.optional) return 
               found = found.item?.name
             } else if(type=="building") {
               //# should pull entity_cats from a validator
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list: Object.values(CephlaCommCore.dataSet.entity).filter((x) => {return x.subType=='crafter'}), type
               })
-              if(!found) return
+              if(!found && !options?.optional) return
               found = found.item
             } else if(type=="string") {
               found = prompt("Enter "+specifier+":")
-              if(!found) return
+              if(!found && !options?.optional) return
             } else if(type=="icon") {
               let list = Object.keys(CephlaCommCore.dataSet.item)
               found = await CephlaCommCore.dialogSvc.open("SelectX", {
                 list, type: 'icon'
               })
-              if(!found) return
+              if(!found && !options?.optional) return
               found = found.item
             }
           }
@@ -115,7 +123,7 @@ export const CephlaCommCaller = {
           if(found!==undefined) {
             !args[specifier] && (args[specifier] = {})
             args[specifier][type] = found
-          } else {
+          } else if(!options?.optional) {
             missed.push(specifier+"."+type)
           }
         }

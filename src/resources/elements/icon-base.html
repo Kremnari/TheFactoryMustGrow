@@ -1,7 +1,7 @@
 <template title.bind="altTip">
   <require from="./icon-base.scss"> </require>
   <div class="${item.filtered && 'ghosted'}">
-    <img src.bind="mgrs.icon.getSrc(item.icon)" height="32px"/>
+    <img class="main" src.bind="mgrs.icon.getSrc(item.icon)" height="32px"/>
     <span if.bind="showName" class="nameField">${item.name}</span>
   </div>
   <div class="modis"> 
