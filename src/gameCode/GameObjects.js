@@ -72,10 +72,10 @@ function EntityProcessTicker(entity, tickData, Igor) {
     if(added.complete) {
       entity.process_timer = NaN
       //Backwards linking... :(
-      buffer = Igor.getId(entity.buffers.in)
-      buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
-      buffer = Igor.getId(entity.buffers.out)
-      buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
+      //buffer = Igor.getId(entity.buffers.in)
+      //buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
+      //buffer = Igor.getId(entity.buffers.out)
+      //buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
     } else {
       entity.$_tags.delete("tick")
     }
@@ -368,11 +368,13 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
   //TODO need better protections for transfers
   //TODO need to handle different item stacks
   // setup filter priorities for output 
+  let loopStart = target.busShift
   if(args.toBus) {
     let loops = 0
     while(args.xferCount>0 && loops<target.items.length) {
       if(!target.items[target.busShift]) {
         ++target.busShift>=target.items.length && (target.busShift=0)
+        if(target.busShift==loopStart) return
         continue
       }
       let toAdd = Igor.processTEMP(target, "inventory.total", {name: target.items[target.busShift].name})
@@ -397,7 +399,7 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
     while(args.xferCount>0) {
       if(!target.items[target.busShift]) {
         ++target.busShift>=target.items.length && (target.busShift=0)
-        console.warn("this shouldn't be happening still!")
+        if(target.busShift==loopStart) return
         continue
       }
       let space = target.stackSize -  target.items[target.busShift].count

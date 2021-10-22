@@ -15,6 +15,8 @@ export default class Ticker {
   debugging = false
   winTerval = null
   ticks = 0
+  tickTimes = []
+  tickTime = 0
   constructor(TPS, TMP, signaler) {
     this.isRunning = false
     this.config = { ticks_per_sec: TPS, ticks_max_phase: TMP}
@@ -39,9 +41,9 @@ export default class Ticker {
     this.isRunning ? this.pause() : this.resume()
   }
   onTick() {
+    this.tickTime = performance.now()
     if (this.isRunning) {
       this.ticks++
-      //console.time(this.ticks)
       if (this.debugging) console.log('tick')
       
       if(this.ticks >= this.config.ticks_max_phase) {
@@ -55,9 +57,18 @@ export default class Ticker {
         if (this.ticks % cbObj.nth == cbObj.phase) cbObj.cb(tickData)
       })
       this.signaler.signal("generalUpdate")
-      //console.timeEnd(this.ticks)
     }
+    this.tickTimes.push(performance.now()-this.tickTime)
+    this.tickTimes.length>this.config.ticks_max_phase && this.tickTimes.shift()
     return true;
+  }
+  average(secs=1) {
+    let total = 0
+    for(let i=1; i<Math.min(secs*30, this.tickTimes.length)+1; i++) {
+      //console.log(this.tickTimes[this.tickTimes.length-i)
+      total+=this.tickTimes[this.tickTimes.length-i]
+    }
+    return total/(secs*30)
   }
   DataProvider(cb) {
     this._cbs.providers.add(cb)

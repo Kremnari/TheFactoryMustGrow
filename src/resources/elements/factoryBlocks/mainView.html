@@ -172,7 +172,8 @@
           if.bind="line.recipe"
           item.bind="line.recipe"
           class="progressBarBase"
-          css="border-image-source: linear-gradient(to right, green ${line.processing_ticks/line.processing_time*100-5}%, red ${line.processing_ticks/line.processing_time*100+10}% )"
+          stalled.bind="line.stalled"
+          progress.bind="(line.processing_time-line.processing_ticks)/line.processing_time*100"
           ></icon-base>
         <span if.bind="!line.recipe">None</span>
     </span>

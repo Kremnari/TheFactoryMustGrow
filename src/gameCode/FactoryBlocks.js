@@ -273,6 +273,7 @@ FactoryLine.New = (params, newObj, Igor) => {
     newObj.recipe = null
     newObj.itemTargets = null
     newObj.processing_time = -1
+    newObj.processing_count = 0
     newObj.connections = {
         source: params.source,
         drain: params.drain,
@@ -413,7 +414,6 @@ FactoryLine.__tooltips = (obj, args, ret, Igor) => {
         case "foundation":
             data.push({name: "stone", count: 5})
             tip = "Foundation Cost"
-            console.log('here')
             break;
     }
     ret._result = {tool: "stackArray", tip, data}
@@ -423,31 +423,34 @@ FactoryLine.__tooltips.CC_utility = "factoryLine.toolTips"
 FactoryLine.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.processing_time || !entity.recipe) return  //TODO turn this into an "anti-tick" tag
     //consume from buffers if empty
-    if(entity.delay) {
-        if(--entity.delay==0) {
-            entity.delay = null
+    if(Number.isNaN(entity.processing_ticks) || entity.processing_ticks==null) {
+        let consumed = Igor.processTEMP(entity.$_parent, "factoryBlock.consumeStacks", {itemStacks: entity.recipe.ingredients, multi: entity.built})
+        if(consumed> 0) {
+            entity.processing_count = consumed
+            entity.processing_ticks = entity.processing_time
+            entity.stalled = false
+        } else {
+            entity.processing_ticks = Math.ceil(entity.processing_time * 0.1)
+            entity.stalled = true
         }
         return
     }
-    if(Number.isNaN(entity.processing_ticks)) {
-
-        let consumed = Igor.processTEMP(entity.$_parent, "factoryBlock.consumeStacks", {itemStacks: entity.recipe.ingredients, multi: entity.built})
-        if(consumed> 0) {
-            entity.processing_ticks = 0
-            entity.processing_count = consumed
+    if(entity.processing_ticks) { entity.processing_ticks-- }
+    if(entity.processing_ticks===0) {
+        if(entity.processing_count) {
+            let added = Igor.processTEMP(entity.$_parent, "factoryBlock.produceStacks", {itemStacks: entity.recipe.results, multi: entity.processing_count})
+            if(added==entity.processing_count) {
+                entity.processing_ticks=NaN
+                entity.processing_count = 0
+            } else {
+                // Couldn't deposit all so... try again after a delay
+                entity.processing_ticks = Math.ceil(entity.processing_time * 0.1)
+                entity.stalled = true
+                if(added>0) entity.processing_count = added
+            }
         } else {
-            entity.delay = Math.ceil(entity.processing_time * 0.1)
+            entity.processing_ticks = NaN
         }
-    } else if(entity.processing_ticks>=entity.processing_time) {
-        let added = Igor.processTEMP(entity.$_parent, "factoryBlock.produceStacks", {itemStacks: entity.recipe.results, multi: entity.processing_count})
-        if(added>0) {
-            entity.processing_ticks=NaN
-        } else {
-            // Couldn't deposit all so... try again after a delay
-            entity.delay = Math.ceil(entity.processing_time * 0.1)
-        }
-    } else {
-        entity.processing_ticks++
     }
 
 }
