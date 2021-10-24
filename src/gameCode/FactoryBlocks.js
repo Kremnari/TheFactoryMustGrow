@@ -790,7 +790,14 @@ ResourceBlock.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.patchProperties.mining_time) return
     if(entity.mining_ticks==0) {
         let stored = Igor.processTEMP(entity.buffers.out, "inventory.add", {itemStacks: {name: entity.patchProperties.resource, count: entity.storedResources || entity.built}})
-        entity.mining_ticks = entity.patchProperties.mining_time
+        if(!stored.complete) {
+            entity.stalled = true
+            entity.storedResources = stored.part[0].count
+            entity.mining_ticks = Math.ceil(entity.patchProperties.mining_time * 0.1)
+        } else {
+            entity.mining_ticks = entity.patchProperties.mining_time
+            entity.stalled = false
+        }
     } else {
         entity.mining_ticks--
     }

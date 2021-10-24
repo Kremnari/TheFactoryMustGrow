@@ -25,19 +25,16 @@
                 >Foundations: ${$scope.resBlock.prepped}</span>
             </div>
             <div class="col">
-                <h5
-                    class="progressBarBase" 
-                    css="border-image-source: linear-gradient(to left, red ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%, green ${$scope.resBlock.mining_ticks/$scope.resBlock.patchProperties.mining_time*100}%"
-                >
-                    <icon-base
-                        repeat.for="item of IgorJs.getObjId($scope.resBlock.buffers.out).items & signal:'bufferUpdate'"
-                        item.bind="item"
-                        if.bind="$scope.resBlock.patchProperties.resource"
-                        count.bind="item.count"
-                        max_fill.bind="IgorJs.getObjId($scope.resBlock.buffers.out).stackSize"
-                        click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.buffers.out, 'at.entity': 'temp_null', 'item.name':item.name}, $event)"
-                    ></icon-base>
-                </h5>
+                <icon-base
+                    repeat.for="item of IgorJs.getObjId($scope.resBlock.buffers.out).items & signal:'bufferUpdate'"
+                    item.bind="item"
+                    if.bind="$scope.resBlock.patchProperties.resource"
+                    count.bind="item.count"
+                    max_fill.bind="IgorJs.getObjId($scope.resBlock.buffers.out).stackSize"
+                    stalled.bind="$scope.resBlock.stalled"
+                    progress.bind="($scope.resBlock.patchProperties.mining_time - $scope.resBlock.mining_ticks)/$scope.resBlock.patchProperties.mining_time*100"
+                    click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.buffers.out, 'at.entity': 'temp_null', 'item.name':item.name}, $event)"
+                ></icon-base>
                 <p
                     class="resBlock_setResource"
                     click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': ChameView.viewFn.objectValues(dataSet.resource)}, $event )"

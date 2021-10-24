@@ -57,7 +57,10 @@
             </div>
             <div class="col">
                 <span>Tech Branch: ${$scope.techBlock.techTreeClass}</span><br>
-                <span>${globals.research.progressing.name || "No Research" & signal:'generalUpdate'}</span><br>
+                <span click.delegate="viewPane.main='research'">
+                    ${globals.research.progressing.name || "No Research" & signal:'generalUpdate'}
+                    <span class="fas fa-sign-in-alt fa_icon_sm"></span>
+                </span><br>
                 <span show.bind="globals.research.progressing">
                      ${globals.research[globals.research.progressing.name].completeUnits}
                     /${globals.research.progressing.cost.count}

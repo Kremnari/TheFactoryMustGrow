@@ -206,7 +206,6 @@ IgorJs.addTicker("player.queues", (tick, Igor) => {
       let recipe = Igor.data.recipe[craftObj.list[0].recipe]
       Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: recipe.results})
       --craftObj.list[0].count==0 && craftObj.list.shift()
-      console.log("crafted")
     }
   }
   if(mineObj.current>0) {
@@ -217,7 +216,6 @@ IgorJs.addTicker("player.queues", (tick, Igor) => {
       let resource = Igor.data.resource[mineObj.list[0].name]
       Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: resource.mining_results, count: 1}]})
       --mineObj.list[0].count==0 && mineObj.list.shift()
-      console.log("mine complete")
     }
   }
 })
