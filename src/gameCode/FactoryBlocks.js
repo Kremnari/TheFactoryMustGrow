@@ -892,7 +892,7 @@ TechBlock.__tooltips.Igor_operation = "techBlock.toolTips"
 TechBlock.__tooltips.CC_utility = "techBlock.toolTips"
 TechBlock.tick = (obj, tickData, Igor) => {
     let research = Igor.getNamedObject('research').progressing
-    if(!research) return
+    if(!research) return (obj.research_ticks = NaN)
     if(Number.isNaN(obj.research_ticks) || obj.research_ticks===null) {
         let cost = research.cost.ingredients.map(([name, qty])=> {return {name, count:qty}})
         let canConsume = Igor.processTEMP(obj.buffers.in, "inventory.consume", {itemStacks: cost, multi: obj.built})
@@ -911,9 +911,10 @@ TechBlock.tick = (obj, tickData, Igor) => {
     } else if(obj.research_ticks<=0) {
         if(obj.research_consumed) {
             let ret = Igor.processTEMP(research, "research.update", {count: obj.research_consumed, me: obj.$_id})
-            let cost = research.cost.ingredients.map(([name, qty])=> {return {name, count:qty}})
-            Igor.processTEMP(obj.buffers.in, "inventory.add", {itemStacks: cost, force: true, multi: ret})
-
+            if(ret) {
+                let cost = research.cost.ingredients.map(([name, qty])=> {return {name, count:qty}})
+                Igor.processTEMP(obj.buffers.in, "inventory.add", {itemStacks: cost, force: true, multi: ret})
+            }
         }
         obj.research_ticks = NaN
     }

@@ -1,5 +1,5 @@
 <template>
-  <scope-var var.bind="$scope = {tech: viewPane.showingItem}"></scope-var>
+  <scope-var var.bind="$scope = {tech: viewPane.showingTech}"></scope-var>
   <div click.capture="CCC.provide($event, 'which', 'tech', $scope.tech)">
     <h5><icon-base item.bind="$scope.tech"></icon-base>${$scope.tech.name}</h5>
     <button click.delegate="CCC.issue('research.set', {}, $event)" if.bind="!globals.research.progressing && !globals.research[$scope.tech.name].complete" id="StartResearch">Research</button>

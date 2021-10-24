@@ -543,31 +543,5 @@ const FeatureUnlock = (obj, args, returnObj, Igor) => {
     }
     Object.assign(features[obj.feature], obj)
   }
-
-  /*
-  adjustFeature(obj) {
-    switch(obj.feature) {
-      case "defense":
-        if(!this.activeFeatures["defense"]) {
-          this.activeFeatures["defense"] = true
-          this.facBlocks.defenses = NamedBlocks.DefenseBlock()
-          this.facBlocks.defenseBus = NamedBlocks.DefenseBus()
-        }
-        this.facBlocks.defenses.machines["turret"] = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
-        break;
-      case "offense":
-        if(!this.activeFeatures["offense"]) {
-          this.activeFeatures["offense"] = true
-          this.facBlocks.offenses = NamedBlocks.OffenseBlock()
-          this.facBlocks.offenseBus = NamedBlocks.OffenseBus()
-        }
-        this.facBlocks.offenses.radar = ChameView.GameObjectFromPointer(obj.go_pointer)  //!!! shouldn't be in Chameleon
-        break;
-      case "factoryBlocks":
-        this.activeFeatures["factoryBlocks"] = true
-    }
-    // this.activeFeatures[obj.feature] = obj.level || (this.activeFeatures[obj.feature]+obj.inc) || (this.activeFeatures[obj.feature] * obj.bonus) || true
-  }
-  */
 }
 IgorJs.addOperation("feature.unlock", FeatureUnlock)

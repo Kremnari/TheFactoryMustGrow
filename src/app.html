@@ -346,14 +346,14 @@
       </section>
       <section id="technologies" show.bind="viewPane.main=='research'">
         <h3>Research</h3>
-        <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingCat=='tech'" tech.bind="viewPane.showingItem" tech-mgr.bind="mgrs.tech" tooltip.bind="tooltip"></compose>
+        <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingTech"></compose>
         <span class="${!viewPane.options.bDoneTechs && 'inActiveOption'}" click.delegate="viewPane.options.bDoneTechs = !viewPane.options.bDoneTechs">Show Completed</span>
         <div class="overflow">
           <icon-base
             repeat.for="tech of ChameView.viewFn.technologyFilter(viewPane.options.bDoneTechs) & signal:'techResearched'"
-            click.delegate="showItem = {item: tech, cat: 'tech'}"
+            click.delegate="viewPane.showingTech = tech"
             item.bind="tech"
-            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${viewPane.showingItem==tech ? 'selected': ''}"
+            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${viewPane.showingTech==tech ? 'selected': ''}"
           ></icon-base>
         </div>
       </section>
