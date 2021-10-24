@@ -6,6 +6,7 @@ import {TagMapProxy} from "resources/types/TagsProxy"
 const IgorCore = {
   tick_entities: [],
   object_tickers: {},
+  hardTickers: {},
   game: {}, // Tis the base game json
   objs: new Map(),
   namedObjs: [],
@@ -29,6 +30,9 @@ const IgorCore = {
       } else {
         IgorCore.object_tickers[each.$_type].tick.fn(each, td, IgorRunner)
       }
+    }
+    for( let each of Object.values(IgorCore.hardTickers)) {
+      each(td, IgorRunner)
     }
   },
   Tick_Builder: (td) => {
@@ -147,12 +151,16 @@ export const IgorUtils = {
     // Their signature shouldn't need to be known
     IgorCore.ops[op] = {fn}
   },
+  addTicker: (named, fn) => {
+    IgorCore.hardTickers[named] = fn
+
+  },
   //! I don't really like this implementation
   // I need a way to provide different tick processors for different tags
   // tickDataSig would be the needed parameters from the passed TickData
   addObjectTickHandler: (who, what, named, priority) => {
     !IgorCore.object_tickers[who] && (IgorCore.object_tickers[who]  = {})
-
+    console.warn("ObjectTickHandler: "+who)
     let at = IgorCore.object_tickers[who]
     at[named] = {
       type: who,

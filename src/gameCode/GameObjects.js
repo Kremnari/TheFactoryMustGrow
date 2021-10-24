@@ -85,33 +85,6 @@ function EntityProcessTicker(entity, tickData, Igor) {
 IgorJs.defineObj("player.entity", PlayerEntity, {tick: EntityProcessTicker})
 IgorJs.addObjectTickHandler("player.entity", EntityResearchTicker, "researchTicker", {chain: ["tick", "researchTicker"], num: 3})
 
-/* *
- * Resource mining
- * Player action
-*/
-const ResourceMine = (obj, Igor, self) => {
-  if(self.res) {
-    window.clearTimeout(self.timeout)
-    Igor.view.animsUpdate(self.res, null, null)
-    self.res = undefined
-  } else {
-    self.timeout = window.setTimeout( () => {
-      Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: [{name: obj.which.resource.mining_results, count: 1}]})
-      Igor.view.animsUpdate(self.res, null, null)
-      self.res = undefined
-    }, obj.which.resource.mining_time * 1000)
-    self.res = obj.which.resource
-    Igor.view.animsUpdate(obj.which.resource, "isMining", obj.which.resource.mining_time)
-  }
-}
-window.ResourceMine = ResourceMine
-
-ResourceMine.signature = {
-  which: "resource",
-  player: "inventory"
-}
-
-IgorJs.provide_CCC("resources.mine", ResourceMine, ResourceMine.signature)
 
 /* *
  *  Entity Set processing
@@ -598,35 +571,3 @@ const FeatureUnlock = (obj, args, returnObj, Igor) => {
   */
 }
 IgorJs.addOperation("feature.unlock", FeatureUnlock)
-
-
-
-const CraftFromInv = (obj, Igor, fn) => {
-  if(fn.rec) {
-    window.clearTimeout(fn.timeout)
-    Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: fn.rec.ingredients})
-    ChameJs.animsUpdate(fn.rec, null, null)
-    fn.rec = undefined
-  } else {
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.which.recipe.ingredients })) {
-      fn.rec = obj.which.recipe
-      fn.timeout = window.setTimeout( () => {
-        Igor.processTEMP(obj.player.inventory, "inventory.add", {itemStacks: fn.rec.results})
-        ChameJs.animsUpdate(fn.rec, null, null)
-        fn.rec = undefined
-      }, obj.which.recipe.crafting_speed * 1000)
-      fn.rec = obj.which.recipe
-      ChameJs.animsUpdate(fn.rec, "isCrafting", obj.which.recipe.crafting_speed)
-    } else {
-      //Error alert: cannot build
-      Igor.view.warnToast("Not enough ingredients to craft")
-      console.log('cannot craft')
-    }
-  }
-}
-CraftFromInv.signature = {
-  which: "recipe",
-  player: "inventory"
-}
-
-IgorJs.provide_CCC("player.craft", CraftFromInv, CraftFromInv.signature)

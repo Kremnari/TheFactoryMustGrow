@@ -240,3 +240,6 @@ hr.bus {
 .recipeBreak {
   font-size: 1.5rem;
 }
+.toolTip {
+  background-image:radial-gradient(ellipse 20vw 1vh at left center,rgba(0, 160, 160, 0.55) 15%,rgba(39, 143, 186, 0) 100%),radial-gradient(ellipse 20vw 1vh at right center,rgba(0, 160, 160, 0.55) 15%,rgba(39, 143, 186, 0) 100%);
+}

@@ -4,11 +4,28 @@ export const newPlayer = {
   inv: {
     items: []
   },
+  crafting: {
+    list: [],
+    timer:NaN,
+    time: NaN,
+    maxQueue: 5,
+    current:0
+  },
+  mining: {
+    list: [],
+    timer:NaN,
+    time: NaN,
+    maxQueue: 5,
+    current: 0
+  },
   workshop: {
     entities: []
   }
 }
 
+/*
+* Workshop actions
+*/
 
 const InventoryPushSig = {
   which: "itemStack",
@@ -101,3 +118,100 @@ DeleteObject.signature = {
   list: "objs"
 }
 IgorJs.provide_CCC("object.delete", DeleteObject, DeleteObject.signature)
+
+/*
+ * Player actions
+*/
+
+const CraftFromInv = (obj, Igor, fn) => {
+  let craftObj = Igor.getNamedObject("global").player.crafting
+  if(craftObj.current== craftObj.maxQueue) {
+    Igor.view.warnToast("Queue Full.  Max: "+craftObj.maxQueue)
+    return
+  }
+  if(!Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: obj.which.recipe.ingredients})) {
+    Igor.view.warnToast("Unable to consume ingredients to craft")
+    return
+  }
+  if(craftObj.list[craftObj.list.length-1]?.name==obj.which.recipe.name) {
+    craftObj.list[craftObj.list.length-1].count++
+  } else {
+    craftObj.list.push({name: obj.which.recipe.name, count: 1})
+    debugger
+    craftObj.time = obj.which.recipe.crafting_speed * Igor.getStatic("config.TICKS_PER_SECOND") * 2
+    craftObj.timer = 0
+  }
+  craftObj.current++
+}
+CraftFromInv.signature = {
+  which: "recipe",
+}
+IgorJs.provide_CCC("player.craft", CraftFromInv, CraftFromInv.signature)
+
+/* *
+ * Resource mining
+ * Player action
+*/
+const ResourceMine = (obj, Igor, self) => {
+  let mineObj = Igor.getNamedObject("global").player.mining
+  if(mineObj.current== mineObj.maxQueue) {
+    Igor.view.warnToast("Queue Full.  Max: "+mineObj.maxQueue)
+    return
+  }
+  if(mineObj.list[mineObj.list.length-1]?.name==obj.which.resource.name) {
+    mineObj.list[mineObj.list.length-1].count++
+  } else {
+    mineObj.list.push({name: obj.which.resource.name, count: 1})
+    mineObj.time = obj.which.resource.mining_time * Igor.getStatic("config.TICKS_PER_SECOND") * 2
+    mineObj.timer = 0
+  }
+  mineObj.current++
+}
+window.ResourceMine = ResourceMine
+
+ResourceMine.signature = {
+  which: "resource",
+}
+
+IgorJs.provide_CCC("resources.mine", ResourceMine, ResourceMine.signature)
+
+const QueueCancel = (obj, Igor) => {
+  let queue = Igor.getNamedObject("global").player[obj.which.queue]
+  if(queue.list[obj.which.idx].count>1) {
+    queue.list[obj.which.idx].count--
+  } else {
+    queue.list.splice(obj.which.idx, 1)
+  }
+  queue.current--
+  queue.timer= 0
+}
+QueueCancel.signature = {
+  which: ["idx", "queue"]
+}
+IgorJs.provide_CCC("player.cancelQueue", QueueCancel, QueueCancel.signature)
+
+IgorJs.addTicker("player.queues", (tick, Igor) => {
+  let player = Igor.getNamedObject("global").player
+  let craftObj = player.crafting
+  let mineObj = player.mining
+  if(craftObj.current>0) {
+    craftObj.timer++
+    if(craftObj.timer>=craftObj.time) {
+      craftObj.timer= 0
+      craftObj.current--
+      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: craftObj.list[0].name, count: 1}]})
+      --craftObj.list[0].count==0 && craftObj.list.shift()
+      console.log("crafted")
+    }
+  }
+  if(mineObj.current>0) {
+    mineObj.timer++
+    if(mineObj.timer>=mineObj.time) {
+      mineObj.timer= 0
+      mineObj.current--
+      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: mineObj.list[0].name, count: 1}]})
+      --mineObj.list[0].count==0 && mineObj.list.shift()
+      console.log("mine complete")
+    }
+  }
+})

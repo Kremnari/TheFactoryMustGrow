@@ -8,7 +8,10 @@
   <div if.bind="viewPane.version=='beta'" beta mouseenter.trigger="tooltip = null">
     <require from="./tfmg-beta.scss"></require>
     <section class="statusBox"> 
-      <div if.bind="!tooltip && viewPane.main!='facBlocks'" click.delegate="viewPane.main='overview'">
+      <div
+        if.bind="!tooltip && viewPane.main!='facBlocks'"
+        click.delegate="viewPane.main='overview'"
+      >
         status box<br> 
         Land, pollution, enemies, oh my!<br>
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
@@ -157,6 +160,16 @@
             mouseenter.trigger="tooltip = rec"
             mouseleave.trigger="tooltip = null"
           ></icon-base>
+          <div class="queue">
+            <icon-base 
+              repeat.for="toCraft of globals.player.crafting.list"
+              item.bind="toCraft.name"
+              title = "${toCraft.name}"
+              count.bind="toCraft.count"
+              progress.bind="$first && globals.player.crafting.timer/globals.player.crafting.time*100"
+              click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'crafting'})"
+            ></icon-base>
+          </div>
         </div>
         <div id="resources">
           <h3>Mineables</h3>
@@ -166,6 +179,16 @@
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
             class="${res.animClass}"
           ></icon-base> 
+          <div class="queue">
+            <icon-base 
+              repeat.for="toCraft of globals.player.mining.list"
+              item.bind="toCraft.name"
+              title = "${toCraft.name}"
+              count.bind="toCraft.count"
+              progress.bind="$first && globals.player.mining.timer/globals.player.mining.time*100"
+              click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'mining'})"
+            ></icon-base>
+          </div>
         </div>
       </section>
       <section id="machines" show.bind="viewPane.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', viewPane.showingItem)">
