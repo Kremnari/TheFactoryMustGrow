@@ -369,6 +369,15 @@
     <div id="inventoryList">
       <!-- TODO create a delete mode, but should utilize a command wheel -->
       <h3 class="text-center">Inventory</h3>
+      <div
+        class="top-right ${globals.control.fastForward && 'fastForward'}"
+        if.bind="globals.control.bonusTicks"
+        pointerdown.delegate="CCC.issue('game.fastForward', {'to.string': 'true'})"
+        pointerup.delegate="CCC.issue('game.fastForward', {'to.string': 'false'})"
+      >
+        ${Math.floor(globals.control.bonusTicks/30)} secs
+        <span class="fas fa-angle-double-right"></span>
+      </div>
       <inventory
         items.bind="ChameView.viewFn.playerInventory() & signal:'generalUpdate'"
         click-call.call="CCC.issue('player.inventoryPush', {

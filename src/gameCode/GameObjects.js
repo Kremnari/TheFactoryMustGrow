@@ -43,7 +43,7 @@ function EntityResearchTicker(entity, tickData, Igor) {
     //Consume next units to reset timer
     let buffer = Igor.getId(entity.buffers.in)
     buffer?.upgrades.loader?.count && buffer.$_tags.push("tick", "processing")
-    entity.research_time = research.cost.time * Igor.config.TICKS_PER_SECOND * entity.researching_speed
+    entity.research_time = research.cost.time * Igor.getStatic("config.TICKS_PER_SECOND") * entity.researching_speed
     entity.research_timer = entity.research_time
     return
   }
@@ -103,10 +103,10 @@ const EntitySetProcess = (obj, Igor) => {
   obj.at.entity.processing = obj.which.process
   obj.at.entity.$_tags.push("tick", "processing")
   if(obj.type.class=="mining") {
-    obj.at.entity.process_ticks = obj.which.process.mining_time / obj.at.entity.mining_speed * Igor.config.TICKS_PER_SECOND
+    obj.at.entity.process_ticks = obj.which.process.mining_time / obj.at.entity.mining_speed * Igor.getStatic("config.TICKS_PER_SECOND")
     obj.at.entity.process_timer = obj.at.entity.process_ticks
   } else if (obj.type.class=="crafting") {
-    obj.at.entity.process_ticks = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.config.TICKS_PER_SECOND
+    obj.at.entity.process_ticks = obj.which.process.crafting_speed / obj.at.entity.crafting_speed * Igor.getStatic("config.TICKS_PER_SECOND")
     if(obj.at.entity.buffers.in) {
       let buffer = Igor.getId(obj.at.entity.buffers.in)
       if(buffer.stacks<obj.which.process.ingredients.length) { return Igor.view.warnToast("Recipe exceedes machines ingredient limit") }

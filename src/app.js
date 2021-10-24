@@ -35,8 +35,8 @@ export class App {
         commandTasker: CC_const, //TODO: Probably some kind of initilization function
         viewTasker: ChameView,  //TODO: Probably some kind of initilization function
         ticker: {
-          ticks_perSec: Config.TICKS_PER_SECOND,
-          ticks_maxPhase: Config.TICKS_MAX_PHASE
+          ticks_per_sec: Config.TICKS_PER_SECOND,
+          ticks_max_phase: Config.TICKS_MAX_PHASE
         },
         dbName: "TheFactoryMustGrow",
         saveName: "SaveGame"
@@ -62,6 +62,7 @@ export class App {
         dialogSvc: DS,
         dataSet: database.mgrs.data
       })
+      gameSetup(IgorJs)
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
       this.dataSet = IgorJs.dataSet
       this.globals = IgorJs.globalObject
@@ -69,12 +70,9 @@ export class App {
 
       this.IgorRunner = IgorJs.getRunner() //# For debugging
 
-
+      this.globals = IgorJs.getNamed("global")
       // This should be established from within Igor, not made from here
       //CCC.staticProvide("from", "inventory", this.globals.player.inv)  /
-      IgorJs.setNamed("player.inventory", this.globals.player.inv)
-      IgorJs.setNamed("research", this.globals.research)
-      IgorJs.setNamed("global", this.globals)
       CCC.staticProvide("player", "inventory", this.globals.player.inv)
       CCC.staticProvide("service", "rounder",  this.mgrs.rounder)
 

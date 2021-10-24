@@ -17,11 +17,21 @@ export default class Ticker {
   ticks = 0
   tickTimes = []
   tickTime = 0
-  constructor(TPS, TMP, signaler) {
+  constructor(config, signaler) {
     this.isRunning = false
-    this.config = { ticks_per_sec: TPS, ticks_max_phase: TMP}
+    this.config = config
     this.mspt = 1000/this.config.ticks_per_sec
+    this.msptff = this.mspt/20
     this.signaler = signaler
+  }
+  fastForward(set=true) {
+    if(set) {
+      window.clearInterval(this.winTerval)
+      this.winTerval = window.setInterval(() => {this.onTick() } , this.msptff)
+    } else {
+      window.clearInterval(this.winTerval)
+      this.winTerval = window.setInterval(() => {this.onTick() } , this.mspt)
+    }
   }
   pause() {
     this.isRunning = false

@@ -7,6 +7,7 @@ const IgorCore = {
   tick_entities: [],
   object_tickers: {},
   hardTickers: {},
+  eventHandlers: {},
   game: {}, // Tis the base game json
   objs: new Map(),
   namedObjs: [],
@@ -31,7 +32,7 @@ const IgorCore = {
         IgorCore.object_tickers[each.$_type].tick.fn(each, td, IgorRunner)
       }
     }
-    for( let each of Object.values(IgorCore.hardTickers)) {
+    for( let each of Object.values(IgorCore.eventHandlers['tick'])) {
       each(td, IgorRunner)
     }
   },
@@ -85,9 +86,7 @@ export const IgorUtils = {
   initialize(obj) {
     IgorCore.graphics = obj.viewTasker
     IgorCore.command = obj.commandTasker
-    IgorCore.ticker = new Ticker(obj.ticker.ticks_perSec, obj.ticker.ticks_maxPhase, IgorCore.graphics.signaler)
-    IgorCore.config.TICKS_PER_SECOND = obj.ticker.ticks_perSec
-    IgorCore.statics["config.TICKS_PER_SECOND"] = obj.ticker.ticks_perSec
+    IgorCore.ticker = new Ticker(obj.ticker, IgorCore.graphics.signaler)
     IgorUtils.Ticker = IgorCore.ticker
     IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
     IgorCore.dbName = obj.dbName
@@ -151,16 +150,20 @@ export const IgorUtils = {
     // Their signature shouldn't need to be known
     IgorCore.ops[op] = {fn}
   },
-  addTicker: (named, fn) => {
-    IgorCore.hardTickers[named] = fn
+  addEventHandler: (named, fn) => {
+    //if push fn to IgorCOre.eventHandlers and add [named] if not present
+    if(!IgorCore.eventHandlers[named]) {
+      IgorCore.eventHandlers[named] = []
 
+    }
+    IgorCore.eventHandlers[named].push(fn)
   },
   //! I don't really like this implementation
   // I need a way to provide different tick processors for different tags
   // tickDataSig would be the needed parameters from the passed TickData
   addObjectTickHandler: (who, what, named, priority) => {
     !IgorCore.object_tickers[who] && (IgorCore.object_tickers[who]  = {})
-    console.warn("ObjectTickHandler: "+who)
+    //console.warn("ObjectTickHandler: "+who)
     let at = IgorCore.object_tickers[who]
     at[named] = {
       type: who,
@@ -195,7 +198,10 @@ export const IgorUtils = {
         x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
         if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
       })
-      //console.log('found save')
+      // run each function in eventhandlers['gameload']
+      if(IgorCore.eventHandlers["gameLoad"]) {
+        IgorCore.eventHandlers["gameLoad"].forEach( (x) => x(IgorUtils) )
+      }
     } else {
       //Create new game
       IgorCore.game = IgorCore.metaDefines['#'].new
@@ -203,9 +209,8 @@ export const IgorUtils = {
     }
     //console.log('db loaded')
   },
-  setNamed(as, who) {
-    IgorCore.namedObjs[as] = who
-  },
+  setNamed(who, path) {  IgorCore.namedObjs[who] = path  },
+  getNamed(who) {  return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who]) },
   getObjId(id, doubleProp) {
     if(!doubleProp) return IgorCore.objs.get(id)
     let obj = IgorCore.objs.get(id)
@@ -225,11 +230,13 @@ export const IgorUtils = {
   get dataSet() {
     return IgorCore.data
   },
-  get(named, specifiers) {
-    return IgorCore.objects_by_name()
-  },
   saveGame() {
     console.log("Game saving...")
+    if(IgorCore.eventHandlers['gameSave']) {
+      IgorCore.eventHandlers['gameSave'].forEach( (fn) => {
+        fn(IgorUtils)
+      })
+    }
     let data = {
       game: JSON.stringify(IgorCore.game),
       objs: JSON.stringify(Array.from(IgorCore.objs.entries())),
@@ -313,13 +320,14 @@ export const IgorRunner = {
   get data() { return IgorCore.data },
   get view() { return IgorCore.graphics },
   get config() { return IgorCore.config },
+  get ticker() { return IgorCore.ticker },
   processTEMP: (obj, op, args) => {
     let ret = {}
     if(typeof obj == "string") {
       if(obj.includes("id")) {
         obj = IgorCore.objs.get(obj)
       } else {
-        let temp = IgorCore.namedObjs[obj]
+        let temp = IgorRunner.getNamedObject(obj)
         if(temp) obj = temp
       }
     }
@@ -330,8 +338,8 @@ export const IgorRunner = {
     //console.log('_result' in ret)
     return '_result' in ret ? ret._result : ret
   },
-  getNamedObject: (what) => {
-    return IgorCore.namedObjs[what]
+  getNamedObject: (who) => {
+    return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
   },
   getId: (which, doubleProp) => {
     if(!doubleProp) return IgorCore.objs.get(which)

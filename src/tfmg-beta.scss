@@ -263,6 +263,14 @@
       overflow-y: auto;
       height: calc(100% - 2rem);
     }
+    & .top-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    & .fastForward {
+      color: lime;
+    }
   }
   & > #ChameleonModal {
     display: none;

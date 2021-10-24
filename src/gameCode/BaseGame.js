@@ -48,9 +48,64 @@ const newGame = {
     },
     research: { completed: {}, progressing: null },
     unlocked_recipes: [],
+    control: {
+      bonusTicks: 0,
+    },
     version: CONFIG.IDB_SAVE_VERSION
 }
 IgorJs.defineObj("#", newGame)
+IgorJs.setNamed("player.inventory", "player.inv")
+IgorJs.setNamed("research", "research")
+IgorJs.setNamed("global", "")
+IgorJs.setStatic("config.TICKS_PER_SECOND", CONFIG.TICKS_PER_SECOND)
+
+
+IgorJs.addEventHandler("gameLoad", function(Igor) {
+  let game = IgorJs.getNamed("global")
+  if(!game.control) {
+    game.control = {
+      bonusTicks: 0,
+    }
+    return
+  }
+  //Calulate the time between game.control.lastSave and now
+  let timeDiff = (new Date()).getTime() - game.control.lastSave
+  //Calculate the bonus ticks from config.TICKS_PER_SECOND and milliseconds_per_tick
+  let bonusTicks = Math.floor(timeDiff / 1000 * CONFIG.TICKS_PER_SECOND)
+  //add bonus ticks to game.control.bonusTicks
+  console.log('added: '+bonusTicks)
+  game.control.bonusTicks += Math.floor(bonusTicks/20)
+  
+})
+IgorJs.addEventHandler("gameSave", function(Igor) {
+  //Set the last save time to now
+  let game = IgorJs.getNamed("global")
+  game.control.lastSave = (new Date()).getTime()
+
+})
+IgorJs.provide_CCC("game.fastForward", (obj, Igor) => {
+  let game = Igor.getNamedObject("global")
+  if(obj.to.string=="true" && game.control.bonusTicks > 0) {
+    game.control.fastForward = true
+    Igor.ticker.fastForward()
+  } else {
+    game.control.fastForward = false
+    Igor.ticker.fastForward(false)
+  }
+}, {to:"string"})
+IgorJs.addEventHandler("tick", (td, Igor) => {
+  let game = Igor.getNamedObject("global")
+  if(game.control.fastForward) {
+    game.control.bonusTicks--
+    if(game.control.bonusTicks<=0) {
+      game.control.fastForward = true
+      Igor.ticker.fastForward(false)
+      //Just to handle rounding errors
+      game.control.bonusTicks = 0
+    }
+  }
+
+})
 
 
 //* This sets up the references Igor needs to run

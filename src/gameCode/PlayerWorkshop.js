@@ -194,7 +194,7 @@ QueueCancel.signature = {
 }
 IgorJs.provide_CCC("player.cancelQueue", QueueCancel, QueueCancel.signature)
 
-IgorJs.addTicker("player.queues", (tick, Igor) => {
+IgorJs.addEventHandler("tick", (tick, Igor) => {
   let player = Igor.getNamedObject("global").player
   let craftObj = player.crafting
   let mineObj = player.mining
