@@ -1,4 +1,5 @@
 import {IgorUtils as IgorJs} from 'IgorJs/main'
+import { IgorRunner } from '../IgorJs/main'
 
 export const newPlayer = {
   inv: {
@@ -136,8 +137,7 @@ const CraftFromInv = (obj, Igor, fn) => {
   if(craftObj.list[craftObj.list.length-1]?.name==obj.which.recipe.name) {
     craftObj.list[craftObj.list.length-1].count++
   } else {
-    craftObj.list.push({name: obj.which.recipe.name, count: 1})
-    debugger
+    craftObj.list.push({name: obj.which.recipe.results[0].name, count: 1, recipe: obj.which.recipe.name})
     craftObj.time = obj.which.recipe.crafting_speed * Igor.getStatic("config.TICKS_PER_SECOND") * 2
     craftObj.timer = 0
   }
@@ -177,13 +177,17 @@ IgorJs.provide_CCC("resources.mine", ResourceMine, ResourceMine.signature)
 
 const QueueCancel = (obj, Igor) => {
   let queue = Igor.getNamedObject("global").player[obj.which.queue]
+  if(obj.which.queue=="crafting") {
+    let recipe = Igor.data.recipe[queue.list[obj.which.idx].recipe]
+    Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: recipe.ingredients})
+  }
   if(queue.list[obj.which.idx].count>1) {
     queue.list[obj.which.idx].count--
   } else {
     queue.list.splice(obj.which.idx, 1)
+    queue.timer= 0
   }
   queue.current--
-  queue.timer= 0
 }
 QueueCancel.signature = {
   which: ["idx", "queue"]
@@ -199,7 +203,8 @@ IgorJs.addTicker("player.queues", (tick, Igor) => {
     if(craftObj.timer>=craftObj.time) {
       craftObj.timer= 0
       craftObj.current--
-      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: craftObj.list[0].name, count: 1}]})
+      let recipe = Igor.data.recipe[craftObj.list[0].recipe]
+      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: recipe.results})
       --craftObj.list[0].count==0 && craftObj.list.shift()
       console.log("crafted")
     }
@@ -209,7 +214,8 @@ IgorJs.addTicker("player.queues", (tick, Igor) => {
     if(mineObj.timer>=mineObj.time) {
       mineObj.timer= 0
       mineObj.current--
-      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: mineObj.list[0].name, count: 1}]})
+      let resource = Igor.data.resource[mineObj.list[0].name]
+      Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: resource.mining_results, count: 1}]})
       --mineObj.list[0].count==0 && mineObj.list.shift()
       console.log("mine complete")
     }
