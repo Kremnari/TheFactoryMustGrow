@@ -35,7 +35,7 @@
             class="facBlockIn connection"
             click.delegate="CCC.issue('factoryBus.connectTo', 
                 {
-                    'factoryBus.dialog': {showSpecials: false},
+                    'factoryBus.dialog': {showSpecials: false, showDisconnect: $scope.facBlock.connections.sources[sourceIdx]},
                     'dir.string': 'input',
                     'connectTo.block': $scope.facBlock.$_id,
                     'current.bus': $scope.facBlock.connections.sources[sourceIdx] || -1
@@ -113,7 +113,7 @@
             class="facBlockOut connection"
             click.delegate="CCC.issue('factoryBus.connectTo',
                     {
-                      'factoryBus.dialog': {showSpecials: true},
+                      'factoryBus.dialog': {showSpecials: true, showDisconnect: $scope.facBlock.connections.drains[drainIdx]},
                       'dir.string': 'output',
                       'connectTo.block': $scope.facBlock.$_id,
                       'current.bus': $scope.facBlock.connections.drains[drainIdx] || -1

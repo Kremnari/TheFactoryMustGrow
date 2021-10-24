@@ -48,7 +48,7 @@ function EntityResearchTicker(entity, tickData, Igor) {
     return
   }
   if(entity.research_timer) { --entity.research_timer }
-  if(entity.research_timer===0) {
+  if(entity.research_timer<=0) {
     Igor.processTEMP(research, "research.update", {})
     entity.research_timer = NaN
   }
@@ -65,7 +65,7 @@ function EntityProcessTicker(entity, tickData, Igor) {
     return
   }
   if(entity.process_timer) { --entity.process_timer }
-  if(entity.process_timer===0) {
+  if(entity.process_timer<=0) {
     let buffer = Igor.getId(entity.buffers.out)
     let added = Igor.processTEMP(buffer, "inventory.add", {itemStacks: entity.buffers.stalled || entity.processing.results || {name: entity.processing.mining_results, count: 1}})
     //console.log(added)
@@ -382,13 +382,13 @@ EntityBufferActions.BusXfer = (target, args, returnObj, Igor) => {
       if(added.complete) {
         Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount}]})
         args.xferCount=0
-      } else if(added.part[0].count==args.xferCount) {
+      } else if(toAdd-added.part[0].count==0) {
         //! This point breaks the loop
         ++target.busShift==target.items.length && (target.busShift=0)
         returnObj.full = true
         return
       } else {
-        Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: args.xferCount-added.part[0].count}]})
+        Igor.processTEMP(target, "inventory.consume", {itemStacks: [{name: target.items[target.busShift].name, count: toAdd-added.part[0].count}]})
         args.xferCount = added.part[0].count
       }
       ++target.busShift==target.items.length && (target.busShift=0)

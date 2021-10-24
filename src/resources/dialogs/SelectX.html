@@ -37,6 +37,17 @@
             >Offense</p>
           </div>
         </div>
+        <div class="row">
+          <div class="col"></div>
+          <div class="col"></div>
+          <div class="col">
+            <p
+              if.bind="custom.showDisconnect"
+              click.delegate="select({custom: 'disconnect', id: '@none'})"
+              class="${selected.custom=='disconnect' && 'selected'}"
+            >Disconnect</p>
+          </div>
+        </div>
       </div>
       <div if.bind="!custom && (list[0].icon || type=='icon')">
         <icon-base

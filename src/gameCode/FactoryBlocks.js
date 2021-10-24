@@ -262,6 +262,9 @@ FactoryBlock.ClearProcessItems = (target, args, returnObj, Igor) => {
 FactoryBlock.ClearProcessItems.Igor_operation = "factoryBlock.clearProcessItems"
 IgorJs.defineObj("FactoryBlock", FactoryBlock.New, FactoryBlock)
 
+
+
+
 /*
     Factory Line
 */
@@ -436,7 +439,7 @@ FactoryLine.tick = (entity, tickdata, Igor) => {
         return
     }
     if(entity.processing_ticks) { entity.processing_ticks-- }
-    if(entity.processing_ticks===0) {
+    if(entity.processing_ticks<=0) {
         if(entity.processing_count) {
             let added = Igor.processTEMP(entity.$_parent, "factoryBlock.produceStacks", {itemStacks: entity.recipe.results, multi: entity.processing_count})
             if(added==entity.processing_count) {
@@ -507,29 +510,35 @@ FactoryBus.DialogSelect = (options, Igor) => {
     if(options.showSpecials && global.facBlocks.defenseBus) ret.custom.showDefense = true
     if(options.showSpecials && global.facBlocks.offenseBus) ret.custom.showOffense = true
     if(options.showSpecials && global.facBlocks.market) ret.custom.showMarket = true
+    if(options.showDisconnect) ret.custom.showDisconnect = true
     return ret
 }
 FactoryBus.DialogSelect.CC_dialogList = "factoryBus"
 FactoryBus.ClearConnection = (target, args, returnObj, Igor) => {
-    let conn = args.dir=="sources" ? "drains": "sources"
-    let idx = target.connections[conn].findIndex( (x) => { return x.buffer==args.id })
+    let idx = target.connections[args.dir+"s"].indexOf(args.id)
     if(idx==-1) {
         console.log("couldn't find index")
         debugger
     }
-    target.connections[conn].splice(idx, 1)
-    target.processors[conn].xferTarget = 0;
+    target.connections[args.dir+"s"].splice(idx, 1)
+    target.processors[args.dir].xferTarget = 0;
 }
 FactoryBus.ClearConnection.Igor_operation = "factoryBus.clearConnection"
 FactoryBus.ConnectTo = (obj, Igor) => {
+    let bus = Igor.getId(obj.connectTo.factoryBus)
+    let block = Igor.getId(obj.connectTo.block)
     /*
     TODO
     if(obj.connectTo.factoryBus.indexOf("@")>-1) {
         we need to lookup the special bus type
     }
     */
-    let bus = Igor.getId(obj.connectTo.factoryBus)
-    let block = Igor.getId(obj.connectTo.block)
+    if(obj.connectTo.factoryBus=="@none") {
+        let dir = obj.dir.string=="output" ? "drains": "sources"
+        Igor.processTEMP(obj.current.bus, "factoryBus.clearConnection", {id: obj.connectTo.block, dir: obj.dir.string=="output"?"source":"drain"})
+        block.connections[dir].splice(block.connections[dir].indexOf(obj.current.bus), 1)
+        return
+    }
     if(obj.dir.string=="output") {
         //clear out prior connection
         if(bus.connections.sources.length==bus.connections.maxSources) return Igor.view.warnToast("No available drains at target bus")

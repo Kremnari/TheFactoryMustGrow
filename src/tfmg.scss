@@ -65,7 +65,7 @@ header {
 }
 
 .progressBarBase {
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid transparent;
   border-image-slice: 0 0 10 0;
   display:inline-block;
   &.stalled {
