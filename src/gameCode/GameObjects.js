@@ -489,8 +489,8 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
     obj.researched = true
     global.research[obj.name].complete = true
     obj.unlocks.forEach( (item) => {
-      typeof item === 'string' && Igor.processTEMP(item, "recipe.unlock")
-      typeof item === 'object' && Igor.processTEMP(item, "feature.unlock")
+      typeof item === 'string' && Igor.processTEMP(null, "recipe.unlock", {item})
+      typeof item === 'object' && Igor.processTEMP(null, "feature.unlock", {item})
     })
     let cost = obj.cost.ingredients.map(([name, qty]) => {return {name, count:qty}})
     //TODO! need to update this to respond to different tech trees
@@ -522,8 +522,9 @@ const RecipeUnlock = (obj, args, returnObj, Igor) => {
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
-const FeatureUnlock = (obj, args, returnObj, Igor) => {
+const FeatureUnlock = (notUsed, args, returnObj, Igor) => {
   let features = Igor.getNamedObject("global").activeFeatures
+  let obj = args.item
   if(!features[obj.feature]) {
     features[obj.feature] = obj
   } else {

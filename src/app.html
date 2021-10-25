@@ -351,7 +351,7 @@
         <div class="overflow">
           <icon-base
             repeat.for="tech of ChameView.viewFn.technologyFilter(viewPane.options.bDoneTechs) & signal:'techResearched'"
-            click.delegate="viewPane.showingTech = tech"
+            click.delegate="showTech = tech"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${viewPane.showingTech==tech ? 'selected': ''}"
           ></icon-base>

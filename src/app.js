@@ -138,6 +138,12 @@ export class App {
     hoverTest () {
       alert("test")
     }
+    set showTech(tech) {
+      this.viewPane.showingTech = null
+      tech && window.setTimeout( () => {
+        this.viewPane.showingTech = tech
+      })
+    }
     set showItem(obj) {
       if(!obj.item) return
       if(typeof obj.item == "string" && obj.item.includes("id")) {
@@ -193,7 +199,7 @@ export class App {
     }
     test(val) {
       console.log(val)
-      
+
     }
 
     //* Utility Functions
