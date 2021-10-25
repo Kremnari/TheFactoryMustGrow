@@ -518,13 +518,14 @@ IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
   //Igor.data.recipe[obj].enabled = true
-  Igor.getNamedObject("global").unlocked_recipes.push(obj)
+  Igor.getNamedObject("global").unlocked_recipes.push(args.item)
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
 const FeatureUnlock = (notUsed, args, returnObj, Igor) => {
   let features = Igor.getNamedObject("global").activeFeatures
   let obj = args.item
+  debugger
   if(!features[obj.feature]) {
     features[obj.feature] = obj
   } else {

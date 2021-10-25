@@ -63,7 +63,8 @@ class tutorial {
     this.setTutClick()
   }
   clearTut() {
-    $(".tutStep").off("click")
+    $(".tutStep").removeClass("tutStep").off("click")
+    $(".tutHighlight").removeClass("tutHighlight")
     $("#tutorial").removeClass("Block")
     this.baseApp.globals.activeFeatures.tutorial = false
     this.baseApp.autoSave()
