@@ -191,6 +191,10 @@ export class App {
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
+    test(val) {
+      console.log(val)
+      
+    }
 
     //* Utility Functions
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }

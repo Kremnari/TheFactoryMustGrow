@@ -4,6 +4,7 @@ const ChameleonCore = {
   GameObjects: {tagged: {}, base: {}},
   GameObjectFromPointer: (pointer) => {
     // Dissect pointer
+    console.warn("GOFP")
     let [item, category] = pointer.split("@")
     if(category) {
       return ChameleonCore.GameObjects.tagged[category][item]()
@@ -127,6 +128,9 @@ export const ChameleonViewer = {
     who.animClass = what
     who.animTime = "animation-duration: "+dur+"s"
     ChameleonViewer.signaler.signal("animsUpdate")
+  },
+  test: (value) => {
+    console.log(value)
   },
   clearShowing: () => {
     ChameleonViewer.app.viewPane.showingItem = null

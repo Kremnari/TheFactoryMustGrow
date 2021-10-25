@@ -52,8 +52,9 @@ const IgorCore = {
 //  to manipulate the lifecycle of it's objects
 const IgorBuilder = {
   get data() { return IgorCore.data },
-  getNamedObject(what) {
-    return IgorCore.namedObjs[what]
+  getNamedObject(who) {
+    if(who=="global" || who=="game") return IgorCore.game
+    return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
   },
   newObject(type, subType, parent) {
     let obj = {
@@ -210,7 +211,10 @@ export const IgorUtils = {
     //console.log('db loaded')
   },
   setNamed(who, path) {  IgorCore.namedObjs[who] = path  },
-  getNamed(who) {  return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who]) },
+  getNamed(who) {
+    if(who=="global" || who=="game") return IgorCore.game
+    return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
+  },
   getObjId(id, doubleProp) {
     if(!doubleProp) return IgorCore.objs.get(id)
     let obj = IgorCore.objs.get(id)
@@ -339,6 +343,7 @@ export const IgorRunner = {
     return '_result' in ret ? ret._result : ret
   },
   getNamedObject: (who) => {
+    if(who=="global" || who=="game") return IgorCore.game
     return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
   },
   getId: (which, doubleProp) => {

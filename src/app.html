@@ -12,7 +12,7 @@
         if.bind="!tooltip && viewPane.main!='facBlocks'"
         click.delegate="viewPane.main='overview'"
       >
-        status box<br> 
+        status box<br>
         Land, pollution, enemies, oh my!<br>
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
@@ -371,7 +371,7 @@
       <h3 class="text-center">Inventory</h3>
       <div
         class="top-right ${globals.control.fastForward && 'fastForward'}"
-        if.bind="globals.control.bonusTicks"
+        if.bind="globals.control.bonusTicks>30"
         pointerdown.delegate="CCC.issue('game.fastForward', {'to.string': 'true'})"
         pointerup.delegate="CCC.issue('game.fastForward', {'to.string': 'false'})"
       >
