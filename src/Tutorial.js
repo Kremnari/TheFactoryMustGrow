@@ -117,7 +117,7 @@ class tutorial {
         }
         break;
       case "techComplete":
-        if(this.baseApp.globals.research[this.gameWait.name].complete) this.waitComplete()
+        if(this.baseApp.globals.research[this.gameWait.name]?.complete) this.waitComplete()
         break;
       case "gameState":
         if(this.gameWait.validator(Object.walkPath(this.baseApp, this.gameWait.path))) {
@@ -248,7 +248,7 @@ class tutorial {
         break;
       case 3.7:
         mgrs.baseApp.viewPane.main = "home"
-        mgrs.baseApp.tooltip = mgrs.rec.recipeList["burner-mining-drill"]
+        mgrs.baseApp.tooltip = mgrs.data.recipe["burner-mining-drill"]
         $("#recipes icon-base[title='burner-mining-drill']").addClass('tutTarget')
         __.tutText("A mining drill requires the following:<br>1 gear, a furnace and 1 plate<br>build away")
         __.tutButton("Hi ho, it's off to work I go")
@@ -298,7 +298,7 @@ class tutorial {
         break;
       case 4.2:
         mgrs.baseApp.viewPane.main = "home"
-        mgrs.baseApp.tooltip = mgrs.rec.recipeList["lab"]
+        mgrs.baseApp.tooltip = mgrs.data.recipe["lab"]
         __.tutText("These paltry machines are a start, but won't hold you forever.<br>Keep expanding, but you're next goal should be a research lab.")
         $("#recipes icon-base[title='lab']").addClass('tutTarget')
         __.tutButton("The Factory...Is Growing...")
@@ -334,7 +334,7 @@ class tutorial {
         break;
       case 4.44:
         this.baseApp.viewPane.main = "home"
-        this.baseApp.tooltip = mgrs.rec.recipeList["automation-science-pack"]
+        this.baseApp.tooltip = mgrs.data.recipe["automation-science-pack"]
         $("#tutorial").hide();
         $("#recipes icon-base[title='automation-science-pack']").addClass('tutTarget')
         __.gameWait = {name:"automation-science-pack", count: 10, type:"playerInv", buffered:"lab", compare:"min"}

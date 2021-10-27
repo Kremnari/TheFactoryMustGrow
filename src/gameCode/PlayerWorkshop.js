@@ -137,10 +137,9 @@ const CraftFromInv = (obj, Igor, fn) => {
   if(craftObj.list[craftObj.list.length-1]?.name==obj.which.recipe.name) {
     craftObj.list[craftObj.list.length-1].count++
   } else {
-    craftObj.list.push({name: obj.which.recipe.results[0].name, count: 1, recipe: obj.which.recipe.name})
-    craftObj.time = obj.which.recipe.crafting_speed * Igor.getStatic("config.TICKS_PER_SECOND") * 2
-    craftObj.timer = 0
+    craftObj.list.push({name: obj.which.recipe.results[0].name, count: 1, recipe: obj.which.recipe.name, speed: obj.which.recipe.crafting_speed})
   }
+  if(craftObj.current==0) { craftObj.time=NaN }
   craftObj.current++
 }
 CraftFromInv.signature = {
@@ -161,10 +160,9 @@ const ResourceMine = (obj, Igor, self) => {
   if(mineObj.list[mineObj.list.length-1]?.name==obj.which.resource.name) {
     mineObj.list[mineObj.list.length-1].count++
   } else {
-    mineObj.list.push({name: obj.which.resource.name, count: 1})
-    mineObj.time = obj.which.resource.mining_time * Igor.getStatic("config.TICKS_PER_SECOND") * 2
-    mineObj.timer = 0
+    mineObj.list.push({name: obj.which.resource.name, count: 1, speed: obj.which.resource.mining_time})
   }
+  if(mineObj.current==0) { mineObj.time=NaN }
   mineObj.current++
 }
 window.ResourceMine = ResourceMine
@@ -185,7 +183,7 @@ const QueueCancel = (obj, Igor) => {
     queue.list[obj.which.idx].count--
   } else {
     queue.list.splice(obj.which.idx, 1)
-    queue.timer= 0
+    if(obj.which.idx==0) { queue.time=NaN }
   }
   queue.current--
 }
@@ -199,23 +197,46 @@ IgorJs.addEventHandler("tick", (tick, Igor) => {
   let craftObj = player.crafting
   let mineObj = player.mining
   if(craftObj.current>0) {
+    if(isNaN(craftObj.time)) {
+
+      craftObj.time = craftObj.list[0].speed * Igor.getStatic("config.TICKS_PER_SECOND") * 2
+      craftObj.timer = 0
+      return
+    }
     craftObj.timer++
     if(craftObj.timer>=craftObj.time) {
       craftObj.timer= 0
-      craftObj.current--
       let recipe = Igor.data.recipe[craftObj.list[0].recipe]
       Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: recipe.results})
-      --craftObj.list[0].count==0 && craftObj.list.shift()
+      if(--craftObj.list[0].count==0) {
+        craftObj.list.shift()
+        craftObj.time = NaN
+      }
+      craftObj.current--
+      if(craftObj.current==0) {
+        craftObj.time = NaN
+      }
     }
   }
   if(mineObj.current>0) {
+    if(isNaN(mineObj.time)) {
+      mineObj.time = mineObj.list[0].speed * Igor.getStatic("config.TICKS_PER_SECOND") * 2
+      mineObj.timer = 0
+      return
+    }
     mineObj.timer++
     if(mineObj.timer>=mineObj.time) {
       mineObj.timer= 0
       mineObj.current--
       let resource = Igor.data.resource[mineObj.list[0].name]
       Igor.processTEMP("player.inventory", 'inventory.add', {itemStacks: [{name: resource.mining_results, count: 1}]})
-      --mineObj.list[0].count==0 && mineObj.list.shift()
+      if(--mineObj.list[0].count==0) {
+        mineObj.list.shift()
+        mineObj.time = NaN
+      }
+      if(mineObj.current==0) {
+        mineObj.time = NaN
+      }
     }
   }
 })

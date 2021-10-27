@@ -330,7 +330,7 @@ export const IgorRunner = {
     if(typeof obj == "string") {
       if(obj.includes("id")) {
         obj = IgorCore.objs.get(obj)
-      } else if(obj) {
+      } else {
         let temp = IgorRunner.getNamedObject(obj)
         if(temp) obj = temp
       }
