@@ -67,7 +67,7 @@
       <span active-when.bind="globals.activeFeatures['defense']" click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${globals.activeFeatures['defense']? '': 'NYI'}"></span>
       <span active-when.bind="globals.activeFeatures['offense']" click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${globals.activeFeatures['offense']? '': 'NYI'}"></span>
     </nav>
-    <main class="tfmg" click.capture="CCC.provide($event, 'global', 'game', globals)" mouseenter.trigger="tooltip = null">
+    <main class="tfmg" mouseenter.trigger="tooltip = null">
       <section id="nav" if.bind="viewPane.main=='nav'">
         <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
@@ -89,10 +89,10 @@
         <div click.delegate="toggleDev()" if.bind="!showDev">Dev On</div>
         <div class="iconRow">
           <span class="fas fa-external-link-alt"></span>-&gt;
-          <a class="notLink butIs" target="_blank" href="https://github.com/Kremnari/TheFactoryMustGrow"><span class="fab fa-github"></span></a>
-          <a class="notLink butIs" target="_blank" href="https://discord.gg/AQNKpxUjuP"><span class="fab fa-discord"></span></a>
+          <a class="notLink butIs" target="_blank" rel="noopener noreferrer" href="https://github.com/Kremnari/TheFactoryMustGrow"><span class="fab fa-github"></span></a>
+          <a class="notLink butIs" target="_blank" rel="noopener noreferrer" href="https://discord.gg/AQNKpxUjuP"><span class="fab fa-discord"></span></a>
         </div>
-        <a class="notLink" target="_blank" href="https://digitalpsigen.tech/biz_plans/TFMG_welcome.html">Investor Options <span class="fas fa-external-link-alt"></span></a>
+        <a class="notLink" target="_blank" rel="noopener noreferrer" href="https://digitalpsigen.tech/biz_plans/TFMG_welcome.html">Investor Options <span class="fas fa-external-link-alt"></span></a>
         <div id="email_sub">
           <span click.delegate="showSubUp=!showSubUp">Subscribe for updates <span class="fas fa-chevron-down"></span>
           <div if.bind="showSubUp">

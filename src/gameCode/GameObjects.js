@@ -457,10 +457,11 @@ const SetResearchSig = {
   "global": "game"
 }
 const SetResearch =  (obj, Igor, self) => {
-  obj.global.game.research.progressing = obj.which.tech
+  let research = Igor.getNamedObject("global").research
+  research.progressing = obj.which.tech
 
-  if(!obj.global.game.research[obj.which.tech.name]) {
-    obj.global.game.research[obj.which.tech.name] = {
+  if(!research[obj.which.tech.name]) {
+    research[obj.which.tech.name] = {
       completeUnits: 0
     }
   }
@@ -469,10 +470,10 @@ const SetResearch =  (obj, Igor, self) => {
 IgorJs.provide_CCC("research.set", SetResearch, SetResearchSig)
 
 const ClearResearchSig = {
-  "global": "game"
 }
 const ClearResearch = (obj, Igor, self) => {
-  obj.global.game.research.progressing = null
+  let research = Igor.getNamedObject("global").research
+  research.progressing = null
   Igor.view.signaler.signal("techResearched")
 }
 IgorJs.provide_CCC("research.clear", ClearResearch, ClearResearchSig)
