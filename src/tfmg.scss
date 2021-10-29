@@ -8,6 +8,9 @@ a.notLink {
   &:hover {
     text-decoration: none;
   }
+  &.butIs {
+    color: green;
+  }
 }
 .NYI {
   cursor: not-allowed;
