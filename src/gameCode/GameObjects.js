@@ -454,7 +454,6 @@ IgorJs.defineObj("entity.buffer", NewEntityBuffer, EntityBufferActions)
 
 const SetResearchSig = {
   "which": "tech",
-  "global": "game"
 }
 const SetResearch =  (obj, Igor, self) => {
   let research = Igor.getNamedObject("global").research
