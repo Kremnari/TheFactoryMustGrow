@@ -76,7 +76,13 @@ export const CephlaCommCaller = {
         !Array.isArray(typeS) && (typeS = [typeS])
         for( let type of typeS) {
           let found
-          if (obj?.[specifier+"."+type]!==undefined) { found = obj?.[specifier+"."+type]}
+          if (obj) {
+            //! Weirdness, chrome stopped accepting the shorthand of this if
+            let prop = specifier+"."+type
+            if(obj[prop]) {
+              found = obj[prop]
+            }
+          }
           else if($evt?.CCC[specifier]?.[type]) found = $evt?.CCC[specifier]?.[type]
           else if(CephlaCommCaller.statics[specifier]?.[type]) found = CephlaCommCaller.statics[specifier]?.[type]
           //! The above used to be condensed, but it negated possible nulls
