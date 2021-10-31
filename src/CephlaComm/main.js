@@ -77,7 +77,7 @@ export const CephlaCommCaller = {
         for( let type of typeS) {
           let found
           let prop = specifier+"."+type
-          if (obj && obj[prop]!==undefined) {
+          if (type!="string" && obj && obj[prop]!==undefined) {
             //! Weirdness, chrome stopped accepting the shorthand of this if
               found = obj[prop]
           }
