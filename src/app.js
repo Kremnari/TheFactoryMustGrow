@@ -208,7 +208,7 @@ export class App {
     jumpTutorial() { 
       this.globals.activeFeatures.factoryBlocks = {}
       this.globals.activeFeatures.tutorial = {step: 49};
-      Tutorial.jump()
+      Tutorial.jump(this)
     }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}

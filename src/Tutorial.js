@@ -35,9 +35,9 @@ class tutorial {
     $("#tut_button").on('click', () => { this.nextStep()})
     this.setStep(steps[this.atStep])
   }
-  jump() {
+  jump(baseApp) {
     $("#tut_button").hide()
-    if(!this.active) { this.start(this.baseApp); return }
+    if(!this.active) { this.start(baseApp); return }
     this.atStep = this.baseApp.globals.activeFeatures.tutorial.step
     this.setStep(steps[this.atStep])
   }
