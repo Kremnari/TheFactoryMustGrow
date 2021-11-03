@@ -84,6 +84,7 @@
       </section>
       <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
         <div click.delegate="save()">Save</div>
+        <div click.delegate="jumpTutorial()">FactoryBlock Tutorial</div>
         <div click.delegate="resetSave()">Reset Save</div>
         <div click.delegate="resetDS()">Reset DataSource</div>
         <div click.delegate="toggleDev()" if.bind="!showDev">Dev On</div>

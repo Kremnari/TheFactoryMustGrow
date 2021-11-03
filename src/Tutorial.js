@@ -1,18 +1,18 @@
 import {mgrs} from "managers"
 import $ from "jquery"
 
-let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..3
-            ,1, 1.1, 1.2 //Basic info ..6
-            ,2, 2.1, 2.2, 2.3, 2.4 //  ..11
-            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..19
-              , 3.7, 3.75, 3.8, 3.81, 3.82, 3.9, 3.91  // ..25
-            ,4, 4.1, 4.2, 4.3, 4.4  // ..30
-              , 4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.452, 4.46  //  ..35
-              , 4.5, 4.51, 4.52, 4.53, 4.54, 4.55, 4.6
-            ,5, 5.05, 5.1, 5.15, 5.20, 5.25, 5.30, 5.35, 5.4, 5.42, 5.45
-              , 5.5, 5.55, 5.6, 5.65, 5.7, 5.75, 5.8, 5.85, 5.9, 5.91
-            ,6, 6.05, 6.055, 6.06, 6.065, 6.07, 6.075, 6.08, 6.085, 6.09, 6.095, 6.096
-              , 6.1, 6.15, 6.16, 6.17, 6.18
+let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..5
+            ,1, 1.1, 1.2 //Basic info ..8
+            ,2, 2.1, 2.2, 2.3, 2.4 //  ..13
+            ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..21
+              , 3.7, 3.75, 3.8, 3.81, 3.82, 3.9, 3.91  // ..28
+            ,4, 4.1, 4.2, 4.3, 4.4  // ..33
+              , 4.41, 4.411, 4.42, 4.43, 4.44, 4.45, 4.452, 4.46  //  ..41
+              , 4.5, 4.51, 4.52, 4.53, 4.54, 4.55, 4.6 // ..48
+            ,5, 5.05, 5.1, 5.15, 5.20, 5.25, 5.30, 5.35, 5.4, 5.42, 5.45 // ..55
+              , 5.5, 5.55, 5.6, 5.65, 5.7, 5.75, 5.8, 5.85, 5.9, 5.91 // ..62
+            ,6, 6.05, 6.055, 6.06, 6.065, 6.07, 6.075, 6.08, 6.085, 6.09, 6.095, 6.096 // ..69
+              , 6.1, 6.15, 6.16, 6.17, 6.18 // ..73
             ,100]
 window.jq = $
 let __
@@ -30,14 +30,19 @@ class tutorial {
     }
     this.atStep = this.baseApp.globals.activeFeatures.tutorial.step
     $("#tutorial").addClass("Block")
-    $("#tut_button").click( () => { this.nextStep()})
+    //$("#tut_button").hide()
+    this.active = true
+    $("#tut_button").on('click', () => { this.nextStep()})
     this.setStep(steps[this.atStep])
   }
-  jumpTo(stepID) {
-    this.atStep = steps.indexOf(stepID)
-    this.start()    
+  jump() {
+    $("#tut_button").hide()
+    if(!this.active) { this.start(this.baseApp); return }
+    this.atStep = this.baseApp.globals.activeFeatures.tutorial.step
+    this.setStep(steps[this.atStep])
   }
   nextStep() {
+    console.log('step')
     $(".tutHighlight").removeClass("tutHighlight")
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
@@ -64,8 +69,10 @@ class tutorial {
   }
   clearTut() {
     $(".tutStep").removeClass("tutStep").off("click")
+    $("#tut_button").off("click")
     $(".tutHighlight").removeClass("tutHighlight")
     $("#tutorial").removeClass("Block")
+    this.active = false
     this.baseApp.globals.activeFeatures.tutorial = false
     this.baseApp.autoSave()
   }
@@ -123,10 +130,6 @@ class tutorial {
         if(this.gameWait.validator(Object.walkPath(this.baseApp, this.gameWait.path))) {
           this.waitComplete()
         }
-        /*if(Object.walkPath(this.baseApp, this.gameWait.path)==this.gameWait.target) {
-          console.log('complete')
-          this.waitComplete()
-        }*/
         break;
       default:
         console.warn("type handling undeclared:"+this.gameWait.type)
@@ -415,7 +418,7 @@ class tutorial {
         break;
       case 5.20:
         __.tutStep(".resBlockItem:eq(0)")
-        __.setTutClick()
+        __.setTutClick(2)
         break;
       case 5.25:
         __.tutText("This is a resource patch.  It's signifies a secured resource deposit")
@@ -426,12 +429,12 @@ class tutorial {
         break;
       case 5.30:
         __.tutStep("#resBlock_foundation")
-        __.tutText("Before a drill can be added, you must prep a foundation")
+        __.tutText("The foundation consumes the exponential costs for the building")
         __.setTutClick()
         break;
       case 5.35:
         __.tutStep("#resBlock_miners")
-        __.tutText("To add a drill to this patch, you need a prepped foundation")
+        __.tutText("After creating a foundation, you can build the drill. Future updates will allow different buildings")
         __.setTutClick()
         break;
       case 5.4:
@@ -442,7 +445,7 @@ class tutorial {
       case 5.42:
         __.hide()
         // Validator just makes sure it exists
-        __.gameWait = {type: "gameState", path:"viewPane.showingItem.patchProperties.resource", validator: (value)=>{return value}}
+        __.gameWait = {type: "gameState", path:"viewPane.showingItem.patchProperties.resource", validator: (value)=>{return typeof value == 'string'}}
         break;
       case 5.45:
         __.show()
@@ -462,7 +465,7 @@ class tutorial {
         break;
       case 5.6:
         __.tutStep(".busLineItem:eq(0)")
-        __.setTutClick()
+        __.setTutClick(2)
         break;
       case 5.65:
         __.tutText("Welcome to a bus line.  Its purpose is to transport items between factory blocks.")
@@ -491,17 +494,18 @@ class tutorial {
         __.baseApp.globals.player.inv.items.push({name: "inserter", count: 8})
         __.baseApp.globals.player.inv.items.push({name: "iron-chest", count: 8})
         __.baseApp.globals.player.inv.items.push({name: "transport-belt", count: 10})
-        __.tutButton("Ah thanks!")
+        __.tutButton("Gee thanks!")
         break;
       case 5.9:
         $("#tutorial").hide()
-        __.tutHighlight(".busLine_tut_inProgress")
+        __.tutHighlight(".busLine_expandProcessing")
+        __.tutHighlight(".busLineTut_addAccessPoint")
         __.tutStep(".fa-object-ungroup")
         __.setTutClick()
         break;
       case 5.91:
         __.tutStep(".resBlockItem:eq(0)")
-        __.setTutClick()
+        __.setTutClick(2)
         break;
       case 6:
         __.show()
@@ -511,7 +515,7 @@ class tutorial {
         break;
       case 6.05:
         __.hide()
-        __.gameWait = {type: "gameState", path: "viewPane.showingItem.output", validator: (val) => {return this.baseApp.IgorJs.getObjId(val)?.connection}}
+        __.gameWait = {type: "gameState", path: "viewPane.showingItem.connections.drains[0]", validator: (val) => {return this.baseApp.IgorJs.getObjId(val)?.connections.sources[0]}}
         break;
       case 6.055:
         __.show()
@@ -530,7 +534,7 @@ class tutorial {
         break;
       case 6.07:
         __.tutStep(".facBlockItem:eq(0)")
-        __.setTutClick()
+        __.setTutClick(2)
         break;
       case 6.075:
         __.show()
@@ -553,10 +557,11 @@ class tutorial {
         __.tutHighlight(".setBuildingType")
         __.tutText("Before you can add buildings to a factory line, you need to select a building type and prep spaces")
         __.tutButton("I should start with a furnace to process ores")
+        __.baseApp.globals.player.inv.items.push({name: "stone-furnace", count: 2})
         break;
       case 6.095:
         __.hide()
-        __.baseApp.globals.player.inv.items.push({name: "stone-furnace", count: 2})
+        __.tutHighlight("")
         __.gameWait = {
           type: "gameState"
           ,path: "viewPane.showingItem.factoryLines[0]"
@@ -593,10 +598,10 @@ class tutorial {
         __.hide()
         __.gameWait = {
           type: "gameState"
-          ,path: "viewPane.showingItem.buffers.in"
+          ,path: "viewPane.showingItem.connections.sources"
           ,validator: (val) => {
-            let buffer = __.baseApp.IgorJs.getObjId(val)
-            return buffer.connection
+            let buffer = __.baseApp.IgorJs.getObjId(val[0])
+            return buffer?.connections.drains[0]
           }
         }
         break;

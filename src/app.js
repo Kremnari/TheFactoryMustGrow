@@ -205,6 +205,11 @@ export class App {
     //* Utility Functions
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
     hideTutorial() { Tutorial.clearTut() }
+    jumpTutorial() { 
+      this.globals.activeFeatures.factoryBlocks = {}
+      this.globals.activeFeatures.tutorial = {step: 49};
+      Tutorial.jump()
+    }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }

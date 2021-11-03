@@ -82,7 +82,7 @@
             id="busLine_sources_add"
             mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_input_sources'})"
             click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
-            class="fas fa-plus-square fa_icon_sm"
+            class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"
           ></span>
         </span><br>
         <div repeat.for="source of $scope.busLine.connections.sources">
@@ -118,7 +118,7 @@
           <span id="busLine_drains_add"
             click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
             mouseenter.trigger="tooltip = CCC.utilityFn('busLine_Costs', $scope.busLine.$_id, {which: 'expand_output_drains'})"
-            class="fas fa-plus-square fa_icon_sm"
+            class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"
           ></span>
         </span>
         <br>
