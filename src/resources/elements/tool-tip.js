@@ -11,7 +11,7 @@ export class ToolTipCustomElement {
     //console.log(this.display)
   }
   showRec(name) {
-    mgrs.baseApp.tooltip = this.recipeMgr.recipeList[name]
+    mgrs.baseApp.view.set({type: 'scope', which: 'tooltip', what: this.recipeMgr.recipeList[name]})
   }
 
 }

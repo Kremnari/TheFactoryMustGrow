@@ -1,5 +1,4 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
-import {ChameleonViewer as ChameJs} from "Chameleon/main"
 
 /* *
  *  Adding workshop entities from player inventory
@@ -510,7 +509,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
         block.research_ticks = NaN
       }
     })
-    ChameJs.signaler.signal("techResearched")
+    Igor.view.signaler.signal("techResearched")
   }
 }
 
@@ -525,9 +524,10 @@ IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 const FeatureUnlock = (notUsed, args, returnObj, Igor) => {
   let features = Igor.getNamedObject("global").activeFeatures
   let obj = args.item
-  debugger
   if(!features[obj.feature]) {
-    features[obj.feature] = obj
+    if(!Igor.checkAndEmit("FeatureUpdate", (check) => {return check.name=="Setup"+obj.feature}, obj)) {
+      features[obj.feature] = obj
+    }
   } else {
     //! needs something more elegant...
     if(obj.feature=="factoryBlocks") {

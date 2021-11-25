@@ -250,8 +250,8 @@ class tutorial {
         __.tutButton("I can dig it")
         break;
       case 3.7:
-        mgrs.baseApp.viewPane.main = "home"
-        mgrs.baseApp.tooltip = mgrs.data.recipe["burner-mining-drill"]
+        mgrs.baseApp.view.set({type: 'view', which: 'main', what: 'home'})
+        mgrs.baseApp.view.set({type: 'scope', which: 'tooltip', what: mgrs.data.recipe["burner-mining-drill"] })
         $("#recipes icon-base[title='burner-mining-drill']").addClass('tutTarget')
         __.tutText("A mining drill requires the following:<br>1 gear, a furnace and 1 plate<br>build away")
         __.tutButton("Hi ho, it's off to work I go")
@@ -274,7 +274,7 @@ class tutorial {
         break;
       case 3.82:
         __.tutStep(".navEntities")
-        __.gameWait = {type:"gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
+        __.gameWait = {type:"gameState", path: "view.ctrl.main", validator: (val) => {return val=="entities"}}
         __.setTutClick()
         break;
       case 3.9:
@@ -300,8 +300,8 @@ class tutorial {
         this.setTutClick()
         break;
       case 4.2:
-        mgrs.baseApp.viewPane.main = "home"
-        mgrs.baseApp.tooltip = mgrs.data.recipe["lab"]
+        mgrs.baseApp.view.set({type: 'view', which: 'main', what: 'home'})
+        mgrs.baseApp.view.set({type: 'scope', which: 'tooltip', what: mgrs.data.recipe["lab"] })
         __.tutText("These paltry machines are a start, but won't hold you forever.<br>Keep expanding, but you're next goal should be a research lab.")
         $("#recipes icon-base[title='lab']").addClass('tutTarget')
         __.tutButton("The Factory...Is Growing...")
@@ -319,7 +319,7 @@ class tutorial {
       case 4.41:
           //This step could be skippable
         __.tutStep(".navEntities")
-        __.gameWait = {type:"gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
+        __.gameWait = {type:"gameState", path: "view.ctrl.main", validator: (val) => {return val=="entities"}}
         __.setTutClick()
         break;
       case 4.411:
@@ -336,8 +336,8 @@ class tutorial {
         __.tutButton("*grumble*")
         break;
       case 4.44:
-        this.baseApp.viewPane.main = "home"
-        this.baseApp.tooltip = mgrs.data.recipe["automation-science-pack"]
+        mgrs.baseApp.view.set({type: 'view', which: 'main', what: 'home'})
+        this.baseApp.view.set({type: 'scope', which: 'tooltip', what: mgrs.data.recipe["automation-science-pack"] })
         $("#tutorial").hide();
         $("#recipes icon-base[title='automation-science-pack']").addClass('tutTarget')
         __.gameWait = {name:"automation-science-pack", count: 10, type:"playerInv", buffered:"lab", compare:"min"}
@@ -346,9 +346,9 @@ class tutorial {
         $("#tutorial").show();
         $(".tutTarget").removeClass("tutTarget")
         __.tutText("Now go back to your lab and add the science packs")
-        mgrs.baseApp.viewPane.showingItem = null
+        mgrs.baseApp.view.unset({which: 'showingEntity'})
         __.tutStep(".navEntities")
-        __.gameWait = {type: "gameState", path: "viewPane.main", validator: (val) => {return val=="entities"}}
+        __.gameWait = {type: "gameState", path: "view.ctrl.main", validator: (val) => {return val=="entities"}}
         break;
       case 4.452:
         __.hide()
@@ -384,7 +384,7 @@ class tutorial {
         __.tutButton("Time to expand my labs")
         break;
       case 4.55:
-        __.baseApp.viewPane.main = "research"
+        mgrs.baseApp.view.set({type: 'view', which: 'main', what: 'research'})
         __.tutText("Your next goal is to research FactoryBlocks")
         __.tutStep("#technologies icon-base[title='facBlocks']")
         __.setTutClick()
@@ -445,7 +445,7 @@ class tutorial {
       case 5.42:
         __.hide()
         // Validator just makes sure it exists
-        __.gameWait = {type: "gameState", path:"viewPane.showingItem.patchProperties.resource", validator: (value)=>{return typeof value == 'string'}}
+        __.gameWait = {type: "gameState", path:"view.$scope.showingBlock.patchProperties.resource", validator: (value)=>{return typeof value == 'string'}}
         break;
       case 5.45:
         __.show()
@@ -515,7 +515,7 @@ class tutorial {
         break;
       case 6.05:
         __.hide()
-        __.gameWait = {type: "gameState", path: "viewPane.showingItem.connections.drains[0]", validator: (val) => {return this.baseApp.IgorJs.getObjId(val)?.connections.sources[0]}}
+        __.gameWait = {type: "gameState", path: "view.$scope.showingBlock.connections.drains[0]", validator: (val) => {return this.baseApp.IgorJs.getObjId(val)?.connections.sources[0]}}
         break;
       case 6.055:
         __.show()
@@ -564,7 +564,7 @@ class tutorial {
         __.tutHighlight("")
         __.gameWait = {
           type: "gameState"
-          ,path: "viewPane.showingItem.factoryLines[0]"
+          ,path: "view.$scope.showingBlock.factoryLines[0]"
           ,validator: (val) => {
             let obj = this.baseApp.IgorJs.getObjId(val)
             return obj.buildingType && obj.prepped>0
@@ -581,7 +581,7 @@ class tutorial {
         __.tutStep(".setRecipe")
         __.gameWait = {
           type: "gameState"
-          ,path: "viewPane.showingItem.factoryLines[0]"
+          ,path: "view.$scope.showingBlock.factoryLines[0]"
           ,validator: (val) => {
             let obj = this.baseApp.IgorJs.getObjId(val)
             return !!obj.recipe
@@ -598,7 +598,7 @@ class tutorial {
         __.hide()
         __.gameWait = {
           type: "gameState"
-          ,path: "viewPane.showingItem.connections.sources"
+          ,path: "view.$scope.showingBlock.connections.sources"
           ,validator: (val) => {
             let buffer = __.baseApp.IgorJs.getObjId(val[0])
             return buffer?.connections.drains[0]
@@ -612,7 +612,7 @@ class tutorial {
         __.tutButton("continue")
         break;
       case 6.18:
-        __.baseApp.viewPane.main = "facBlocks"
+        mgrs.baseApp.view.set({type: 'view', which: 'main', what: 'facBlocks'})
         __.tutHighlight(".newFacBlock.techBlock")
         __.tutText("A tech block is in development so a bus can provide science packs. It shall follow the same principles outlined here")
         __.tutButton("The Factory Game...Is Growing...")

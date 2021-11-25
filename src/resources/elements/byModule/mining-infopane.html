@@ -1,36 +1,35 @@
 <template bindable="item">
   <require from="./upgrades-infopane"></require>
-  <scope-var var.bind="$scope = {miner: viewPane.showingItem}"></scope-var>
   <div class="container">
     <div class="minable-resources row">
       <div class="col-7">
         <div
-          if.bind="!$scope.miner.processing"
+          if.bind="!view.$scope.showingEntity.processing"
         >
           <p>Select Resource to Mine</p>
           <icon-base
-            repeat.for="res of dataSet.resource | filter:{key:'category', value:$scope.miner.resource_categories, includeUndefs: true} | objectValues"
+            repeat.for="res of dataSet.resource | filter:{key:'category', value:view.$scope.showingEntity.resource_categories, includeUndefs: true} | objectValues"
             item.bind="res"
             click.delegate="CCC.issue('entity.setProcess', {'which.process': res, 'type.class':'mining'}, $event)"
-            class="${res==$scope.miner.processing ? 'selected': ''}"
+            class="${res==view.$scope.showingEntity.processing ? 'selected': ''}"
           ></icon-base>
         </div>
         <div
-          if.bind="$scope.miner.processing"
+          if.bind="view.$scope.showingEntity.processing"
         >
           <span
-            click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.miner.buffers.out, 'item.name': $scope.miner.processing.mining_results}, $event)"
+            click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': view.$scope.showingEntity.buffers.out, 'item.name': view.$scope.showingEntity.processing.mining_results}, $event)"
             class="progressBarBase"
-            css="border-image-source: linear-gradient(to left, red ${$scope.miner.process_timer}%, green ${$scope.miner.process_timer}%)"
+            css="border-image-source: linear-gradient(to left, red ${view.$scope.showingEntity.process_timer}%, green ${view.$scope.showingEntity.process_timer}%)"
           >
             <icon-base
-              item.bind="$scope.miner.processing.mining_results"
-              count.bind="CCC.utilityFn('inventory.total', $scope.miner.buffers.out, {name: $scope.miner.processing.mining_results}) & signal:'bufferUpdate'"
+              item.bind="view.$scope.showingEntity.processing.mining_results"
+              count.bind="CCC.utilityFn('inventory.total', view.$scope.showingEntity.buffers.out, {name: view.$scope.showingEntity.processing.mining_results}) & signal:'bufferUpdate'"
               title="Click to collect"
             ></icon-base>
-            /${IgorJs.getObjId($scope.miner.buffers.out).stackSize}
+            /${IgorJs.getObjId(view.$scope.showingEntity.buffers.out).stackSize}
             <!-- # magic number -->
-            [${($scope.miner.process_ticks/30).toFixed(1) }s]
+            [${(view.$scope.showingEntity.process_ticks/30).toFixed(1) }s]
           </span>
           <span click.delegate="CCC.issue('entity.setProcess', {'which.process': null, 'type.class': null}, $event)">
             Change
@@ -38,7 +37,7 @@
         </div>
       </div>
       <div class="col-5">
-        <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="$scope.miner" parcel.bind="$scope.miner.parent"></compose>
+        <compose view="resources/elements/byModule/upgrades-infopane.html" entity.bind="view.$scope.showingEntity" parcel.bind="view.$scope.showingEntity.parent"></compose>
       </div>
     </div>
     <div class="row">

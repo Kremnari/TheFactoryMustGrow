@@ -4,7 +4,7 @@ import {DataProvider} from 'DataProvider'
 import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import * as Config from 'Config'
 import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
-import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView} from 'Chameleon/main'
+import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView, ChameleonTasker as ChameTasks} from 'Chameleon/main'
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
@@ -12,28 +12,20 @@ import {Tutorial} from 'Tutorial'
 
 @inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
 export class App {
-    viewPane = {
-      main: "home",
-      showingItem: null,
-      version: "beta",
-      loaded: false,
-      options: {}
-    }
     showTut = true
     dataBase = {}
-    tooltip = null
     viewRecCat = false
     constructor(signaler, DataProv, DS, BE) { 
       window.tfmg = this
       this.Math = Math
       this.signaler = signaler
       this.IgorJs = IgorJs
-      ChameView.signaler = this.signaler
-      ChameView.app = this
-      this.ChameView = ChameView
+      ChameJS.signaler = this.signaler
+      ChameJS.app = this
+      this.view = ChameView
       IgorJs.initialize({
         commandTasker: CC_const, //TODO: Probably some kind of initilization function
-        viewTasker: ChameView,  //TODO: Probably some kind of initilization function
+        viewTasker: ChameTasks,  //TODO: Probably some kind of initilization function
         ticker: {
           ticks_per_sec: Config.TICKS_PER_SECOND,
           ticks_max_phase: Config.TICKS_MAX_PHASE
@@ -41,6 +33,7 @@ export class App {
         dbName: "TheFactoryMustGrow",
         saveName: "SaveGame"
       })
+      this.view.set({type: 'view', which: 'main', what: 'home'})
       DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
       DataProv.beginLoad()
       this.CCC = CCC  // Need to add so it's available in the view
@@ -51,7 +44,7 @@ export class App {
         // Calling twice will reset it
         this.autoSave();
       }
-      BE.expressionObserver(this, "viewPane.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
+      BE.expressionObserver(this, "view.ctrl.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
     }
     async init(database, DS) { 
       this.mgrs = database.mgrs
@@ -95,12 +88,16 @@ export class App {
         return Object.values(list)
       })
       ChameJS.setViewFn("technologyFilter", () => {
-        return Object.values(tfmg.dataSet.technology).filter( (tech) => {
-          if(this.globals.research[tech.name]?.complete) return tfmg.viewPane.options.bDoneTechs
-          return !tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research[preq]?.complete })
-        }).sort( (first, second) => {
-          return first.name > second.name ? 1 : -1
-        })
+        if(tfmg.showAllTechs) {
+          return Object.values(tfmg.dataSet.technology)
+        } else {
+          return Object.values(tfmg.dataSet.technology).filter( (tech) => {
+            if(this.globals.research[tech.name]?.complete) return tfmg.view.options.bDoneTechs
+            return !tech.prerequisites || tech.prerequisites.every( (preq) => { return this.globals.research[preq]?.complete })
+          }).sort( (first, second) => {
+            return first.name > second.name ? 1 : -1
+          })
+        }
       })
       ChameJS.setViewFn("workshopEntities", () => {
         let list = this.IgorJs.arrayFromIds(this.globals.player.workshop.entities)
@@ -138,13 +135,17 @@ export class App {
     hoverTest () {
       alert("test")
     }
+    //! NUKE in favor of chameView
     set showTech(tech) {
+      console.error("SHOWEDTECH")
       this.viewPane.showingTech = null
       tech && window.setTimeout( () => {
         this.viewPane.showingTech = tech
       })
     }
+    //! NUKE in favor of chameView
     set showItem(obj) {
+      console.error("SHOWEDITEM")
       if(!obj.item) return
       if(typeof obj.item == "string" && obj.item.includes("id")) {
         obj.item = this.IgorJs.getObjId(obj.item)
@@ -166,13 +167,13 @@ export class App {
         }, 0)
       }
     }
+    //TODO NUKE in favor of chameView
+    // Is used app.html:245
     set setConnectedItems(obj) {
-      this.viewPane.connectedItems = {}
-      obj.item.connections.drains?.forEach((x) => {this.viewPane.connectedItems[x.parent || x] = 'drain'})
-      obj.item.connections.sources?.forEach((x) => {this.viewPane.connectedItems[x.parent || x] += ' source'})            
-    }
-    set clearConnectedItems(obj) {
-      this.viewPane.connectedItems = {}
+      let cis= {}
+      obj.item.connections.drains?.forEach((x) => {cis[x.parent || x] = 'drain'})
+      obj.item.connections.sources?.forEach((x) => {cis[x.parent || x] += ' source'})            
+      this.view.set({type: 'scope', which: 'connectedItems', what: cis})
     }
     autoSave() {
       if(!this.autoSave.sub) {
@@ -192,14 +193,18 @@ export class App {
     }
     whenCheck(newVal, oldVal, prop) {
       if(!this.whenTarg) return
-      if(this.whenTarg.targ.entityPane && this.viewPane.entityPane != this.whenTarg.targ.entityPane) return
-      if(this.whenTarg.targ.main && this.viewPane.main != this.whenTarg.targ.main) return
+      if(this.whenTarg.targ.entityPane && this.view.ctrl.entityPane != this.whenTarg.targ.entityPane) return
+      if(this.whenTarg.targ.main && this.view.ctrl.main != this.whenTarg.targ.main) return
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
     test(val) {
       console.log(val)
 
+    }
+    isAwesome() {
+      this.showAllTechs = true
+      this.editDataSource = true
     }
 
     //* Utility Functions

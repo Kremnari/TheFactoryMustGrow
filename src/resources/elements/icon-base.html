@@ -12,7 +12,7 @@
   </div>
   <div class="metas">
     <span if.bind="metas.showEntity && hasEntity" class="entityIcon">M</span>
-    <span if.bind="metas.stalled" class="stalled fas fa-circle"></span>
+    <span class="${metas.stalled && 'stalled'} fas fa-circle"></span>
   </div>
   <div if.bind="stalled" class="progressBarBase stalled"></div>
   <div

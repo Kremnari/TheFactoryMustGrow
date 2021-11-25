@@ -1,15 +1,15 @@
 <template>
-  <icon-base repeat.for="machine of facBlocks.defenses.machines | objectValues"
-    item.bind="machine.name"
-    click.delegate="CCC.issue('invUse', {
-      how:'sub-n-crement',
-      from: player.inv,
-      what: machine.name, 
-      count: 1,
-      to: machine,
-      to_prop: 'count'
-    })"
-    count.bind="machine.count"
-  >
-  </icon-base>
+  <div class="row defenses">
+    <icon-base
+      item="turret"
+      click.delegate="CCC.issue('defense.AddTurret', {}, $event)"
+      count.bind="globals.defense.turrets"
+    ></icon-base>
+  </div>
+  <div class="row infoText">
+    Time to next attack: <span class="time">~${globals.defense.nextAttackSecs}s</span>
+  </div>
+  <div class="row enemyWave">
+
+  </div>
 </template>

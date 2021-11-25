@@ -7,6 +7,8 @@
     <h5 click.delegate="editType='technology'">Technologies</h5>
     <h5 click.delegate="editType='resource'">Resources</h5>
     <h5 click.delegate="editType='entity'">Entities</h5>
+    <br>
+    <h5 click.delegate="editType='localization'">Localization</h5>
     <h5 click.delegate="editType='icons'">Icons</h5>
   </header>
   <main>
@@ -16,6 +18,7 @@
           repeat.for="each of editList | objectValues"
           src.bind="mgrs.icon.getSrc(each.icon)"
           click.delegate="selectEdit(each.name)"
+          alt="${each.name}"
           >
         </img>
       </ul>
@@ -23,11 +26,14 @@
     <div if.bind="editType=='icons'">
       <icon-editor></icon-editor>
     </div>
+    <div if.bind="editType=='localization'">
+      localizations
+    </div>
     <div if.bind="editing">
       Name: <input type="text" value.bind="editing.name"><br>
       Icon: <input type="text" value.bind="editing.icon"><br>
-      <img src.bind="mgrs.icon.getSrc(editing.icon)"></img>
-    <div if.bind="editType=='item'">
+      <img src.bind="mgrs.icon.getSrc(editing.icon)" alt="each.name"></img>
+      <div if.bind="editType=='item'">
         StackSize: <input type="text" value.bind="editing.stack_size">
       </div>
       <div if.bind="editType=='recipe'">
@@ -87,14 +93,6 @@
         </div>
       </div>
     </div>
-    <div if.bind="editType=='icons'">
-      <div if.bind="editing">
-        ${editing.name}
-      </div>
-      <div if.bind="!editing">
-        Icons
-      </div>
-    </div>
   </main>
   <footer class="btn-group">
     <span class="btn btn-secondary" click.delegate="editing = null" if.bind="editing">cancel</span>
@@ -104,6 +102,7 @@
     <span class="btn btn-secondary" click.delegate="close()" if.bind="!editing">Close</span>
     <span class="btn btn-primary" click.delegate="addNew()" if.bind="!editing && editType">Add</span>
     <span class="btn btn-info" click.delegate="saveDataSet()" if.bind="!editing">save list</span>
-    <span class="btn btn-light" click.delegate="dlDataSet()" if.bind="!editing">download</span>
+    <span class="btn btn-light" click.delegate="dlDataSet()" if.bind="!editing && editType!='icons'">download</span>
+    <span class="btn btn-light" click.delegate="dlImageSet()" if.bind="editType=='icons'">dl Images</span>
   </footer>
 </template>

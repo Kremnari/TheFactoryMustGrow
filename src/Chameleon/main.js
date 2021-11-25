@@ -16,9 +16,18 @@ const ChameleonCore = {
     ChameleonCore.modalSelector = document.querySelector(selector)
   },
   classFns: {},
-  viewFns: {}
+  viewFns: {},
+  signaler: null,
+  baseApp: null,
+  viewControl: {},
+  viewScope: {},
+  viewOptions: {},
+  viewFilters: {},
 }
+window.chame = ChameleonCore
 export const ChameleonBuilder = {
+  signaler: ChameleonCore.signaler,
+  app: ChameleonCore.baseApp,
   AddGameObjectClass: (name, obj, tags ) => {
     let jsonObj = JSON.stringify(obj)
     if(tags["category"]) {
@@ -40,12 +49,74 @@ export const ChameleonBuilder = {
     })
   }
 }
+Object.defineProperty(ChameleonBuilder, "app", {
+  set: (val) => { ChameleonCore.app = val }
+})
+Object.defineProperty(ChameleonBuilder, "signaler", {
+  set: (val) => { ChameleonCore.signaler = val }
+})
+
 
 export const ChameleonViewer = {
-  app: null,
-  signal: null,
+  ctrl: ChameleonCore.viewControl,
+  options: ChameleonCore.viewOptions,
+  filters: ChameleonCore.viewFilters,
+  $scope: ChameleonCore.viewScope,
   toasts: [],
-  toastTimer: NaN,
+  toastTimer: 0,
+
+  set: (command) => {
+    if(command.$double && ChameleonViewer.__checkDouble(command)) return
+    switch (command.type) {
+      case "view":
+        ChameleonCore.viewControl[command.which] = command.what
+        break;
+      case "scope":
+        ChameleonCore.viewScope[command.which] = command.what
+        if(command.which=="tooltip") {
+          ChameleonCore.viewControl.statusBox = "tooltip"
+        }
+        break;
+      case "viewObject":
+      case "unset":
+        break;
+    }
+  },
+  __checkDouble: (command) => {
+    // Where's the elegance?
+    if(ChameleonViewer.$double
+        && ChameleonViewer.$double.type==command.type
+        && ChameleonViewer.$double.which==command.which
+        && ChameleonViewer.$double.what==command.what) {
+      ChameleonViewer.set(command.$double)
+      return true;
+    }
+    ChameleonViewer.$double = command
+    return false
+  },
+  unset: (command) => {
+    switch (command.which) {
+      case "tooltip":
+        ChameleonCore.viewScope.tooltip = null
+        ChameleonCore.viewControl.statusBox='statusBox'
+        break;
+      case "showingEntity":
+        ChameleonCore.viewScope.showingEntity = null
+        break;
+      case "showingBlock":
+        ChameleonCore.viewScope.showingBlock = null
+        break;
+    }
+  }
+}
+Object.defineProperty(ChameleonViewer, "Fn", {
+  get: () => { return ChameleonCore.viewFns }
+})
+Object.defineProperty(ChameleonViewer, "classFn", {
+  get: () => { return ChameleonCore.classFns }
+})
+
+export const ChameleonTasker = {
   error: (what) => {
     $("#ChameleonModal").show()
     $("#ChameleonMessage").removeClass().addClass('error').text(what)
@@ -58,7 +129,7 @@ export const ChameleonViewer = {
       icon,
       fa,
       timer: 400,
-      _alert: ChameleonViewer.showAlert
+      _alert: ChameleonTasker.showAlert
     }
     ChameleonViewer.toasts.push(what)
     ChameleonViewer.toastTimerSet()
@@ -70,10 +141,10 @@ export const ChameleonViewer = {
       icon,
       fa,
       timer: 100,
-      _alert: ChameleonViewer.showAlert
+      _alert: ChameleonTasker.showAlert
     }
     ChameleonViewer.toasts.push(what)
-    ChameleonViewer.toastTimerSet()
+    ChameleonTasker.toastTimerSet()
   },
   goodToast: (msg, icon, fa= 'fa-thumbs-up') => {
     let what = {
@@ -82,10 +153,10 @@ export const ChameleonViewer = {
       icon,
       fa,
       timer: 400,
-      _alert: ChameleonViewer.showAlert
+      _alert: ChameleonTasker.showAlert
     }
     ChameleonViewer.toasts.push(what)
-    ChameleonViewer.toastTimerSet()
+    ChameleonTasker.toastTimerSet()
   },
   toast: (msg, icon, fa = 'fa-question') => {
     let what = {}
@@ -94,13 +165,13 @@ export const ChameleonViewer = {
     what.icon = icon
     what.fa = fa
     what.timer = 200
-    what._alert = ChameleonViewer.showAlert
+    what._alert = ChameleonTasker.showAlert
     ChameleonViewer.toasts.push(what)
-    ChameleonViewer.toastTimerSet()
+    ChameleonTasker.toastTimerSet()
   },
   showAlert: (toast) => {
     alert(toast.msg)
-    ChameleonViewer.clearToast(toast)
+    ChameleonTasker.clearToast(toast)
   },
   clearToast: (which) => {
     let idx = ChameleonViewer.toasts.findIndex((x)=>{return x==which})
@@ -108,7 +179,7 @@ export const ChameleonViewer = {
     window.clearInterval(ChameleonViewer.toastTimer.timeout)
     ChameleonViewer.toastTimer = null
     if(ChameleonViewer.toasts.length>0) {
-      ChameleonViewer.toastTimerSet()
+      ChameleonTasker.toastTimerSet()
     }
   },
   toastTimerSet: () => {
@@ -118,7 +189,7 @@ export const ChameleonViewer = {
     }
     ChameleonViewer.toastTimer.timeout = window.setInterval( () => {
       if(ChameleonViewer.toastTimer.ticks>=100) {
-        ChameleonViewer.clearToast(ChameleonViewer.toasts[0])
+        ChameleonTasker.clearToast(ChameleonViewer.toasts[0])
       } else {
         ChameleonViewer.toastTimer.ticks += 1
       }
@@ -127,15 +198,20 @@ export const ChameleonViewer = {
   animsUpdate: (who, what, dur) => {
     who.animClass = what
     who.animTime = "animation-duration: "+dur+"s"
-    ChameleonViewer.signaler.signal("animsUpdate")
-  },
-  test: (value) => {
-    console.log(value)
+    ChameleonTasker.signaler.signal("animsUpdate")
   },
   clearShowing: () => {
-    ChameleonViewer.app.viewPane.showingItem = null
+    //TODO be selective, called from IgorRunner
+    ChameleonViewer.unset({which: "showingEntity"})
+    ChameleonViewer.unset({which: "showingBlock"})
   },
   GameObjectFromPointer: ChameleonCore.GameObjectFromPointer,
   classFn: ChameleonCore.classFns,
   viewFn: ChameleonCore.viewFns
 }
+Object.defineProperty(ChameleonTasker, "app", {
+  get: () => { return ChameleonCore.baseApp }
+})
+Object.defineProperty(ChameleonTasker, "signaler", {
+  get: () => { return ChameleonCore.signaler }
+})

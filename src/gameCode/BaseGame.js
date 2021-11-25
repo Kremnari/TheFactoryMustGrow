@@ -5,6 +5,7 @@ import * as PlayerWorkshop from 'gameCode/PlayerWorkshop'
 import * as ObjectsSource from 'gameCode/GameObjects'
 import * as InventoryIgor from 'gameCode/inventory_Igor'
 import * as FactoryBlocks from 'gameCode/FactoryBlocks'
+import * as Expansion from 'gameCode/Expansion'
 
 
 //* these two setup the base game data,
@@ -15,7 +16,7 @@ const newGame = {
       total: 100,
       used: 0,
       complexity: 0,
-      res_patches: 1,
+      res_patches: 2,
       res_patches_used: 0,
       fac_block_costs: {
         factory: 100,

@@ -85,14 +85,27 @@ export class DataEditor {
 
   }
   dlDataSet() {
-    let file = new File([JSON.stringify(mgrs.data)], "data_source.json", {type: "application/json"})
+    let data = JSON.parse(JSON.stringify(mgrs.data))
+    data.icons = undefined
+    let file = new File([JSON.stringify(data)], "data_source.json", {type: "application/json"})
+
+    saveAs(file)
+  }
+  async dlImageSet() {
+    let data = await mgrs.idb.get("Icons")
+    let file = new File([JSON.stringify(data)], "data_images.json", {type: "application/json"})
+    saveAs(file)
+  }
+  async dlLocalization() {
+    let data = await mgrs.idb.get("Localization")
+    let file = new File([JSON.stringify(data)], "local.json", {type: "application/json"})
     saveAs(file)
   }
   close() {
-    mgrs.baseApp.viewPane.version = 'beta'
+    //TODO remove direct access... but would have to change the data editor to use Chameleon....
+    mgrs.baseApp.view.ctrl.version = null
   }
 }
-
 
 export class ListSuggestionService {
   constructor(type) {

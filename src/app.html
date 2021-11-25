@@ -4,19 +4,20 @@
   <require from="./styles.scss"></require>
   <require from="./tfmg.scss"></require>
   <require from="resources/elements/tool-tip"></require>
+  <require from="./tfmg-beta.scss"></require>
 
-  <div if.bind="viewPane.version=='beta'" beta mouseenter.trigger="tooltip = null">
-    <require from="./tfmg-beta.scss"></require>
+  <div if.bind="!view.ctrl.version" beta mouseenter.trigger="view.unset({which: 'tooltip'})">
     <section class="statusBox"> 
       <div
-        if.bind="!tooltip && viewPane.main!='facBlocks'"
-        click.delegate="viewPane.main='overview'"
+        if2.bind="!tooltip && viewPane.main!='facBlocks'"
+        if.bind="view.ctrl.statusBox=='statusBox'"
+        click.delegate="view.set({type: 'view', which: 'main', what: 'overview'})"
       >
         status box<br>
         Land, pollution, enemies, oh my!<br>
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
-      <div if.bind="viewPane.main=='facBlocks' && !tooltip" class="container facBlockStats">
+      <div if2.bind="viewPane.main=='facBlocks' && !tooltip" if.bind="view.ctrl.statusBox=='facBlock'" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
             <div>Land use: ${globals.land.used}</div>
@@ -29,60 +30,76 @@
         </div>
       </div>
       <tool-tip
-        display.bind="tooltip"
+        display.bind="view.$scope.tooltip"
         item-mgr.bind="mgrs.item"
         recipe-mgr.bind="mgrs.rec"
-        if.bind="tooltip"
+        if.bind="view.ctrl.statusBox=='tooltip'"
       ></tool-tip>
       <div id="toaster">
         <require from="./resources/elements/micro/toasted.html"></require>
         <div
-          if.bind="ChameView.toastTimer"
+          if.bind="view.toastTimer"
           class="toastTicker"
-          css="border-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) ${ChameView.toastTimer.ticks}%, goldenrod ${ChameView.toastTimer.ticks}%) 0 4"
+          css="border-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) ${view.toastTimer.ticks}%, goldenrod ${view.toastTimer.ticks}%) 0 4"
         ></div>
         <toasted
-          repeat.for="toast of ChameView.toasts"
+          repeat.for="toast of view.toasts"
           toast.bind="toast"
         ></toasted>
       </div>
     </section>
     <nav>
-      <span click.delegate="viewPane.main='nav'" class="fas fa-level-up-alt fa-rotate-90 ${viewPane.main=='nav'?'selected':''}"></span>
-      <span click.delegate="viewPane.main='menu'" class="fas fa-bars ${viewPane.main=='menu'?'selected':''}" ></span>
-      <span click.delegate="viewPane.main='dev'" class="fab fa-dev ${viewPane.main=='dev'?'selected':''}" if.bind="showDev"></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"      class="fas fa-level-up-alt fa-rotate-90 ${view.ctrl.main=='nav' && 'selected'}"></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"     class="fas fa-bars ${view.ctrl.main=='menu' && 'selected'}" ></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"      class="fab fa-dev ${view.ctrl.main=='dev' && 'selected'}" if.bind="showDev"></span>
       <span class="fas spacer"></span>
-      <span click.delegate="viewPane.main='home'" class="fas fa-user navHome ${viewPane.main=='home'?'selected':''}"></span>
-      <span click.delegate="viewPane.main='entities'" class="fas fa-toolbox navEntities ${viewPane.main=='entities'?'selected':''}"></span>
-      <span click.delegate="viewPane.main='research'" class="fas fa-drafting-compass navTechs ${viewPane.main=='research'?'selected':''}"></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'home'})"     class="fas fa-user navHome ${view.ctrl.main=='home' && 'selected'}"></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'entities'})" class="fas fa-toolbox navEntities ${view.ctrl.main=='entities' && 'selected'}"></span>
+      <span click.delegate="view.set({type: 'view', which: 'main', what: 'research'})" class="fas fa-drafting-compass navTechs ${view.ctrl.main=='research' && 'selected'}"></span>
       <span
-        click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='facBlocks')"
-        class="far fa-object-ungroup navFacBlocks ${viewPane.main=='facBlocks'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
+        click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'facBlocks'}))"
+        class="far fa-object-ungroup navFacBlocks ${view.ctrl.main=='facBlocks' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
       ></span>
       <span
-        click.delegate="globals.activeFeatures['factoryBlocks'] && (viewPane.main='viewFacBlock')"
-        class="fas fa-industry navFacBlocks ${viewPane.main=='viewFacBlock'?'selected':''} ${globals.activeFeatures['factoryBlocks']? '': 'NYI' & signal:'generalUpdate'}"
+        click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'viewFacBlock'}))"
+        class="fas fa-industry navFacBlocks ${view.ctrl.main=='viewFacBlock' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
       ></span>
       <span class="fas spacer"></span>
-      <span active-when.bind="globals.activeFeatures['defense']" click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')" class="fab fa-fort-awesome navDefense ${viewPane.main=='defense'?'selected':''} ${globals.activeFeatures['defense']? '': 'NYI'}"></span>
-      <span active-when.bind="globals.activeFeatures['offense']" click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')" class="fas fa-fighter-jet  navOffense ${viewPane.main=='offense'?'selected':''} ${globals.activeFeatures['offense']? '': 'NYI'}"></span>
+      <span
+        if.bind="!globals.activeFeatures['defenseBlocks']"
+        class="fab fa-fort-awesome navDefense NYI"
+      ></span>
+      <span 
+        if.bind="globals.activeFeatures['defenseBlocks']"
+        click.delegate="globals.activeFeatures['defenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'defense'}))"
+        class="fab fa-fort-awesome navDefense ${view.ctrl.main=='defense' && 'selected'}"
+      ></span>
+      <span
+        if.bind="!globals.activeFeatures['offenseBlocks']"
+        class="fas fa-fighter-jet navOffense NYI"
+      ></span>
+      <span
+        if.bind="globals.activeFeatures['offenseBlocks']"
+        click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense'}))"
+        class="fas fa-fighter-jet navOffense ${view.ctrl.main=='offense' && 'selected'}"
+      ></span>
     </nav>
-    <main class="tfmg" mouseenter.trigger="tooltip = null">
-      <section id="nav" if.bind="viewPane.main=='nav'">
-        <p click.delegate="viewPane.main='nav'"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
-        <p click.delegate="viewPane.main='menu'"><span class="fas fa-bars" ></span>Menu</p>
-        <p click.delegate="viewPane.main='dev'"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
+    <main class="tfmg" mouseenter.trigger="view.unset({which: 'tooltip'})">
+      <section id="nav" if.bind="view.ctrl.main=='nav'">
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"><span class="fas fa-bars" ></span>Menu</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
-        <p click.delegate="viewPane.main='home'"><span class="fas fa-user navHome"></span>Player Home</p>
-        <p click.delegate="viewPane.main='entities'"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
-        <p click.delegate="viewPane.main='research'"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
-        <p click.delegate="viewPane.main='facBlocks'"><span class="far fa-object-ungroup navFacBlocks"></span>Factory Blocks List</p>
-        <p click.delegate="viewPane.main='viewFacBlock'"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'home'})"><span class="fas fa-user navHome"></span>Player Home</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'entities'})"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'research'})"><span class="fas fa-drafting-compass navTechs"></span>Technologies</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'facBlocks'})"><span class="far fa-object-ungroup navFacBlocks"></span>Factory Blocks List</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'viewFacBlocks'})"><span class="fas fa-industry navFacBlocks"></span>View Factory Block</p>
         <p class="fas spacer"></p> 
-        <p click.delegate="globals.activeFeatures['defense'] && (viewPane.main='defense')"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
-        <p click.delegate="globals.activeFeatures['offense'] && (viewPane.main='offense')"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
+        <p click.delegate="globals.activeFeatures['defenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'defense'}))"><span class="fab fa-fort-awesome navDefense"></span>Defenses</p>
+        <p click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense'}))"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
-      <section id="menu" if.bind="viewPane.main=='menu'" style="z-index:2000">
+      <section id="menu" if.bind="view.ctrl.main=='menu'" style="z-index:2000">
         <div click.delegate="save()">Save</div>
         <div click.delegate="jumpTutorial()">FactoryBlock Tutorial</div>
         <div click.delegate="resetSave()">Reset Save</div>
@@ -137,32 +154,33 @@
           </div>
         </div>
       </section>
-      <section id="devControls" if.bind="viewPane.main=='dev'">
+      <section id="devControls" if.bind="view.ctrl.main=='dev'">
         <div click.delegate="IgorJs.setState('tick')">Tick 1</div>
         <div click.delegate="IgorJs.setState('toggle')">${IgorJs.Ticker.isRunning ? "Pause" : "Resume"}</div>
         <div click.delegate="jumpStart()">JumpStart()</div>
         <div click.delegate="testing()">Testing()</div>
         <div click.delegate="nukeCache()">NukeCache</div>
-        <div click.delegate="viewPane.version = 'editData'">Edit DataSource</div>
+        <div click.delegate="view.set({type: 'view', which: 'version', what: 'editData'})" if.bind="editDataSource">Edit DataSource</div>
         <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>
       </section>
-      <compose if.bind="viewPane.main=='offense' && globals.activeFeatures.offenseBlocks" view="./resources/elements/mainPanes/offensePane.html"></compose>
-      <compose if.bind="viewPane.main=='defense' && globals.activeFeatures.defenseBlocks" view="./resources/elements/mainPanes/defensePane.html"></compose>
-      <section id="playerHome" show.bind="viewPane.main=='home'">
+      <compose if.bind="view.ctrl.main=='offense' && globals.activeFeatures.offenseBlocks" view="./resources/elements/mainPanes/offensePane.html"></compose>
+      <compose if.bind="view.ctrl.main=='defense' && globals.activeFeatures.defenseBlocks" view="./resources/elements/mainPanes/defensePane.html"></compose>
+      <section id="playerHome" show.bind="view.ctrl.main=='home'">
         <h3>Craftables</h3>
         <div class="overflow" id="recipes">
           <icon-base
-            repeat.for="rec of ChameView.viewFn.recipeFilter('crafting') & signal: 'generalUpdate'"
+            repeat.for="rec of view.Fn.recipeFilter('crafting') & signal: 'generalUpdate'"
             item.bind="rec"
             title = "${rec.name}"
             click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
-            class.bind="ChameView.classFn.canCraft(rec) & signal:'generalUpdate'"
+            class.bind="view.classFn.canCraft(rec) & signal:'generalUpdate'"
             class="${rec.animClass}"
             metas.bind="{showEntity: true}"
-            mouseenter.trigger="tooltip = rec"
-            mouseleave.trigger="tooltip = null"
+            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: rec})"
+            mouseleave.trigger="view.unset({which: 'tooltip'})"
           ></icon-base>
           <div class="queue">
+            Max Queue: 5
             <icon-base 
               repeat.for="toCraft of globals.player.crafting.list"
               item.bind="toCraft.name"
@@ -182,6 +200,7 @@
             class="${res.animClass}"
           ></icon-base> 
           <div class="queue">
+            Max Queue: 5
             <icon-base 
               repeat.for="toCraft of globals.player.mining.list"
               item.bind="toCraft.name"
@@ -193,42 +212,42 @@
           </div>
         </div>
       </section>
-      <section id="machines" show.bind="viewPane.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', viewPane.showingItem)">
+      <section id="machines" show.bind="view.ctrl.main=='entities'" click.capture="CCC.provide($event, 'at', 'entity', view.$scope.showingEntity)">
           <h4>Workshop</h4>
           <span class="details">
-            <compose if.bind="viewPane.showingItem['mining_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/mining-infopane.html"></compose>
-            <compose if.bind="viewPane.showingItem['crafting_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/crafting-infopane.html"></compose>
-            <compose if.bind="viewPane.showingItem['researching_speed']" item.bind="viewPane.showingItem & signal:'generalUpdate'" view="./resources/elements/byModule/lab-infopane.html"></compose>
+            <compose if.bind="view.$scope.showingEntity['mining_speed']" item.bind="view.$scope.showingEntity & signal:'generalUpdate'" view="./resources/elements/byModule/mining-infopane.html"></compose>
+            <compose if.bind="view.$scope.showingEntity['crafting_speed']" item.bind="view.$scope.showingEntity & signal:'generalUpdate'" view="./resources/elements/byModule/crafting-infopane.html"></compose>
+            <compose if.bind="view.$scope.showingEntity['researching_speed']" item.bind="view.$scope.showingEntity & signal:'generalUpdate'" view="./resources/elements/byModule/lab-infopane.html"></compose>
           </span>
           <div class="entityList">
-            <div repeat.for="machina of ChameView.viewFn.workshopEntities() & signal:'entityUpdate'">
-              <input type="hidden" value.bind="typeof machina.order=='undefined' ? machina.order=$index : ''">
+            <div repeat.for="machina of view.Fn.workshopEntities() & signal:'entityUpdate'">
+              <!-- input type="hidden" value.bind="typeof machina.order=='undefined' && (machina.order=$index)" -->
               <icon-base
                 item.bind="machina"
                 alt-image.bind="machina.processing.icon || machina.processing.name"
-                click.delegate="showItem = {item: machina}"
+                click.delegate="view.set({type: 'scope', which: 'showingEntity', what: machina })"
                 metas.bind="{stalled: !machina._tags['tick']}"
-                class="${viewPane.showingItem == machina ? 'selected':''}"
+                class="${view.$scope.showingEntity == machina && 'selected'}"
               ></icon-base>
             </div>
           </div>
       </section>
-      <section id="facBlocks" show.bind="viewPane.main=='facBlocks'" class="container">
+      <section id="facBlocks" show.bind="view.ctrl.main=='facBlocks'" class="container">
         <h3>Factory Blocks</h3>
         <div class="row">
           <div class="col facBlockList resBlocks">
             <span>Resources</span>
             <span
               click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
-              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'})"
+              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'}) })"
               class="newFacBlock resBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
               repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'generalUpdate'"
-              click.delegate="showItem={item: resBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: resBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = resBlock)"
               class="blockItem resBlockItem
-                    ${viewPane.showingItem==resBlock ? 'selected':''}
-                    ${viewPane.connectedItems[resBlock.$_id]}"
+                    ${view.$scope.showingBlock==resBlock && 'selected'}
+                    ${view.$scope.connectedItems[resBlock.$_id]}"
             >
               <icon-base
                 item="technology@facBlocks"
@@ -239,18 +258,18 @@
           <div class="col specBuses">
             <span>Special</span>
             <div
-              click.delegate="select_FacBlock(facBlocks.defenseBus)"
-              class="${viewPane.showingItem==facBlocks.defenseBus ? 'selected': ''} blockItem defBus"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.defenseBus})"
+              class="${view.$scope.showingBlock==facBlocks.defenseBus && 'selected'} blockItem defBus"
               if.bind="globals.activeFeatures.factoryBlocks.defenseBus"
             >Defense Bus</div>
             <div
-              click.delegate="select_FacBlock(facBlocks.marketBus)"
-              class="${viewPane.showingItem==facBlocks.marketBus ? 'selected': ''} blockItem marBus"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.marketBus})"
+              class="${view.$scope.showingBlock==facBlocks.marketBus && 'selected'} blockItem marBus"
               if.bind="globals.activeFeatures.factoryBlocks.marketBus"
             >Market Bus</div>
             <div
-              click.delegate="select_FacBlock(facBlocks.offenseBus)"
-              class="${viewPane.showingItem==facBlocks.offenseBus ? 'selected': ''} blockItem offBus"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.offenseBus})"
+              class="${view.$scope.showingBlock==facBlocks.offenseBus && 'selected'} blockItem offBus"
               if.bind="globals.activeFeatures.factoryBlocks.offenseBus"
             >Offenses Bus</div>
           </div>
@@ -258,15 +277,15 @@
             <span>Research</span>
             <span
               click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)"
-              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'})"
+              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'}) })"
               class="newFacBlock techBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
               repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'generalUpdate'"
-              click.delegate="showItem={item: techBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: techBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = techBlock)"
               class="blockItem techBlockItem
-                    ${viewPane.showingItem==techBlock ? 'selected':''}
-                    ${viewPane.connectedItems[techBlock.$_id]}"
+                    ${view.$scope.showingBlock==techBlock && 'selected'}
+                    ${view.$scope.connectedItems[techBlock.$_id]}"
             >
               <icon-base
                 item="technology@facBlocks"
@@ -280,15 +299,15 @@
             <span>Factory Buses</span>
             <span
               click.delegate="CCC.issue('facBlock.newBus', {}, $event)"
-              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'})"
+              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'}) })"
               class="newFacBlock busLine fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
               repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'generalUpdate'"
-              click.delegate="showItem={item: facBus, double: {view: 'viewFacBlock'}, setConnected:true}"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBus, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBus)"
               class="blockItem busLineItem
-                    ${viewPane.showingItem==facBus ? 'selected':''}
-                    ${viewPane.connectedItems[facBus.$_id]}"
+                    ${view.$scope.showingBlock==facBus && 'selected'}
+                    ${view.$scope.connectedItems[facBus.$_id]}"
             >
               <icon-base
                 item="technology@facBlocks"
@@ -302,15 +321,15 @@
             <span>FactoryBlock</span>
             <span
               click.delegate="CCC.issue('facBlock.newBlock', {}, $event)"
-              mouseenter.trigger="tooltip = CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'})"
+              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'}) })"
               class="newFacBlock facBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
               repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'generalUpdate'"
-              click.delegate="showItem={item: facBlock, double: {view: 'viewFacBlock'}, setConnected:true}"
+              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBlock)"
               class='blockItem facBlockItem
-                    ${viewPane.showingItem==facBlock ? "selected":""}
-                    ${viewPane.connectedItems[facBlock.$_id]}'
+                    ${view.$scope.showingBlock==facBlock && "selected"}
+                    ${view.$scope.connectedItems[facBlock.$_id]}'
             >
               <icon-base
                 item="technology@facBlocks"
@@ -320,46 +339,46 @@
           </div>
         </div>
       </section>
-      <section id="viewBlocks" show.bind="viewPane.main=='viewFacBlock'">
+      <section id="viewBlocks" show.bind="view.ctrl.main=='viewFacBlock'">
         <compose
           id="viewFacBlock"
           class="container"
-          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBlock'"
+          if.bind="view.ctrl.main=='viewFacBlock' && view.$scope.showingBlock.$_type=='FactoryBlock'"
           view="./resources/elements/factoryBlocks/mainView.html"
         ></compose>
         <compose
           id="viewBusLine"
           class="container"
-          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='FactoryBus'"
+          if.bind="view.ctrl.main=='viewFacBlock' && view.$scope.showingBlock.$_type=='FactoryBus'"
           view="./resources/elements/factoryBlocks/busView.html"
         ></compose>
         <compose
           id="viewResBlock"
           class="container"
-          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='ResourceBlock'"
+          if.bind="view.ctrl.main=='viewFacBlock' && view.$scope.showingBlock.$_type=='ResourceBlock'"
           view="./resources/elements/factoryBlocks/resView.html"
         ></compose>
         <compose
           id="viewTechBlock"
           class="container"
-          if.bind="viewPane.main=='viewFacBlock' && viewPane.showingItem.$_type=='TechBlock'"
+          if.bind="view.ctrl.main=='viewFacBlock' && view.$scope.showingBlock.$_type=='TechBlock'"
           view="./resources/elements/factoryBlocks/techBlock.html"
         ></compose>
       </section>
-      <section id="technologies" show.bind="viewPane.main=='research'">
+      <section id="technologies" show.bind="view.ctrl.main=='research'">
         <h3>Research</h3>
-        <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="viewPane.showingTech"></compose>
-        <span class="${!viewPane.options.bDoneTechs && 'inActiveOption'}" click.delegate="viewPane.options.bDoneTechs = !viewPane.options.bDoneTechs">Show Completed</span>
+        <compose view="./resources/elements/byModule/tech-infopane.html" if.bind="view.$scope.showingTech"></compose>
+        <span class="${!view.options.bDoneTechs && 'inActiveOption'}" click.delegate="view.options.bDoneTechs = !view.options.bDoneTechs">Show Completed</span>
         <div class="overflow">
           <icon-base
-            repeat.for="tech of ChameView.viewFn.technologyFilter(viewPane.options.bDoneTechs) & signal:'techResearched'"
-            click.delegate="showTech = tech"
+            repeat.for="tech of view.Fn.technologyFilter(view.options.bDoneTechs) & signal:'techResearched'"
+            click.delegate="view.set({type: 'scope', which: 'showingTech', what: tech})"
             item.bind="tech"
-            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${viewPane.showingTech==tech ? 'selected': ''}"
+            class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${view.$scope.showingTech==tech && 'selected'}"
           ></icon-base>
         </div>
       </section>
-      <section id="overview" show.bind="viewPane.main=='overview'">
+      <section id="overview" show.bind="view.ctrl.main=='overview'">
         <span>Available land: ${globals.land.total-globals.land.used}</span>
         <span>Pollution:</span>
         <span>Scan Progress: ${globals.scanning.currentCost}/${globals.scanning.nextCost}</span><br>
@@ -381,7 +400,7 @@
         <span class="fas fa-angle-double-right"></span>
       </div>
       <inventory
-        items.bind="ChameView.viewFn.playerInventory() & signal:'generalUpdate'"
+        items.bind="view.Fn.playerInventory() & signal:'generalUpdate'"
         click-call.call="CCC.issue('player.inventoryPush', {
           'which.itemStack': item,
           'to.entities': globals.player.workshop.entities
@@ -421,7 +440,7 @@
       </tab-popout>
     </section>
   </div>
-  <div id="editDataSource" if.bind="viewPane.version=='editData'">
+  <div id="editDataSource" if.bind="view.ctrl.version=='editData'">
     <require from="resources/elements/dataEditor"></require>
     <data-editor></data-editor>
   </div>

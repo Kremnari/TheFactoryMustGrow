@@ -37,13 +37,20 @@ icon-base {
       position: absolute;
       text-align: center;
     }
-    & span.stalled {
-      color: red;
+    & span.fa-circle {
+      color: transparent;
+      -webkit-text-stroke: #000;
+      transition: 2s linear all;
       position: absolute;
       left: 0;
       right: 0;
       bottom: -5px;
       font-size: 0.5rem;
+      
+      &.stalled {
+        color: red;
+        transition: none;
+      }
     }
   }
 }

@@ -86,7 +86,7 @@ export class IconEditor {
   }
   dlIconEditor() {
     let a = document.createElement('a')
-    a.download = "icons.json"
+    a.download = "data-icons.json"
     a.href = "data:application/octet-stream:base64,"+JSON.stringify(this.IE.ds.new)
     a.style = "display:none"
     document.body.appendChild(a)

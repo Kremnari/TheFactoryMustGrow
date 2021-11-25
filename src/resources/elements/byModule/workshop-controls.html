@@ -1,5 +1,4 @@
 <template>
-    <scope-var var.bind="$scope.entity = viewPane.showingItem"></scope-var>
     <style>
         .wc-input {
             width: 2.5em
@@ -29,9 +28,9 @@
         <div class="row">
             <div class="col">
                 <span
-                    show.bind="$scope.entity.order<IgorRunner.getNamedObject('global').player.workshop.entities.length-1"
+                    show.bind="view.$scope.showingEntity.order<IgorRunner.getNamedObject('global').player.workshop.entities.length-1"
                     class="fas fa-angle-right fa-rotate-180 fa-2x"
-                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: $scope.entity.$_id, to: $scope.entity.order+orderStep})"
+                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: view.$scope.showingEntity.$_id, to: view.$scope.showingEntity.order+orderStep})"
                 ></span>
             </div>
             <div class="col">
@@ -42,16 +41,16 @@
             </div>
             <div class="col">
                 <span
-                    show.bind="$scope.entity.order>0"
+                    show.bind="view.$scope.showingEntity.order>0"
                     class="fas fa-angle-right fa-2x"
-                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: $scope.entity.$_id, to: $scope.entity.order-orderStep})"
+                    click.delegate="CCC.utilityFn('workshop.moveEntity', null, {which: view.$scope.showingEntity.$_id, to: view.$scope.showingEntity.order-orderStep})"
                 ></span>
             </div>
         </div>
         <div class="row">
             <div
                 class="col align-self-center"
-                click.delegate="CCC.issue('workshop.recover', {'which.entity': $scope.entity.$_id}, $event)"
+                click.delegate="CCC.issue('workshop.recover', {'which.entity': view.$scope.showingEntity.$_id}, $event)"
             >
                 Remove Building
             </div>

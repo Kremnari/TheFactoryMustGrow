@@ -1,27 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title><%- htmlWebpackPlugin.options.metadata.title %></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <base href="<%- htmlWebpackPlugin.options.metadata.baseUrl %>">
-	<!-- link rel="manifest" href="/manifest.json" -->
-    <!-- imported CSS are concatenated and added automatically -->
-  </head>
-  <body aurelia-app="main">
-  </body>
- <script>
+
+<head>
+  <meta charset="utf-8">
+  <title>
+    <%- htmlWebpackPlugin.options.metadata.title %>
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="<%- htmlWebpackPlugin.options.metadata.baseUrl %>">
+  <style>
+    body {
+      color: goldenrod;
+      background-color: darkslategrey;
+      user-select: none;
+    }
+    body > span {
+      position: absolute;
+      width: 100%;
+      left: 0px;
+      text-align: center;
+      font-family: monospace;
+      user-select: none;
+    }
+    body > span.first, body > span.second {
+      top: calc(50vh - 168px);
+      font-size: 48px;
+    }
+    body > span.second {
+      top: calc(50vh - 128px);
+      font-size: 40px;
+    }
+    body > svg {
+      position: absolute;
+      top: calc(50vh - 64px);
+      left: calc(50vw - 64px);
+      width: 256px;
+      height: 256px;
+    }
+    body > span.last {
+      top: calc(50vh + 64px);
+      font-size: 24px;
+    }
+  </style>
+  <!-- link rel="manifest" href="/manifest.json" -->
+  <!-- imported CSS are concatenated and added automatically -->
+</head>
+
+<body aurelia-app="main">
+  <span class="first">The Factory</span>
+  <span class="second">Must Grow</span>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 128px; width: 128px;">
+    <defs>
+      <filter id="shadow-1" height="300%" width="300%" x="-100%" y="-100%">
+        <feFlood flood-color="rgba(0, 0, 0, 1)" result="flood"></feFlood>
+        <feComposite in="flood" in2="SourceGraphic" operator="out" result="composite"></feComposite>
+        <feGaussianBlur in="composite" stdDeviation="5" result="blur"></feGaussianBlur>
+        <feOffset dx="0" dy="5" result="offset">
+
+        </feOffset>
+        <feComposite in2="SourceGraphic" in="offset" operator="atop"></feComposite>
+      </filter>
+    </defs>
+    <path d="M0 0h512v512H0z" fill="#000" fill-opacity="0"></path>
+    <g class="" transform="translate(0,0)" style="">
+      <path
+        d="M384 64l.387 256H368l-96-128-16 128-96-128-16 128-96-128-16 128v160h448V64h-32v256h-32V64h-32zM64 352h48v32H64v-32zm80 0h48v32h-48v-32zm80 0h48v32h-48v-32zm80 0h48v32h-48v-32zM64 416h48v32H64v-32zm80 0h48v32h-48v-32zm80 0h48v32h-48v-32zm80 0h48v32h-48v-32z"
+        fill="#d0021b" fill-opacity="1" stroke="#010101" stroke-opacity="1" stroke-width="2" filter="url(#shadow-1)"
+        transform="translate(512, 0) scale(-1, 1) rotate(0, 256, 256) skewX(0) skewY(0)">
+        <animate attributeName="fill" values="#d0021b;#f8e71c;#00aa00;#007fff;#d0021b" dur="4s"
+          repeatCount="indefinite" />
+      </path>
+    </g>
+  </svg>
+  <span class="last">Constructing additional pylons</span>
+</body>
+<script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('../sw.js')
-      .then(function(registration) {
+      .then(function (registration) {
         console.log('registration complete')
         return registration.update();
-       })
+      })
       .catch(error => console.log(error));
   }
-  Map.prototype.ensure = function(key, value) {
-  		if(!this.has(key)) this.set(key, value)
-  		return this.get(key)
-  	}
+  Map.prototype.ensure = function (key, value) {
+    if (!this.has(key)) this.set(key, value)
+    return this.get(key)
+  }
 </script>
+
 </html>

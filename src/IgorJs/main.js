@@ -8,6 +8,7 @@ const IgorCore = {
   object_tickers: {},
   hardTickers: {},
   eventHandlers: {},
+  featureDefines: {},
   game: {}, // Tis the base game json
   objs: new Map(),
   namedObjs: [],
@@ -52,6 +53,8 @@ const IgorCore = {
 //  to manipulate the lifecycle of it's objects
 const IgorBuilder = {
   get data() { return IgorCore.data },
+  get view() { return IgorCore.graphics },
+  get config() { return IgorCore.config },
   getNamedObject(who) {
     if(who=="global" || who=="game") return IgorCore.game
     return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
@@ -139,6 +142,24 @@ export const IgorUtils = {
       if(obj && obj.CC_dialogList) IgorUtils.CCC_addUtility(obj.CC_dialogList, obj)
     })
   
+  },
+  defineFeature: (who, actions) => {
+    IgorCore.featureDefines[who] = actions
+    actions && Object.entries(actions).forEach(([prop, obj]) => {
+      if(obj) {
+        obj.CC_provide && IgorUtils.provide_CCC(obj.CC_provide, obj, obj.signature, obj.validator)
+        obj.Igor_operation && IgorUtils.addOperation(obj.Igor_operation, obj)
+        obj.CC_utility && IgorUtils.CCC_addUtility(obj.CC_utility, obj)
+        obj.CC_dialogList && IgorUtils.CCC_addUtility(obj.CC_dialogList, obj)
+        if(obj.Igor_Event) {
+          !IgorCore.eventHandlers[obj.Igor_Event.type] && (IgorCore.eventHandlers[obj.Igor_Event.type] = [])
+          IgorCore.eventHandlers[obj.Igor_Event.type].push({
+            fn: obj,
+            data: obj.Igor_Event
+          })
+        }
+      }
+    })
   },
   setStatic: (name, as) => {
     Object.defineProperty(IgorCore.statics, name, {
@@ -265,6 +286,17 @@ export const IgorUtils = {
     })
     console.log("backup loaded")
   },
+  async loadSave(which) {
+    let save = await dbGet(which, IgorCore.db)
+    IgorCore.game = JSON.parse(save.game)
+    IgorCore.objs = new Map(JSON.parse(save.objs))
+    if(save.control) IgorCore.control = JSON.parse(save.control)
+    //Reconnect tags
+    IgorCore.objs.forEach( (x) => {
+      x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity:x, load: x.$_tags})
+      if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
+    })
+  },
   setState(which) {
     switch(which) {
       case "start":
@@ -318,8 +350,16 @@ export const IgorUtils = {
 //  Igor environment
 //The IgorRunner is passed to GameObjectActionFunctions so they may emit events or get data
 export const IgorRunner = {
-  emit: () => {
+  checkAndEmit: (which, validator_CB, data) => {
     //I emit events into Igor
+    let found = false
+    IgorCore.eventHandlers[which].forEach( (event) => {
+      if(validator_CB(event.data)) {
+        event.fn(data, IgorUtils)
+        found = true
+      }
+    })
+    return found
   },
   get data() { return IgorCore.data },
   get view() { return IgorCore.graphics },

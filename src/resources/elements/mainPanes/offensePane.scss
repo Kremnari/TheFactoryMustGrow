@@ -1,0 +1,18 @@
+.survey_results {
+    & li {
+        list-style-type: none;
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 4px;
+    }
+    & .enemy {
+        background-color: red;
+    }
+    & .resource {
+        background-color: green;
+    }
+    & .empty {
+        background-color: tan;
+    }
+}

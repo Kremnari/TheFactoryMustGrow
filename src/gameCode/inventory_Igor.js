@@ -88,7 +88,6 @@ function AddAll(inv, args, returnObj, Igor) {
 //args.partial: bool, used to consume whatever is available, and return consumed part
 //! This performs multiple loops, could be optimized later
 function ConsumeAll(inv, args, returnObj, Igor) {
-  //* Incomplete
   let itemStacks = args.itemStacks
   if(!Array.isArray(itemStacks)) itemStacks = [itemStacks]
   let part = []

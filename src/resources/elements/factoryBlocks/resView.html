@@ -1,60 +1,59 @@
 <template>
-    <scope-var var.bind="$scope={resBlock: viewPane.showingItem}"></scope-var>
     <section
         id="viewResBlock"
-        click.capture="CCC.provide($event, 'at', 'ResourceBlock', viewPane.showingItem)"
+        click.capture="CCC.provide($event, 'at', 'ResourceBlock', view.$scope.showingBlock)"
         class="container"
     >
         <div class="row">
-            <span class="col">Space Used: ${$scope.resBlock.spaceUsed}</span>
-            <h3 class="col">${$scope.resBlock.name}</h3>
-            <span class="col">Complexity: ${$scope.resBlock.complexity}</span>
+            <span class="col">Space Used: ${view.$scope.showingBlock.spaceUsed}</span>
+            <h3 class="col">${view.$scope.showingBlock.name}</h3>
+            <span class="col">Complexity: ${view.$scope.showingBlock.complexity}</span>
         </div>
         <div class="row">
             <div class="col">
                 <span
                     id="resBlock_miners"
                     click.delegate="CCC.issue('resBlock.buildMine', {}, $event)"
-                    mouseenter.trigger="tooltip = CCC.utilityFn('resBlock.__minerCost', $scope.resBlock.$_id)"
-                >Miners: ${$scope.resBlock.built}</span>
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__minerCost', view.$scope.showingBlock.$_id) })"
+                >Miners: ${view.$scope.showingBlock.built}</span>
                 <br>
                 <span
                     id="resBlock_foundation"
                     click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
-                    mouseenter.trigger="tooltip = CCC.utilityFn('resBlock.__foundationCost', $scope.resBlock.$_id)"
-                >Foundations: ${$scope.resBlock.prepped}</span>
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__foundationCost', view.$scope.showingBlock.$_id) })"
+                >Foundations: ${view.$scope.showingBlock.prepped}</span>
             </div>
             <div class="col">
                 <icon-base
-                    repeat.for="item of IgorJs.getObjId($scope.resBlock.buffers.out).items & signal:'bufferUpdate'"
+                    repeat.for="item of IgorJs.getObjId(view.$scope.showingBlock.buffers.out).items & signal:'bufferUpdate'"
                     item.bind="item"
-                    if.bind="$scope.resBlock.patchProperties.resource"
+                    if.bind="view.$scope.showingBlock.patchProperties.resource"
                     count.bind="item.count"
-                    max_fill.bind="IgorJs.getObjId($scope.resBlock.buffers.out).stackSize"
-                    stalled.bind="$scope.resBlock.stalled"
-                    progress.bind="($scope.resBlock.patchProperties.mining_time - $scope.resBlock.mining_ticks)/$scope.resBlock.patchProperties.mining_time*100"
-                    click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': $scope.resBlock.buffers.out, 'at.entity': 'temp_null', 'item.name':item.name}, $event)"
+                    max_fill.bind="IgorJs.getObjId(view.$scope.showingBlock.buffers.out).stackSize"
+                    stalled.bind="view.$scope.showingBlock.stalled"
+                    progress.bind="(view.$scope.showingBlock.patchProperties.mining_time - view.$scope.showingBlock.mining_ticks)/view.$scope.showingBlock.patchProperties.mining_time*100"
+                    click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': view.$scope.showingBlock.buffers.out, 'at.entity': 'temp_null', 'item.name':item.name}, $event)"
                 ></icon-base>
                 <p
                     class="resBlock_setResource"
-                    click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': ChameView.viewFn.objectValues(dataSet.resource)}, $event )"
+                    click.delegate="CCC.issue('resBlock.setResource', {'$_resourceXlist': view.Fn.objectValues(dataSet.resource)}, $event )"
                 >Change Resource</p>
             </div>
             <div class="col">
                 <div class="resBlock connection">
                     <span
                         class="fas fa-sign-out-alt fa_icon_sm"
-                        click.delegate="showItem = {item: IgorJs.getObjId($scope.resBlock.connections.drains[0]), view:'viewFacBlock'}"
+                        click.delegate="showItem = {item: IgorJs.getObjId(view.$scope.showingBlock.connections.drains[0]), view:'viewFacBlock'}"
                     ></span>
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo', 
                             {   'dir.string': 'output',
                                 'factoryBus.dialog': {showSpecials: false},
-                                'connectTo.block' : $scope.resBlock.$_id,
-                                'current.bus': $scope.resBlock.connections.drains[0] || -1
+                                'connectTo.block' : view.$scope.showingBlock.$_id,
+                                'current.bus': view.$scope.showingBlock.connections.drains[0] || -1
                             }, $event)"
                     >
-                        ${IgorJs.getObjId($scope.resBlock.connections.drains[0]).name || "none" & signal:'generalUpdate'}
+                        ${IgorJs.getObjId(view.$scope.showingBlock.connections.drains[0]).name || "none" & signal:'generalUpdate'}
                         <span class="fas fa-edit fa_icon_sm"></span>
                     </span>
                 </div>

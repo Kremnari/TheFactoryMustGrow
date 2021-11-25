@@ -1,30 +1,49 @@
 <template>
-  Radar
-  <icon-base item.bind="facBlocks.offenses.radar"
-    click.delegate="CCC.issue('invUse', {
-      how:'sub-n-crement',
-      from: player.inv,
-      what: 'radar', 
-      count: 1,
-      to: facBlocks.offenses.radar,
-      to_prop: 'count'
-    })"
-    count.bind="facBlocks.offenses.radar.count"
-  >
-  </icon-base>
-  <br>
-  Offensive bots
-  <icon-base repeat.for="machine of facBlocks.offenses.machines | objectValues"
-    item.bind="machine.name"
-    click.delegate="CCC.issue('invUse', {
-      how:'sub-n-crement',
-      from: player.inv,
-      what: machine.name, 
-      count: 1,
-      to: machine,
-      to_prop: 'count'
-    })"
-    count.bind="machine.count"
-  >
-  </icon-base>
+  <require from="./offensePane.scss"></require>
+  <section class="container">
+    <div class="row radar" if.bind="globals.activeFeatures.offenseBlocks.radar">
+      <icon-base
+        item="radar"
+        click.delegate="CCC.issue('expansion.AddRadar', {}, $event)"
+        count.bind="globals.scanning.radarCount"
+      ></icon-base>
+      <div if.bind="globals.scanning.radarCount">
+        <span if.bind="!globals.scanning.penetrateHold">
+          Scanning Progress: ${globals.scanning.currentAccum} / ${globals.scanning.nextCost} (+${globals.scanning.radarCount})
+        </span> 
+        <span if.bind="globals.scanning.penetrateEnemy">
+          Our scans are blocked by enemy defenses
+        </span>
+        <span if.bind="globals.scanning.penetrateDepth">
+          Our scans cannot penetrate further, we must secure more land first
+        </span>
+        <br>Survey results:
+        <ul class="survey_results">
+          <li repeat.for="each of globals.scanning.landsSurveyed" class="${each.type}"></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row" if.bind="globals.activeFeatures.offenseBlocks.offenses">
+      <icon-base
+        item="offenseBot"
+        click.delegate="CCC.issue('offense.AddOffenseBot', {}, $event)"
+        required="10"
+        count.bind="globals.offense.offenseBots"
+      ></icon-base>
+      Power: ${globals.offense.offenseBots * 10}
+    </div>
+    <div class="row" if.bind="globals.offense.attacking">
+      <div class="col" if.bind="globals.scanning.landsSurveyed[0].type=='enemy'">
+        Strength: ${globals.scanning.landsSurveyed[0].strength}
+        <span
+          click.delegate="CCC.issue('offense.Attack', {}, $event)"
+          if.bind="globals.scanning.landsSurveyed[0].strength"
+        >Attack</span>
+      </div>
+      <div class="col" if.bind="globals.scanning.landsSurveyed[0] && !globals.scanning.landsSurveyed[0].strength">
+        <span click.delegate="CCC.issue('offense.Secure', {}, $event)">Secure</span>
+      </div>
+
+    </div>
+  </section>
 </template>

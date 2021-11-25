@@ -1,19 +1,18 @@
 <template>
-  <scope-var var.bind="$scope = {lab: viewPane.showingItem}"></scope-var>
   <require from="./upgrades-infopane"></require>
   <div class="container">
-    Max Buffer: ${IgorJs.getObjId($scope.lab.buffers.in).stackSize}
+    Max Buffer: ${IgorJs.getObjId(view.$scope.showingEntity.buffers.in).stackSize}
     <div class="row">
       <div class="col">
         <div
           class="labInput progressBarBase"
-          click.capture="CCC.provide($event, 'which', 'buffer', $scope.lab.buffers.in)"
-          css="border-image-source: linear-gradient(to left, red ${$scope.lab.research_timer/$scope.lab.research_time*100}%, green ${$scope.lab.research_timer/$scope.lab.research_time*100}%)"
+          click.capture="CCC.provide($event, 'which', 'buffer', view.$scope.showingEntity.buffers.in)"
+          css="border-image-source: linear-gradient(to left, red ${view.$scope.showingEntity.research_timer/view.$scope.showingEntity.research_time*100}%, green ${view.$scope.showingEntity.research_timer/view.$scope.showingEntity.research_time*100}%)"
         >
           <icon-base
-            repeat.for="input of $scope.lab.inputs"
+            repeat.for="input of view.$scope.showingEntity.inputs"
             item.bind="input"
-            count.bind="CCC.utilityFn('inventory.total', $scope.lab.buffers.in, {name: input}) & signal:'bufferUpdate'"
+            count.bind="CCC.utilityFn('inventory.total', view.$scope.showingEntity.buffers.in, {name: input}) & signal:'bufferUpdate'"
             click.delegate="CCC.issue('entity.bufferFill', {'item.name': input}, $event)"
             title="Click to add ${input}"
           ></icon-base>
@@ -22,7 +21,7 @@
       <div class="col">
         <span if.bind="globals.research.progressing">
           ${globals.research.progressing.name}<br>
-          [${$scope.lab.research_time/30}s]<br>
+          [${view.$scope.showingEntity.research_time/30}s]<br>
           ${globals.research[globals.research.progressing.name].completeUnits}/
           ${globals.research.progressing.cost.count}
         </span>

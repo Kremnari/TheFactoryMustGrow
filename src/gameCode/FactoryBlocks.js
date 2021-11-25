@@ -8,6 +8,8 @@ IgorJs.setStatic("itemStackCost.resBlock_miner", [{name: "burner-mining-drill", 
 
 const FactoryBlock = {}
 FactoryBlock.New = (params, newObj, Igor) => {
+    let land = Igor.getNamedObject("global").land
+    if(land.total-land.used < 50) return Igor.view.warnToast("Not enough land to build a factory block")
     let features = Igor.getNamedObject("global").activeFeatures.factoryBlocks
     newObj.name = params.name.string
     newObj.size = 50
@@ -60,9 +62,7 @@ FactoryBlock.NewBusCCC.signature = {
 }
 FactoryBlock.NewBusCCC.CC_provide = "facBlock.newBus"
 FactoryBlock.NewResBlock = (params, Igor) => {
-    if(Igor.addNewObject(Igor.getNamedObject("global").facBlocks.resBlocks, "ResourceBlock", params)) {
-        Igor.getNamedObject("global").land.res_patches_used++
-    }
+    Igor.addNewObject(Igor.getNamedObject("global").facBlocks.resBlocks, "ResourceBlock", params)
 }
 FactoryBlock.NewResBlock.signature = {
     name: "string",  //WIP should become resource vein
@@ -471,6 +471,9 @@ IgorJs.defineObj("FactoryLine", FactoryLine.New, FactoryLine)
 
 const FactoryBus = {}
 FactoryBus.New = (params, newObj, Igor) => {
+    let land = Igor.getNamedObject("global").land
+    if(land.total-land.used < 25) return Igor.view.warnToast("Not enough land to build a bus line")
+
     newObj.name = params.name.string
     newObj.size = 25
     newObj.complexity = 5
@@ -704,6 +707,10 @@ IgorJs.defineObj("FactoryBus", FactoryBus.New, FactoryBus)
 
 const ResourceBlock = {}
 ResourceBlock.New = (params, newObj, Igor) => {
+    let land = Igor.getNamedObject("global").land
+    if(land.total-land.used < 50) return Igor.view.warnToast("Not enough land to build a resource block")
+    if(land.res_patches-land.res_patches_used==0) return Igor.view.warnToast("No resource patches available")
+    land.res_patches_used++
     newObj.name = params.name.string
     newObj.patchProperties = {}
     newObj.spaceUsed = 50

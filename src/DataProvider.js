@@ -8,7 +8,8 @@ export let DataProvider = {
   },
   async beginLoad() {
     let ds
-    if(await mgrs.idb.get('last_ds')!=Config.LAST_DS_DB) {
+    let icons
+    if(navigator.onLine && await mgrs.idb.get('last_ds')!=Config.LAST_DS_DB) {
       //console.log("last datasource out of data")
       let url = location.href.slice(0, location.href.lastIndexOf("/"))
       let resp = await fetch(url+"/data_source.json")
@@ -19,20 +20,28 @@ export let DataProvider = {
       //console.log('last datasource up to date')
       ds = await mgrs.idb.get("dataSet")
     }
-    let icons = await mgrs.idb.get("Icons")
-    icons && (ds.icons = icons)
+    if(navigator.onLine && await mgrs.idb.get('last_icon_set')!=Config.LAST_ICON_SET) {
+      let url = location.href.slice(0, location.href.lastIndexOf("/"))
+      let resp = await fetch(url+"/data_icons.json")
+      icons = await resp.json()
+      mgrs.idb.set("last_icon_set", Config.LAST_ICON_SET)
+      mgrs.idb.set("Icons", icons)
+    } else {
+      icons = await mgrs.idb.get("Icons")
+    }
+   
     let save = await mgrs.idb.get("SaveGame") || null
     if(!save) {
       save = await mgrs.idb.get("SaveGame_Igor") || null
       if(save && !save.version) save.version = Config.IDB_SAVE_VERSION
     }
-    DataProvider.init(ds, save)
+    DataProvider.init(ds, icons, save)
   },
-  async init(data, save) {
-    mgrs.icon.import(data.icons)
+  async init(data, icons, save) {
+    mgrs.icon.import(icons)
     mgrs.item.import(data.item)
-    //mgrs.rec.import(data.recipe, mgrs.item)
     mgrs.data = data
+    mgrs
     DataProvider.loadCb({mgrs: mgrs, save: save})
   },
   saveGame(data) {
@@ -44,3 +53,4 @@ export let DataProvider = {
     }
   }
 }
+window.mgrs = mgrs
