@@ -12,6 +12,7 @@ Expansion.Setup = (event, IgorUtil) => {
         landsSurveyed: [],
         foundTotal: 0,
         enemyDepth: 0,
+        enemyDefeated: 0,
         penetrateEnemy: false,
         penetrateDepth: false,
     }
@@ -25,6 +26,29 @@ Expansion.AddRadar = (obj, Igor) => {
 }
 Expansion.AddRadar.signature = {}
 Expansion.AddRadar.CC_provide = "expansion.AddRadar"
+Expansion.Probabilities = (obj, args, retObj, Igor) => {
+    //create base probabilities
+    let scan = Igor.getNamedObject("global").scanning
+    retObj.options = [
+        {item: {type: "empty", strength: false}, weight: 2},
+        {item: {type: "enemy", strength: 100*scan.enemyDefeated}, weight: 4},
+        {item: {type: "resource", strength: false}, weight: 1},
+    ]
+    if(scan.foundTotal<10) {
+        retObj.options.push({item: {type: "empty", strength: false}, weight: 6})
+        retObj.options.push({item: {type: "resource", strength: false}, weight: 2})
+    }
+    if(scan.enemyDepth>3) {
+        retObj.options.push({item: {type: "enemy", strength: 100*scan.enemyDefeated}, weight: 4})
+    }
+
+    retObj.probabilities = retObj.options.map((v, i) => Array(v.weight).fill(i)).reduce((c, v) => c.concat(v), []);
+    if(args.returnItem) {
+        retObj._result = retObj.options[retObj.probabilities[Math.floor((Math.random() * retObj.probabilities.length))]].item
+    }
+}
+Expansion.Probabilities.Igor_operation = "expansion.landProbabilities"
+
 Expansion.RadarTick = (obj, Igor) => {
     //# Magic number for how many ticks it takes to scan
     //# also in html
@@ -40,16 +64,10 @@ Expansion.RadarTick = (obj, Igor) => {
         scan.currentAccum -= scan.nextCost
         scan.nextCost *= 2
         //TODO: Move to probabilities storage on Igor
-        let possibilities = [
-            {item: {type: "empty", strength: false}, weight: 2},
-            {item: {type: "enemy", strength: 100*scan.foundTotal}, weight: 4},
-            {item: {type: "resource", strength: false}, weight: 1},
-        ]
-        let probability = possibilities.map((v, i) => Array(v.weight).fill(i)).reduce((c, v) => c.concat(v), []);
 
         //Random select from probability array
         //TODO: Could change this to a imperative call on Igor Probabilies module
-        let land = possibilities[probability[Math.floor((Math.random() * probability.length))]].item;
+        let land = Igor.processTEMP({}, "expansion.landProbabilities", {returnItem: true})
         land.type=="enemy" && (scan.enemyDepth++);
         scan.enemyDepth==5 && (scan.penetrateEnemy = true)
         scan.landsSurveyed.push(land)
@@ -98,6 +116,7 @@ Offense.Secure = (obj, Igor) => {
             break;
         case "enemy":
             global.scanning.enemyDepth--
+            global.scanning.enemyDefeated++
             global.scanning.penetrateEnemy = false
             break;
     }

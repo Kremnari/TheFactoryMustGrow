@@ -9,15 +9,15 @@
   <div if.bind="!view.ctrl.version" beta mouseenter.trigger="view.unset({which: 'tooltip'})">
     <section class="statusBox"> 
       <div
-        if2.bind="!tooltip && viewPane.main!='facBlocks'"
         if.bind="view.ctrl.statusBox=='statusBox'"
         click.delegate="view.set({type: 'view', which: 'main', what: 'overview'})"
       >
-        status box<br>
-        Land, pollution, enemies, oh my!<br>
+        <div>Land use: ${globals.land.used}</div>
+        <div>Available: ${globals.land.total-globals.land.used}</div>
+  
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
-      <div if2.bind="viewPane.main=='facBlocks' && !tooltip" if.bind="view.ctrl.statusBox=='facBlock'" class="container facBlockStats">
+      <div if.bind="view.ctrl.statusBox=='facBlock'" class="container facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
             <div>Land use: ${globals.land.used}</div>
@@ -84,7 +84,7 @@
         class="fas fa-fighter-jet navOffense ${view.ctrl.main=='offense' && 'selected'}"
       ></span>
     </nav>
-    <main class="tfmg" mouseenter.trigger="view.unset({which: 'tooltip'})">
+    <main class="tfmg">
       <section id="nav" if.bind="view.ctrl.main=='nav'">
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"><span class="fas fa-bars" ></span>Menu</p>
@@ -240,6 +240,7 @@
             <span
               click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'}) })"
+              mouseleave.trigger = "view.unset({which: 'tooltip'})"
               class="newFacBlock resBlock fas fa-plus-square fa_icon_sm"
             ></span><br>
             <div
@@ -415,7 +416,7 @@
       </div>
       <span click.delegate="hideTutorial()" note="off">X</span>
     </div>
-    <div id="ChameleonModal">
+    <div id="ChameleonModal" mouseenter.trigger="view.unset({which:'tooltip'})">
       <div class="center">
         <span id="ChameleonMessage"></span><br>
         <button id="ChameleonButton" class="btn">Close</button>
@@ -444,7 +445,4 @@
     <require from="resources/elements/dataEditor"></require>
     <data-editor></data-editor>
   </div>
-  <!-- div id="loadingAnim">
-    I'm loading!
-  </div -->
 </template>

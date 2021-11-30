@@ -14,13 +14,13 @@
                 <span
                     id="resBlock_miners"
                     click.delegate="CCC.issue('resBlock.buildMine', {}, $event)"
-                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__minerCost', view.$scope.showingBlock.$_id) })"
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__toolTips', view.$scope.showingBlock, {which: 'miner'}) })"
                 >Miners: ${view.$scope.showingBlock.built}</span>
                 <br>
                 <span
                     id="resBlock_foundation"
                     click.delegate="CCC.issue('resBlock.prepSpace', {}, $event)"
-                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__foundationCost', view.$scope.showingBlock.$_id) })"
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('resBlock.__toolTips', view.$scope.showingBlock, {which: 'foundation'}) })"
                 >Foundations: ${view.$scope.showingBlock.prepped}</span>
             </div>
             <div class="col">
@@ -43,7 +43,7 @@
                 <div class="resBlock connection">
                     <span
                         class="fas fa-sign-out-alt fa_icon_sm"
-                        click.delegate="showItem = {item: IgorJs.getObjId(view.$scope.showingBlock.connections.drains[0]), view:'viewFacBlock'}"
+                        click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(view.$scope.showingBlock.connections.drains[0]) })"
                     ></span>
                     <span
                         click.delegate="CCC.issue('factoryBus.connectTo', 

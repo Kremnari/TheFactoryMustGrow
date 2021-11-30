@@ -87,7 +87,7 @@ export const ChameleonViewer = {
     if(ChameleonViewer.$double
         && ChameleonViewer.$double.type==command.type
         && ChameleonViewer.$double.which==command.which
-        && ChameleonViewer.$double.what==command.what) {
+        && ChameleonViewer.$double.what?.$_id==command.what?.$_id) {
       ChameleonViewer.set(command.$double)
       return true;
     }

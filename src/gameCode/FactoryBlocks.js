@@ -1,7 +1,5 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
 
-IgorJs.setStatic("itemStackCost.busExpansion", [{name: "iron-chest", count: 2}])
-IgorJs.setStatic("itemStackCost.busProcessing", [{name: "inserter", count: 2}])
 IgorJs.setStatic("itemStackCost.resBlock_foundation", [{name: "stone", count: 5}, {name: "transport-belt", count: 4}])
 IgorJs.setStatic("itemStackCost.resBlock_miner", [{name: "burner-mining-drill", count: 1}])
 
@@ -9,11 +7,15 @@ IgorJs.setStatic("itemStackCost.resBlock_miner", [{name: "burner-mining-drill", 
 const FactoryBlock = {}
 FactoryBlock.New = (params, newObj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    if(land.total-land.used < 50) return Igor.view.warnToast("Not enough land to build a factory block")
+    let costs = Igor.processTEMP(null, "facBlock.__tooltips",  {which: "factoryBlock"})
+    if(land.total-land.used < costs.landCost) return Igor.view.warnToast("Not enough land to build a new factory block")
+    
     let features = Igor.getNamedObject("global").activeFeatures.factoryBlocks
+    land.used += costs.landCost
+    land.complexity += costs.complexity
     newObj.name = params.name.string
-    newObj.size = 50
-    newObj.complexity = 10
+    newObj.size = costs.landCost
+    newObj.complexity = costs.complexity
     newObj.connections = {
         sources: []
         ,drains: []
@@ -42,6 +44,7 @@ FactoryBlock.New = (params, newObj, Igor) => {
             ,order: newObj.factoryLines.length
         })
     )
+    
     newObj.$_tags.push("tick", "processing")
     return [newObj]
 }
@@ -76,45 +79,50 @@ FactoryBlock.NewTechBlock.signature = {
 }
 FactoryBlock.NewTechBlock.CC_provide = "facBlock.newTechBlock"
 FactoryBlock.__tooltips = (obj, args, retObj, Igor) => {
-    let who = Igor.getId(obj) || null
-    let data = []
-    let tip = ""
-    let tool = "blockCosts"
+    let who = obj ? Igor.getId(obj) : null
+
+    let ret = {
+        tool: "blockCosts",
+        list: [],
+        tip: null,
+    }
+
     switch(args.which) {
         case "resBlock":
-            data.landCost = "resource"
-            data.complexity = 5
-            tip = "Next ResourceBlock"
+            ret.landCost = "resource"
+            ret.complexity = 5
+            ret.tip = "Next ResourceBlock"
             break;
         case "techBlock":
-            data.landCost = 50
-            data.complexity = 5
-            tip = "Next Tech Block"
+            ret.landCost = 10
+            ret.complexity = 5
+            ret.tip = "Next Tech Block"
             break;
         case "busLine":
-            data.landCost = 25
-            data.complexity = 5
-            tip = "Next Bus Line"
+            ret.landCost = 10
+            ret.complexity = 5
+            ret.tip = "Next Bus Line"
             break;
         case "factoryBlock":
-            data.landCost = 50
-            data.complexity = 10
-            tip = "Next Factory Block"
+            ret.landCost = 10
+            ret.complexity = 1
+            ret.tip = "Next Factory Block"
             break;
         case "addLine":
-            data.landCost = "??"
-            data.complexity = "??"
-            tip = "New Factory Line"
+            ret.landCost = 5
+            ret.complexity = 2
+            ret.tip = !args.return ? "New Factory Line" : "Reclaim Factory Line"
             break;
         case 'bufferUpgrade':
-            data = [{name: "iron-chest", count: 1}]
-            tip = "Buffer Upgrade"
-            tool = "stackArray"
+            ret.list = [{name: "iron-chest", count: 1}]
+            ret.tip = "Buffer Upgrade"
+            ret.tool = "stackArray"
             break;
     }
-    retObj._result = {tool, tip, data}
+    retObj._result = ret
 }
 FactoryBlock.__tooltips.CC_utility = "facBlock.__tooltips"
+FactoryBlock.__tooltips.Igor_operation = "facBlock.__tooltips"
 FactoryBlock.tick = (obj, tickData, Igor) => {
     // Process I/O buffers
     if(obj.connections.drains) {
@@ -186,8 +194,10 @@ FactoryBlock.SetConnection.signature = {
 FactoryBlock.SetConnection.CC_provide = "factoryBlock.setConnection"
 
 FactoryBlock.AddFactoryLine = (obj, Igor) => {
-    // obj.at.factoryBlock.complexity
-    // Inventory.consume some cost
+    let cost = Igor.processTEMP(obj.at.factoryBlock, "facBlock.__tooltips", {which: "addLine"})
+    let land = Igor.getNamedObject("global").land
+    if(land.used+cost.landCost>land.total) return Igor.view.warnToast("Not enough land to add factory line")
+    
     obj.at.factoryBlock.factoryLines.push(
         Igor.newComponent("FactoryLine", {
             source: obj.at.factoryBlock.buffers.in
@@ -197,7 +207,11 @@ FactoryBlock.AddFactoryLine = (obj, Igor) => {
             ,order: obj.at.factoryBlock.factoryLines.length || 0
         })
     )
-    // obj.at.factoryBlock.complexity++
+    obj.at.factoryBlock.size += cost.landCost
+    land.used += cost.landCost
+    obj.at.factoryBlock.complexity += cost.complexity
+    land.complexity += cost.complexity
+
     Igor.view.signaler.signal("generalUpdate")
 }
 FactoryBlock.AddFactoryLine.signature = {
@@ -270,6 +284,7 @@ IgorJs.defineObj("FactoryBlock", FactoryBlock.New, FactoryBlock)
 */
 const FactoryLine = {}
 FactoryLine.New = (params, newObj, Igor) => {
+
     newObj.prepped = 0
     newObj.built = 0
     newObj.buildingType = null
@@ -294,19 +309,40 @@ FactoryLine.New.signature = {
 FactoryLine.New._signal = "generalUpdate"
 FactoryLine.__delete = (obj, Igor) => {
     obj.$_tags.delete("tick")
+    let parent = Igor.getId(obj.$_parent)
+    let landGlobal = Igor.getNamedObject("global").land
     obj.recipe && Igor.processTEMP(
         obj.$_parent
         ,"factoryBlock.clearProcessItems"
         ,{lists: obj.processList})
 
-    obj.buildingType && Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
-    let foundation = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation"})
-    if(obj.built+obj.prepped) { Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: foundation.data, multi: obj.built+obj.prepped})}
-    if(obj.processing_count) {
+    if(obj.buildingType) {
+        Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: {name: obj.buildingType, count: obj.built}})
+        obj.prepped += obj.built
+        obj.built = 0
+    } 
+    if(obj.prepped) {
+        let costs = null
+        for(let i = obj.prepped; i>0; i--) {
+            costs = Igor.processTEMP(obj, "factoryLine.toolTips", {which: "foundation", return: true})
+            console.log(costs.list)
+            Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: costs.list })
+            parent.size -= costs.landCost
+            landGlobal.used -= costs.landCost
+            parent.complexity -= costs.complexity
+            landGlobal.complexity -= costs.complexity
+            obj.prepped--
+        }
+    }
+    if(obj.processing_count) { 
         Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: obj.recipe.ingredients, multi: obj.processing_count})
     }
+    let lineCosts = Igor.processTEMP(obj, "facBlock.__tooltips", {which: "addLine", return: true})
+    parent.size -= lineCosts.landCost
+    landGlobal.used -= lineCosts.landCost
+    parent.complexity -= lineCosts.complexity
+    landGlobal.complexity -= lineCosts.complexity
 
-    let parent = Igor.getId(obj.$_parent)
     let idx = parent.factoryLines.indexOf(obj.$_id)
     parent.factoryLines.splice(idx, 1)
     parent.factoryLines.forEach((x, i) => {
@@ -317,13 +353,20 @@ FactoryLine.__delete = (obj, Igor) => {
     Igor.view.signaler.signal("generalUpdate")
 }
 FactoryLine.__delete.Igor_operation = "FactoryLine.delete"
+FactoryLine.BuildingSelectDialog = (options, Igor) => {
+    let ret = {list: [], type: "building", custom: {}}
+    Object.entries(Igor.data.entity).forEach(([key, value]) => {
+        if(!value.crafting_categories) return
+        ret.list.push({name: value.name, space: value.space, categories: value.crafting_categories.join(", "), id: key})
+    })
+    return ret
+}
+FactoryLine.BuildingSelectDialog.CC_dialogList = "building"
 FactoryLine.SetType = (obj, Igor) => {
-    obj.at.factoryLine.buildingType = obj.which.building.name
-    obj.at.factoryLine.crafting_categories = obj.which.building.crafting_categories
-    //Create Lookup by building type
-    obj.at.factoryLine.foundationCost = [
-        {name: "stone", count: 5}
-    ]
+    let data = Igor.data.entity[obj.which.building]
+    obj.at.factoryLine.buildingType = data.name
+    obj.at.factoryLine.crafting_categories = data.crafting_categories
+    obj.at.factoryLine.buildingSize = data.space
 }
 FactoryLine.SetType.signature = {
     at: ["factoryLine", "factoryBlock"],
@@ -331,14 +374,17 @@ FactoryLine.SetType.signature = {
 }
 FactoryLine.SetType.CC_provide = "factoryLine.setBuilding"
 FactoryLine.Prep = (obj, Igor) => {
-    if(!obj.at.factoryLine.foundationCost) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: obj.at.factoryLine.foundationCost})) {
-        obj.at.factoryLine.prepped++
-        obj.at.factoryBlock.size +=10  //# magic number
-        obj.at.factoryBlock.complexity += 5  //# magic number
-    } else {
-        Igor.view.warnToast("Cannot consume foundation costs")
-    }
+    let costs = Igor.processTEMP(obj.at.factoryLine, "factoryLine.toolTips", {which: "foundation"})
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list }))  return Igor.view.warnToast("Cannot consume foundation costs")
+
+    let land = Igor.getNamedObject("global").land
+    if(land.used+costs.landCost>land.total) return Igor.view.errorToast("There is not enough secured land for this")
+
+    obj.at.factoryLine.prepped++
+    obj.at.factoryBlock.size += costs.landCost
+    land.used += costs.landCost
+    obj.at.factoryBlock.complexity += costs.complexity
+    land.complexity += costs.complexity
 }
 FactoryLine.Prep.signature = {
     at: ["factoryLine", "factoryBlock"],
@@ -347,21 +393,19 @@ FactoryLine.Prep.signature = {
 FactoryLine.Prep.CC_provide = "factoryLine.prep"
 FactoryLine.Expand = (obj, Igor) => {
     if(obj.at.factoryLine.prepped==0) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.at.factoryLine.buildingType, count: 1}})) {
-        obj.at.factoryLine.built++
-        obj.at.factoryLine.prepped--
-        if(obj.at.factoryLine.recipe) {
-            if(Number.isInteger(obj.at.factoryLine.processing_ticks)) {
-                let consumed = Igor.processTEMP(obj.at.factoryBlock, "factoryBlock.consumeStacks", {itemStacks: obj.at.factoryLine.recipe.ingredients, multi: 1})
-                if(consumed) {
-                    obj.at.factoryLine.processing_ticks *= (obj.at.factoryLine.built-1)/obj.at.factoryLine.built
-                    obj.at.factoryLine.processing_count++
-                }
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: {name: obj.at.factoryLine.buildingType, count: 1}})) return Igor.view.warnToast("Building not in inventory")
+
+    obj.at.factoryLine.built++
+    obj.at.factoryLine.prepped--
+    if(obj.at.factoryLine.recipe) {
+        if(Number.isInteger(obj.at.factoryLine.processing_ticks)) {
+            let consumed = Igor.processTEMP(obj.at.factoryBlock, "factoryBlock.consumeStacks", {itemStacks: obj.at.factoryLine.recipe.ingredients, multi: 1})
+            if(consumed) {
+                obj.at.factoryLine.processing_ticks *= (obj.at.factoryLine.built-1)/obj.at.factoryLine.built
+                obj.at.factoryLine.processing_count++
             }
-            obj.at.factoryLine.$_tags.push("tick", "processing")
         }
-    } else {
-        Igor.view.warnToast("Building not in inventory")
+        obj.at.factoryLine.$_tags.push("tick", "processing")
     }
 }
 FactoryLine.Expand.signature = {
@@ -409,17 +453,25 @@ FactoryLine.SetRecipe.signature = {
     player: "inventory"
 }
 FactoryLine.SetRecipe.CC_provide = "factoryLine.setRecipe"
-FactoryLine.__tooltips = (obj, args, ret, Igor) => {
-    let who = Igor.getId(obj)
-    let data = []
-    let tip = ""
+FactoryLine.__tooltips = (obj, args, retObj, Igor) => {
+    let who = obj ? Igor.getId(obj) : {prepped: 0, built: 0}
+    let ret = {
+        tool: "blockCosts",
+        list: [],
+    }
     switch(args.which) {
         case "foundation":
-            data.push({name: "stone", count: 5})
-            tip = "Foundation Cost"
+            let count = who.prepped + who.built
+            args.return && count--
+            ret.landCost = who.buildingSize ? who.buildingSize + count : 5
+            ret.complexity = Math.min(Math.floor((who.buildingSize || 4) / 4), 1)
+
+            ret.list.push({name: "stone", count: ret.landCost })
+            ret.list.push({name: "inserter", count: 2})
+            ret.tip = !args.return ? "Foundation Cost" : "Land Refund"
             break;
     }
-    ret._result = {tool: "stackArray", tip, data}
+    retObj._result = ret
 }
 FactoryLine.__tooltips.Igor_operation = "factoryLine.toolTips"
 FactoryLine.__tooltips.CC_utility = "factoryLine.toolTips"
@@ -472,10 +524,11 @@ IgorJs.defineObj("FactoryLine", FactoryLine.New, FactoryLine)
 const FactoryBus = {}
 FactoryBus.New = (params, newObj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    if(land.total-land.used < 25) return Igor.view.warnToast("Not enough land to build a bus line")
-
+    if(land.total-land.used < 10) return Igor.view.warnToast("Not enough land to build a bus line")
+    land.used += 10
+    land.complexity += 5
     newObj.name = params.name.string
-    newObj.size = 25
+    newObj.size = 10
     newObj.complexity = 5
     newObj.connections = {
         sources: []
@@ -530,8 +583,7 @@ FactoryBus.ClearConnection.Igor_operation = "factoryBus.clearConnection"
 FactoryBus.ConnectTo = (obj, Igor) => {
     let bus = Igor.getId(obj.connectTo.factoryBus)
     let block = Igor.getId(obj.connectTo.block)
-    /*
-    TODO
+    /* TODO
     if(obj.connectTo.factoryBus.indexOf("@")>-1) {
         we need to lookup the special bus type
     }
@@ -579,17 +631,23 @@ FactoryBus.ConnectTo.signature = {
 }
 FactoryBus.ConnectTo.CC_provide = "factoryBus.connectTo"
 FactoryBus.ExpandBus = (obj, Igor) => {
-    let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busExpansion")})
-    if(!consumed) return Igor.view.warnToast("Unable to consume costs to expand bus")
+    let land = Igor.getNamedObject("global").land
+    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryLine.toolTips", {which: "expand", dir: obj.dir.string}) 
+
+    if(land.used+costs.landCost>land.max) return Igor.view.warnToast("No more land available")
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list})) return Igor.view.warnToast("Unable to consume costs to expand bus")
+
     if(obj.dir.string=="source") {
         obj.at.factoryBus.connections.maxSources += 1
-        obj.at.factoryBus.complexity += 5
-        obj.at.factoryBus.size += 10
     } else if(obj.dir.string=="drain") {
         obj.at.factoryBus.connections.maxDrains += 1
-        obj.at.factoryBus.size += 10
-        obj.at.factoryBus.complexity += 5
     }
+    obj.at.factoryBus.size += costs.landCost
+    obj.at.factoryBus.complexity += costs.complexity
+    land.used += costs.landCost
+    land.complexity += costs.complexity
+
+
     if(obj.at.factoryBus.connections.maxSources && obj.at.factoryBus.connections.maxDrains) {
         obj.at.factoryBus.$_tags.push("tick", "processing")
     }
@@ -603,17 +661,17 @@ FactoryBus.ExpandBus.signature = {
 } 
 FactoryBus.ExpandBus.CC_provide = "factoryBus.expandBus"
 FactoryBus.ExpandProcessing = (obj, Igor) => {
-    let consumed = Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic("itemStackCost.busProcessing")})
-    if(!consumed) return Igor.view.warnToast("Unable to consume costs to expand bus")
-    if(obj.dir.string=="source") {
-        obj.at.factoryBus.processors.source.xferQty += 2
-        obj.at.factoryBus.size += 10
-        obj.at.factoryBus.complexity += 5
-    } else if(obj.dir.string=="drain") {
-        obj.at.factoryBus.processors.drain.xferQty += 2
-        obj.at.factoryBus.size += 10
-        obj.at.factoryBus.complexity += 5
-    }
+    let land = Igor.getNamedObject("global").land
+    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryLine.toolTips", {which: "processing", dir: obj.dir.string})
+
+    if(land.used+costs.landCost>land.max) return Igor.view.warnToast("No more land available")
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list})) return Igor.view.warnToast("Unable to consume costs to expand bus")
+
+    obj.at.factoryBus.processors[obj.dir.string].xferQty += 2
+    obj.at.factoryBus.size += costs.landCost
+    obj.at.factoryBus.complexity += costs.complexity
+    land.used += costs.landCost
+    land.complexity += costs.complexity
 }
 FactoryBus.ExpandProcessing.signature = {
     at: "factoryBus",
@@ -621,34 +679,49 @@ FactoryBus.ExpandProcessing.signature = {
     player: "inventory"
 }
 FactoryBus.ExpandProcessing.CC_provide = "factoryBus.expandProcessing"
-FactoryBus.__tooltips = (obj, args, ret, Igor) => {
+FactoryBus.__tooltips = (obj, args, retObj, Igor) => {
     if(!obj) return
     let who = Igor.getId(obj)
-    let data = []
-    let tip = ""
-    switch(args.which) {
+    let ret = {
+        tool: "blockCosts",
+        list: []
+    }
+    switch(args.which+args.dir) {
+        case "processingsource":
         case "input_processing":
-            data.push({name: "inserter", count: 2})
-            tip = "Input Processing"
+            ret.list.push({name: "inserter", count: 2})
+            ret.landCost = 2
+            ret.complexity = 1
+            ret.tip = "Input Processing"
             break;
+        case "expandsource":
         case "expand_input_sources":
-            data.push({name: "iron-chest", count: 2})
-            who.connections.maxSources && data.push({name: "transport-belt", count: 5*who.connections.maxSources})
-            tip = "Expand Source Points"
+            ret.list.push({name: "iron-chest", count: 2})
+            who.connections.maxSources && ret.list.push({name: "transport-belt", count: 5*who.connections.maxSources})
+            ret.landCost = 10
+            ret.complexity = 5
+            ret.tip = "Expand Source Points"
             break;
+        case "processingdrain":
         case "output_processing":
-            data.push({name: "inserter", count: 2})
-            tip = "Output Processing"
+            ret.list.push({name: "inserter", count: 2})
+            ret.landCost = 2
+            ret.complexity = 1
+            ret.tip = "Output Processing"
             break;
+        case "expanddrain":
         case "expand_output_drains":
-            data.push({name: "iron-chest", count: 2})
-            who.connections.maxDrains && data.push({name: "transport-belt", count: 5*who.connections.maxDrains})
-            tip = "Expand Drain Points"
+            ret.list.push({name: "iron-chest", count: 2})
+            who.connections.maxDrains && ret.list.push({name: "transport-belt", count: 5*who.connections.maxDrains})
+            ret.landCost = 10
+            ret.complexity = 5
+            ret.tip = "Expand Drain Points"
             break;
         }
-    ret._result = {tool: "stackArray", tip, data}
+    retObj._result = ret
 }
 FactoryBus.__tooltips.CC_utility = "busLine_Costs"
+FactoryBus.__tooltips.Igor_operation = "factoryBus.tooltips"
 FactoryBus.ClearClog = (obj, Igor) => {
     Igor.getId(obj.at.factoryBus.processors.central).items.forEach( (x) => {
         Igor.processTEMP("player.inventory", "inventory.add", {itemStacks: x})
@@ -708,13 +781,13 @@ IgorJs.defineObj("FactoryBus", FactoryBus.New, FactoryBus)
 const ResourceBlock = {}
 ResourceBlock.New = (params, newObj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    if(land.total-land.used < 50) return Igor.view.warnToast("Not enough land to build a resource block")
     if(land.res_patches-land.res_patches_used==0) return Igor.view.warnToast("No resource patches available")
     land.res_patches_used++
     newObj.name = params.name.string
     newObj.patchProperties = {}
-    newObj.spaceUsed = 50
+    newObj.size = 0
     newObj.complexity = 1
+    land.complexity += 1
     newObj.connections = {
         drains: [],
         maxDrains: 1
@@ -751,14 +824,11 @@ ResourceBlock.SetResource.signature = {
 }
 ResourceBlock.SetResource.CC_provide = "resBlock.setResource"
 ResourceBlock.PrepSpace = (obj, Igor) => {
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic('itemStackCost.resBlock_foundation')})) {
-        obj.at.ResourceBlock.prepped++
-        obj.at.ResourceBlock.spaceUsed += 10
-        obj.at.ResourceBlock.complexity += 5
-    } else {
-        Igor.view.warnToast("Unable to consume foundation costs")
-    }
-
+    let costs = Igor.processTEMP(obj.at.ResourceBlock, "resBlock.__toolTips", {which: "foundation"})
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list}))  return Igor.view.warnToast("Unable to consume foundation costs")
+    obj.at.ResourceBlock.prepped++
+    obj.at.ResourceBlock.size += costs.landCost
+    obj.at.ResourceBlock.complexity += costs.complexity
 }
 ResourceBlock.PrepSpace.signature = {
     at: "ResourceBlock",
@@ -767,32 +837,42 @@ ResourceBlock.PrepSpace.signature = {
 ResourceBlock.PrepSpace.CC_provide = "resBlock.prepSpace"
 ResourceBlock.BuildMine = (obj, Igor) => {
     if(obj.at.ResourceBlock.prepped==0) return
-    if(Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: Igor.getStatic('itemStackCost.resBlock_miner')})) {
-        obj.at.ResourceBlock.prepped--
-        obj.at.ResourceBlock.built++
-        Igor.getId(obj.at.ResourceBlock.buffers.out).stackSize += 5
-    } else {
-        return Igor.view.warnToast("Mining drill not available")
-    }
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: [{name: obj.at.ResourceBlock.mining_drill, count: 1}]})) return Igor.view.warnToast("Unable to consume mining drill")
+    obj.at.ResourceBlock.prepped--
+    obj.at.ResourceBlock.built++
+    Igor.getId(obj.at.ResourceBlock.buffers.out).stackSize += 5
 }
 ResourceBlock.BuildMine.signature = {
     at: "ResourceBlock",
     player: "inventory"
 }
 ResourceBlock.BuildMine.CC_provide = "resBlock.buildMine"
-ResourceBlock.__foundationCost = (obj, x_null, ret, Igor) => {
-    let who = Igor.getId(obj)
-    let is = [{name: "stone", count: 5}]
-    is.push({name: "transport-belt", count: Math.floor(who.spaceUsed/10)})
-    ret._result = {tool: 'stackArray', tip: 'Foundation Cost', data: is}
+ResourceBlock.__toolTips = (obj, args, retObj, Igor) => {
+    let who = obj ? Igor.getId(obj) : null
+    let ret = {
+        tool: "stackArray",
+        list: [],
+        tip: null
+    }
+    switch(args.which) {
+        case "foundation":
+            ret.tip = "Foundation Cost"
+            let count = who.built+who.prepped
+            args.return && count--
+            ret.list.push({name: "stone", count: Igor.data.entity[who.mining_drill].space })
+            ret.list.push({name: "transport-belt", count: (count+1)*2})
+            ret.landCost = (count+1)*3
+            ret.complexity = 1
+            break
+        case "miner":
+            ret.tip = "Miner Cost"
+            ret.list.push({name: who.mining_drill, count: 1})
+            break
+    }
+    retObj._result = ret
 }
-ResourceBlock.__foundationCost.CC_utility = "resBlock.__foundationCost"
-ResourceBlock.__minerCost = (obj, args_null, ret, Igor) => {
-    let who = Igor.getId(obj)
-    let is = [{name: who.mining_drill, count: 1}]
-    ret._result = {tool: 'stackArray', tip: 'Foundation Cost', data: is}
-}
-ResourceBlock.__minerCost.CC_utility = "resBlock.__minerCost"
+ResourceBlock.__toolTips.CC_utility = "resBlock.__toolTips"
+ResourceBlock.__toolTips.Igor_operation = "resBlock.__toolTips"
 ResourceBlock.tick = (entity, tickdata, Igor) => {
     if(entity.built==0 || !entity.patchProperties.mining_time) return
     if(entity.mining_ticks==0) {
@@ -814,8 +894,8 @@ IgorJs.defineObj("ResourceBlock", ResourceBlock.New, ResourceBlock)
 const TechBlock = {}
 TechBlock.New = (params, newObj, Igor) => {
     newObj.name = params.name.string
-    newObj.spaceUsed = 50
-    newObj.complexity = 10
+    newObj.spaceUsed = 0
+    newObj.complexity = 1
     newObj.prepped = 0
     newObj.built = 0
     newObj.connections = { sources: [], maxSources: 1}
@@ -832,13 +912,16 @@ TechBlock.New = (params, newObj, Igor) => {
 }
 TechBlock.New._signal = "generalUpdate"
 TechBlock.prepSpace = (obj, Igor) => {
-    if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: Igor.processTEMP(obj.at.techBlock, "techBlock.toolTips", {which: "foundation"}).data })) {
-        obj.at.techBlock.prepped++
-        obj.at.techBlock.spaceUsed += 10
-        obj.at.techBlock.complexity += 5
-    } else {
-        Igor.view.warnToast("Not enough materials for foundation")
-    }
+    let costs = Igor.processTEMP(obj.at.TechBlock, "techBlock.__toolTips", {which: "foundation"})
+    let land = Igor.getNamedObject("global").land
+    if(land.used+costs.landCost > land.total) return Igor.view.warnToast("There is not enough secured land")
+    if(!Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: costs.list })) Igor.view.warnToast("Not enough materials for foundation")
+
+    obj.at.techBlock.prepped++
+    obj.at.techBlock.spaceUsed += costs.landCost
+    land.used += costs.landCost
+    obj.at.techBlock.complexity += costs.complexity
+    land.complexity += costs.complexity
 }
 TechBlock.prepSpace.signature = {
     at: "techBlock"
@@ -846,13 +929,13 @@ TechBlock.prepSpace.signature = {
 TechBlock.prepSpace.CC_provide = "techBlock.prepSpace"
 TechBlock.BuildTech = (obj,Igor) => {
     if(obj.at.techBlock.prepped==0) return
-    if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: Igor.processTEMP(obj.at.techBlock, "techBlock.toolTips", {which: "buildLab"}).data })) {
-        obj.at.techBlock.prepped--
-        obj.at.techBlock.built++
-        Igor.getId(obj.at.techBlock.buffers.in).stackSize += 5
-    } else {
-        Igor.view.warnToast("Not enough materials to build lab")
-    }
+    let costs = Igor.processTEMP(obj.at.techBlock, "techBlock.__toolTips", {which: "buildLab"})
+    if(!Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: costs.list })) Igor.view.warnToast("Not enough materials to build lab")
+
+    obj.at.techBlock.prepped--
+    obj.at.techBlock.built++
+    Igor.getId(obj.at.techBlock.buffers.in).stackSize += 5
+
     if(!obj.at.techBlock.bufferSet) {
         Igor.processTEMP(obj.at.techBlock.buffers.in, "buffer.restrictList", {list: ['automation-science-pack', 'logistic-science-pack']})
         obj.at.techBlock.bufferSet = true
@@ -876,24 +959,26 @@ TechBlock.SetTree.signature = {
     at: 'techBlock'
 }
 TechBlock.SetTree.CC_provide="techBlock.setTree"
-TechBlock.__tooltips = (obj, args, ret, Igor) => {
-    let who = Igor.getId(obj)
-    let data = []
-    let tip = ""
+TechBlock.__tooltips = (obj, args, retObj, Igor) => {
+    let who = who ? Igor.getId(obj) : null
+    let ret = {
+        list: [],
+        tool: 'stackArray',
+    }
     switch(args.which) {
         case 'foundation':
-            data.push({name: "inserter", count: 2})
-            data.push({name: "stone", count: 5})
-            tip = "Lab foundation"
+            ret.list.push({name: "inserter", count: 2})
+            ret.list.push({name: "stone", count: 5})
+            ret.tip = "Lab foundation"
             break;
         case 'buildLab':
-            data.push({name: "lab", count: 1})
-            tip = "Lab building"
+            ret.list.push({name: "lab", count: 1})
+            ret.tip = "Lab building"
             break;
         case 3:
             break;
     }
-    ret._result = {tool: "stackArray", tip, data}
+    ret._result = ret
 }
 TechBlock.__tooltips.Igor_operation = "techBlock.toolTips"
 TechBlock.__tooltips.CC_utility = "techBlock.toolTips"

@@ -153,9 +153,29 @@ function calcTotal(itemStacks, args, returnObj, Igor) {
     }
   }
 }
+function InvCompress(inv, args, returnObj, Igor) {
+  let items = inv.items
+  let itemTotals = {}
+  for (let each of items) {
+    !itemTotals[each.name] && (itemTotals[each.name] = 0)
+    itemTotals[each.name] += each.count
+  }
+  items.splice(0, inv.items.length)
+
+  let count = 0
+  for (let each in itemTotals) {
+    while(itemTotals[each]>0) {
+      count = Math.min(itemTotals[each], inv.stackSize || Igor.data.item[each].stack_size)
+      inv.items.push({name: each, count})
+      itemTotals[each] -= inv.items[inv.items.length-1].count
+    }
+  }
+}
+
 
 import {IgorUtils as IgorJs} from "IgorJs/main"
 IgorJs.addOperation("inventory.add", AddAll)
 IgorJs.addOperation("inventory.consume", ConsumeAll)
 IgorJs.addOperation("inventory.total", calcTotal)
+IgorJs.addOperation("inventory.compress", InvCompress)
 IgorJs.CCC_addUtility("inventory.total", calcTotal)

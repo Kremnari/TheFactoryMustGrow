@@ -3,7 +3,6 @@
   <section
     id="viewBusLine"
     click.capture="CCC.provide($event, 'at', 'factoryBus', view.$scope.showingBlock)"
-    mouseenter2.trigger = "view.unset({which: 'tooltip'})"
     class="container">
     <div class="row">
       <div class="col">
@@ -32,13 +31,16 @@
               item="iron-chest"
               count.bind="view.$scope.buffer.upgrades.bufferSize.count & signal:'generalUpdate'"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.buffer}) })"
+              mouseleave.trigger = "view.unset({which: 'tooltip'})"
               click.delegate="CCC.issue(
                 'entity.bufferUpgrade',
                 {'type.string': 'buffer'
                 ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.buffer}).data
                 }, $event)"
             ></icon-base>
-            Max stackSize: ${view.$scope.buffer.stackSize & signal:'generalUpdate'}
+            Max ${view.$scope.buffer.maxStacks} stacks
+            <span if.bind="view.$scope.buffer.maxStacks<15">(+1@size&gt;${Math.ceil(view.$scope.showingBlock.size/50)*50})</span>
+            of ${view.$scope.buffer.stackSize & signal:'generalUpdate'} items
           </div>
           <span
           class="col"
@@ -53,41 +55,36 @@
             item.bind="item.name"
             count.bind="item.count"
           ></icon-base>
-          <span>
-            Next stack at: ${Math.ceil(view.$scope.showingBlock.size/50)*50}
-          </span>
         </div>
       </div>
     </div>
     <hr class="bus"/>
     <div class="row">
       <div class="col">
-        <div>
-          <h5>Sources</h5>
-          <span
-            class="progressBarBase busLine_expandProcessing"
-            css="border-image-source: linear-gradient(to right, green 0%, green ${view.$scope.showingBlock.processors.source.xferTimer/view.$scope.showingBlock.processors.source.xferTicks*100-10}%, red ${view.$scope.showingBlock.processors.source.xferTimer/view.$scope.showingBlock.processors.source.xferTicks*100+10}%, red )"
-          >Acquisition</span>
-          Qty: ${view.$scope.showingBlock.processors.source.xferQty}
-          <span
-            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'input_processing'}) })"
-            class="busLine_expandProcessing fas fa-plus-square fa_icon_sm"
-          ></span>
-        </div>
-        <span id="busLine_sources">
+        <h5>Sources</h5>
+        <span
+          class="progressBarBase busLine_expandProcessing"
+          css="border-image-source: linear-gradient(to right, green 0%, green ${view.$scope.showingBlock.processors.source.xferTimer/view.$scope.showingBlock.processors.source.xferTicks*100-10}%, red ${view.$scope.showingBlock.processors.source.xferTimer/view.$scope.showingBlock.processors.source.xferTicks*100+10}%, red )"
+          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'source'}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'input_processing'}) })"
+          mouseleave.trigger = "view.unset({which: 'tooltip'})"
+        >
+          Xfer on: ${view.$scope.showingBlock.processors.source.xferQty}
+          <span class="busLine_expandProcessing fas fa-plus-square fa_icon_sm"></span>
+        </span><br>
+        <span
+          id="busLine_sources"
+          click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'expand_input_sources'}) })"
+          mouseleave.trigger = "view.unset({which: 'tooltip'})"
+        >
           Max Sources: ${view.$scope.showingBlock.connections.maxSources}
-          <span 
-            id="busLine_sources_add"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'expand_input_sources'}) })"
-            click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'source'}, $event)"
-            class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"
-          ></span>
+          <span id="busLine_sources_add" class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"></span>
         </span><br>
         <div repeat.for="source of view.$scope.showingBlock.connections.sources">
           <span
             class="fas fa-sign-in-alt fa_icon_sm"
-            click.delegate="showItem = {item: source, view:'viewFacBlock'}"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: source})"
           ></span>
           ${IgorJs.getObjId(source).name}
           <icon-base
@@ -99,26 +96,25 @@
         </div>
       </div>
       <div class="col">
-        <div>
-          <h5 class="text-end">Drains</h5>
-          <span
+        <h5>Drains</h5>
+        <span
           class="progressBarBase busLine_expandProcessing"
           css="border-image-source: linear-gradient(to right, green 0%, green ${view.$scope.showingBlock.processors.drain.xferTimer/view.$scope.showingBlock.processors.drain.xferTicks*100-10}%, red ${view.$scope.showingBlock.processors.drain.xferTimer/view.$scope.showingBlock.processors.drain.xferTicks*100+10}%, red )"
-          >Deposition</span>
-          Qty: ${view.$scope.showingBlock.processors.drain.xferQty}
-          <span
-            class="fas fa-plus-square fa_icon_sm busLine_expandProcessing"
-            click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'output_processing'}) })"
-          ></span>
-        </div>
-        <span id="busLine_drains">
+          click.delegate="CCC.issue('factoryBus.expandProcessing', {'dir.string':'drain'}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'output_processing'}) })"
+          mouseleave.trigger = "view.unset({which: 'tooltip'})"
+        >
+          Xfer off: ${view.$scope.showingBlock.processors.drain.xferQty}
+          <span class="fas fa-plus-square fa_icon_sm busLine_expandProcessing"></span>
+        </span><br>
+        <span
+          id="busLine_drains"
+          click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'expand_output_drains'}) })"
+          mouseleave.trigger = "view.unset({which: 'tooltip'})"
+        >
           Max Drains: ${view.$scope.showingBlock.connections.maxDrains}
-          <span id="busLine_drains_add"
-            click.delegate="CCC.issue('factoryBus.expandBus', {'dir.string':'drain'}, $event)"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('busLine_Costs', view.$scope.showingBlock.$_id, {which: 'expand_output_drains'}) })"
-            class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"
-          ></span>
+          <span id="busLine_drains_add" class="fas fa-plus-square fa_icon_sm busLineTut_addAccessPoint"></span>
         </span>
         <br>
         <div repeat.for="drain of view.$scope.showingBlock.connections.drains">
@@ -132,7 +128,7 @@
           ${IgorJs.getObjId(drain).name}
           <span
             class="fas fa-sign-out-alt fa_icon_sm"
-            click.delegate="showItem = {item: drain, view:'viewFacBlock'}"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: drain})"
           ></span>
         </div>
       </div>

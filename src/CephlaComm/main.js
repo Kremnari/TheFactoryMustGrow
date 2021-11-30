@@ -45,6 +45,7 @@ export const CephlaCommConstructor = {
   initialize(obj) {
     CephlaCommCore.dialogSvc = obj.dialogSvc
     CephlaCommCore.dataSet = obj.dataSet
+    CephlaCommCore.viewer = obj.viewer
   }
 }
 //! Should remove the function call  in `issue`
@@ -111,6 +112,7 @@ export const CephlaCommCaller = {
               found = found.item
             } else if(type=="string") {
               found = prompt("Enter "+specifier+":")
+              CephlaCommCore.viewer.unset({which: 'tooltip'})  // HACKY
               if(!found && !options?.optional) return
             } else if(type=="icon") {
               let list = Object.keys(CephlaCommCore.dataSet.item)
@@ -141,11 +143,8 @@ export const CephlaCommCaller = {
       //   the function code will not have a name reference,
       //   so instead will need to be passed a reference to that object
       //   so it can place/track it's own side effects
-      if((CephlaCommCore.valids[who] && CephlaCommCore.valids[who](args, CephlaCommCore.runner)) || true) {
-        CephlaCommCore.repo[who](args, CephlaCommCore.runner, CephlaCommCore.repo[who])
-      } else {
-        console.log(who+" failed validator")
-      }
+      if(CephlaCommCore.valids[who] && !CephlaCommCore.valids[who](args, CephlaCommCore.runner)) return console.log(who+" failed validator")
+      CephlaCommCore.repo[who](args, CephlaCommCore.runner, CephlaCommCore.repo[who])
     } else {
       CephlaCommCore.repo[who](obj, $evt?.CCC)
     }

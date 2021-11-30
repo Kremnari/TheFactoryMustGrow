@@ -53,7 +53,8 @@ export class App {
       //this.mgrs.Ticker = IgorJs.Ticker
       CC_const.initialize({
         dialogSvc: DS,
-        dataSet: database.mgrs.data
+        dataSet: database.mgrs.data,
+        viewer: ChameView
       })
       gameSetup(IgorJs)
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
@@ -233,6 +234,7 @@ export class App {
         ]
       })
       this.globals.activeFeatures.factoryBlocks = {}
+      this.globals.land.total += 400
       this.signaler.signal("generalUpdate")
     }
 }

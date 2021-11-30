@@ -1,7 +1,7 @@
 <template>
 <scope-var var.bind="view.set({type: 'scope', which: 'inBuffer', what: IgorJs.getObjId(view.$scope.showingBlock.buffers.in) })"></scope-var>
 <scope-var var.bind="view.set({type: 'scope', which: 'outBuffer', what: IgorJs.getObjId(view.$scope.showingBlock.buffers.out) })"></scope-var>
-<section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', view.$scope.showingBlock )" class="container">
+<section id="viewFacBlock" click.capture="CCC.provide($event, 'at', 'factoryBlock', view.$scope.showingBlock )" class="container" mouseenter.trigger="view.unset({which: 'tooltip'})">
   <div class='row'>
     <span class="col">Land Size : ${view.$scope.showingBlock.size}</span>
     <span class="col">
@@ -28,7 +28,7 @@
         >
           <span
             class="fas fa-sign-out-alt fa_icon_sm"
-            click.delegate="showItem = {item: IgorJs.getObjId(view.$scope.showingBlock.connections.sources[sourceIdx]), view:'viewFacBlock'}"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(view.$scope.showingBlock.connections.sources[sourceIdx])})"
           ></span>:
           <span
             class="facBlockIn connection"
@@ -67,7 +67,8 @@
                           ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.showingBlock.buffers.in}).data
                           }, $event)"
             mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.showingBlock.buffers.in}) })"
-          ></icon-base>
+            mouseleave.trigger="view.unset({which: 'tooltip'})"
+            ></icon-base>
           Max Size: ${IgorJs.getObjId(view.$scope.showingBlock.buffers.in).stackSize & signal:'generalUpdate'}
         </span>
       </div>
@@ -83,7 +84,7 @@
         >
           <span
             class="fas fa-sign-in-alt fa_icon_sm"
-            click.delegate="showItem = {item: IgorJs.getObjId(view.$scope.showingBlock.connections.drains[drainIdx]), view:'viewFacBlock'}"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(view.$scope.showingBlock.connections.drains[drainIdx])})"
           ></span>:
           <span
             class="facBlockOut connection"
@@ -122,6 +123,7 @@
                           ,'cost.stacks': CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.showingBlock.buffers.out}).data
                           }, $event)"
             mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock, {which: 'bufferUpgrade', buffer: view.$scope.showingBlock.buffers.out}) })"
+            mouseleave.trigger="view.unset({which: 'tooltip'})"
           ></icon-base>
           Max Size: ${view.$scope.outBuffer.stackSize & signal:'generalUpdate'}
         </span>
@@ -157,7 +159,9 @@
       <span
         if.bind="!line.buildingType"
         todo="building selection dialog needs to be more restricted"
-        click.delegate="CCC.issue('factoryLine.setBuilding', null, $event)"
+        click.delegate="CCC.issue('factoryLine.setBuilding', {
+          'building.dialog': {filters: 'TODO'}
+        }, $event)"
         class="setBuildingType"
       >Set Building Type...</span>
       <span
@@ -172,6 +176,7 @@
       class="col"
       click.delegate="CCC.issue('factoryLine.prep', null, $event)"
       mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('factoryLine.toolTips', line.$_id, {which: 'foundation'}) })"
+      mouseleave.trigger="view.unset({which: 'tooltip'})"
       if.bind="line.buildingType"
     >
       Prepped spaces: ${line.prepped}
@@ -188,6 +193,7 @@
       <span
         class="fas fa-trash-alt"
         click.delegate="CCC.issue('object.delete', {'which.obj': line, 'list.objs': view.$scope.showingBlock.factoryLines}, $event)"
+        mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips', line.$_id, {which: 'addLine', return: true}) })" )
         show.bind="!($first && $last)"
       ></span>
       <span
@@ -197,9 +203,12 @@
       ></span>
     </span>
   </div>
-  <div note="add new line to factory block" class="row">
+  <div
+    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock.$_id, {which: 'addLine'}) })"
+    mouseleave.trigger="view.unset({which: 'tooltip'})"
+    note="add new line to factory block"
+    class="row">
     <span
-      mouseenter.trigger="CCC.utilityFn('facBlock.__tooltips', view.$scope.showingBlock.$_id, {which: 'addLine'})"
       click.delegate="CCC.issue('factoryBlock.addLine', null, $event)"
     >Add Line</span>
   </div>

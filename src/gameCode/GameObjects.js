@@ -9,6 +9,8 @@ const PlayerEntity = (params, newObj, Igor) => {
   //? Copy static data onto entity,
   //? surely there's a better way to do this...
   Object.assign(newObj, Igor.data.entity[params.name])
+  newObj.size = newObj.space
+  delete newObj.space
   if(newObj.subType=="miner" || newObj.subType=="crafter") {
     newObj.buffers.out = Igor.newComponent("entity.buffer", {dir: 'out'}, newObj)
   }
@@ -27,6 +29,7 @@ const PlayerEntity = (params, newObj, Igor) => {
 PlayerEntity._delete = (target, Igor) => {
   target.buffers.in  && Igor.deleteObject(target.buffers.in)
   target.buffers.out && Igor.deleteObject(target.buffers.out)
+  Igor.getNamedObject("global").land.used -= Igor.data.entity[target.name].space
 }
 function EntityResearchTicker(entity, tickData, Igor) {
   let research = Igor.getNamedObject("research").progressing
@@ -177,8 +180,17 @@ const NewEntityBuffer = (params, newObj, Igor) => {
 }
 NewEntityBuffer._delete = (obj, Igor) => {
   let inv = Igor.getNamedObject("player.inventory")
-  obj.upgrades.bufferSize?.count && Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.sizeExpansionCost"), multi: obj.upgrades.bufferSize.count })
-  obj.upgrades.loader?.count     && Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.xferExpansionCost"), multi: obj.upgrades.loader.count })
+  let land = Igor.getNamedObject("global").land
+  if(obj.upgrades.bufferSize?.count) {
+    if(obj.$_parent) { Igor.getId(obj.$_parent).size -= obj.upgrades.bufferSize.count }
+    land.used -= obj.upgrades.bufferSize.count
+    Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.sizeExpansionCost"), multi: obj.upgrades.bufferSize.count })
+  }
+  if(obj.upgrades.loader?.count) {
+    if(obj.$_parent) { Igor.getId(obj.$_parent).size -= obj.upgrades.loader.count }
+    land.used -= obj.upgrades.loader.count
+    Igor.processTEMP(inv, "inventory.add", {itemStacks: Igor.getStatic("entityBuffer.xferExpansionCost"), multi: obj.upgrades.loader.count })
+  }
 }
 const EntityBufferActions = {}
 EntityBufferActions.Collect = (obj, Igor) => {
@@ -240,10 +252,15 @@ IgorJs.setStatic("entity.buffer.BUFFER_SIZE.MAX", 25)
 
 EntityBufferActions.Upgrade = (obj, Igor) => {
   let buffer =  Igor.getId(obj.which.buffer)
+  let land = Igor.getNamedObject("global").land
   if(obj.type.string=="autoload") {
     let cost = obj.cost?.stacks || {name: "inserter", count: 1}
     if(buffer.upgrades.loader?.count>=10) return Igor.view.warnToast("Loaders full")
+    if(land.used>=land.total) return Igor.view.warnToast("No available land")
     if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Inserter required")
+
+    land.used++
+    if(buffer.$_parent) { Igor.getId(buffer.$_parent).size++ }
     !buffer.upgrades.loader && (buffer.upgrades.loader = {count: 0})
     buffer.upgrades.loader.count++
     buffer.xferTimer || (buffer.xferTimer = buffer.xferTicks)
@@ -253,11 +270,19 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
   } else if(obj.type.string=="buffer") {
     let cost = obj.cost?.stacks || {name: "iron-chest", count: 1}
     if(buffer.upgrades.bufferSize?.count>=buffer.upgrades.maxBuffers) return Igor.view.warnToast("Chests full")
+    if(land.used>=land.total) return Igor.view.warnToast("No available land")
     if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Cannot consume upgrade costs")
 
+    land.used++
+    if(buffer.$_parent) {
+      let parent = Igor.getId(buffer.$_parent)
+      parent.size++
+      parent.$_type!="player.entity" && Igor.processTEMP(buffer, "inventory.compress", {})
+    }
     !buffer.upgrades.bufferSize && (buffer.upgrades.bufferSize = {count: 0})
     buffer.upgrades.bufferSize.count++
     buffer.stackSize += Igor.getStatic("entity.buffer.BUFFER_SIZE")[buffer.upgrades.bufferSize.count-1] || Igor.getStatic("entity.buffer.BUFFER_SIZE.MAX")
+
     Igor.getId(buffer.$_parent).$_tags.push("tick", "processing")
   }
 }
@@ -488,8 +513,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
     obj.researched = true
     global.research[obj.name].complete = true
     obj.unlocks.forEach( (item) => {
-      typeof item === 'string' && Igor.processTEMP(null, "recipe.unlock", {item})
-      typeof item === 'object' && Igor.processTEMP(null, "feature.unlock", {item})
+      Igor.processTEMP(null, item.type+".unlock", {item})
     })
     let cost = obj.cost.ingredients.map(([name, qty]) => {return {name, count:qty}})
     //TODO! need to update this to respond to different tech trees
@@ -517,7 +541,7 @@ IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
   //Igor.data.recipe[obj].enabled = true
-  Igor.getNamedObject("global").unlocked_recipes.push(args.item)
+  Igor.getNamedObject("global").unlocked_recipes.push(args.item.name)
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
@@ -547,3 +571,15 @@ const FeatureUnlock = (notUsed, args, returnObj, Igor) => {
   }
 }
 IgorJs.addOperation("feature.unlock", FeatureUnlock)
+IgorJs.addOperation("global.unlock", (notUsed, args, returnObj, Igor) => {
+  let global = Igor.getNamedObject("global")
+  let obj = Object.walkPath(global, args.item.path)
+  
+})
+
+//Unused for now
+IgorJs.addOperation("systems.updateLandUse", (notUsed, args, returnObj, Igor) => {
+  let land = Igor.getNamedObject("global").land
+  let facBlocks = Igor.getNamedObject("global").facBlocks
+
+})

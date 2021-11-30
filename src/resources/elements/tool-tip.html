@@ -19,7 +19,7 @@
     <div if.bind="display.tool=='stackArray'">
       <h5 class="d-inline">${display.tip}:</h5>
       <icon-base
-        repeat.for="item of display.data"
+        repeat.for="item of display.list"
         item.bind="item.name"
         show-name.bind="true"
         required.bind="item.count"
@@ -29,11 +29,11 @@
     <div if.bind="display.tool=='blockCosts'">
       <h5 class="d-inline">${display.tip}:</h5>
       <div class="stackedText">
-        <span>Land: ${display.data.landCost}</span><br>
-        <span>Complexity: +${display.data.complexity}</span>
+        <span>Land: ${display.landCost}</span><br>
+        <span>Complexity: +${display.complexity}</span>
       </div>
       <icon-base
-        repeat.for="item of display.data.items"
+        repeat.for="item of display.list"
         item.bind="item.name"
         show-name.bind="true"
         required.bind="item.count"

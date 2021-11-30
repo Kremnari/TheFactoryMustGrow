@@ -387,8 +387,8 @@ export const IgorRunner = {
     return Object.walkPath(IgorCore.game, IgorCore.namedObjs[who])
   },
   getId: (which, doubleProp) => {
-    if(!doubleProp) return IgorCore.objs.get(which)
-    let obj = IgorCore.objs.get(which)
+    if(!doubleProp) return which.$_id ? which : IgorCore.objs.get(which)
+    let obj = which.$_id ? which : IgorCore.objs.get(which)
     obj = Object.walkPath(obj, doubleProp)
     return IgorCore.objs.get(obj)
   },
@@ -439,6 +439,6 @@ export const IgorRunner = {
     def._signal && IgorCore.graphics.signaler.signal(def._signal)
   }
 }
-
+IgorBuilder.processTEMP = IgorRunner.processTEMP
 
 window.IgorCore = IgorCore

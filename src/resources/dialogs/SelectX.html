@@ -49,6 +49,21 @@
           </div>
         </div>
       </div>
+      <div if.bind="custom && type=='building'" class="container">
+        <div class="row">
+          <div
+            repeat.for="each of list"
+            click.delegate="select(each)"
+            class="${each.name==selected.name && 'selected'} col"
+          >
+            <icon-base item.bind="each"></icon-base>
+          </div>
+        </div>
+        <div if.bind="selected" class="row">
+          ${selected.name}: space used ${selected.space}<br>
+          ${selected.categories}
+        </div>
+      </div>
       <div if.bind="!custom && (list[0].icon || type=='icon')">
         <icon-base
           repeat.for="each of list"

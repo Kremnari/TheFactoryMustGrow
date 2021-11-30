@@ -30,7 +30,7 @@
                     <div class="techBlock connection">
                         <span
                             class="fas fa-sign-in-alt fa_icon_sm "
-                            click.delegate="showItem = {item: IgorJs.getObjId(view.$scope.showingBlock.connections.sources[0]), view:'viewFacBlock'}"
+                            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(view.$scope.showingBlock.connections.sources[0])})"
                         ></span>
                         <span
                             click.delegate="CCC.issue('factoryBus.connectTo',
