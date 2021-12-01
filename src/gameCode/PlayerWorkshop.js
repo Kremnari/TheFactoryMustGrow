@@ -36,16 +36,15 @@ function InventoryPush(obj, Igor) {
   let land = Igor.getNamedObject("global").land
   if(!Igor.data.entity[obj.which.itemStack.name]) return
   // check if there is available land space for new entity
-  if(land.used+Igor.data.entity[obj.which.itemStack.name].space>land.total) return Igor.view.warnToast("Not enough available land")
+  if(land.used + +Igor.data.entity[obj.which.itemStack.name].space>land.total) return Igor.view.warnToast("Not enough available land")
   
   if(obj.which.itemStack.count>0
-    && Igor.data.entity[obj.which.itemStack.name]
     && Igor.addNewObject(obj.to.entities, "player.entity", {
           name: obj.which.itemStack.name,
           idx: entities.length})
   ) {
     obj.which.itemStack.count--
-    Igor.getNamedObject("global").land.used += Igor.data.entity[obj.which.itemStack.name].space
+    Igor.getNamedObject("global").land.used += +Igor.data.entity[obj.which.itemStack.name].space
     Igor.view.signaler.signal("entityUpdate")
     Igor.view.signaler.signal("generalUpdate")
   }

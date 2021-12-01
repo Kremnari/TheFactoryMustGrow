@@ -1,5 +1,6 @@
 import {bindable, } from 'aurelia-framework'
 import {mgrs as MGRS} from 'managers'
+import {ChameleonViewer as ChameView} from 'Chameleon/main'
 
 let mgrs = MGRS
 export class IconBaseCustomElement {
@@ -16,6 +17,9 @@ export class IconBaseCustomElement {
   @bindable showName = false;
   parsedCount = null
   mgrs = mgrs;
+  constructor() {
+    this.view = ChameView
+  }
   bind(bindContext, overContext) {
     if(!this.item) return
     if(typeof this.item === 'string') {

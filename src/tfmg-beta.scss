@@ -64,7 +64,13 @@
         background-color: rgba(40, 167, 69, 0.2);
         color: rgb(40, 167, 69);
       }
-    }  
+    }
+    & .entityTip {
+      & p {
+        margin: 0;
+        padding: 0;
+      }
+    }
   }
   & > nav {
     position:absolute;

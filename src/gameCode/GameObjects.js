@@ -10,7 +10,7 @@ const PlayerEntity = (params, newObj, Igor) => {
   //? surely there's a better way to do this...
   Object.assign(newObj, Igor.data.entity[params.name])
   newObj.size = newObj.space
-  delete newObj.space
+  newObj.space = undefined
   if(newObj.subType=="miner" || newObj.subType=="crafter") {
     newObj.buffers.out = Igor.newComponent("entity.buffer", {dir: 'out'}, newObj)
   }
@@ -574,7 +574,27 @@ IgorJs.addOperation("feature.unlock", FeatureUnlock)
 IgorJs.addOperation("global.unlock", (notUsed, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
   let obj = Object.walkPath(global, args.item.path)
-  
+  if(!obj) return console.warn("Could not find object path", args.item.path)
+  switch(args.item.operation) {
+    case "add":
+      obj[args.item.key] += args.item.value
+      break;
+    case "sub":
+      obj[args.item.key] -= args.item.value
+      break;
+    case "multiply":
+      obj[args.item.key] *= args.item.value
+      break;
+    case "divide":
+      obj[args.item.key] /= args.item.value
+      break;
+    case "exp":
+      obj[args.item.key] = Math.pow(obj, args.item.value)
+      break;
+    case "set":
+      obj[args.item.key] = args.item.value
+      break;
+  }
 })
 
 //Unused for now

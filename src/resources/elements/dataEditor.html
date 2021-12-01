@@ -46,6 +46,7 @@
       <div if.bind="editType=='technology'">
         Enabled: <input type="checkbox" checked.bind="editing.enabled">
         Hidden: <input type="checkbox" checked.bind="editing.hidden"><br>
+        Description: <textarea value.bind="editing.description" rows="6"></textarea><br>
         Prereqs:<textarea value.bind="editing.prerequisites | jsonString" rows="6"></textarea><br>
         Unlocks:<textarea value.bind="editing.unlocks | jsonString" rows="6"></textarea><br>
         Cost: <input type="number" value.bind="editing.cost.count">

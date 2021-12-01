@@ -30,3 +30,10 @@ export class BlobToUrlValueConverter {
     return URL.createObjectURL(blob);
   }
 }
+
+export class NumeralValueConverter {
+  fromView(value, format = null) {
+    if(!value) return
+    return numeral(value).value()
+  }
+}

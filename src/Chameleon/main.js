@@ -66,6 +66,7 @@ export const ChameleonViewer = {
   toastTimer: 0,
 
   set: (command) => {
+    if(command.hasOwnProperty('if') && !command.if) return
     if(command.$double && ChameleonViewer.__checkDouble(command)) return
     switch (command.type) {
       case "view":
