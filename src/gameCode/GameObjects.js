@@ -596,10 +596,3 @@ IgorJs.addOperation("global.unlock", (notUsed, args, returnObj, Igor) => {
       break;
   }
 })
-
-//Unused for now
-IgorJs.addOperation("systems.updateLandUse", (notUsed, args, returnObj, Igor) => {
-  let land = Igor.getNamedObject("global").land
-  let facBlocks = Igor.getNamedObject("global").facBlocks
-
-})

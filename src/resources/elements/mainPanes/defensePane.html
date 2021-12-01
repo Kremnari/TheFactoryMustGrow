@@ -1,9 +1,10 @@
 <template>
   <div class="row defenses">
     <icon-base
-      item="turret"
-      click.delegate="CCC.issue('defense.AddTurret', {}, $event)"
-      count.bind="globals.defense.turrets"
+      repeat.for="turret of globals.defense.turrets"
+      item.bind="turret"
+      click.delegate="CCC.issue('defense.AddTurret', {which: turret.name}, $event)"
+      count.bind="turret.count"
     ></icon-base>
   </div>
   <div class="row infoText">

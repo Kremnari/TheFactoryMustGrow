@@ -33,19 +33,23 @@
         class="pr-5"
       ></icon-base>
     </div>
-    <div if.bind="display.tool=='blockCosts'">
+    <div if.bind="display.tool=='blockCosts'" class="container">
       <h5 class="d-inline">${display.tip}:</h5>
-      <div class="stackedText">
-        <span>Land: ${display.landCost}</span><br>
-        <span>Complexity: +${display.complexity}</span>
-      </div>
-      <icon-base
-        repeat.for="item of display.list"
-        item.bind="item.name"
-        show-name.bind="true"
-        required.bind="item.count"
-        class="pr-5"
-      ></icon-base>
+      <span class="row">
+        <div class="stackedText col">
+          <span>Land: ${display.landCost}</span><br>
+          <span>Complexity: +${display.complexity}</span>
+        </div>
+        <div class="col">
+          <icon-base
+            repeat.for="item of display.list"
+            item.bind="item.name"
+            show-name.bind="true"
+            required.bind="item.count"
+            class="pr-5"
+          ></icon-base>
+        </div>
+      </span>
     </div>
   </div>
 </template>

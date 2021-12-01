@@ -25,10 +25,11 @@
     </div>
     <div class="row" if.bind="globals.activeFeatures.offenseBlocks.offenses">
       <icon-base
-        item="offenseBot"
-        click.delegate="CCC.issue('offense.AddOffenseBot', {}, $event)"
+        repeat.for="each of globals.offenses.bots"
+        item="each"
+        click.delegate="CCC.issue('offense.AddOffenseBot', {which: each.name}, $event)"
         required="10"
-        count.bind="globals.offense.offenseBots"
+        count.bind="each.count"
       ></icon-base>
       Power: ${globals.offense.offenseBots * 10}
     </div>

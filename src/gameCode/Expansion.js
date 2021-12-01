@@ -79,13 +79,13 @@ IgorJs.defineFeature("Expansion", Expansion)
 
 
 const Offense = {}
-Offense.Setup = (event, IgorUtil) => {
+Offense.Setup = (obj, IgorUtil) => {
     let global = IgorUtil.getNamed("global")
     !global.activeFeatures["offenseBlocks"] && (global.activeFeatures.offenseBlocks = {})
     global.activeFeatures.offenseBlocks.offenses = true
-    global.offense = {
-        offenseBots: 0
-    }
+    !global.offense && (global.offense = {bots: {}})
+    obj.addEntity && (global.offense.bots[obj.addEntity] = {name: obj.addEntity, count: 0})
+    obj.addComponent && (global.offense[addComponent] = 0)
 }
 Offense.Setup.Igor_Event = {name: "SetupOffense", type: "FeatureUpdate"}
 Offense.AddOffenseBot = (obj, Igor) => {
@@ -136,11 +136,13 @@ Defense.Setup = (event, IgorUtil) => {
     let global = IgorUtil.getNamed("global")
     !global.activeFeatures["defenseBlocks"] && (global.activeFeatures.defenseBlocks = {})
     global.activeFeatures.defenseBlocks.defense = true
-    global.defense = {
-        turrets: 0,
+    !global.defense && (global.defense = {
+        turrets: {},
         attackWaveTimer: 0,
         nextAttackWave: 100,
-    }
+    })
+    event.addEntity && (global.defense.turrets[event.addEntity] = {name: event.addEntity, count: 0})
+    event.addComponent && (global.defense[addComponent] = 0)
     IgorUtil.addEventHandler("tick", Defense.tick)
 
 }

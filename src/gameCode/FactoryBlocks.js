@@ -8,8 +8,11 @@ const FactoryBlock = {}
 FactoryBlock.New = (params, newObj, Igor) => {
     let land = Igor.getNamedObject("global").land
     let costs = Igor.processTEMP(null, "facBlock.__tooltips",  {which: "factoryBlock"})
-    if(land.total-land.used < costs.landCost) return Igor.view.warnToast("Not enough land to build a new factory block")
-    
+    if(land.total-land.used < costs.landCost) {
+        Igor.view.warnToast("Not enough land to build a new factory block")
+        return [] 
+    }
+
     let features = Igor.getNamedObject("global").activeFeatures.factoryBlocks
     land.used += costs.landCost
     land.complexity += costs.complexity
@@ -463,8 +466,8 @@ FactoryLine.__tooltips = (obj, args, retObj, Igor) => {
         case "foundation":
             let count = who.prepped + who.built
             args.return && count--
-            ret.landCost = who.buildingSize ? who.buildingSize + count : 5
-            ret.complexity = Math.min(Math.floor((who.buildingSize || 4) / 4), 1)
+            ret.landCost = who.buildingSize ? +who.buildingSize + count : 5
+            ret.complexity = Math.min(Math.floor((+who.buildingSize || 4) / 4), 1)
 
             ret.list.push({name: "stone", count: ret.landCost })
             ret.list.push({name: "inserter", count: 2})
@@ -781,7 +784,10 @@ IgorJs.defineObj("FactoryBus", FactoryBus.New, FactoryBus)
 const ResourceBlock = {}
 ResourceBlock.New = (params, newObj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    if(land.res_patches-land.res_patches_used==0) return Igor.view.warnToast("No resource patches available")
+    if(land.res_patches-land.res_patches_used==0) {
+        Igor.view.warnToast("No resource patches available")
+        return []
+    }
     land.res_patches_used++
     newObj.name = params.name.string
     newObj.patchProperties = {}
@@ -859,7 +865,7 @@ ResourceBlock.__toolTips = (obj, args, retObj, Igor) => {
             ret.tip = "Foundation Cost"
             let count = who.built+who.prepped
             args.return && count--
-            ret.list.push({name: "stone", count: Igor.data.entity[who.mining_drill].space })
+            ret.list.push({name: "stone", count: +Igor.data.entity[who.mining_drill].space })
             ret.list.push({name: "transport-belt", count: (count+1)*2})
             ret.landCost = (count+1)*3
             ret.complexity = 1

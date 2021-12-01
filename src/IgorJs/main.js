@@ -415,6 +415,7 @@ export const IgorRunner = {
     let def = IgorCore.metaDefines[objType]
     if(def) {
       let [obj, cmds] = def.new(params, IgorBuilder.newObject(objType, "", target.$_id), IgorBuilder)
+      if(!obj) return false
       target.push(obj.$_id)
       if(IgorCore.object_tickers[objType]) {
         IgorCore.tick_entities.push(obj)
