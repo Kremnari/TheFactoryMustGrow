@@ -1,6 +1,5 @@
 <template>
   <require from="./icon-base.scss"> </require>
-  <span mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: {tool: 'entity', item: mgrs.data.entity[item.name]}, if: hasEntity})" mouseleave.trigger="view.unset({which: 'tooltip'})">
     <div class="${item.filtered && 'ghosted'}">
       <img class="main" src.bind="mgrs.icon.getSrc(item.icon)" height="32px"/>
       <span if.bind="showName" class="nameField">${item.name}</span>
@@ -24,5 +23,4 @@
     <div>
       <span class="animTarget ${item.animClass2}" style.bind="item.animTime"></span>
     </div>
-  </span>
 </template>

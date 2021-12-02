@@ -359,6 +359,12 @@
 .fa_icon_sm {
   font-size: 16px;
 }
+.fa_icon_sm_space {
+  font-size: 16px;
+  &:before {
+    margin-right: 4px;
+  }
+}
 
 //Bootstrap overrides
 .card {

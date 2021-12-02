@@ -53,15 +53,13 @@ icon-base {
       }
     }
   }
-  & > span {
-    & > div {
-      display: inline-block;
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      right: 0px;
-      bottom: 0px;
-    }
+  & > div {
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
   }
   & span.animTarget {
     width: 32px;
@@ -71,7 +69,7 @@ icon-base {
     top: 0px;
   }
 }
-icon-base > span > .modis > span {
+icon-base > .modis > span {
   position: absolute;
   font-size: smaller;
   &.required {

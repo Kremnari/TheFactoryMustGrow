@@ -221,7 +221,6 @@
           </span>
           <div class="entityList">
             <div repeat.for="machina of view.Fn.workshopEntities() & signal:'entityUpdate'">
-              <!-- input type="hidden" value.bind="typeof machina.order=='undefined' && (machina.order=$index)" -->
               <icon-base
                 item.bind="machina"
                 alt-image.bind="machina.processing.icon || machina.processing.name"
@@ -236,13 +235,12 @@
         <h3>Factory Blocks</h3>
         <div class="row">
           <div class="col facBlockList resBlocks">
-            <span>Resources</span>
             <span
               click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'}) })"
               mouseleave.trigger = "view.unset({which: 'tooltip'})"
-              class="newFacBlock resBlock fas fa-plus-square fa_icon_sm"
-            ></span><br>
+              class="newFacBlock resBlock fas fa-plus-square fa_icon_sm_space"
+            > Resources</span><br>
             <div
               repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'generalUpdate'"
               click.delegate="view.set({type:'scope', which: 'showingBlock', what: resBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = resBlock)"
@@ -275,12 +273,11 @@
             >Offenses Bus</div>
           </div>
           <div class="col facBlockList techBlocks">
-            <span>Research</span>
             <span
               click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'}) })"
-              class="newFacBlock techBlock fas fa-plus-square fa_icon_sm"
-            ></span><br>
+              class="newFacBlock techBlock fas fa-plus-square fa_icon_sm_space"
+            > Research</span><br>
             <div
               repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'generalUpdate'"
               click.delegate="view.set({type:'scope', which: 'showingBlock', what: techBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = techBlock)"
@@ -297,12 +294,11 @@
         </div>
         <div class="row">
           <div class="col facBlockList busLines">
-            <span>Factory Buses</span>
             <span
               click.delegate="CCC.issue('facBlock.newBus', {}, $event)"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'}) })"
-              class="newFacBlock busLine fas fa-plus-square fa_icon_sm"
-            ></span><br>
+              class="newFacBlock busLine fas fa-plus-square fa_icon_sm_space"
+            > Factory Buses</span><br>
             <div
               repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'generalUpdate'"
               click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBus, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBus)"
@@ -319,12 +315,11 @@
         </div>
         <div class="row">
           <div class="col facBlockList facBlocks">
-            <span>FactoryBlock</span>
             <span
               click.delegate="CCC.issue('facBlock.newBlock', {}, $event)"
               mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'}) })"
-              class="newFacBlock facBlock fas fa-plus-square fa_icon_sm"
-            ></span><br>
+              class="newFacBlock facBlock fas fa-plus-square fa_icon_sm_space"
+            > Factory Blocks</span><br>
             <div
               repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'generalUpdate'"
               click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBlock)"
@@ -400,13 +395,7 @@
         ${Math.floor(globals.control.bonusTicks/30)} secs
         <span class="fas fa-angle-double-right"></span>
       </div>
-      <inventory
-        items.bind="view.Fn.playerInventory() & signal:'generalUpdate'"
-        click-call.call="CCC.issue('player.inventoryPush', {
-          'which.itemStack': item,
-          'to.entities': globals.player.workshop.entities
-        })"
-        ></inventory>
+      <compose view="./resources/elements/inventory.html"></compose>
     </div>
     <div id="tutorial">
       <scope-var var.bind="Tutorial.checkConditions() & signal:'generalUpdate'"></scope-var>

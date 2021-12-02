@@ -635,8 +635,7 @@ FactoryBus.ConnectTo.signature = {
 FactoryBus.ConnectTo.CC_provide = "factoryBus.connectTo"
 FactoryBus.ExpandBus = (obj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryLine.toolTips", {which: "expand", dir: obj.dir.string}) 
-
+    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryBus.tooltips", {which: "expand"+obj.dir.string}) 
     if(land.used+costs.landCost>land.max) return Igor.view.warnToast("No more land available")
     if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list})) return Igor.view.warnToast("Unable to consume costs to expand bus")
 
@@ -665,7 +664,7 @@ FactoryBus.ExpandBus.signature = {
 FactoryBus.ExpandBus.CC_provide = "factoryBus.expandBus"
 FactoryBus.ExpandProcessing = (obj, Igor) => {
     let land = Igor.getNamedObject("global").land
-    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryLine.toolTips", {which: "processing", dir: obj.dir.string})
+    let costs = Igor.processTEMP(obj.at.factoryBus, "factoryBus.tooltips", {which: "processing"+obj.dir.string})
 
     if(land.used+costs.landCost>land.max) return Igor.view.warnToast("No more land available")
     if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: costs.list})) return Igor.view.warnToast("Unable to consume costs to expand bus")
@@ -689,7 +688,7 @@ FactoryBus.__tooltips = (obj, args, retObj, Igor) => {
         tool: "blockCosts",
         list: []
     }
-    switch(args.which+args.dir) {
+    switch(args.which) {
         case "processingsource":
         case "input_processing":
             ret.list.push({name: "inserter", count: 2})
@@ -920,6 +919,7 @@ TechBlock.New._signal = "generalUpdate"
 TechBlock.prepSpace = (obj, Igor) => {
     let costs = Igor.processTEMP(obj.at.TechBlock, "techBlock.__toolTips", {which: "foundation"})
     let land = Igor.getNamedObject("global").land
+    console.log(costs)
     if(land.used+costs.landCost > land.total) return Igor.view.warnToast("There is not enough secured land")
     if(!Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: costs.list })) Igor.view.warnToast("Not enough materials for foundation")
 
@@ -969,12 +969,14 @@ TechBlock.__tooltips = (obj, args, retObj, Igor) => {
     let who = who ? Igor.getId(obj) : null
     let ret = {
         list: [],
-        tool: 'stackArray',
+        tool: 'blockCosts',
     }
     switch(args.which) {
         case 'foundation':
             ret.list.push({name: "inserter", count: 2})
             ret.list.push({name: "stone", count: 5})
+            ret.complexity = 1
+            ret.landCost = 20
             ret.tip = "Lab foundation"
             break;
         case 'buildLab':
@@ -984,10 +986,10 @@ TechBlock.__tooltips = (obj, args, retObj, Igor) => {
         case 3:
             break;
     }
-    ret._result = ret
+    retObj._result = ret
 }
-TechBlock.__tooltips.Igor_operation = "techBlock.toolTips"
-TechBlock.__tooltips.CC_utility = "techBlock.toolTips"
+TechBlock.__tooltips.Igor_operation = "techBlock.__toolTips"
+TechBlock.__tooltips.CC_utility = "techBlock.__toolTips"
 TechBlock.tick = (obj, tickData, Igor) => {
     let research = Igor.getNamedObject('research').progressing
     if(!research) return (obj.research_ticks = NaN)

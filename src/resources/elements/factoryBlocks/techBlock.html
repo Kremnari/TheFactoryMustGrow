@@ -1,7 +1,6 @@
 <template>
     <section
         click.capture="CCC.provide($event, 'at', 'techBlock', view.$scope.showingBlock)"
-        mouseenter2.trigger = "tooltip = null"
         class="container"
     >
         <div class="row">
@@ -17,12 +16,14 @@
                 <span
                     id="techBlock_labs"
                     click.delegate="CCC.issue('techBlock.buildLab', {}, $event)"
-                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('techBlock.toolTips', view.$scope.showingBlock.$_id, {which: 'buildLab'}) })"
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('techBlock.__toolTips', view.$scope.showingBlock.$_id, {which: 'buildLab'}) })"
+                    mouseleave.trigger="view.unset({which: 'tooltip'})"
                 >Labs: ${view.$scope.showingBlock.built}</span><br>
                 <span
                     id="techBlock_foundation"
                     click.delegate="CCC.issue('techBlock.prepSpace', {}, $event)"
-                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('techBlock.toolTips', view.$scope.showingBlock.$_id, {which: 'foundation'}) })"
+                    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('techBlock.__toolTips', view.$scope.showingBlock.$_id, {which: 'foundation'}) })"
+                    mouseleave.trigger="view.unset({which: 'tooltip'})"
                 >Foundations: ${view.$scope.showingBlock.prepped}</span><br>
             </div>
             <div class="col">

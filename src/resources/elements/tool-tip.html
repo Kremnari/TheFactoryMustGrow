@@ -16,12 +16,22 @@
         <icon-base repeat.for="unlock of display.unlocks" item.bind="unlock" show-name.bind="true"></icon-base>
       </p>
     </div>
-    <div if.bind="display.tool=='entity'" class="entityTip">
-      <h5>${display.item.name}</h5>
-      <p>Space ${display.item.space}</p>
-      <p if.bind="display.item.crafting_categories">Speed: ${display.item.crafting_speed}x | Crafting: ${display.item.crafting_categories}</p>
-      <p if.bind="display.item.inputs">Speed: ${display.item.researching_speed}x | Inputs: ${display.item.inputs}</p>
-      <p if.bind="display.item.resource_categories">Speed: ${display.item.mining_speed}x | Resource Types: ${display.item.resource_categories}</p>
+    <div if.bind="display.tool=='entity'" class="entityTip container">
+      <div class="row"><h5>${display.item.name}</h5></div>
+      <div class="row">
+        <div class="col">
+          <p>Space ${display.item.space}</p>
+          <p if.bind="display.item.crafting_categories">Speed: ${display.item.crafting_speed}x | Crafting: ${display.item.crafting_categories}</p>
+          <p if.bind="display.item.inputs">Speed: ${display.item.researching_speed}x | Inputs: ${display.item.inputs}</p>
+          <p if.bind="display.item.resource_categories">Speed: ${display.item.mining_speed}x | Resource Types: ${display.item.resource_categories}</p>
+        </div>
+        <div class="col" if.bind="display.rec">
+          <icon-base repeat.for="ing of display.rec.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"></icon-base>
+        </div>
+        <div class="col" if.bind="display.rec">
+          =>
+          <icon-base repeat.for="result of display.rec.results | objectValues" item.bind="result.name" count.bind="result.amount"></icon-base>
+      </div>
     </div>
     <div if.bind="display.tool=='stackArray'">
       <h5 class="d-inline">${display.tip}:</h5>
