@@ -278,6 +278,11 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
       let parent = Igor.getId(buffer.$_parent)
       parent.size++
       parent.$_type!="player.entity" && Igor.processTEMP(buffer, "inventory.compress", {})
+      //TODO I hate this, it's cross polution
+      if(parent.clogged) {
+        parent.clogged = false
+        parent.$_tags.push("tick", "processing")
+      }
     }
     !buffer.upgrades.bufferSize && (buffer.upgrades.bufferSize = {count: 0})
     buffer.upgrades.bufferSize.count++
