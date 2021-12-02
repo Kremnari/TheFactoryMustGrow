@@ -16,8 +16,8 @@
         <icon-base repeat.for="unlock of display.unlocks" item.bind="unlock" show-name.bind="true"></icon-base>
       </p>
     </div>
-    <div if.bind="display.tool=='entity'" class="entityTip container">
-      <div class="row"><h5>${display.item.name}</h5></div>
+    <div if.bind="display.tool=='entity' && display.item" class="entityTip container">
+      <div class="row"><h5 class="col">${display.item.name}</h5></div>
       <div class="row">
         <div class="col">
           <p>Space ${display.item.space}</p>

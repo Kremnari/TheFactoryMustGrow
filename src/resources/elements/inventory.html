@@ -10,7 +10,7 @@
       'which.itemStack': item,
       'to.entities': globals.player.workshop.entities
     })"
-    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: {tool: 'recipe/entity', item: mgrs.data.entity[item.name], rec: mgrs.data.recipe[item.name]}})"
+    mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: {tool: 'entity', item: mgrs.data.entity[item.name]}})"
     mouseleave.trigger="view.unset({which: 'tooltip'})"
   ></icon-base>
 </template>
