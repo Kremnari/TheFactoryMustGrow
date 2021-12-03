@@ -2,14 +2,15 @@
   <require from="../value-converters/lib/ObjectFilters"></require>
   <require from="./icon-base"></require>
   <div show.bind="display" class="toolTip">
+    <h5 class="d-inline">${display.tip}${display.name}: </h5>
     <div if.bind="display.type=='recipe'">
-      <h5>${display.name}</h5>
-      <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount" click.delegate="showRec(ing.name)"></icon-base>
+      <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"
+        click.delegate="showRec(ing.name)"></icon-base>
       =>
-      <icon-base repeat.for="result of display.results | objectValues" item.bind="result.name" count.bind="result.amount"></icon-base>
+      <icon-base repeat.for="result of display.results | objectValues" item.bind="result.name"
+        count.bind="result.amount"></icon-base>
     </div>
     <div if.bind="display.type=='technology'">
-      <h5>${display.name}</h5>
       <icon-base repeat.for="unit of display.cost.ingredients" item.bind="unit[0]"></icon-base>
       x${display.cost.count - global.research[display.name].completeUnits}
       <p>
@@ -17,49 +18,46 @@
       </p>
     </div>
     <div if.bind="display.tool=='entity' && display.item" class="entityTip container">
-      <div class="row"><h5 class="col">${display.item.name}</h5></div>
-      <div class="row">
-        <div class="col">
-          <p>Space ${display.item.space}</p>
-          <p if.bind="display.item.crafting_categories">Speed: ${display.item.crafting_speed}x | Crafting: ${display.item.crafting_categories}</p>
-          <p if.bind="display.item.inputs">Speed: ${display.item.researching_speed}x | Inputs: ${display.item.inputs}</p>
-          <p if.bind="display.item.resource_categories">Speed: ${display.item.mining_speed}x | Resource Types: ${display.item.resource_categories}</p>
-        </div>
-        <div class="col" if.bind="display.rec">
-          <icon-base repeat.for="ing of display.rec.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"></icon-base>
-        </div>
-        <div class="col" if.bind="display.rec">
-          =>
-          <icon-base repeat.for="result of display.rec.results | objectValues" item.bind="result.name" count.bind="result.amount"></icon-base>
+    <div class="row">
+      <h5 class="col">${display.item.name}</h5>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>Space ${display.item.space}</p>
+        <p if.bind="display.item.crafting_categories">Speed: ${display.item.crafting_speed}x | Crafting:
+          ${display.item.crafting_categories}</p>
+        <p if.bind="display.item.inputs">Speed: ${display.item.researching_speed}x | Inputs: ${display.item.inputs}
+        </p>
+        <p if.bind="display.item.resource_categories">Speed: ${display.item.mining_speed}x | Resource Types:
+          ${display.item.resource_categories}</p>
+      </div>
+      <div class="col" if.bind="display.rec">
+        <icon-base repeat.for="ing of display.rec.ingredients | objectValues" item.bind="ing.name"
+          count.bind="ing.amount"></icon-base>
+      </div>
+      <div class="col" if.bind="display.rec">
+        =>
+        <icon-base repeat.for="result of display.rec.results | objectValues" item.bind="result.name"
+          count.bind="result.amount"></icon-base>
       </div>
     </div>
-    <div if.bind="display.tool=='stackArray'">
-      <h5 class="d-inline">${display.tip}:</h5>
-      <icon-base
-        repeat.for="item of display.list"
-        item.bind="item.name"
-        show-name.bind="true"
-        required.bind="item.count"
-        class="pr-5"
-      ></icon-base>
     </div>
-    <div if.bind="display.tool=='blockCosts'" class="container">
-      <h5 class="d-inline">${display.tip}:</h5>
-      <span class="row">
-        <div class="stackedText col">
-          <span>Land: ${display.landCost}</span><br>
-          <span>Complexity: +${display.complexity}</span>
-        </div>
-        <div class="col">
-          <icon-base
-            repeat.for="item of display.list"
-            item.bind="item.name"
-            show-name.bind="true"
-            required.bind="item.count"
-            class="pr-5"
-          ></icon-base>
-        </div>
-      </span>
+      <div if.bind="display.tool=='stackArray'">
+        <h5 class="d-inline">${display.tip}:</h5>
+        <icon-base repeat.for="item of display.list" item.bind="item.name" show-name.bind="true"
+          required.bind="item.count" class="pr-5"></icon-base>
+      </div>
+      <div if.bind="display.tool=='blockCosts'" class="container">
+        <span class="row">
+          <div class="stackedText col">
+            <span>Land: ${display.landCost}</span><br>
+            <span>Complexity: +${display.complexity}</span>
+          </div>
+          <div class="col">
+            <icon-base repeat.for="item of display.list" item.bind="item.name" show-name.bind="true"
+              required.bind="item.count" class="pr-5"></icon-base>
+          </div>
+        </span>
+      </div>
     </div>
-  </div>
 </template>

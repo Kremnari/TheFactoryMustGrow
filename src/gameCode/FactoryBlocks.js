@@ -855,7 +855,7 @@ ResourceBlock.BuildMine.CC_provide = "resBlock.buildMine"
 ResourceBlock.__toolTips = (obj, args, retObj, Igor) => {
     let who = obj ? Igor.getId(obj) : null
     let ret = {
-        tool: "stackArray",
+        tool: "blockCosts",
         list: [],
         tip: null
     }
