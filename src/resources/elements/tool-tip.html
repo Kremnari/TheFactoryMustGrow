@@ -1,11 +1,12 @@
 <template>
   <require from="../value-converters/lib/ObjectFilters"></require>
   <require from="./icon-base"></require>
+  <scope-var var.bind="display = view.$scope.tooltip"
   <div show.bind="display" class="toolTip">
-    <h5 class="d-inline">${display.tip}${display.name}: </h5>
+    <h5 class="d-inline">${display.tip}${display.item.name}: </h5>
     <div if.bind="display.type=='recipe'">
       <icon-base repeat.for="ing of display.ingredients | objectValues" item.bind="ing.name" count.bind="ing.amount"
-        click.delegate="showRec(ing.name)"></icon-base>
+        click2.delegate="showRec(ing.name)"></icon-base>
       =>
       <icon-base repeat.for="result of display.results | objectValues" item.bind="result.name"
         count.bind="result.amount"></icon-base>
@@ -19,11 +20,12 @@
     </div>
     <div if.bind="display.tool=='entity' && display.item" class="entityTip container">
     <div class="row">
-      <h5 class="col">${display.item.name}</h5>
-    </div>
-    <div class="row">
       <div class="col">
-        <p>Space ${display.item.space}</p>
+        <p>Space ${display.item.space}
+          <span
+            class="${display.item.space > globals.land.total - globals.land.used ? 'text-danger' : 'text-success'}"
+          >(${globals.land.total - globals.land.used})</span>
+        </p>
         <p if.bind="display.item.crafting_categories">Speed: ${display.item.crafting_speed}x | Crafting:
           ${display.item.crafting_categories}</p>
         <p if.bind="display.item.inputs">Speed: ${display.item.researching_speed}x | Inputs: ${display.item.inputs}

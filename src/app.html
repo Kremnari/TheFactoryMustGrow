@@ -29,12 +29,10 @@
           </div>
         </div>
       </div>
-      <tool-tip
-        display.bind="view.$scope.tooltip"
-        item-mgr.bind="mgrs.item"
-        recipe-mgr.bind="mgrs.rec"
+      <compose
         if.bind="view.ctrl.statusBox=='tooltip'"
-      ></tool-tip>
+        view="./resources/elements/tool-tip.html"
+      ></compose>
       <div id="toaster">
         <require from="./resources/elements/micro/toasted.html"></require>
         <div
