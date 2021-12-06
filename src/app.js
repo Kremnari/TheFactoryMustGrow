@@ -133,11 +133,8 @@ export class App {
         return list
       })
     }
-    hoverTest () {
-      alert("test")
-    }
     //! NUKE in favor of chameView
-    set showTech(tech) {
+    set showTechX(tech) {
       console.error("SHOWEDTECH")
       this.viewPane.showingTech = null
       tech && window.setTimeout( () => {
@@ -145,7 +142,7 @@ export class App {
       })
     }
     //! NUKE in favor of chameView
-    set showItem(obj) {
+    set showItemX(obj) {
       console.error("SHOWEDITEM")
       if(!obj.item) return
       if(typeof obj.item == "string" && obj.item.includes("id")) {
@@ -233,6 +230,7 @@ export class App {
           {name: 'transport-belt', count: 100}
         ]
       })
+      this.showAllTechs = true
       this.globals.activeFeatures.factoryBlocks = {}
       this.globals.land.total += 400
       this.signaler.signal("generalUpdate")

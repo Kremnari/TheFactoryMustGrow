@@ -518,7 +518,13 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
     obj.researched = true
     global.research[obj.name].complete = true
     obj.unlocks.forEach( (item) => {
-      Igor.processTEMP(null, item.type+".unlock", {item})
+      if(item.feature) {
+        Igor.checkAndEmit("system_update", item.feature, item)
+      } else if(item.type=="recipe") {
+        Igor.getNamedObject("global").unlocked_recipes.push(item.name)
+      } else {
+        Igor.processTEMP(null, item.type+".unlock", {item})
+     }
     })
     let cost = obj.cost.ingredients.map(([name, qty]) => {return {name, count:qty}})
     //TODO! need to update this to respond to different tech trees
@@ -546,33 +552,14 @@ IgorJs.addOperation("research.update", ResearchUpdate)
 
 const RecipeUnlock = (obj, args, returnObj, Igor) => {
   //Igor.data.recipe[obj].enabled = true
-  Igor.getNamedObject("global").unlocked_recipes.push(args.item.name)
+  
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
 
-const FeatureUnlock = (notUsed, args, returnObj, Igor) => {
-  let features = Igor.getNamedObject("global").activeFeatures
-  let obj = args.item
-  if(!features[obj.feature]) {
-    if(!Igor.checkAndEmit("FeatureUpdate", (check) => {return check.name=="Setup"+obj.feature}, obj)) {
-      features[obj.feature] = obj
-    }
-  } else {
-    //! needs something more elegant...
-    if(obj.feature=="factoryBlocks") {
-      let blocks = Igor.getNamedObject("global").facBlocks.blocks
-      if(obj.blocksMaxSources) {
-        blocks.forEach( (id) => {
-          Igor.getId(id).connections.maxSources = obj.blocksMaxSources
-        })
-      }
-      if(obj.blocksMaxDrains) {
-        blocks.forEach( (id) => {
-          Igor.getId(id).connections.maxDrains = obj.blocksMaxDrains
-        })
-      }
-    }
-    Object.assign(features[obj.feature], obj)
+const FeatureUnlock = (obj, args, returnObj, Igor) => {
+  //TODO move this back into ResearchUpdate
+  if(!Igor.checkAndEmit("system_update", obj.feature, obj)) {
+    console.warn("System_update: "+obj.feature+" not found")
   }
 }
 IgorJs.addOperation("feature.unlock", FeatureUnlock)

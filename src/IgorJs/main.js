@@ -152,11 +152,8 @@ export const IgorUtils = {
         obj.CC_utility && IgorUtils.CCC_addUtility(obj.CC_utility, obj)
         obj.CC_dialogList && IgorUtils.CCC_addUtility(obj.CC_dialogList, obj)
         if(obj.Igor_Event) {
-          !IgorCore.eventHandlers[obj.Igor_Event.type] && (IgorCore.eventHandlers[obj.Igor_Event.type] = [])
-          IgorCore.eventHandlers[obj.Igor_Event.type].push({
-            fn: obj,
-            data: obj.Igor_Event
-          })
+          !IgorCore.eventHandlers[obj.Igor_Event.type] && (IgorCore.eventHandlers[obj.Igor_Event.type] = {})
+          IgorCore.eventHandlers[obj.Igor_Event.type][obj.Igor_Event.name] = obj
         }
       }
     })
@@ -350,21 +347,26 @@ export const IgorUtils = {
 //  Igor environment
 //The IgorRunner is passed to GameObjectActionFunctions so they may emit events or get data
 export const IgorRunner = {
-  checkAndEmit: (which, validator_CB, data) => {
+  checkAndEmit: (className, validator, data) => {
     //I emit events into Igor
     let found = false
-    IgorCore.eventHandlers[which].forEach( (event) => {
-      if(validator_CB(event.data)) {
-        event.fn(data, IgorUtils)
-        found = true
-      }
-    })
-    return found
+    if(typeof validator=="string") {
+      IgorCore.eventHandlers[className][validator](data, IgorRunner)
+    } else {
+      IgorCore.eventHandlers[className].forEach( (event) => {
+        if(validator_CB(event.data)) {
+          event.fn(data, IgorRunner)
+          found = true
+        }
+      })
+      return found
+    }
   },
   get data() { return IgorCore.data },
   get view() { return IgorCore.graphics },
   get config() { return IgorCore.config },
   get ticker() { return IgorCore.ticker },
+
   processTEMP: (obj, op, args) => {
     let ret = {}
     if(typeof obj == "string") {
@@ -410,6 +412,13 @@ export const IgorRunner = {
       debugger
       return false
     }
+  },
+  addEventHandler: (name, cb) => {
+    if(!IgorCore.eventHandlers[name]) {
+      IgorCore.eventHandlers[name] = []
+
+    }
+    IgorCore.eventHandlers[name].push(cb)
   },
   addNewObject: (target, objType, params ) => {
     let def = IgorCore.metaDefines[objType]

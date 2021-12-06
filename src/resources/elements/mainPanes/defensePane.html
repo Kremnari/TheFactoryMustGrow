@@ -1,16 +1,18 @@
 <template>
-  <div class="row defenses">
-    <icon-base
-      repeat.for="turret of globals.defense.turrets"
-      item.bind="turret"
-      click.delegate="CCC.issue('defense.AddTurret', {which: turret.name}, $event)"
-      count.bind="turret.count"
-    ></icon-base>
-  </div>
-  <div class="row infoText">
-    Time to next attack: <span class="time">~${globals.defense.nextAttackSecs}s</span>
-  </div>
-  <div class="row enemyWave">
+  <div class="container">
+    <div class="row defenses">
+      <icon-base
+        repeat.for="turret of globals.defense.turrets | objectValues"
+        item.bind="turret"
+        click.delegate="CCC.issue('defense.AddTurret', {which: turret.name}, $event)"
+        count.bind="turret.count"
+      ></icon-base>
+    </div>
+    <div class="row infoText">
+      Time to next attack: <span class="time">~${globals.defense.nextAttackSecs}s</span>
+    </div>
+    <div class="row enemyWave">
 
+    </div>
   </div>
 </template>

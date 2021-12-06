@@ -23,17 +23,18 @@
         </ul>
       </div>
     </div>
-    <div class="row" if.bind="globals.activeFeatures.offenseBlocks.offenses">
-      <icon-base
-        repeat.for="each of globals.offenses.bots"
-        item="each"
-        click.delegate="CCC.issue('offense.AddOffenseBot', {which: each.name}, $event)"
-        required="10"
-        count.bind="each.count"
-      ></icon-base>
-      Power: ${globals.offense.offenseBots * 10}
+    <div class="row" if.bind="globals.activeFeatures.offenseBlocks.offense">
+      <span repeat.for="each of globals.offense.bots | objectValues">
+        <icon-base
+          item.bind="each.name"
+          click.delegate="CCC.issue('offense.AddOffenseBot', {'which.string': each.name}, $event)"
+          required="10"
+          count.bind="each.count"
+        ></icon-base>
+        Power: ${each.count * 10}
+      </span>
     </div>
-    <div class="row" if.bind="globals.offense.attacking">
+    <div class="row" if.bind="globals.scanning.landsSurveyed[0]">
       <div class="col" if.bind="globals.scanning.landsSurveyed[0].type=='enemy'">
         Strength: ${globals.scanning.landsSurveyed[0].strength}
         <span

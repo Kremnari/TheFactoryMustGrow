@@ -1,7 +1,7 @@
 <template>
   <require from="../value-converters/lib/ObjectFilters"></require>
   <require from="./icon-base"></require>
-  <scope-var var.bind="display = view.$scope.tooltip"
+  <scope-var var.bind="display = view.$scope.tooltip"></scope-var>
   <div show.bind="display" class="toolTip">
     <h5 class="d-inline">${display.tip}${display.item.name}: </h5>
     <div if.bind="display.type=='recipe'">

@@ -126,6 +126,28 @@ FactoryBlock.__tooltips = (obj, args, retObj, Igor) => {
 }
 FactoryBlock.__tooltips.CC_utility = "facBlock.__tooltips"
 FactoryBlock.__tooltips.Igor_operation = "facBlock.__tooltips"
+FactoryBlock.SetupSystem = (obj, Igor) => {
+
+}
+FactoryBlock.SetupSystem.Igor_Event = {system: "facBlock", event: "system_setup"}
+FactoryBlock.FeatureUpdate = (obj, Igor) => {
+    if(obj.feature=="factoryBlocks") {
+        let blocks = Igor.getNamedObject("global").facBlocks.blocks
+        if(obj.blocksMaxSources) {
+          blocks.forEach( (id) => {
+            Igor.getId(id).connections.maxSources = obj.blocksMaxSources
+          })
+        }
+        if(obj.blocksMaxDrains) {
+          blocks.forEach( (id) => {
+            Igor.getId(id).connections.maxDrains = obj.blocksMaxDrains
+          })
+        }
+      }
+      Object.assign(features[obj.feature], obj)
+  
+}
+FactoryBlock.FeatureUpdate.Igor_Event = {name: "facBlock", event: "system_update"}
 FactoryBlock.tick = (obj, tickData, Igor) => {
     // Process I/O buffers
     if(obj.connections.drains) {

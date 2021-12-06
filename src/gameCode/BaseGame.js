@@ -24,10 +24,6 @@ const newGame = {
         research: 100,
       }
     },
-    scanning: {
-      nextCost: 100,
-      currentCost: 0
-    },
     attackWaves: {
       nextTimer: 100,
       nextStrength: 100,

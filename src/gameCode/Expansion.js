@@ -1,8 +1,8 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
 
 const Expansion = {}
-Expansion.Setup = (event, IgorUtil) => {
-    let global = IgorUtil.getNamed("global")
+Expansion.Setup = (obj,  Igor) => {
+    let global = Igor.getNamedObject("global")
     !global.activeFeatures["offenseBlocks"] && (global.activeFeatures.offenseBlocks = {})
     global.activeFeatures.offenseBlocks.radar = true
     global.scanning = {
@@ -16,13 +16,17 @@ Expansion.Setup = (event, IgorUtil) => {
         penetrateEnemy: false,
         penetrateDepth: false,
     }
-    IgorUtil.addEventHandler("tick", Expansion.RadarTick)
 }
-Expansion.Setup.Igor_Event = {name: "SetupExpansion", type: "FeatureUpdate"}
+Expansion.Setup.Igor_Event = {name: "Expansion", type: "system_setup"}
+Expansion.FeatureUpdate = (event, Igor) => {
+    let global = Igor.getNamedObject("global")
+    !global.scanning && (Igor.checkAndEmit("system_setup", "Expansion"))
+    Igor.addEventHandler("tick", Expansion.RadarTick)
+}
+Expansion.FeatureUpdate.Igor_Event = {name: "Expansion", type: "system_update"}
 Expansion.AddRadar = (obj, Igor) => {
-    if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: {name: "radar", count: 1}})) {
-        Igor.getNamedObject("global").scanning.radarCount++
-    }
+    if(!Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: {name: "radar", count: 1}})) return Igor.view.warnToast("No radar in inventory")
+    Igor.getNamedObject("global").scanning.radarCount++
 }
 Expansion.AddRadar.signature = {}
 Expansion.AddRadar.CC_provide = "expansion.AddRadar"
@@ -31,7 +35,7 @@ Expansion.Probabilities = (obj, args, retObj, Igor) => {
     let scan = Igor.getNamedObject("global").scanning
     retObj.options = [
         {item: {type: "empty", strength: false}, weight: 2},
-        {item: {type: "enemy", strength: 100*scan.enemyDefeated}, weight: 4},
+        {item: {type: "enemy", strength: 100*(scan.enemyDefeated+1)}, weight: 4},
         {item: {type: "resource", strength: false}, weight: 1},
     ]
     if(scan.foundTotal<10) {
@@ -39,7 +43,7 @@ Expansion.Probabilities = (obj, args, retObj, Igor) => {
         retObj.options.push({item: {type: "resource", strength: false}, weight: 2})
     }
     if(scan.enemyDepth>3) {
-        retObj.options.push({item: {type: "enemy", strength: 100*scan.enemyDefeated}, weight: 4})
+        retObj.options.push({item: {type: "enemy", strength: 150*(scan.enemyDefeated+1)}, weight: 4})
     }
 
     retObj.probabilities = retObj.options.map((v, i) => Array(v.weight).fill(i)).reduce((c, v) => c.concat(v), []);
@@ -79,30 +83,37 @@ IgorJs.defineFeature("Expansion", Expansion)
 
 
 const Offense = {}
-Offense.Setup = (obj, IgorUtil) => {
-    let global = IgorUtil.getNamed("global")
+Offense.Setup = (obj, Igor) => {
+    let global = Igor.getNamedObject("global")
     !global.activeFeatures["offenseBlocks"] && (global.activeFeatures.offenseBlocks = {})
-    global.activeFeatures.offenseBlocks.offenses = true
+    global.activeFeatures["offenseBlocks"].offense = true
     !global.offense && (global.offense = {bots: {}})
+}
+Offense.Setup.Igor_Event = {name: "Offense", type: "system_setup"}
+Offense.FeatureUpdate = (obj, Igor) => {
+    let global = Igor.getNamedObject("global")
+    if(!global.offense) Igor.checkAndEmit("system_setup", "Offense")
     obj.addEntity && (global.offense.bots[obj.addEntity] = {name: obj.addEntity, count: 0})
     obj.addComponent && (global.offense[addComponent] = 0)
 }
-Offense.Setup.Igor_Event = {name: "SetupOffense", type: "FeatureUpdate"}
+Offense.FeatureUpdate.Igor_Event = {name: "Offense", type: "system_update"}
 Offense.AddOffenseBot = (obj, Igor) => {
-    if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: {name: "offenseBot", count: 1}})) {
-        Igor.getNamedObject("global").offense.offenseBots++
+    if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: {name: obj.which.string, count: 1}})) {
+        Igor.getNamedObject("global").offense.bots[obj.which.string].count++
     }
 }
-Offense.AddOffenseBot.signature = {}
+Offense.AddOffenseBot.signature = {
+    which: "string"
+}
 Offense.AddOffenseBot.CC_provide = "offense.AddOffenseBot"
 Offense.Attack = (obj, Igor) => {
     let global = Igor.getNamedObject("global")
     let land = global.scanning.landsSurveyed[0]
     if(land.type!="enemy") return
-    let diff = land.strength - (global.offense.offenseBots*10)
+    let diff = land.strength - (global.offense.bots.offenseBots*10)
     
     land.strength = Math.max(diff, 0)
-    global.offense.offenseBots = Math.abs(Math.min(0, diff/10))
+    global.offense.bots.offenseBots = Math.abs(Math.min(0, diff/10))
 }
 Offense.Attack.signature = {}
 Offense.Attack.CC_provide = "offense.Attack"
@@ -122,7 +133,7 @@ Offense.Secure = (obj, Igor) => {
     }
     global.land.total += 100
     Igor.view.goodToast("Land secured")
-    scan.penetrateDepth = false
+    global.scanning.penetrateDepth = false
     global.scanning.landsSurveyed.shift()
     Igor.view.signaler.signal("updateEnemy")
 }
@@ -132,24 +143,27 @@ Offense.Secure.CC_provide = "offense.Secure"
 IgorJs.defineFeature("Offense", Offense)
 
 const Defense = {}
-Defense.Setup = (event, IgorUtil) => {
-    let global = IgorUtil.getNamed("global")
-    !global.activeFeatures["defenseBlocks"] && (global.activeFeatures.defenseBlocks = {})
-    global.activeFeatures.defenseBlocks.defense = true
+Defense.Setup = (event, Igor) => {
+    let global = Igor.getNamedObject("global")
+    !global.activeFeatures["defenseBlocks"] && (global.activeFeatures.defenseBlocks = {defense: true})
     !global.defense && (global.defense = {
         turrets: {},
         attackWaveTimer: 0,
         nextAttackWave: 100,
     })
+}
+Defense.Setup.Igor_Event = {name: "Defense", type: "system_setup"}
+Defense.FeatureUpdate = (event, Igor) => {
+    let global = Igor.getNamedObject("global")
+    if(!global.activeFeatures["defenseBlocks"]) Igor.checkAndEmit("system_setup", "Defense")
     event.addEntity && (global.defense.turrets[event.addEntity] = {name: event.addEntity, count: 0})
     event.addComponent && (global.defense[addComponent] = 0)
-    IgorUtil.addEventHandler("tick", Defense.tick)
-
+    Igor.addEventHandler("tick", Defense.tick)
 }
-Defense.Setup.Igor_Event = {name: "SetupDefense", type: "FeatureUpdate"}
+Defense.FeatureUpdate.Igor_Event = {name: "Defense", type: "system_update"}
 Defense.addTurret = (obj, Igor) => {
     if(Igor.processTEMP("player.inventory", "inventory.consume", {itemStacks: {name: "turret", count: 1}})) {
-        Igor.getNamedObject("global").defense.turrets++
+        Igor.getNamedObject("global").defense.turrets["turret"].count++
     }
 }
 Defense.addTurret.signature = {}
