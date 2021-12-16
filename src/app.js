@@ -209,7 +209,7 @@ export class App {
     nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
     hideTutorial() { Tutorial.clearTut() }
     jumpTutorial() { 
-      this.globals.activeFeatures.factoryBlocks = {}
+      this.IgorRunner.checkAndEmit("system_update", "facBlock", {})
       this.globals.activeFeatures.tutorial = {step: 49};
       Tutorial.jump(this)
     }

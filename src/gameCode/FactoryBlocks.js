@@ -137,27 +137,26 @@ FactoryBlock.SetupSystem = (obj, Igor) => {
         resBlocks: [],
         buses: [],
         blocks: [],
-        techBlocks: []
+        techBlocks: [],
+        setup: true,
       } 
 }
 FactoryBlock.SetupSystem.Igor_Event = {name: "facBlock", type: "system_setup"}
 FactoryBlock.FeatureUpdate = (obj, Igor) => {
     let global = Igor.getNamedObject("global")
-    if(!global.activeFeatures.factoryBlocks) Igor.checkAndEmit("system_setup", "facBlock")
-    if(obj.feature=="factoryBlocks") {
-        let blocks = Igor.getNamedObject("global").facBlocks.blocks
-        if(obj.blocksMaxSources) {
-          blocks.forEach( (id) => {
+    if(!global.activeFeatures.factoryBlocks.setup) Igor.checkAndEmit("system_setup", "facBlock")
+    let blocks = Igor.getNamedObject("global").facBlocks.blocks
+    if(obj?.blocksMaxSources) {
+        blocks.forEach( (id) => {
             Igor.getId(id).connections.maxSources = obj.blocksMaxSources
-          })
-          global.activeFeatures.factoryBlocks.blocksMaxSources = obj.blocksMaxSources
-        }
-        if(obj.blocksMaxDrains) {
-          blocks.forEach( (id) => {
+        })
+        global.activeFeatures.factoryBlocks.blocksMaxSources = obj.blocksMaxSources
+    }
+    if(obj?.blocksMaxDrains) {
+        blocks.forEach( (id) => {
             Igor.getId(id).connections.maxDrains = obj.blocksMaxDrains
-          })
-          global.activeFeatures.factoryBlocks.blocksMaxDrains = obj.blocksMaxDrains
-        }
+        })
+        global.activeFeatures.factoryBlocks.blocksMaxDrains = obj.blocksMaxDrains
     }
 }
 FactoryBlock.FeatureUpdate.Igor_Event = {name: "facBlock", type: "system_update"}

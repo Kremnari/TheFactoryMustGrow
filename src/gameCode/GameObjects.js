@@ -512,7 +512,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
   global.research[obj.name].completeUnits += args.count || 1
   if(global.research[obj.name].completeUnits>=obj.cost.count) {
-    Igor.view.goodToast("Research Complete: "+obj.name, null, "filter fa-rotate-180")
+    Igor.view.goodToast("Research Complete: "+obj.name, null, "fa-filter fa-rotate-180")
     returnObj._result = global.research[obj.name].completeUnits-obj.cost.count
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
