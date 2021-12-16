@@ -8,11 +8,22 @@
     }
     & .enemy {
         background-color: red;
+        &.hightened {
+            background-color: darkred;
+        }
     }
     & .resource {
         background-color: green;
     }
     & .empty {
         background-color: tan;
+    }
+}
+.legend {
+    & span {
+        border-width: 1px 6px;
+        border-radius: 8px;
+        border-style: solid;
+        padding-inline: 4px;
     }
 }

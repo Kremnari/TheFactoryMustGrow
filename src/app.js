@@ -213,6 +213,11 @@ export class App {
       this.globals.activeFeatures.tutorial = {step: 49};
       Tutorial.jump(this)
     }
+    async copySave() {
+      await this.IgorJs.commands("copySave")
+      navigator.clipboard.writeText(window.tfmg_save)
+      this.view.goodToast("Copied save to clipboard")
+    }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
     toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
@@ -227,12 +232,16 @@ export class App {
           {name: 'burner-mining-drill', count: 10},
           {name: 'stone-furnace', count: 10},
           {name: 'assembling-machine-1', count: 10},
-          {name: 'transport-belt', count: 100}
+          {name: 'transport-belt', count: 100},
+          {name: 'logistic-science-pack', count: 100},
+          {name: 'radar', count: 100},
+          {name: 'offenseBot', count: 100}
         ]
       })
       this.showAllTechs = true
-      this.globals.activeFeatures.factoryBlocks = {}
+      //this.globals.activeFeatures.factoryBlocks = {}
       this.globals.land.total += 400
+      this.globals.control.bonusTicks = 60000
       this.signaler.signal("generalUpdate")
     }
 }

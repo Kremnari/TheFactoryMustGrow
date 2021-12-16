@@ -140,6 +140,10 @@ export const IgorUtils = {
       if(obj && obj.Igor_operation) IgorUtils.addOperation(obj.Igor_operation, obj)
       if(obj && obj.CC_utility) IgorUtils.CCC_addUtility(obj.CC_utility, obj)
       if(obj && obj.CC_dialogList) IgorUtils.CCC_addUtility(obj.CC_dialogList, obj)
+      if(obj.Igor_Event) {
+        !IgorCore.eventHandlers[obj.Igor_Event.type] && (IgorCore.eventHandlers[obj.Igor_Event.type] = {})
+        IgorCore.eventHandlers[obj.Igor_Event.type][obj.Igor_Event.name] = obj
+      }
     })
   
   },

@@ -45,6 +45,10 @@ Expansion.Probabilities = (obj, args, retObj, Igor) => {
     if(scan.enemyDepth>3) {
         retObj.options.push({item: {type: "enemy", strength: 150*(scan.enemyDefeated+1)}, weight: 4})
     }
+    if(scan.enemyDefeated>=5) {
+        retObj.options.push({item: {type: "enemy", class: "hightened", strength: 500*(scan.enemyDefeated+1)}, weight: 1})
+    }
+
 
     retObj.probabilities = retObj.options.map((v, i) => Array(v.weight).fill(i)).reduce((c, v) => c.concat(v), []);
     if(args.returnItem) {
@@ -108,19 +112,34 @@ Offense.AddOffenseBot.signature = {
 Offense.AddOffenseBot.CC_provide = "offense.AddOffenseBot"
 Offense.Attack = (obj, Igor) => {
     let global = Igor.getNamedObject("global")
-    let land = global.scanning.landsSurveyed[0]
-    if(land.type!="enemy") return
-    let diff = land.strength - (global.offense.bots.offenseBots*10)
+    if(global.scanning.landsSurveyed[0].type!="enemy") return
+    let land = global.offense.target
+    let diff = land.strength - (global.offense.bots.offenseBot.count*10)
     
     land.strength = Math.max(diff, 0)
-    global.offense.bots.offenseBots = Math.abs(Math.min(0, diff/10))
+    global.offense.bots.offenseBot.count = Math.abs(Math.min(0, diff/10))
+    global.offense.target.bases = Math.floor(land.strength / 100)
+    global.offense.target.units = (land.strength - global.offense.target.bases*50) / 10
 }
 Offense.Attack.signature = {}
 Offense.Attack.CC_provide = "offense.Attack"
+Offense.Scout = (obj, Igor) => {
+    let global = Igor.getNamedObject("global")
+    let land = global.scanning.landsSurveyed[0]
+    if(land.type!="enemy") return
+
+    global.offense.target = {}
+    global.offense.target.strength = land.strength
+    global.offense.target.bases = Math.max(1, Math.floor(land.strength / 100))
+    global.offense.target.units = (land.strength - global.offense.target.bases*50) / 10
+    Igor.view.signaler.signal("generalUpdate")
+}
+Offense.Scout.signature = {}
+Offense.Scout.CC_provide = "offense.Scout"
 Offense.Secure = (obj, Igor) => {
     let global = Igor.getNamedObject("global")
     let land = global.scanning.landsSurveyed[0]
-    if(land.strength) return Igor.view.warnToast("Enemy still has a presence")
+    if(global.offense?.target?.strength) return Igor.view.warnToast("Enemy still has a presence")
     switch(land.type) {
         case "resource":
             global.land.res_patches++
@@ -129,6 +148,7 @@ Offense.Secure = (obj, Igor) => {
             global.scanning.enemyDepth--
             global.scanning.enemyDefeated++
             global.scanning.penetrateEnemy = false
+            global.offense.target = null
             break;
     }
     global.land.total += 100
@@ -147,6 +167,7 @@ Defense.Setup = (event, Igor) => {
     let global = Igor.getNamedObject("global")
     !global.activeFeatures["defenseBlocks"] && (global.activeFeatures.defenseBlocks = {defense: true})
     !global.defense && (global.defense = {
+        treat: 0,
         turrets: {},
         attackWaveTimer: 0,
         nextAttackWave: 100,
@@ -171,6 +192,7 @@ Defense.addTurret.CC_provide = "defense.AddTurret"
 Defense.tick = (tickdata, Igor) => {
     if(tickdata.ticks%30) return
     let defense = Igor.getNamedObject("global").defense
+    if(!defense.threat==0) return
     if(++defense.attackWaveTimer>=defense.nextAttackWave) {
         Igor.view.warnToast("Attack wave")
 

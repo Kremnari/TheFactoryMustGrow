@@ -49,6 +49,7 @@ export class IconEditor {
       return
     }
     let [cat, name] = this.newName.split("@")
+    if(!this.IE.ds.new[cat]) this.IE.ds.new[cat] = {}
     this.IE.ds.new[cat][name] = null
     this.IE.select.Cat = cat
     this.IE.select.Icon = name

@@ -255,8 +255,8 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
   let land = Igor.getNamedObject("global").land
   if(obj.type.string=="autoload") {
     let cost = obj.cost?.stacks || {name: "inserter", count: 1}
-    if(buffer.upgrades.loader?.count>=10) return Igor.view.warnToast("Loaders full")
-    if(land.used>=land.total) return Igor.view.warnToast("No available land")
+    if(buffer.upgrades.loader?.count>=10) return Igor.view.warnToast("Loaders full", null, "fa-fill")
+    if(land.used>=land.total) return Igor.view.warnToast("No available land", null, "fa-mountain")
     if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Inserter required")
 
     land.used++
@@ -269,9 +269,9 @@ EntityBufferActions.Upgrade = (obj, Igor) => {
     buffer.$_tags.push("tick", "processing")
   } else if(obj.type.string=="buffer") {
     let cost = obj.cost?.stacks || {name: "iron-chest", count: 1}
-    if(buffer.upgrades.bufferSize?.count>=buffer.upgrades.maxBuffers) return Igor.view.warnToast("Chests full")
-    if(land.used>=land.total) return Igor.view.warnToast("No available land")
-    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Cannot consume upgrade costs")
+    if(buffer.upgrades.bufferSize?.count>=buffer.upgrades.maxBuffers) return Igor.view.warnToast("Chests full", null, "fa-fill")
+    if(land.used>=land.total) return Igor.view.warnToast("No available land", null, "fa-mountain")
+    if(!Igor.processTEMP(obj.player.inventory, "inventory.consume", {itemStacks: cost})) return Igor.view.warnToast("Cannot consume upgrade costs", )
 
     land.used++
     if(buffer.$_parent) {
@@ -512,7 +512,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
   global.research[obj.name].completeUnits += args.count || 1
   if(global.research[obj.name].completeUnits>=obj.cost.count) {
-    Igor.view.goodToast("Research Complete: "+obj.name)
+    Igor.view.goodToast("Research Complete: "+obj.name, null, "filter fa-rotate-180")
     returnObj._result = global.research[obj.name].completeUnits-obj.cost.count
     Igor.getNamedObject("research").progressing = null
     obj.researched = true
@@ -535,7 +535,7 @@ const ResearchUpdate = (obj, args, returnObj, Igor) => {
         ent.research_timer = NaN
       }
     })
-    global.facBlocks.techBlocks.forEach( (x) => {
+    global.facBlocks?.techBlocks.forEach( (x) => {
       if(args.me==x) return
       let block = Igor.getId(x)
       if(block.research_consumed) {
@@ -555,14 +555,6 @@ const RecipeUnlock = (obj, args, returnObj, Igor) => {
   
 }
 IgorJs.addOperation("recipe.unlock", RecipeUnlock)
-
-const FeatureUnlock = (obj, args, returnObj, Igor) => {
-  //TODO move this back into ResearchUpdate
-  if(!Igor.checkAndEmit("system_update", obj.feature, obj)) {
-    console.warn("System_update: "+obj.feature+" not found")
-  }
-}
-IgorJs.addOperation("feature.unlock", FeatureUnlock)
 IgorJs.addOperation("global.unlock", (notUsed, args, returnObj, Igor) => {
   let global = Igor.getNamedObject("global")
   let obj = Object.walkPath(global, args.item.path)

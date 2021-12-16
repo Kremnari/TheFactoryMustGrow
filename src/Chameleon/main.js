@@ -19,7 +19,9 @@ const ChameleonCore = {
   viewFns: {},
   signaler: null,
   baseApp: null,
-  viewControl: {},
+  viewControl: {
+    statusBox: null,
+  },
   viewScope: {},
   viewOptions: {},
   viewFilters: {},
@@ -71,6 +73,7 @@ export const ChameleonViewer = {
     switch (command.type) {
       case "view":
         ChameleonCore.viewControl[command.which] = command.what
+        command.statusBox && (ChameleonCore.viewControl.statusBox = command.statusBox)
         break;
       case "scope":
         ChameleonCore.viewScope[command.which] = command.what

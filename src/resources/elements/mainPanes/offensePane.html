@@ -19,11 +19,19 @@
         </span>
         <br>Survey results:
         <ul class="survey_results">
-          <li repeat.for="each of globals.scanning.landsSurveyed" class="${each.type}"></li>
+          <li repeat.for="each of globals.scanning.landsSurveyed" class="${each.type} ${each.class}">
+          </li>
         </ul>
+        <div class="legend">
+          <p>Legend</p>
+          <span style="border-color: tan">Free</span>
+          <span style="border-color: green">Resource</span>
+          <span style="border-color: red">Enemy</span>
+          <span style="border-color: darkred">Strong Enemy</span>
+        </div>
       </div>
     </div>
-    <div class="row" if.bind="globals.activeFeatures.offenseBlocks.offense">
+    <div class="row playerOffense" if.bind="globals.activeFeatures.offenseBlocks.offense">
       <span repeat.for="each of globals.offense.bots | objectValues">
         <icon-base
           item.bind="each.name"
@@ -34,18 +42,38 @@
         Power: ${each.count * 10}
       </span>
     </div>
-    <div class="row" if.bind="globals.scanning.landsSurveyed[0]">
-      <div class="col" if.bind="globals.scanning.landsSurveyed[0].type=='enemy'">
-        Strength: ${globals.scanning.landsSurveyed[0].strength}
-        <span
-          click.delegate="CCC.issue('offense.Attack', {}, $event)"
-          if.bind="globals.scanning.landsSurveyed[0].strength"
-        >Attack</span>
+    <div class="row playerControls" if.bind="globals.scanning.landsSurveyed[0] & signal:'generalUpdate'">
+      <hr>
+      <span
+        class="col"
+        show.bind="globals.scanning.landsSurveyed[0].type!='enemy' || globals.offense.target.strength==0 & signal:'generalUpdate'"
+        click.delegate="CCC.issue('offense.Secure', {}, $event)"
+        >Secure</span>
+      <span
+        show.bind="globals.offense && !globals.offense.target && globals.scanning.landsSurveyed[0].type=='enemy' & signal:'generalUpdate'"
+        class="col"
+        click.delegate="CCC.issue('offense.Scout', {}, $event)"
+      >Scout</span>
+      <div
+        class="col"
+        if.bind="globals.offense.target.strength & signal:'generalUpdate'"
+        click.delegate="CCC.issue('offense.Attack', {}, $event)"
+      >
+        <span class="mr-10">Strength: ${globals.offense.target.strength}</span>
+        <span>Attack</span>
       </div>
-      <div class="col" if.bind="globals.scanning.landsSurveyed[0] && !globals.scanning.landsSurveyed[0].strength">
-        <span click.delegate="CCC.issue('offense.Secure', {}, $event)">Secure</span>
-      </div>
-
+    </div>
+    <div class="row offenseEnemies" if.bind="globals.offense.target & signal:'generalUpdate'">
+      <hr >
+      <icon-base
+        item="item@enemy_unit"
+        class="col"
+        count.bind="globals.offense.target.units"
+      ></icon-base>
+      <icon-base
+        item="item@enemy_base"
+        class="col"
+        count.bind="globals.offense.target.bases"></icon-basee>
     </div>
   </section>
 </template>

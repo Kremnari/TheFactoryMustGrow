@@ -18,26 +18,11 @@ const newGame = {
       complexity: 0,
       res_patches: 2,
       res_patches_used: 0,
-      fac_block_costs: {
-        factory: 100,
-        bus: 100,
-        research: 100,
-      }
     },
     attackWaves: {
       nextTimer: 100,
       nextStrength: 100,
       currentTimer: 0,
-    },
-    facBlocks: {
-      defenses: null,
-      defenseBus: null,
-      offense: null,
-      offenseBus: null,
-      resBlocks: [],
-      buses: [],
-      blocks: [],
-      techBlocks: []
     },
     player: PlayerWorkshop.newPlayer,
     activeFeatures: {

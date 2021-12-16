@@ -6,7 +6,7 @@
   <require from="resources/elements/tool-tip"></require>
   <require from="./tfmg-beta.scss"></require>
 
-  <div if.bind="!view.ctrl.version" beta mouseenter.trigger="view.unset({which: 'tooltip'})">
+  <div if.bind="!view.ctrl.version" beta>
     <section class="statusBox"> 
       <div
         if.bind="view.ctrl.statusBox=='statusBox'"
@@ -28,6 +28,8 @@
             <div>Resource Patches: ${globals.land.res_patches-globals.land.res_patch_used}</div>
           </div>
         </div>
+      </div>
+      <div if.bind="view.ctrl.statusBox=='offenseLegend'" class="container offenseLegend">
       </div>
       <compose
         if.bind="view.ctrl.statusBox=='tooltip'"
@@ -78,7 +80,7 @@
       ></span>
       <span
         if.bind="globals.activeFeatures['offenseBlocks']"
-        click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense'}))"
+        click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense', statusBox: 'offenseLegend'}))"
         class="fas fa-fighter-jet navOffense ${view.ctrl.main=='offense' && 'selected'}"
       ></span>
     </nav>
@@ -99,6 +101,7 @@
       </section>
       <section id="menu" if.bind="view.ctrl.main=='menu'" style="z-index:2000">
         <div click.delegate="save()">Save</div>
+        <div click.delegate="copySave()">Copy Save</div>
         <div click.delegate="jumpTutorial()">FactoryBlock Tutorial</div>
         <div click.delegate="resetSave()">Reset Save</div>
         <div click.delegate="resetDS()">Reset DataSource</div>
