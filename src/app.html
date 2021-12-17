@@ -197,6 +197,7 @@
           <icon-base
             repeat.for="res of dataSet.resource | objectValues"
             item.bind="res"
+            title.bind="res.name"
             click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
             class="${res.animClass}"
           ></icon-base> 
@@ -224,6 +225,7 @@
             <div repeat.for="machina of view.Fn.workshopEntities() & signal:'entityUpdate'">
               <icon-base
                 item.bind="machina"
+                title.bind="machina.name"
                 alt-image.bind="machina.processing.icon || machina.processing.name"
                 click.delegate="view.set({type: 'scope', which: 'showingEntity', what: machina })"
                 metas.bind="{stalled: !machina._tags['tick']}"
@@ -370,6 +372,7 @@
           <icon-base
             repeat.for="tech of view.Fn.technologyFilter(view.options.bDoneTechs) & signal:'techResearched'"
             click.delegate="view.set({type: 'scope', which: 'showingTech', what: tech})"
+            title.bind="tech.name"
             item.bind="tech"
             class="${globals.research.progressing.name==tech.name ? 'researching' : ''} ${globals.research[tech.name].complete ? 'researched': ''} ${view.$scope.showingTech==tech && 'selected'}"
           ></icon-base>

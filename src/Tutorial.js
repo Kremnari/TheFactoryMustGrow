@@ -42,7 +42,7 @@ class tutorial {
     this.setStep(steps[this.atStep])
   }
   nextStep() {
-    console.log('step')
+    console.log('step '+steps[this.atStep])
     $(".tutHighlight").removeClass("tutHighlight")
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").hide()
@@ -269,7 +269,7 @@ class tutorial {
       case 3.81:
         //DEBUG this doesn't quite show up
         $("#tutorial").hide()
-        __.tutStep("inventory icon-base[title='burner-mining-drill']")
+        __.tutStep("#inventoryList icon-base[title='burner-mining-drill']")
         __.setTutClick()
         break;
       case 3.82:

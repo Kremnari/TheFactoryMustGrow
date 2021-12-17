@@ -21,12 +21,14 @@
       <div>
         <icon-base
           item="iron-chest"
+          title="iron-chest"
           count.bind="view.$scope.inBuffer.upgrades.bufferSize.count"
           click.delegate="CCC.issue('entity.bufferUpgrade', {'type.string': 'buffer'}, $event)"
           class="${view.$scope.inBuffer.upgrades.bufferSize.count>=6 && 'countFull'}"
         ></icon-base>
         <icon-base
           item="inserter"
+          title="inserter"
           count.bind="view.$scope.inBuffer.upgrades.loader.count"
           stalled.bind="view.$scope.inBuffer.upgrades.loader.count>0 && view.$scope.inBuffer.stalled"
           progress.bind="(view.$scope.inBuffer.xferTicks-view.$scope.inBuffer.xferTimer)/view.$scope.inBuffer.xferTicks*100"

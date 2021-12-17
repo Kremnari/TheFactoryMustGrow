@@ -11,7 +11,12 @@
       <br>
       <strong>Unlocks</strong>
       <div repeat.for="unlock of view.$scope.showingTech.unlocks">
-        <icon-base if.bind="unlock.type=='recipe'" item.bind="unlock.name" mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: IgorJs.data.recipe[unlock.name]})" mouseleave.trigger="view.unset({which: 'tooltip'})"></icon-base>
+        <icon-base
+          if.bind="unlock.type=='recipe'"
+          item.bind="unlock.name"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: IgorJs.data.recipe[unlock.name]})"
+          mouseleave.trigger="view.unset({which: 'tooltip'})"
+        ></icon-base>
         <span if.bind="unlock.type == 'feature'">
           Feature: ${unlock.feature}<br>
           ${unlock.text}

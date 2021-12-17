@@ -20,6 +20,7 @@
               <icon-base
                 repeat.for="ing of view.$scope.showingEntity.processing.ingredients | objectValues"
                 item.bind="ing.name"
+                title.bind="ing.name"
                 required.bind="ing.amount"
                 count.bind="CCC.utilityFn('inventory.total', view.$scope.showingEntity.buffers.in, {name: ing.name}) & signal:'bufferUpdate'"
                 click.delegate="CCC.issue('entity.bufferFill', {'which.buffer': view.$scope.showingEntity.buffers.in, 'item.name': ing.name}, $event)"
@@ -31,6 +32,7 @@
               <icon-base
                 repeat.for="res of view.$scope.showingEntity.processing.results | objectValues"
                 item.bind="res.name"
+                title.bind="res.name"
                 required.bind="res.amount"
                 count.bind="CCC.utilityFn('inventory.total', view.$scope.showingEntity.buffers.out, {name: res.name}) & signal:'bufferUpdate'"
                 click.delegate="CCC.issue('entity.bufferCollect', {'which.buffer': view.$scope.showingEntity.buffers.out, 'item.name': res.name}, $event)"
@@ -49,6 +51,7 @@
             <icon-base
               repeat.for="rec of view.Fn.recipeFilter(view.$scope.showingEntity.crafting_categories) | objectValues & signal:'techResearched'"
               item.bind="rec"
+              title.bind="rec.name"
               click.delegate="CCC.issue('entity.setProcess', {'which.process': rec, 'type.class': 'crafting'}, $event)"
               class="${rec==view.$scope.showingEntity.processing ? 'selected': ''}"
               mouseenter.bind="(view.set({type: 'scope', which: 'tooltip', what: rec})) & debounce:2000"

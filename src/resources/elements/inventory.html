@@ -2,6 +2,7 @@
   <icon-base
     repeat.for="item of view.Fn.playerInventory() & signal:'generalUpdate'"
     item.bind="item"
+    title.bind="item.name"
     if.bind="item.filtered || item.count>0"
     count.bind="item.count"
     modis.bind="{count: item.count}"

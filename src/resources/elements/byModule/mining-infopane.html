@@ -10,6 +10,7 @@
           <icon-base
             repeat.for="res of dataSet.resource | filter:{key:'category', value:view.$scope.showingEntity.resource_categories, includeUndefs: true} | objectValues"
             item.bind="res"
+            title.bind="res.name"
             click.delegate="CCC.issue('entity.setProcess', {'which.process': res, 'type.class':'mining'}, $event)"
             class="${res==view.$scope.showingEntity.processing ? 'selected': ''}"
           ></icon-base>

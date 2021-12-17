@@ -144,7 +144,7 @@ FactoryBlock.SetupSystem = (obj, Igor) => {
 FactoryBlock.SetupSystem.Igor_Event = {name: "facBlock", type: "system_setup"}
 FactoryBlock.FeatureUpdate = (obj, Igor) => {
     let global = Igor.getNamedObject("global")
-    if(!global.activeFeatures.factoryBlocks.setup) Igor.checkAndEmit("system_setup", "facBlock")
+    if(!global.activeFeatures.factoryBlocks?.setup) Igor.checkAndEmit("system_setup", "facBlock")
     let blocks = Igor.getNamedObject("global").facBlocks.blocks
     if(obj?.blocksMaxSources) {
         blocks.forEach( (id) => {
