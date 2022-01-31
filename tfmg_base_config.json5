@@ -1,0 +1,42 @@
+{
+    name: 'tfmg_base_config',
+    dbStore_name: 'TFMG_DATA',
+    data_files: {
+        TFMG_BASE_DATA: {
+            name: 'The Factory Must Grow Base Data',
+            base: true,
+            dataSet: 'tfmg_base_data.json',
+            iconSet: "tfmg_base_data_icons.json",
+            systemSet: "tfmg_base_systems.json",
+            latestDates: {
+                dataSet: '2022-01-20',
+                iconSet: '2022-01-20',
+                systemSet: false,
+            }
+        },
+        TFMG_EXPANDED_WORKSHOP: {
+            name: 'TFMG expanded workshop',
+            dataSet: 'tfmg_expanded_workshop.json',
+            iconSet: "tfmg_expanded_workshop_icons.json",
+            systemSet: "tfmg_expanded_workshop_systems.json",
+            dependencies: ['TFMG_BASE_DATA'],
+            latestDates: {
+                dataSet: false,
+                iconSet: false,
+                systemSet: false,
+            }
+        },
+        TFMG_SUPER_ASSEMBLER: {
+            name: "TFMG super assembler",
+            dataSet: "tfmg_super_assembler.json",
+            iconSet: "tfmg_super_assembler_icons.json",
+            subscription: "SUPER_ASSEMBLER",
+            dependencies: ["TFMG_BASE_DATA"],
+            latestDates: {
+                dataSet: false,
+                iconSet: false,
+                systemSet: false,
+            }
+        }
+    }
+}
