@@ -87,21 +87,28 @@ const IgorBuilder = {
 
 
 export const IgorUtils = {
-  initialize(obj) {
+  async initialize(obj) {
     IgorCore.graphics = obj.viewTasker
     IgorCore.command = obj.commandTasker
     IgorCore.ticker = new Ticker(obj.ticker, IgorCore.graphics.signaler)
     IgorUtils.Ticker = IgorCore.ticker
     IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
     IgorCore.dbName = obj.dbName
-    IgorCore.saveName = obj.saveName
     IgorCore.db = new Store(IgorCore.dbName, "store")
+    IgorCore.dataSets = obj.config
     if(IgorCore._provideTemp) {
       IgorCore._provideTemp.forEach( (elm) => {IgorCore.command.provide(elm.item, elm.fn, elm.sig, elm.valid)})
     }
     if(IgorCore._utilityTemp) {
       IgorCore._utilityTemp.forEach( (elm) => IgorCore.command.utilityFn(elm.named, elm.fn) )
     }
+    //load last game from IgorCore.db
+
+    IgorCore.saveGame = await dbGet("lastSaveName") || "SaveGame"
+    IgorCore.save = await dbGet(IgorCore.saveGame, IgorCore.db)
+  },
+  getDataSets() {
+    return IgorCore.saveGame.dataSets || ["TFMG_BASE_DATA"]
   },
   provide_CCC: (item, fn, sig, valid) => {
     //! Provides temporary passthrough for game commands
@@ -211,7 +218,6 @@ export const IgorUtils = {
     // pass required info into Graphics and Command processors
     
     //If save loaded,
-    IgorCore.save = await dbGet(IgorCore.saveName, IgorCore.db)
     if(IgorCore.save) {
       IgorCore.game = JSON.parse(IgorCore.save.game)
       IgorCore.objs = new Map(JSON.parse(IgorCore.save.objs))

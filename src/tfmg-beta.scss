@@ -5,6 +5,9 @@
   & section {
     margin: auto;
   }
+  & .queue {
+    height: 40px;
+  }
   & > .statusBox {
     position: absolute;
     height: 10vh;
@@ -75,36 +78,36 @@
   & > nav {
     position:absolute;
     top: 10vh;
+    height: 8vh;
     width: 100%;
     display: flex;
     justify-content: space-evenly;
     overflow: hidden;
-    & > * {
-      flex: 1;
-      text-align: center;
-      margin: 0 4px;
-      padding: 2px 4px;
-      &.selected {
-        border: 1px solid lightblue;
-        border-radius: 8px;
-      }
+    & > div {
+      width: 100vw;
     }
-  & > .fa-bars {
+    & .col:not(.nav-border) {
       flex-grow: 2;
     }
-    &:before, &:after {
-      border-top: 3px solid black;
-      content: '';
-      display: table-cell;
-      position: relative;
-      top: 0.5em;
-      width: 40%;
+    & .col > div {
+      display: flex;
+      & span {
+        flex: 1;
+        text-align: center;
+        margin: 0 4px;
+        padding: 3px 8px;
+        &.selected {
+          border: 1px solid lightblue;
+          border-radius: 8px;
+        }
+      }
     }
-    &:before {
-      right: 2.5%;
+    & > .fa-bars {
+      flex-grow: 2;
     }
-    &:after {
-      left: 2.5%;
+    & .nav-border {
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0) 45%, black 50%, rgba(0, 0, 0, 0) 55%);
+      flex-grow: 0.5;
     }
   }
   & > main {
@@ -112,15 +115,13 @@
     position: absolute;
     width: calc(100%-5vw);
     margin: 0 0.5rem;
-    top: calc(10vh + 1.5rem);
+    top: calc(18vh);
     bottom: calc(20vh + 5px);
     & > * {
       position: relative;
     }
     & #nav {
-      left: 20vw;
       width: 60vw;
-      position: relative;
     }
     & #playerHome {
       & h3 {
@@ -128,6 +129,12 @@
       }
       & #recipes {
         height: 30vh;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        align-content: flex-start;
+        gap: 4px;
       }
     }
     & #machines {

@@ -1,21 +1,24 @@
 import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject, BindingEngine} from 'aurelia-framework'
 import {DataProvider} from 'DataProvider'
-import {DialogMgr} from 'resources/dialogs/DialogMgr'
 import * as Config from 'Config'
+
+
 import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
 import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView, ChameleonTasker as ChameTasks} from 'Chameleon/main'
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
+import * as JSON5 from 'json5'
+
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
 
-@inject(BindingSignaler, DataProvider, DialogMgr, BindingEngine)
+@inject(BindingSignaler, BindingEngine)
 export class App {
     showTut = true
     dataBase = {}
     viewRecCat = false
-    constructor(signaler, DataProv, DS, BE) { 
+    constructor(signaler, BE) { 
       window.tfmg = this
       this.Math = Math
       this.signaler = signaler
@@ -23,19 +26,8 @@ export class App {
       ChameJS.signaler = this.signaler
       ChameJS.app = this
       this.view = ChameView
-      IgorJs.initialize({
-        commandTasker: CC_const, //TODO: Probably some kind of initilization function
-        viewTasker: ChameTasks,  //TODO: Probably some kind of initilization function
-        ticker: {
-          ticks_per_sec: Config.TICKS_PER_SECOND,
-          ticks_max_phase: Config.TICKS_MAX_PHASE
-        },
-        dbName: "TheFactoryMustGrow",
-        saveName: "SaveGame"
-      })
       this.view.set({type: 'view', which: 'main', what: 'home'})
-      DataProv.onLoadComplete((db) => { this.init(db, DS) }) //webpack live reload hack
-      DataProv.beginLoad()
+      this.view.set({type: 'context', what: 'standard'})
       this.CCC = CCC  // Need to add so it's available in the view
       this.Tutorial = Tutorial  //Needed in view
       this.save = () => {
@@ -45,14 +37,31 @@ export class App {
         this.autoSave();
       }
       BE.expressionObserver(this, "view.ctrl.main").subscribe((newVal, oldVal) => {this.whenCheck(newVal, oldVal, "main")})
+      this.Igor_init()
     }
-    async init(database, DS) { 
+    async Igor_init() {
+      let url = location.href.slice(0, location.href.lastIndexOf("/"))
+      const setup_file = await fetch(url+"/tfmg_base_config.json5")
+      const setup_data = JSON5.parse(await setup_file.text())
+      await IgorJs.initialize({
+        commandTasker: CC_const, //TODO: Probably some kind of initilization function
+        viewTasker: ChameTasks,  //TODO: Probably some kind of initilization function
+        ticker: {
+          ticks_per_sec: Config.TICKS_PER_SECOND,
+          ticks_max_phase: Config.TICKS_MAX_PHASE
+        },
+        dbName: "TheFactoryMustGrow",
+        dataSet: setup_data,
+      })
+      DataProvider.onLoadComplete((db) => { this.init(db) }) //webpack live reload hack
+      DataProvider.beginLoad(setup_data, IgorJs.getDataSets())
+    }
+    async init(database) { 
       this.mgrs = database.mgrs
       this.mgrs.baseApp = this
       //this.mgrs.signaler = this.signaler
       //this.mgrs.Ticker = IgorJs.Ticker
       CC_const.initialize({
-        dialogSvc: DS,
         dataSet: database.mgrs.data,
         viewer: ChameView
       })

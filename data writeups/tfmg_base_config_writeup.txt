@@ -1,0 +1,23 @@
+Schema description file for tfmg_base_config
+
+nest 0 {
+    name: 'string'
+    data_files: {data.id : data description]
+}
+
+data description {
+    name: 'string', unique id
+    localized: 'string',    localization id
+    id: 'string',   internal id
+    dataSet: 'filename' | 'url' -> json | json5,    dataset
+    iconSet: 'filename' | 'url' -> json | json5,    iconSet
+    systemSet: 'filename' | 'url' -> json5,     file containing IgorJs system description
+
+    subscriptionKey: 'string',  when reading subscriptions authorizations, look for this key to access
+    ? base: 'boolean',    determines if this is a starting data set
+    dependencies: '[string]' -> internal field : id,   used to state dependencies  all data sets should upstream to a 'base: true' element
+    latestDates: '[string]' | 'false' -> dates yyyy-mm-dd,    dates of the latest files
+                            -- optionally include 'xx' at the end of the string to indicate breaking changes
+                            -- optionally can be false to prevent loading of the file
+
+}

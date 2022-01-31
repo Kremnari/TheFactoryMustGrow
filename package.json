@@ -17,6 +17,7 @@
     "file-saver": "^2.0.5",
     "idb-keyval": "^3.2.0",
     "jquery": "^3.3.1",
+    "json5": "^2.2.0",
     "popper.js": "^1.16.1",
     "whatwg-fetch": "^3.0.0",
     "workbox-cli": "^5.1.3"

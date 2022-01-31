@@ -81,6 +81,10 @@ export const ChameleonViewer = {
           ChameleonCore.viewControl.statusBox = "tooltip"
         }
         break;
+      case "context":
+        ChameleonCore.viewContext = command.what
+        ChameleonCore.viewScope.context = command.what
+        break;
       case "viewObject":
       case "unset":
         break;

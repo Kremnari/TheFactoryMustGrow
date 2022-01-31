@@ -7,9 +7,9 @@
   <require from="./tfmg-beta.scss"></require>
 
   <div if.bind="!view.ctrl.version" beta>
-    <section class="statusBox"> 
+    <section class="statusBox">
       <div
-        if.bind="view.ctrl.statusBox=='statusBox'"
+        if.bind="!view.ctrl.statusBox"
         click.delegate="view.set({type: 'view', which: 'main', what: 'overview'})"
       >
         <div>Land use: ${globals.land.used}</div>
@@ -17,7 +17,7 @@
   
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
-      <div if.bind="view.ctrl.statusBox=='facBlock'" class="container facBlockStats">
+      <div if.bind="view.ctrl.statusBox=='facBlock'" class="facBlockStats">
         <div class="row align-items-center justify-content-around">
           <div class="col">
             <div>Land use: ${globals.land.used}</div>
@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div if.bind="view.ctrl.statusBox=='offenseLegend'" class="container offenseLegend">
+      <div if.bind="view.ctrl.statusBox=='offenseLegend'" class="offenseLegend">
       </div>
       <compose
         if.bind="view.ctrl.statusBox=='tooltip'"
@@ -49,44 +49,64 @@
       </div>
     </section>
     <nav>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"      class="fas fa-level-up-alt fa-rotate-90 ${view.ctrl.main=='nav' && 'selected'}"></span>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"     class="fas fa-bars ${view.ctrl.main=='menu' && 'selected'}" ></span>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"      class="fab fa-dev ${view.ctrl.main=='dev' && 'selected'}" if.bind="showDev"></span>
-      <span class="fas spacer"></span>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'home'})"     class="fas fa-user navHome ${view.ctrl.main=='home' && 'selected'}"></span>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'entities'})" class="fas fa-toolbox navEntities ${view.ctrl.main=='entities' && 'selected'}"></span>
-      <span click.delegate="view.set({type: 'view', which: 'main', what: 'research'})" class="fas fa-drafting-compass navTechs ${view.ctrl.main=='research' && 'selected'}"></span>
-      <span
-        click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'facBlocks'}))"
-        class="far fa-object-ungroup navFacBlocks ${view.ctrl.main=='facBlocks' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
-      ></span>
-      <span
-        click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'viewFacBlock'}))"
-        class="fas fa-industry navFacBlocks ${view.ctrl.main=='viewFacBlock' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
-      ></span>
-      <span class="fas spacer"></span>
-      <span
-        if.bind="!globals.activeFeatures['defenseBlocks']"
-        class="fab fa-fort-awesome navDefense NYI"
-      ></span>
-      <span 
-        if.bind="globals.activeFeatures['defenseBlocks']"
-        click.delegate="globals.activeFeatures['defenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'defense'}))"
-        class="fab fa-fort-awesome navDefense ${view.ctrl.main=='defense' && 'selected'}"
-      ></span>
-      <span
-        if.bind="!globals.activeFeatures['offenseBlocks']"
-        class="fas fa-fighter-jet navOffense NYI"
-      ></span>
-      <span
-        if.bind="globals.activeFeatures['offenseBlocks']"
-        click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense', statusBox: 'offenseLegend'}))"
-        class="fas fa-fighter-jet navOffense ${view.ctrl.main=='offense' && 'selected'}"
-      ></span>
+      <div class="row">
+        <div class="col nav-border"></div>
+        <div class="col" >
+          <div>
+            <span click.delegate="view.set({type: 'context', what:'help'})"                   class="fas fa-info ${view.ctrl.context=='help' && 'selected'}"></span>
+            <span click.delegate="view.set({type:'view', which: 'navSet', what: 'menu'})"     class="fas fa-bars ${view.ctrl.navSet=='menu' && 'selected'}"></span>
+            <span click.delegate="view.set({type:'view', which: 'navSet', what: 'player'})"   class="fas fa-user ${view.ctrl.navSet=='player' && 'selected'}"></span>
+            <span click.delegate="view.set({type:'view', which: 'navSet', what: 'factory'})"  class="fas fa-industry ${view.ctrl.navSet=='factory' && 'selected'}"></span>
+            <span click.delegate="view.set({type:'view', which: 'navSet', what: 'world'})"    class="fas fa-globe ${view.ctrl.navSet=='world'} && 'selected'"></span>
+          </div>
+          <div if.bind="view.ctrl.navSet=='menu'">
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"      class="fas fa-sort-amount-down-alt ${view.ctrl.main=='nav' && 'selected'}"></span>
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"     class="fas fa-bars ${view.ctrl.main=='menu' && 'selected'}" ></span>
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"      class="fab fa-dev ${view.ctrl.main=='dev' && 'selected'}" if.bind="showDev"></span>
+          </div>
+          <div if.bind="view.ctrl.navSet=='player'">
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'home'})"     class="fas fa-user navHome ${view.ctrl.main=='home' && 'selected'}"></span>
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'entities'})" class="fas fa-toolbox navEntities ${view.ctrl.main=='entities' && 'selected'}"></span>
+            <span click.delegate="view.set({type: 'view', which: 'main', what: 'research'})" class="fas fa-drafting-compass navTechs ${view.ctrl.main=='research' && 'selected'}"></span>
+          </div>
+          <div if.bind="view.ctrl.navSet=='factory'">
+            <span
+              click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'facBlocks'}))"
+              class="far fa-object-ungroup navFacBlocks ${view.ctrl.main=='facBlocks' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
+            ></span>
+            <span
+              click.delegate="globals.activeFeatures['factoryBlocks'] && (view.set({type: 'view', which: 'main', what: 'viewFacBlock'}))"
+              class="fas fa-industry navFacBlocks ${view.ctrl.main=='viewFacBlock' && 'selected'} ${!globals.activeFeatures['factoryBlocks'] && 'NYI' & signal:'generalUpdate'}"
+            ></span>
+    
+          </div>
+          <div if.bind="view.ctrl.navSet=='world'">
+            <span
+              if.bind="!globals.activeFeatures['defenseBlocks']"
+              class="fab fa-fort-awesome navDefense NYI"
+            ></span>
+            <span 
+              if.bind="globals.activeFeatures['defenseBlocks']"
+              click.delegate="globals.activeFeatures['defenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'defense'}))"
+              class="fab fa-fort-awesome navDefense ${view.ctrl.main=='defense' && 'selected'}"
+            ></span>
+            <span
+              if.bind="!globals.activeFeatures['offenseBlocks']"
+              class="fas fa-fighter-jet navOffense NYI"
+            ></span>
+            <span
+              if.bind="globals.activeFeatures['offenseBlocks']"
+              click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense', statusBox: 'offenseLegend'}))"
+              class="fas fa-fighter-jet navOffense ${view.ctrl.main=='offense' && 'selected'}"
+            ></span>
+          </div>
+        </div>
+        <div class="col nav-border"></div>
+      </div>
     </nav>
     <main class="tfmg">
       <section id="nav" if.bind="view.ctrl.main=='nav'">
-        <p click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"><span class="fas fa-level-up-alt fa-rotate-90 selected" alt="verbose nav"></span>Expanded Nav</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"><span class="fas fa-sort-amount-down-alt selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"><span class="fas fa-bars" ></span>Menu</p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
@@ -168,6 +188,17 @@
       <compose if.bind="view.ctrl.main=='defense' && globals.activeFeatures.defenseBlocks" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="view.ctrl.main=='home'">
         <h3>Craftables</h3>
+        <div class="queue">
+          Max Queue: 5
+          <icon-base 
+            repeat.for="toCraft of globals.player.crafting.list"
+            item.bind="toCraft.name"
+            title = "${toCraft.name}"
+            count.bind="toCraft.count"
+            progress.bind="$first && globals.player.crafting.timer/globals.player.crafting.time*100"
+            click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'crafting'})"
+          ></icon-base>
+        </div>
         <div class="overflow" id="recipes">
           <icon-base
             repeat.for="rec of view.Fn.recipeFilter('crafting') & signal: 'generalUpdate'"
@@ -177,20 +208,9 @@
             class.bind="view.classFn.canCraft(rec) & signal:'generalUpdate'"
             class="${rec.animClass}"
             metas.bind="{showEntity: true}"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: rec})"
+            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: rec, meta: 'recipe'})"
             mouseleave.trigger="view.unset({which: 'tooltip'})"
           ></icon-base>
-          <div class="queue">
-            Max Queue: 5
-            <icon-base 
-              repeat.for="toCraft of globals.player.crafting.list"
-              item.bind="toCraft.name"
-              title = "${toCraft.name}"
-              count.bind="toCraft.count"
-              progress.bind="$first && globals.player.crafting.timer/globals.player.crafting.time*100"
-              click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'crafting'})"
-            ></icon-base>
-          </div>
         </div>
         <div id="resources">
           <h3>Mineables</h3>
