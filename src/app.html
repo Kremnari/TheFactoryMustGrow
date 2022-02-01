@@ -12,9 +12,19 @@
         if.bind="!view.ctrl.statusBox"
         click.delegate="view.set({type: 'view', which: 'main', what: 'overview'})"
       >
-        <div>Land use: ${globals.land.used}</div>
-        <div>Available: ${globals.land.total-globals.land.used}</div>
+        <div>
+          Land used: ${globals.land.used}/${globals.land.total-globals.land.used}<br>
+        </div>
   
+        <div
+          class="top-right ${globals.control.fastForward && 'fastForward'}"
+          if.bind="globals.control.bonusTicks>30"
+          pointerdown.delegate="CCC.issue('game.fastForward', {'to.string': 'true'})"
+          pointerup.delegate="CCC.issue('game.fastForward', {'to.string': 'false'})"
+        >
+          ${Math.floor(globals.control.bonusTicks/30)} secs
+          <span class="fas fa-angle-double-right"></span>
+        </div>
         <span if.bind="autoSave.sub">AutoSave: <span>${autoSave.secs() & signal:'generalUpdate'}s</span></span>
       </div>
       <div if.bind="view.ctrl.statusBox=='facBlock'" class="facBlockStats">
@@ -187,40 +197,44 @@
       <compose if.bind="view.ctrl.main=='offense' && globals.activeFeatures.offenseBlocks" view="./resources/elements/mainPanes/offensePane.html"></compose>
       <compose if.bind="view.ctrl.main=='defense' && globals.activeFeatures.defenseBlocks" view="./resources/elements/mainPanes/defensePane.html"></compose>
       <section id="playerHome" show.bind="view.ctrl.main=='home'">
-        <h3>Craftables</h3>
-        <div class="queue">
-          Max Queue: 5
-          <icon-base 
-            repeat.for="toCraft of globals.player.crafting.list"
-            item.bind="toCraft.name"
-            title = "${toCraft.name}"
-            count.bind="toCraft.count"
-            progress.bind="$first && globals.player.crafting.timer/globals.player.crafting.time*100"
-            click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'crafting'})"
-          ></icon-base>
-        </div>
-        <div class="overflow" id="recipes">
-          <icon-base
-            repeat.for="rec of view.Fn.recipeFilter('crafting') & signal: 'generalUpdate'"
-            item.bind="rec"
-            title = "${rec.name}"
-            click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
-            class.bind="view.classFn.canCraft(rec) & signal:'generalUpdate'"
-            class="${rec.animClass}"
-            metas.bind="{showEntity: true}"
-            mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: rec, meta: 'recipe'})"
-            mouseleave.trigger="view.unset({which: 'tooltip'})"
-          ></icon-base>
+        <div id="craftables">
+          <h4>Craftables</h4>
+          <div class="queue">
+            Max Queue: 5
+            <icon-base 
+              repeat.for="toCraft of globals.player.crafting.list"
+              item.bind="toCraft.name"
+              title = "${toCraft.name}"
+              count.bind="toCraft.count"
+              progress.bind="$first && globals.player.crafting.timer/globals.player.crafting.time*100"
+              click.delegate="CCC.issue('player.cancelQueue', {'which.idx':$index, 'which.queue':'crafting'})"
+            ></icon-base>
+          </div>
+          <div class="icon-list" id="recipes">
+            <icon-base
+              repeat.for="rec of view.Fn.recipeFilter('crafting') & signal: 'generalUpdate'"
+              item.bind="rec"
+              title = "${rec.name}"
+              click.delegate="CCC.issue('player.craft', {'which.recipe': rec } )"
+              class.bind="view.classFn.canCraft(rec) & signal:'generalUpdate'"
+              class="${rec.animClass}"
+              metas.bind="{showEntity: true}"
+              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: rec, meta: 'recipe'})"
+              mouseleave.trigger="view.unset({which: 'tooltip'})"
+            ></icon-base>
+          </div>
         </div>
         <div id="resources">
-          <h3>Mineables</h3>
-          <icon-base
-            repeat.for="res of dataSet.resource | objectValues"
-            item.bind="res"
-            title.bind="res.name"
-            click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
-            class="${res.animClass}"
-          ></icon-base> 
+          <h4>Mineables</h4>
+          <div class="icon-list">
+            <icon-base
+              repeat.for="res of dataSet.resource | objectValues"
+              item.bind="res"
+              title.bind="res.name"
+              click.delegate="CCC.issue('resources.mine', { 'which.resource': res })"
+              class="${res.animClass}"
+            ></icon-base> 
+          </div>
           <div class="queue">
             Max Queue: 5
             <icon-base 
@@ -409,17 +423,10 @@
     </main>
     <div id="inventoryList">
       <!-- TODO create a delete mode, but should utilize a command wheel -->
-      <h3 class="text-center">Inventory</h3>
-      <div
-        class="top-right ${globals.control.fastForward && 'fastForward'}"
-        if.bind="globals.control.bonusTicks>30"
-        pointerdown.delegate="CCC.issue('game.fastForward', {'to.string': 'true'})"
-        pointerup.delegate="CCC.issue('game.fastForward', {'to.string': 'false'})"
-      >
-        ${Math.floor(globals.control.bonusTicks/30)} secs
-        <span class="fas fa-angle-double-right"></span>
+      <h5 class="text-center">Inventory</h5>
+      <div class="inventory">
+        <compose view="./resources/elements/inventory.html"></compose>
       </div>
-      <compose view="./resources/elements/inventory.html"></compose>
     </div>
     <div id="tutorial">
       <scope-var var.bind="Tutorial.checkConditions() & signal:'generalUpdate'"></scope-var>

@@ -134,7 +134,10 @@
         justify-content: flex-start;
         align-items: flex-start;
         align-content: flex-start;
-        gap: 4px;
+        gap: 6px;
+      }
+      & .icon-list {
+        overflow-y: auto;
       }
     }
     & #machines {
@@ -271,7 +274,7 @@
       font-size: 1.5rem;
       margin-bottom: 0.25rem;
     }
-    & inventory {
+    & .inventory {
       position: absolute;
       overflow-y: auto;
       height: calc(100% - 2rem);
