@@ -1,6 +1,16 @@
 import {observable} from 'aurelia-framework'
 import {mgrs} from 'managers'
+import {set as dbSet,
+  get as dbGet,
+  del as dbDel,
+  clear as dbClear,
+  keys as dbKeys,
+  Store as dbStore,
+} from 'idb-keyval'
+
 import {saveAs} from 'file-saver';
+
+//TODO Change this to load and use it's own data instead of the one from mgrs
 
 export class DataEditor {
   editList = null
@@ -9,6 +19,7 @@ export class DataEditor {
   constructor() {
     mgrs.de = this
     this.mgrs = mgrs
+    this.store = new dbStore("TFMG_DATA", 'store')
   }
   detached() {
     this.editing = null
@@ -79,7 +90,7 @@ export class DataEditor {
 
   }
   saveDataSet() {
-    mgrs.idb.set("dataSet", mgrs.data)
+    dbSet("TFMG_BASE_DATA_dataSet", mgrs.data, this.store) 
     this.editList = null
     this.editType = null
 

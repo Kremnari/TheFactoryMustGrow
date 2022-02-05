@@ -84,6 +84,7 @@ export const ChameleonViewer = {
       case "context":
         ChameleonCore.viewContext = command.what
         ChameleonCore.viewScope.context = command.what
+        console.log('context', command.what)
         break;
       case "viewObject":
       case "unset":

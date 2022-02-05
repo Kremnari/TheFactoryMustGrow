@@ -142,38 +142,6 @@ export class App {
         return list
       })
     }
-    //! NUKE in favor of chameView
-    set showTechX(tech) {
-      console.error("SHOWEDTECH")
-      this.viewPane.showingTech = null
-      tech && window.setTimeout( () => {
-        this.viewPane.showingTech = tech
-      })
-    }
-    //! NUKE in favor of chameView
-    set showItemX(obj) {
-      console.error("SHOWEDITEM")
-      if(!obj.item) return
-      if(typeof obj.item == "string" && obj.item.includes("id")) {
-        obj.item = this.IgorJs.getObjId(obj.item)
-      }
-      if(this.viewPane.showingItem==obj.item && obj.double) {
-        this.viewPane.main=obj.double.view
-        return
-      }
-      let old = this.viewPane.showingItem
-      this.viewPane.showingItem = null
-      this.viewPane.showingCat = ""
-      this.viewPane.connectedItems = null
-      if (obj && old != obj.item) {
-        window.setTimeout( ()=> {
-          this.viewPane.showingItem = obj.item
-          this.viewPane.showingCat = obj.cat
-          obj.view && (this.viewPane.main = obj.view)
-          obj.setConnected && (this.setConnectedItems = obj)
-        }, 0)
-      }
-    }
     //TODO NUKE in favor of chameView
     // Is used app.html:245
     set setConnectedItems(obj) {
@@ -205,17 +173,17 @@ export class App {
       this.whenTarg.cb()
       this.whenTarg = undefined
     }
-    test(val) {
-      console.log(val)
-
-    }
     isAwesome() {
       this.showAllTechs = true
       this.editDataSource = true
     }
 
     //* Utility Functions
-    nukeCache() { this.mgrs.idb.clear(); window.location.reload() }
+    nukeCache() {
+      //TODO include all idb caches
+      this.mgrs.idb.clear();
+      window.location.reload()
+    }
     hideTutorial() { Tutorial.clearTut() }
     jumpTutorial() { 
       this.IgorRunner.checkAndEmit("system_update", "facBlock", {})
@@ -228,7 +196,7 @@ export class App {
       this.view.goodToast("Copied save to clipboard")
     }
     resetDS() { this.mgrs.idb.del('last_ds'); location.reload() }
-    toggleDev(at) { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
+    toggleDev() { this.mgrs.idb.set('dev', !this.showDev); this.showDev = !this.showDev}
     resetSave() { if(IgorJs.commands("resetSave")) { location.reload() } }
     jumpStart() {
       this.IgorRunner.processTEMP("player.inventory", "inventory.add", {

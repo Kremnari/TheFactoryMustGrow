@@ -17,7 +17,8 @@ const IgorCore = {
   ops: {},
   statics: {},
   control: {
-    obj_counter: 0
+    obj_counter: 0,
+    dataSets: ["TFMG_BASE_DATA"]
   },
   metaDefines: { // As meta, but organized by object types and direct paths
   },
@@ -104,11 +105,11 @@ export const IgorUtils = {
     }
     //load last game from IgorCore.db
 
-    IgorCore.saveGame = await dbGet("lastSaveName") || "SaveGame"
-    IgorCore.save = await dbGet(IgorCore.saveGame, IgorCore.db)
+    IgorCore.saveName = await dbGet("lastSaveName") || "SaveGame"
+    IgorCore.save = await dbGet(IgorCore.saveName, IgorCore.db)
   },
   getDataSets() {
-    return IgorCore.saveGame.dataSets || ["TFMG_BASE_DATA"]
+    return IgorCore.save?.control.dataSets || ["TFMG_BASE_DATA"]
   },
   provide_CCC: (item, fn, sig, valid) => {
     //! Provides temporary passthrough for game commands
@@ -275,6 +276,7 @@ export const IgorUtils = {
       control: JSON.stringify(IgorCore.control)
     }
     dbSet(IgorCore.saveName, data, IgorCore.db)
+    dbSet("lastSaveName", IgorCore.saveName)
   },
   backupSave() {
     let data = {
@@ -339,7 +341,7 @@ export const IgorUtils = {
         window.tfmg_save = await dbGet(IgorCore.saveName, IgorCore.db)
         return "done";
       case "storeSave":
-        await dbSet(IgorCore.saveName, params, IgorCore.db);
+        await dbSet(IgorCore.save, params, IgorCore.db);
         return "done";
       case "backupSave":
         IgorUtils.backupSave()

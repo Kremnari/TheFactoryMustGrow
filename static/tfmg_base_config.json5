@@ -9,8 +9,8 @@
             iconSet: "tfmg_base_data_icons.json",
             systemSet: "tfmg_base_systems.json",
             latestDates: {
-                dataSet: '2022-01-20',
-                iconSet: '2022-01-20',
+                dataSet: '2022-02-04',
+                iconSet: '2022-02-04 ',
                 systemSet: false,
             }
         },
