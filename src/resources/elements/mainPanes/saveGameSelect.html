@@ -1,0 +1,20 @@
+<template>
+    <div if.bind="view.ctrl.newGameSetup">
+        New Game
+        <span>
+            Something something dark side
+        </span>
+        <button click.delegate="view.set({type:'view', which: 'newGameSetup', what: false})">Cancel</button>
+    </div>
+    <div if.bind="!view.ctrl.newGameSetup">
+        <span click.delegate="view.set({type:'view', which: 'newGameSetup', what: true})">
+            New Game
+        </span><br>
+        Load:
+        <ul>
+            <li repeat.for="game of IgorJs.gameList" click.delegate="CCC.issue('core.loadGame', {'name.game': game})">
+                ${game}
+            </li>
+        </ul>
+    </div>
+</template>

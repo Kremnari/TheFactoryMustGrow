@@ -2,6 +2,7 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 import {inject, BindingEngine} from 'aurelia-framework'
 import {DataProvider} from 'DataProvider'
 import * as Config from 'Config'
+import {DialogMgr} from "resources/dialogs/DialogMgr.js"
 
 
 import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'CephlaComm/main'
@@ -13,12 +14,12 @@ import * as JSON5 from 'json5'
 import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
 
-@inject(BindingSignaler, BindingEngine)
+@inject(BindingSignaler, BindingEngine, DialogMgr)
 export class App {
     showTut = true
     dataBase = {}
     viewRecCat = false
-    constructor(signaler, BE) { 
+    constructor(signaler, BE, DS) { 
       window.tfmg = this
       this.Math = Math
       this.signaler = signaler
@@ -26,6 +27,7 @@ export class App {
       ChameJS.signaler = this.signaler
       ChameJS.app = this
       this.view = ChameView
+      this.DS = DS
       this.view.set({type: 'view', which: 'main', what: 'home'})
       this.view.set({type: 'context', what: 'standard'})
       this.CCC = CCC  // Need to add so it's available in the view
@@ -63,7 +65,9 @@ export class App {
       //this.mgrs.Ticker = IgorJs.Ticker
       CC_const.initialize({
         dataSet: database.mgrs.data,
+        dialogSvc: this.DS,
         viewer: ChameView
+
       })
       gameSetup(IgorJs)
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer

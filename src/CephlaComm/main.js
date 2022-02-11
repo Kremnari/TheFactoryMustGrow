@@ -1,6 +1,3 @@
-import {mgrs} from 'managers'
-import {DialogService} from 'aurelia-dialog'
-
 //* All three of these the same initials on purpose!
 //* Only one should ever be used in a given environment
 /** 
@@ -44,7 +41,7 @@ export const CephlaCommConstructor = {
     CephlaCommCore.utilityFns[named] = fn
   },
   initialize(obj) {
-    CephlaCommCore.dialogSvc = DialogService
+    CephlaCommCore.dialogSvc = obj.dialogSvc
     CephlaCommCore.dataSet = obj.dataSet
     CephlaCommCore.viewer = obj.viewer
   }

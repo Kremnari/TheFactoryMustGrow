@@ -9,6 +9,7 @@ const IgorCore = {
   hardTickers: {},
   eventHandlers: {},
   featureDefines: {},
+  userData: {},
   game: {}, // Tis the base game json
   objs: new Map(),
   namedObjs: [],
@@ -88,6 +89,7 @@ const IgorBuilder = {
 
 
 export const IgorUtils = {
+  subscribedFeatures: IgorCore.userData,
   async initialize(obj) {
     IgorCore.graphics = obj.viewTasker
     IgorCore.command = obj.commandTasker
@@ -104,9 +106,13 @@ export const IgorUtils = {
       IgorCore._utilityTemp.forEach( (elm) => IgorCore.command.utilityFn(elm.named, elm.fn) )
     }
     //load last game from IgorCore.db
+    IgorCore.command.provide("core.loadGame", async (obj) => {
+      console.log('loading game', obj.name.game)
+    }, {name: 'game'})
 
     IgorCore.saveName = await dbGet("lastSaveName") || "SaveGame"
     IgorCore.save = await dbGet(IgorCore.saveName, IgorCore.db)
+    IgorUtils.gameList = await dbGet("gameList", IgorCore.db) || []
   },
   getDataSets() {
     return IgorCore.save?.control.dataSets || ["TFMG_BASE_DATA"]
@@ -235,6 +241,7 @@ export const IgorUtils = {
     } else {
       //Create new game
       IgorCore.game = IgorCore.metaDefines['#'].new
+      IgorUtils.gameList = ['SaveGame']
       //console.log('new game')
     }
     //console.log('db loaded')
@@ -277,6 +284,7 @@ export const IgorUtils = {
     }
     dbSet(IgorCore.saveName, data, IgorCore.db)
     dbSet("lastSaveName", IgorCore.saveName)
+    dbSet("gameList", IgorUtils.gameList, IgorCore.db)
   },
   backupSave() {
     let data = {

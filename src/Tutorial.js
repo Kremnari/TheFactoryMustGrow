@@ -3,7 +3,7 @@ import $ from "jquery"
 
 let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..5
             ,1, 1.1, 1.2 //Basic info ..8
-            ,2, 2.1, 2.2, 2.3, 2.4 //  ..13
+            ,2, 2.1, 2.2, 2.21, 2.3, 2.4 //  ..13
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..21
               , 3.7, 3.75, 3.8, 3.81, 3.82, 3.9, 3.91  // ..28
             ,4, 4.1, 4.2, 4.3, 4.4  // ..33
@@ -68,6 +68,8 @@ class tutorial {
     this.setTutClick()
   }
   clearTut() {
+    //TODO remove wait checks
+    //  THEN clear workaround from setStep
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").off("click")
     $(".tutHighlight").removeClass("tutHighlight")
@@ -145,6 +147,7 @@ class tutorial {
   show() {    $("#tutorial").show()  }
   setStep(num) {
     //console.log("running step: "+num)
+    if(!this.baseApp.globals.activeFeatures.tutorial) return 
     this.baseApp.globals.activeFeatures.tutorial.step = steps.indexOf(num)
     switch(num) {
       case 0:
@@ -202,6 +205,10 @@ class tutorial {
       case 2.2:
         //$("#playerControls h4:contains('Workshop')").addClass("tutStep")
         //$("#facBlockControls h5:contains('Manufacturing')").addClass("tutStep")
+        __.tutStep(".playerMenu")
+        this.setTutClick()
+        break;
+      case 2.21:
         __.tutStep(".navEntities")
         this.setTutClick()
         break;
@@ -398,6 +405,7 @@ class tutorial {
         __.tutTarget(false)
         $("#tutorial").show()
         __.tutText("Factory Blocks are the core of this game, constantly producing the mass of materials you need")
+        mgrs.baseApp.view.set({type:'view', which: 'navSet', what: 'factory'})
         __.tutStep(".fa-object-ungroup")
         __.setTutClick()
         break;
