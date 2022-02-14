@@ -90,6 +90,7 @@ const IgorBuilder = {
 
 export const IgorUtils = {
   subscribedFeatures: IgorCore.userData,
+  gameList: [],
   async initialize(obj) {
     IgorCore.graphics = obj.viewTasker
     IgorCore.command = obj.commandTasker
@@ -98,7 +99,7 @@ export const IgorUtils = {
     IgorCore.ticker_sub = IgorCore.ticker.subscribe(IgorCore.Tick)
     IgorCore.dbName = obj.dbName
     IgorCore.db = new Store(IgorCore.dbName, "store")
-    IgorCore.dataSets = obj.config
+    IgorUtils.dataSets = obj.dataSets.data_files
     if(IgorCore._provideTemp) {
       IgorCore._provideTemp.forEach( (elm) => {IgorCore.command.provide(elm.item, elm.fn, elm.sig, elm.valid)})
     }
@@ -106,16 +107,17 @@ export const IgorUtils = {
       IgorCore._utilityTemp.forEach( (elm) => IgorCore.command.utilityFn(elm.named, elm.fn) )
     }
     //load last game from IgorCore.db
-    IgorCore.command.provide("core.loadGame", async (obj) => {
-      console.log('loading game', obj.name.game)
+    IgorCore.command.provide("core.loadGame", async (data) => {
+      console.log('loading game', data.name.game)
     }, {name: 'game'})
 
-    IgorCore.saveName = await dbGet("lastSaveName") || "SaveGame"
-    IgorCore.save = await dbGet(IgorCore.saveName, IgorCore.db)
     IgorUtils.gameList = await dbGet("gameList", IgorCore.db) || []
+    IgorCore.saveName = await dbGet("lastSaveName", IgorCore.db)
+    if(!IgorCore.saveName) { IgorUtils.newGame() }
+    else {IgorUtils.loadGame(IgorCore.saveName) }
   },
   getDataSets() {
-    return IgorCore.save?.control.dataSets || ["TFMG_BASE_DATA"]
+    return IgorCore.control.dataSets
   },
   provide_CCC: (item, fn, sig, valid) => {
     //! Provides temporary passthrough for game commands
@@ -219,32 +221,51 @@ export const IgorUtils = {
     }
     at.$_signalOrders = order
   },
-  async loadDatabase(dataset) {
+  loadDatabase(dataset) {
+    //? Is this really all it's needed for?
     IgorCore.data = dataset
-    //Iterate through data objects
-    // pass required info into Graphics and Command processors
-    
-    //If save loaded,
-    if(IgorCore.save) {
-      IgorCore.game = JSON.parse(IgorCore.save.game)
-      IgorCore.objs = new Map(JSON.parse(IgorCore.save.objs))
-      if(IgorCore.save.control) IgorCore.control = JSON.parse(IgorCore.save.control)
-      //Reconnect tags
-      IgorCore.objs.forEach( (x) => {
-        x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
-        if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
-      })
-      // run each function in eventhandlers['gameload']
-      if(IgorCore.eventHandlers["gameLoad"]) {
-        IgorCore.eventHandlers["gameLoad"].forEach( (x) => x(IgorUtils) )
-      }
-    } else {
-      //Create new game
-      IgorCore.game = IgorCore.metaDefines['#'].new
-      IgorUtils.gameList = ['SaveGame']
-      //console.log('new game')
+  },
+  async loadGame(name) {
+    //find game in gamelist and set game on IgorCore
+    IgorCore.save = await dbGet(name, IgorCore.db)
+    IgorCore.game = JSON.parse(IgorCore.save.game)
+    IgorCore.objs = new Map(JSON.parse(IgorCore.save.objs))
+    if(IgorCore.save.control) IgorCore.control = JSON.parse(IgorCore.save.control)
+    //Reconnect tags
+    IgorCore.objs.forEach( (x) => {
+      x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity: x, load: x.$_tags})
+      if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
+    })
+    // run each function in eventhandlers['gameload']
+    //? Obsolete?
+    if(IgorCore.eventHandlers["gameLoad"]) {
+      IgorCore.eventHandlers["gameLoad"].forEach( (x) => x(IgorUtils) )
     }
-    //console.log('db loaded')
+  },
+  newGame(gameOptions) {
+    !gameOptions && (gameOptions = {name: 'SaveGame', dataSets: ['TFMG_BASE_DATA']})
+    //TODO compile metaDefines based on loadData
+    IgorCore.game = IgorCore.metaDefines['#'].new
+    IgorCore.objs = new Map()
+    IgorCore.control = {obj_counter: 0, dataSets: gameOptions.dataSets}
+    IgorCore.saveName = gameOptions.name
+    IgorUtils.gameList.push(gameOptions)
+  },
+  saveGame() {
+    console.log("Game saving...")
+    if(IgorCore.eventHandlers['gameSave']) {
+      IgorCore.eventHandlers['gameSave'].forEach( (fn) => {
+        fn(IgorUtils)
+      })
+    }
+    let data = {
+      game: JSON.stringify(IgorCore.game),
+      objs: JSON.stringify(Array.from(IgorCore.objs.entries())),
+      control: JSON.stringify(IgorCore.control)
+    }
+    dbSet(IgorCore.saveName, data, IgorCore.db)
+    dbSet("lastSaveName", IgorCore.saveName, IgorCore.db)
+    dbSet("gameList", IgorUtils.gameList, IgorCore.db)
   },
   setNamed(who, path) {  IgorCore.namedObjs[who] = path  },
   getNamed(who) {
@@ -270,22 +291,6 @@ export const IgorUtils = {
   get dataSet() {
     return IgorCore.data
   },
-  saveGame() {
-    console.log("Game saving...")
-    if(IgorCore.eventHandlers['gameSave']) {
-      IgorCore.eventHandlers['gameSave'].forEach( (fn) => {
-        fn(IgorUtils)
-      })
-    }
-    let data = {
-      game: JSON.stringify(IgorCore.game),
-      objs: JSON.stringify(Array.from(IgorCore.objs.entries())),
-      control: JSON.stringify(IgorCore.control)
-    }
-    dbSet(IgorCore.saveName, data, IgorCore.db)
-    dbSet("lastSaveName", IgorCore.saveName)
-    dbSet("gameList", IgorUtils.gameList, IgorCore.db)
-  },
   backupSave() {
     let data = {
       game: JSON.stringify(IgorCore.game),
@@ -302,17 +307,6 @@ export const IgorUtils = {
       if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
     })
     console.log("backup loaded")
-  },
-  async loadSave(which) {
-    let save = await dbGet(which, IgorCore.db)
-    IgorCore.game = JSON.parse(save.game)
-    IgorCore.objs = new Map(JSON.parse(save.objs))
-    if(save.control) IgorCore.control = JSON.parse(save.control)
-    //Reconnect tags
-    IgorCore.objs.forEach( (x) => {
-      x.$_tags = TagMapProxy({to: IgorCore.$_tags, entity:x, load: x.$_tags})
-      if(IgorCore.object_tickers[x.$_type]) IgorCore.tick_entities.push(x)
-    })
   },
   setState(which) {
     switch(which) {

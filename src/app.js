@@ -9,9 +9,10 @@ import {CephlaCommCaller as CCC, CephlaCommConstructor as CC_const} from 'Cephla
 import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView, ChameleonTasker as ChameTasks} from 'Chameleon/main'
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
+import * as BaseGame from 'gameCode/BaseGame' //* this will come from data files
+
 import * as JSON5 from 'json5'
 
-import {setupIgor as gameSetup} from 'gameCode/BaseGame'
 import {Tutorial} from 'Tutorial'
 
 @inject(BindingSignaler, BindingEngine, DialogMgr)
@@ -53,28 +54,27 @@ export class App {
           ticks_max_phase: Config.TICKS_MAX_PHASE
         },
         dbName: "TheFactoryMustGrow",
-        dataSet: setup_data,
+        dataSets: setup_data,
       })
       DataProvider.onLoadComplete((db) => { this.init(db) }) //webpack live reload hack
       DataProvider.beginLoad(setup_data, IgorJs.getDataSets())
     }
     async init(database) { 
+      //TODO `this.mgrs` needs to be removed
       this.mgrs = database.mgrs
       this.mgrs.baseApp = this
-      //this.mgrs.signaler = this.signaler
-      //this.mgrs.Ticker = IgorJs.Ticker
+
       CC_const.initialize({
         dataSet: database.mgrs.data,
         dialogSvc: this.DS,
         viewer: ChameView
 
       })
-      gameSetup(IgorJs)
       await IgorJs.loadDatabase(database.mgrs.data) //TODO fix this data transfer
       this.dataSet = IgorJs.dataSet
-      this.globals = IgorJs.globalObject
-      CC_const.setRunner(IgorJs.getRunner())
 
+      //TODO Improve this... just seems hacky
+      CC_const.setRunner(IgorJs.getRunner())
       this.IgorRunner = IgorJs.getRunner() //# For debugging
 
       this.globals = IgorJs.getNamed("global")

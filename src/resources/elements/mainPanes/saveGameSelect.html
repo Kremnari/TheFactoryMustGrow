@@ -1,4 +1,20 @@
 <template>
+    <div>
+        <h5>Select Base</h5>
+        <span repeat.for="dataSet of IgorJs.dataSets | objectValues"
+            if.bind="dataSet.base"
+            class="${view.$scope.gameDetails.dataSets[0]==dataSet.name && 'selected'}"
+            click.delegate="view.$scope.gameDetails.dataSets[0]=dataSet.name"
+            >
+            <img src.bind="dataSet.icon" height="64px" width="64px" alt="${dataSet.name}">
+        </span>
+        <h5>Select Mods</h5>
+        <span repeat.for="dataSet of IgorJs.dataSets | objectValues"
+            if.bind="!dataSet.base && dataSet.dependencies.include(view.$scope.gameDetails.dataSets[0])"
+            class="${view.$scope.gameDetails.dataSets.includes(dataSet.name) && 'selected'}">
+                <img src.bind="dataSet.icon" height="64px" width="64px" alt="${dataSet.name}">
+        </span>
+    </div>
     <div if.bind="view.ctrl.newGameSetup">
         New Game
         <span>
@@ -12,9 +28,12 @@
         </span><br>
         Load:
         <ul>
-            <li repeat.for="game of IgorJs.gameList" click.delegate="CCC.issue('core.loadGame', {'name.game': game})">
-                ${game}
+            <li repeat.for="game of IgorJs.gameList" class="${view.$scope.gameDetails==game && 'selected'}" click.delegate="view.set({type:'scope', which: 'gameDetails', what: game})">
+                ${game.name}
             </li>
         </ul>
+        <span show="false" click.delegate="CCC.issue('core.loadGame', {'name.game': game})">
+
+        </span>
     </div>
 </template>

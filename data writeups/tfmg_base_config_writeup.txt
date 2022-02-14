@@ -9,6 +9,7 @@ data description {
     name: 'string', unique id
     localized: 'string',    localization id
     id: 'string',   internal id
+    icon: 'dataURI', icon to display when available, should be full color
     dataSet: 'filename' | 'url' -> json | json5,    dataset
     iconSet: 'filename' | 'url' -> json | json5,    iconSet
     systemSet: 'filename' | 'url' -> json5,     file containing IgorJs system description

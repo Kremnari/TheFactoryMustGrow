@@ -131,7 +131,7 @@
         <p click.delegate="globals.activeFeatures['offenseBlocks'] && (view.set({type: 'view', which: 'main', what: 'offense'}))"><span class="fas fa-fighter-jet navOffense"></span>Offenses</p>
       </section>
       <section id="menu" if.bind="view.ctrl.main=='menu'" style="z-index:2000">
-        <div click.delegate="view.set({type: 'view', which: 'main', what: 'saveGameSelect'})" if.bind="IgorJs.subscribedFeatures.multiGame"><span class="fas fa-server" ></span>Select Game</div>
+        <div click.delegate="view.set({type: 'view', which: 'main', what: 'saveGameSelect'})" if2.bind="IgorJs.subscribedFeatures.multiGame"><span class="fas fa-server" ></span>Select Game</div>
         <div click.delegate="save()">Save</div>
         <div click.delegate="copySave()">Copy Save</div>
         <div click.delegate="jumpTutorial()">FactoryBlock Tutorial</div>
