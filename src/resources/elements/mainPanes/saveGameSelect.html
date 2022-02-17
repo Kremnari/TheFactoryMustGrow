@@ -3,8 +3,8 @@
         <h5>Select Base</h5>
         <span repeat.for="dataSet of IgorJs.dataSets | objectValues"
             if.bind="dataSet.base"
-            class="${view.$scope.gameDetails.dataSets[0]==dataSet.name && 'selected'}"
-            click.delegate="view.$scope.gameDetails.dataSets[0]=dataSet.name"
+            class="${view.$scope.gameDetails.dataSets[0]==dataSet.id && 'selected'}"
+            click.delegate="view.$scope.gameDetails.dataSets[0]=dataSet.id"
             >
             <img src.bind="dataSet.icon" height="64px" width="64px" alt="${dataSet.name}">
         </span>

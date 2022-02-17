@@ -337,7 +337,18 @@ export const IgorUtils = {
   async commands(what, params) {
     switch(what) {
       case "resetSave":
+        let idx = IgorUtils.gameList.findIndex( x => x.name==IgorCore.saveName )
+        if(idx > -1) {
+          IgorUtils.gameList.splice(idx, 1)
+          dbSet("gameList", IgorUtils.gameList, IgorCore.db)
+        }
         await dbDel(IgorCore.saveName, IgorCore.db)
+        if(IgorUtils.gameList.length>0) {
+          dbSet("lastSaveName", IgorUtils.gameList[0].name, IgorCore.db)
+        } else {
+          dbDel("lastSaveName", IgorCore.db)
+        }
+
         return true;
       case "copySave":
         window.tfmg_save = await dbGet(IgorCore.saveName, IgorCore.db)
