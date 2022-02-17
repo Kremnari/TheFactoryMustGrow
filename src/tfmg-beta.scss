@@ -111,9 +111,9 @@
     }
   }
   & > main {
-    overflow-y: auto;
     position: absolute;
     width: calc(100%-5vw);
+    height: auto;
     margin: 0 0.5rem;
     top: calc(18vh);
     bottom: calc(20vh + 5px);
@@ -168,28 +168,71 @@
       }
     }
     & #facBlocks {
-      & .col.facBlockList {
+      display: grid;
+      grid-gap: 2px;
+      grid-template: 
+      ". head head . . ." 5%
+      ". new-a new-b new-c new-d ." 7.5%
+      "a b b b b b" 20%
+      "a c c c c c" 20%
+      "a c c c c c" 20%
+      "a d d d d d" 20%
+      "a e e e e e" 7.5%;
+      height: 100%;
+      @media only screen and (max-width: 500px) {
+        grid-template: 
+        "head head head ." 5%
+        "new-a new-b new-c new-d" 7.5%
+        "a b b b" 20%
+        "a c c c" 20%
+        "a c c c" 20%
+        "a d d d" 20%
+        "a e e e" 7.5%;
+      }
+      & > h3 {
+        grid-area: head;
+        @media only screen and (max-width: 500px) {
+          font-size: 1.5rem;
+        }
+      }
+      & .resBlockNew {
+        grid-area: new-a;
+      }
+      & .busLineNew {
+        grid-area: new-b;
+      }
+      & .facBlockNew {
+        grid-area: new-c;
+      }
+      & .techBlockNew {
+        grid-area: new-d;
+      }
+      & .facBlockList {
         border: 2px solid black;
         border-radius: 8px;
         overflow-y: auto;
         &.resBlocks {
-          min-height: 40px;
-          max-height: 80px;
+          //min-height: 40px;
+          //max-height: 80px;
+          grid-area: b;
         }
         &.specBuses {
-
+          grid-area: e
         }
         &.techBlocks {
-          min-height: 40px;
-          max-height: 80px;
+          //min-height: 40px;
+          //max-height: 80px;
+          grid-area: d;
         }
         &.busLines {
-          min-height: 80px;
-          max-height: 160px;
+          //min-height: 80px;
+          //max-height: 160px;
+          grid-area: a;
         }
         &.facBlocks {
-          min-height: 120px;
-          max-height: 280px;
+          //min-height: 120px;
+          //max-height: 280px;
+          grid-area: c;
         }
         & .blockItem {
           width: 32px;

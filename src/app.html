@@ -273,105 +273,98 @@
       </section>
       <section id="facBlocks" show.bind="view.ctrl.main=='facBlocks'" class="container">
         <h3>Factory Blocks</h3>
-        <div class="row">
-          <div class="col facBlockList resBlocks">
-            <span
-              click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
-              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'}) })"
-              mouseleave.trigger = "view.unset({which: 'tooltip'})"
-              class="newFacBlock resBlock fas fa-plus-square fa_icon_sm_space"
-            > Resources</span><br>
-            <div
-              repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'generalUpdate'"
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: resBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = resBlock)"
-              class="blockItem resBlockItem
-                    ${view.$scope.showingBlock==resBlock && 'selected'}
-                    ${view.$scope.connectedItems[resBlock.$_id]}"
-            >
-              <icon-base
-                item="technology@facBlocks"
-                alt-image.bind="resBlock.subIcon"
-              ></icon-base>
-            </div>
-          </div>
-          <div class="col specBuses">
-            <span>Special</span>
-            <div
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.defenseBus})"
-              class="${view.$scope.showingBlock==facBlocks.defenseBus && 'selected'} blockItem defBus"
-              if.bind="globals.activeFeatures.factoryBlocks.defenseBus"
-            >Defense Bus</div>
-            <div
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.marketBus})"
-              class="${view.$scope.showingBlock==facBlocks.marketBus && 'selected'} blockItem marBus"
-              if.bind="globals.activeFeatures.factoryBlocks.marketBus"
-            >Market Bus</div>
-            <div
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.offenseBus})"
-              class="${view.$scope.showingBlock==facBlocks.offenseBus && 'selected'} blockItem offBus"
-              if.bind="globals.activeFeatures.factoryBlocks.offenseBus"
-            >Offense Bus</div>
-          </div>
-          <div class="col facBlockList techBlocks">
-            <span
-              click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)"
-              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'}) })"
-              class="newFacBlock techBlock fas fa-plus-square fa_icon_sm_space"
-            > Research</span><br>
-            <div
-              repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'generalUpdate'"
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: techBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = techBlock)"
-              class="blockItem techBlockItem
-                    ${view.$scope.showingBlock==techBlock && 'selected'}
-                    ${view.$scope.connectedItems[techBlock.$_id]}"
-            >
-              <icon-base
-                item="technology@facBlocks"
-                alt-image.bind="techBlock.subIcon"
-              ></icon-base>
-            </div>
+        <span
+          click.delegate="CCC.issue('facBlock.newResBlock', {}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'resBlock'}) })"
+          mouseleave.trigger = "view.unset({which: 'tooltip'})"
+          class="newFacBlock resBlockNew fas fa-plus-square fa_icon_sm_space"
+        > Resource Block</span>
+        <span
+          click.delegate="CCC.issue('facBlock.newBus', {}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'}) })"
+          class="newFacBlock busLineNew fas fa-plus-square fa_icon_sm_space"
+        > Factory Bus</span>
+        <span
+          click.delegate="CCC.issue('facBlock.newTechBlock', {}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'techBlock'}) })"
+          class="newFacBlock techBlockNew fas fa-plus-square fa_icon_sm_space"
+        > Research Block</span>
+        <span
+          click.delegate="CCC.issue('facBlock.newBlock', {}, $event)"
+          mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'}) })"
+          class="newFacBlock facBlockNew fas fa-plus-square fa_icon_sm_space"
+        > Factory Block</span>
+        <div class="facBlockList resBlocks">
+          <div
+            repeat.for="resBlock of IgorJs.arrayFromIds(globals.facBlocks.resBlocks) & signal:'generalUpdate'"
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: resBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = resBlock)"
+            class="blockItem resBlockItem
+                  ${view.$scope.showingBlock==resBlock && 'selected'}
+                  ${view.$scope.connectedItems[resBlock.$_id]}"
+          >
+            <icon-base
+              item="technology@facBlocks"
+              alt-image.bind="resBlock.subIcon"
+            ></icon-base>
           </div>
         </div>
-        <div class="row">
-          <div class="col facBlockList busLines">
-            <span
-              click.delegate="CCC.issue('facBlock.newBus', {}, $event)"
-              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'busLine'}) })"
-              class="newFacBlock busLine fas fa-plus-square fa_icon_sm_space"
-            > Factory Buses</span><br>
-            <div
-              repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'generalUpdate'"
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBus, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBus)"
-              class="blockItem busLineItem
-                    ${view.$scope.showingBlock==facBus && 'selected'}
-                    ${view.$scope.connectedItems[facBus.$_id]}"
-            >
-              <icon-base
-                item="technology@facBlocks"
-                alt-image.bind="facBus.subIcon"
-              ></icon-base>
-            </div>
+        <div class="facBlockList specBuses">
+          <div
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.defenseBus})"
+            class="${view.$scope.showingBlock==facBlocks.defenseBus && 'selected'} blockItem defBus"
+            if.bind="globals.activeFeatures.factoryBlocks.defenseBus"
+          >Defense Bus</div>
+          <div
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.marketBus})"
+            class="${view.$scope.showingBlock==facBlocks.marketBus && 'selected'} blockItem marBus"
+            if.bind="globals.activeFeatures.factoryBlocks.marketBus"
+          >Market Bus</div>
+          <div
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlocks.offenseBus})"
+            class="${view.$scope.showingBlock==facBlocks.offenseBus && 'selected'} blockItem offBus"
+            if.bind="globals.activeFeatures.factoryBlocks.offenseBus"
+          >Offense Bus</div>
+        </div>
+        <div class="facBlockList techBlocks">
+          <div
+            repeat.for="techBlock of IgorJs.arrayFromIds(globals.facBlocks.techBlocks) & signal:'generalUpdate'"
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: techBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = techBlock)"
+            class="blockItem techBlockItem
+                  ${view.$scope.showingBlock==techBlock && 'selected'}
+                  ${view.$scope.connectedItems[techBlock.$_id]}"
+          >
+            <icon-base
+              item="technology@facBlocks"
+              alt-image.bind="techBlock.subIcon"
+            ></icon-base>
           </div>
         </div>
-        <div class="row">
-          <div class="col facBlockList facBlocks">
-            <span
-              click.delegate="CCC.issue('facBlock.newBlock', {}, $event)"
-              mouseenter.trigger="view.set({type: 'scope', which: 'tooltip', what: CCC.utilityFn('facBlock.__tooltips',null, {which: 'factoryBlock'}) })"
-              class="newFacBlock facBlock fas fa-plus-square fa_icon_sm_space"
-            > Factory Blocks</span><br>
-            <div
-              repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'generalUpdate'"
-              click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBlock)"
-              class='blockItem facBlockItem
-                    ${view.$scope.showingBlock==facBlock && "selected"}
-                    ${view.$scope.connectedItems[facBlock.$_id]}'
-            >
-              <icon-base
-                item="technology@facBlocks"
-                alt-image.bind="facBlock.subIcon"
-              ></icon-base>
-            </div>
+        <div class="facBlockList busLines">
+          <div
+            repeat.for="facBus of IgorJs.arrayFromIds(globals.facBlocks.buses) & signal:'generalUpdate'"
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBus, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBus)"
+            class="blockItem busLineItem
+                  ${view.$scope.showingBlock==facBus && 'selected'}
+                  ${view.$scope.connectedItems[facBus.$_id]}"
+          >
+            <icon-base
+              item="technology@facBlocks"
+              alt-image.bind="facBus.subIcon"
+            ></icon-base>
+          </div>
+        </div>
+        <div class="facBlockList facBlocks">
+          <div
+            repeat.for="facBlock of IgorJs.arrayFromIds(globals.facBlocks.blocks) & signal:'generalUpdate'"
+            click.delegate="view.set({type:'scope', which: 'showingBlock', what: facBlock, $double: {type: 'view', which: 'main', what: 'viewFacBlock'}}) && (setConnectedItems = facBlock)"
+            class='blockItem facBlockItem
+                  ${view.$scope.showingBlock==facBlock && "selected"}
+                  ${view.$scope.connectedItems[facBlock.$_id]}'
+          >
+            <icon-base
+              item="technology@facBlocks"
+              alt-image.bind="facBlock.subIcon"
+            ></icon-base>
           </div>
         </div>
       </section>
