@@ -96,6 +96,8 @@ export class App {
                 && ((Array.isArray(category) && category.includes(x.category))
                     || x.category == category
                 )
+        }).sort( (x, y) => {
+          return x.name < y.name ? -1 : 1
         })
       })
       ChameJS.setViewFn("objectValues", (list) => {

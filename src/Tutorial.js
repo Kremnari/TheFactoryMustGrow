@@ -1,8 +1,8 @@
 import {mgrs} from "managers"
 import $ from "jquery"
 
-let steps = [0, 0.1, 0.2, 0.3, 0.4, 0.9 //Intro ..5
-            ,1, 1.1, 1.2 //Basic info ..8
+let steps = [0, 0.1, 0.2 //Intro ..5
+            ,1 //Basic info ..8
             ,2, 2.1, 2.2, 2.21, 2.3, 2.4 //  ..13
             ,3, 3.1, 3.2, 3.21, 3.3, 3.4, 3.5, 3.6  // ..21
               , 3.7, 3.75, 3.8, 3.81, 3.82, 3.9, 3.91  // ..28
@@ -53,7 +53,7 @@ class tutorial {
       this.setStep(steps[++this.atStep])
     }, 10)
   }
-  tutStep(selector) { $(selector).addClass("tutStep");}
+  tutStep(selector) { $(selector).show().addClass("tutStep");}
   tutTarget(selector) {
     if(selector) {
       $(selector).addClass("tutTarget")
@@ -70,6 +70,10 @@ class tutorial {
   clearTut() {
     //TODO remove wait checks
     //  THEN clear workaround from setStep
+    console.log('clearTut')
+    $(".progressiveTut").show()
+    $(".tutHidden").show().removeClass("tutHidden")
+
     $(".tutStep").removeClass("tutStep").off("click")
     $("#tut_button").off("click")
     $(".tutHighlight").removeClass("tutHighlight")
@@ -145,6 +149,8 @@ class tutorial {
   }
   hide() {    $("#tutorial").hide()  }
   show() {    $("#tutorial").show()  }
+  show(selector = ".progressiveTut") {   $(selector).show().removeClass("tutHidden")  }
+  hide(selector = ".progressiveTut") {   $(selector).hide().addClass("tutHidden")  }
   setStep(num) {
     //console.log("running step: "+num)
     if(!this.baseApp.globals.activeFeatures.tutorial) return 
@@ -152,6 +158,7 @@ class tutorial {
     switch(num) {
       case 0:
         //lego
+        __.hide()
         __.tutText("The Factory Must Grow")
         __.tutButton("Let's build it")
         break;
@@ -164,41 +171,51 @@ class tutorial {
         __.tutButton("Just don't condescend me, and we'll be fine")
         break;
       case 0.3:
+        // off
         __.tutText("This button expands the navigation menu.")
         __.tutHighlight(".fa-level-up-alt")
         __.tutButton("...In case I forget what the icons mean.")
         break;
       case 0.4:
+        // off
         __.tutText("This menu has a number of options, including a subscription to my mailing list. ")
         __.tutHighlight(".fa-bars")
         __.tutButton("Maybe I'll want to stay updated...")
         break;
-      case 0.9: 
+      case 0.9:
+        // off
         __.tutStep("#resources")
         $("#tut_pos").addClass("top")
         __.tutText("You can mine (click) these by hand")
         __.tutButton("Got it")
         break;
       case 1:
+        __.show("#resources")
+        __.hide("#resources .icon-list icon-base")
         __.tutStep("#resources icon-base[title='stone']")
-        __.tutText("Mine 5 stone")
+        //__.tutText("Mine 5 stone")
         __.gameWait = {name:"stone", count: 5, type:"playerInv"}
         break;
       case 1.1:
+        // off
         __.tutText("Machines will be used for the bulk of your production.")        
         __.tutButton("Which are the machines?")
         break;
       case 1.2:
+        // off
         __.tutText("Machines have a red 'M' at the bottom of their icon")
         __.tutButton("So many options")
         break;
       case 2:
-        __.tutText("Now build a furnace to melt metal to plates")
+        //__.tutText("Now build a furnace to melt metal to plates")
+        __.show("#craftables")
+        __.hide("#recipes > icon-base")
         __.tutStep("#recipes icon-base[title='stone-furnace']")
         this.gameWait = {name:"stone-furnace", count: 1, type:"playerInv"}
         break;
       case 2.1:
-        __.tutText("Clicking on the furnace in your inventory will add it to your production machines")
+        //__.tutText("Clicking on the furnace in your inventory will add it to your production machines")
+        __.show("#inventoryList")
         __.tutStep("#inventoryList icon-base[title='stone-furnace']")
         this.setTutClick()
         break;

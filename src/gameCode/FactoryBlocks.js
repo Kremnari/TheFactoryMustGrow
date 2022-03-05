@@ -771,6 +771,7 @@ FactoryBus.ClearClog.signature = {
 }
 FactoryBus.ClearClog.CC_provide = "factoryBus.clearClog"
 FactoryBus.tick = (entity, tickdata, Igor) => {
+    //TODO split into separate tick functions
     if(entity.connections.sources.length>0 && entity.processors.source?.xferQty>0) {
         if(entity.processors.source.xferTimer>=entity.processors.source.xferTicks) {
             let busXfer = Igor.processTEMP(

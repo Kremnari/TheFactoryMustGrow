@@ -80,22 +80,20 @@
     top: 10vh;
     height: 8vh;
     width: 100%;
-    display: flex;
+    display: grid;
     justify-content: space-evenly;
+    grid-gap: 5px;
+    grid-template: "nav-item nav-item nav-item" / 1fr 2fr 1fr;
     overflow: hidden;
-    & > div {
-      width: 100vw;
-    }
-    & .col:not(.nav-border) {
-      flex-grow: 2;
-    }
-    & .col > div {
+    & > div > div {
       display: flex;
-      & span {
+      margin-bottom: 1vh;
+      & > span {
         flex: 1;
         text-align: center;
         margin: 0 4px;
         padding: 3px 8px;
+        height: 3vh;
         &.selected {
           border: 1px solid lightblue;
           border-radius: 8px;
@@ -113,10 +111,10 @@
   & > main {
     position: absolute;
     width: calc(100%-5vw);
-    height: auto;
+    //height: auto;
     margin: 0 0.5rem;
     top: calc(18vh);
-    bottom: calc(20vh + 5px);
+    bottom: calc(18vh);
     & > * {
       position: relative;
     }
@@ -124,10 +122,14 @@
       width: 60vw;
     }
     & #playerHome {
+      position: absolute;
+      height: 100%;
+      width: 100%;
       & h3 {
         text-align: center;
       }
       & #recipes {
+        position: absolute;
         height: 30vh;
         display: flex;
         flex-wrap: wrap;
@@ -135,6 +137,10 @@
         align-items: flex-start;
         align-content: flex-start;
         gap: 6px;
+      }
+      & #resources {
+        position: absolute;
+        bottom: 0;
       }
       & .icon-list {
         overflow-y: auto;
@@ -196,10 +202,10 @@
         }
       }
       & .resBlockNew {
-        grid-area: new-a;
+        grid-area: new-b;
       }
       & .busLineNew {
-        grid-area: new-b;
+        grid-area: new-a;
       }
       & .facBlockNew {
         grid-area: new-c;
