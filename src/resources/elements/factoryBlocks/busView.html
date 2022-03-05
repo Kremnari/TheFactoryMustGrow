@@ -84,7 +84,7 @@
         <div repeat.for="source of view.$scope.showingBlock.connections.sources">
           <span
             class="fas fa-sign-in-alt fa_icon_sm"
-            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: source})"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(source)})"
           ></span>
           ${IgorJs.getObjId(source).name}
           <icon-base
@@ -128,7 +128,7 @@
           ${IgorJs.getObjId(drain).name}
           <span
             class="fas fa-sign-out-alt fa_icon_sm"
-            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: drain})"
+            click.delegate="view.set({type: 'scope', which: 'showingBlock', what: IgorJs.getObjId(drain)})"
           ></span>
         </div>
       </div>

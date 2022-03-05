@@ -27,6 +27,7 @@ const ChameleonCore = {
   viewFilters: {},
 }
 window.chame = ChameleonCore
+
 export const ChameleonBuilder = {
   signaler: ChameleonCore.signaler,
   app: ChameleonCore.baseApp,
@@ -76,6 +77,7 @@ export const ChameleonViewer = {
         command.statusBox && (ChameleonCore.viewControl.statusBox = command.statusBox)
         break;
       case "scope":
+        if(!command.what) return
         ChameleonCore.viewScope[command.which] = command.what
         if(command.which=="tooltip") {
           ChameleonCore.viewControl.statusBox = "tooltip"
