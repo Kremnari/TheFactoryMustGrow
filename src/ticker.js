@@ -1,5 +1,3 @@
-import {mgrs} from "managers"
-
 //* This two imports should be removed,
 //     the config data should be passed through the constructor
 //     a modifier function should be provided to multiply the speed of the ticker

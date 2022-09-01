@@ -117,7 +117,7 @@
       <section id="nav" if.bind="view.ctrl.main=='nav'">
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'nav'})"><span class="fas fa-sort-amount-down-alt selected" alt="verbose nav"></span>Expanded Nav</p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'menu'})"><span class="fas fa-bars" ></span>Menu</p>
-        <p click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})"><span class="fab fa-dev" if.bind="showDev"></span>Dev Menu</p>
+        <p click.delegate="view.set({type: 'view', which: 'main', what: 'dev'})" if.bind="showDev"><span class="fab fa-dev"></span>Dev Menu</p>
         <p class="fas spacer"></p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'home'})"><span class="fas fa-user navHome"></span>Player Home</p>
         <p click.delegate="view.set({type: 'view', which: 'main', what: 'entities'})"><span class="fas fa-toolbox navEntities"></span>Workshop</p>
@@ -190,6 +190,7 @@
         <div click.delegate="IgorJs.setState('toggle')">${IgorJs.Ticker.isRunning ? "Pause" : "Resume"}</div>
         <div click.delegate="jumpStart()">JumpStart()</div>
         <div click.delegate="testing()">Testing()</div>
+        <div click.delegate="isAwesome()">Editor</div>
         <div click.delegate="nukeCache()">NukeCache</div>
         <div click.delegate="view.set({type: 'view', which: 'version', what: 'editData'})" if.bind="editDataSource">Edit DataSource</div>
         <div click.delegate="toggleDev()" if.bind="showDev">Dev Off</div>

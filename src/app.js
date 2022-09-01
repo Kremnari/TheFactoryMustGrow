@@ -10,6 +10,7 @@ import {ChameleonBuilder as ChameJS, ChameleonViewer as ChameView, ChameleonTask
 import {IgorUtils as IgorJs} from 'IgorJs/main'
 
 import * as BaseGame from 'gameCode/BaseGame' //* this will come from data files
+// imported for side effects
 
 import * as JSON5 from 'json5'
 
