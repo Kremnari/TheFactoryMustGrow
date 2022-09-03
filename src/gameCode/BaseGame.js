@@ -1,5 +1,8 @@
 import {IgorUtils as IgorJs} from "IgorJs/main"
+
+//Config should come from game files
 import * as CONFIG from 'Config'
+
 
 import * as PlayerWorkshop from 'gameCode/PlayerWorkshop'
 import * as ObjectsSource from 'gameCode/GameObjects'

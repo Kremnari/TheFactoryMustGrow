@@ -10,8 +10,7 @@
       <span if.bind="required" class="required">x${required}</span>
       <span if.bind="count!=undefined">${count}</span>
     </div>
-    <div class="metas">
-      <span if.bind="metas.showEntity && hasEntity" class="entityIcon">M</span>
+    <div class="metas ${metas.showEntity && hasEntity && 'entityBorder'}">
       <span class="${metas.stalled && 'stalled'} fas fa-circle"></span>
     </div>
     <div if.bind="stalled" class="progressBarBase stalled"></div>

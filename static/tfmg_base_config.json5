@@ -8,6 +8,7 @@
             base: true,
             dataSet: 'tfmg_base_data.json',
             iconSet: "tfmg_base_data_icons.json",
+            languageSet: false,
             systemSet: "tfmg_base_systems.json",
             latestDates: {
                 dataSet: '2022-02-04',
@@ -22,6 +23,7 @@
             dataSet: 'tfmg_expanded_workshop.json',
             iconSet: "tfmg_expanded_workshop_icons.json",
             systemSet: "tfmg_expanded_workshop_systems.json",
+            languageSet: false,
             dependencies: ['TFMG_BASE_DATA'],
             latestDates: {
                 dataSet: false,
@@ -35,6 +37,7 @@
             name: "TFMG super assembler",
             dataSet: "tfmg_super_assembler.json",
             iconSet: "tfmg_super_assembler_icons.json",
+            languageSet: false,
             subscription: "SUPER_ASSEMBLER",
             dependencies: ["TFMG_BASE_DATA"],
             latestDates: {

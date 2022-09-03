@@ -26,6 +26,15 @@ icon-base {
     top: 4px;
   }
   & .metas {
+    &.entityBorder {
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: linear-gradient(25deg, transparent, crimson 20%, transparent 30%) border-box;
+      -webkit-mask: linear-gradient(white 0 0) padding-box, linear-gradient(white 0 0);
+      mask: linear-gradient(white 0 0) padding-box, linear-gradient(white 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
     & span.entityIcon {
       color: red;
       font-weight: bold;

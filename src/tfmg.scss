@@ -17,15 +17,18 @@ a.notLink {
   color: darkred;
 }
 .recipeDisabled {
-  filter: saturate(0.2);
-  border: 2px dashed red;
+  border: 2px dashed rgba(64, 0, 0, 0.6);
   border-radius: 8px;
-
+  & img.main {
+    filter: saturate(0.2);
+  }
 }
 .recipeEnabled {
-  filter: saturate(1.5);
   border: 2px dashed green;
   border-radius: 8px;
+  & img.main {
+    filter: saturate(1.5);
+  }
 }
 .fillable {
   border: 2px groove lightsteelblue;
